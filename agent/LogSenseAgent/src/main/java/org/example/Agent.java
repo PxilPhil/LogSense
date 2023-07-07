@@ -20,10 +20,12 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class Agent {
+    StatService statService;
     public void monitor() {
         SystemInfo systemInfo = new SystemInfo();
         HardwareAbstractionLayer hal = systemInfo.getHardware();
         OperatingSystem operatingSystem = systemInfo.getOperatingSystem();
+        this.statService = new StatService();
 
         while (true) {
             writeProcessDataToCsv(operatingSystem);
@@ -43,7 +45,11 @@ public class Agent {
         processData.add(processHeaders);
 
         long timestamp = Instant.now().toEpochMilli();
-        for (OSProcess process : operatingSystem.getProcesses()) {
+        List<OSProcess> osProcesses = operatingSystem.getProcesses();
+        statService.ingestData(timestamp, osProcesses);
+
+        //loop through to find anomalies
+        for (OSProcess process : osProcesses) {
             String[] record = {String.valueOf(timestamp), String.valueOf(process.getContextSwitches()), String.valueOf(process.getMajorFaults()), String.valueOf(process.getProcessID()), String.valueOf(process.getBitness()), String.valueOf(process.getBytesRead()), String.valueOf(process.getBytesWritten()), process.getCommandLine(), process.getCurrentWorkingDirectory(), String.valueOf(process.getKernelTime()), String.valueOf(process.getMinorFaults()), process.getName(), String.valueOf(process.getOpenFiles()), String.valueOf(process.getParentProcessID()), process.getPath(), String.valueOf(process.getResidentSetSize()), String.valueOf(process.getStartTime()), process.getState().toString(), String.valueOf(process.getThreadCount()), String.valueOf(process.getUpTime()), process.getUser(), String.valueOf(process.getUserTime()), String.valueOf(process.getVirtualSize())};
             processData.add(record);
         }
@@ -57,6 +63,7 @@ public class Agent {
             throw new RuntimeException(e);
         }
     }
+
 
     private void writeResourceDataToCsv(OperatingSystem operatingSystem, HardwareAbstractionLayer hal) {
         List<String[]> resourceData = new ArrayList<>();
