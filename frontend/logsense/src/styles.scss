@@ -1,0 +1,94 @@
+@import "bootstrap";
+
+//Colors
+$white: #fff;
+$black: #000;
+$off-black: #505050;
+$light-grey-1: #eaeaea; //hover-effects
+$light-grey-2: #dadada; //background
+$grey: #c2c2c2;
+$dark-grey: #707070;
+$cyan: #aff1f0;
+$blue: #2b26a8;
+
+//Fonts
+$font-family: "Arial";
+
+h1 {
+  font-family: $font-family;
+  font-size: 36px;
+  color: $off-black;
+}
+
+h2 {
+  font-family: $font-family;
+  font-size: 28px;
+  color: $dark-grey;
+}
+
+h3 {
+  font-family: $font-family;
+  font-size: 22px;
+  color: $dark-grey;
+}
+
+//Borders, Shadows, etc
+$shadow: 0 0 5px 0 rgba(0, 0, 0, 0.25);
+$border-1px: solid $black 1px;
+
+
+//UI
+.header {
+  position: fixed;
+  background-color: $white;
+  height: 64px;
+  width: 100%;
+  z-index: 1001;
+  top: 0;
+  left: 0;
+  box-shadow: $shadow;
+}
+
+.toolbar {
+  position: fixed;
+  background-color: $white;
+  width: 64px;
+  height: 100%;
+  z-index: 1000;
+  top: 0;
+  left: 0;
+  box-shadow: $shadow;
+}
+
+.anti-th {
+  margin: 64px 0 0 64px;
+}
+
+.white-box {
+  height: fit-content;
+  width: fit-content;
+  background-color: $white;
+  border: $border-1px;
+  padding: 16px;
+}
+
+.grey-box {
+  height: fit-content;
+  width: fit-content;
+  background-color: $light-grey-2;
+  border: none;
+  padding: 32px;
+  .title {
+    font-family: $font-family;
+    font-size: 24px;
+    color: $dark-grey;
+  }
+  .line {
+    border: solid $grey 2px;
+  }
+}
+
+.flex-center {
+  display: inline-flex;
+  align-items: center;
+}
