@@ -1,40 +1,22 @@
 <div class="anti-th">
-  <h1 class="mar-top-left-64">Overview</h1>
+  <h1 class="mar-left-64 mar-top-48">Overview</h1>
+  <mat-grid-list cols="12" [rowHeight]="rowHeight" [gutterSize]="'16px'" class="mar-left-64 mar-right-96 mar-top-48 mar-bot-64">
+    <mat-grid-tile
+      *ngFor="let tile of tiles"
+      [colspan]="tile.cols"
+      [rowspan]="tile.rows">
+      <div class="grey-box w-100 h-100">
+        <div class="flex-center w-100">
+          <div class="title">
+            {{tile.text}}
+          </div>
+          <div class="line"></div>
+        </div>
+      </div>
+    </mat-grid-tile>
+  </mat-grid-list>
 
-  <div class="container">
-    <div class="row">
-      <div class="col-sm">
-        <div class="grey-box">
-          <div class="flex-center">
-            <div class="title">
-              test
-            </div>
-            <div class="line"></div>
-          </div>
-        </div>
-      </div>
-      <div class="col-sm">
-        <div class="grey-box">
-          <div class="flex-center">
-            <div class="title">
-              test
-            </div>
-            <div class="line"></div>
-          </div>
-        </div>
-      </div>
-      <div class="col-sm">
-        <div class="grey-box">
-          <div class="flex-center">
-            <div class="title">
-              test
-            </div>
-            <div class="line"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+
 
 
 </div>
