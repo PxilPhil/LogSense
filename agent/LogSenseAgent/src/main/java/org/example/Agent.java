@@ -39,7 +39,7 @@ public class Agent {
         }
     }
 
-    private void writeProcessDataToCsv(OperatingSystem operatingSystem) {
+    private void writeProcessDataToCsv(OperatingSystem operatingSystem) { //TODO: deprecated once its moved to WritingService
         List<String[]> processData = new ArrayList<>();
         String[] processHeaders = {"timestamp", "contextSwitches", "majorFaults", "processID", "bitness", "bytesRead", "bytesWritten", "commandLine", "currentWorkingDirectory", "kernelTime", "minorFaults", "name", "openFiles", "parentProcessID", "path", "residentSetSize", "startTime", "state", "threadCount", "upTime", "user", "userTime", "virtualSize"};
         processData.add(processHeaders);
@@ -48,7 +48,6 @@ public class Agent {
         List<OSProcess> osProcesses = operatingSystem.getProcesses();
         statService.ingestData(timestamp, osProcesses);
 
-        //loop through to find anomalies
         for (OSProcess process : osProcesses) {
             String[] record = {String.valueOf(timestamp), String.valueOf(process.getContextSwitches()), String.valueOf(process.getMajorFaults()), String.valueOf(process.getProcessID()), String.valueOf(process.getBitness()), String.valueOf(process.getBytesRead()), String.valueOf(process.getBytesWritten()), process.getCommandLine(), process.getCurrentWorkingDirectory(), String.valueOf(process.getKernelTime()), String.valueOf(process.getMinorFaults()), process.getName(), String.valueOf(process.getOpenFiles()), String.valueOf(process.getParentProcessID()), process.getPath(), String.valueOf(process.getResidentSetSize()), String.valueOf(process.getStartTime()), process.getState().toString(), String.valueOf(process.getThreadCount()), String.valueOf(process.getUpTime()), process.getUser(), String.valueOf(process.getUserTime()), String.valueOf(process.getVirtualSize())};
             processData.add(record);

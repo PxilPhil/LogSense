@@ -1,90 +1,97 @@
 package org.example;
 
+import org.example.model.ProcessData;
 import oshi.software.os.OSProcess;
 
 import java.util.*;
 
 public class StatService {
     //private ArrayList<OSProcess> osProcessList=new ArrayList<>(); //only for processes for now
-    private Map<Long, List<OSProcess>> osProcessMap = new TreeMap<>();
-    private int counter = 0;
-    private int windowSize = 2; //window for average calculation
-    private double sens = 0.5; // how sensible the application should register anomalies (50% for now)
+    private Map<String, List<ProcessData>> processDataMap = new TreeMap<>();
+    private int dataAmount = 0;
+    private int timeDifference = 60; //performs operations every 10 seconds
+    private long lastTimestamp; //last timestamp of last request
+    private WritingService writingService = new WritingService();
+
     public StatService() {
 
     }
 
     public void ingestData(long timestamp, List<OSProcess> osProcesses) {
-        this.osProcessMap.put(timestamp, osProcesses);
-        counter++;
-        System.out.println(counter);
+        this.dataAmount++;
+        System.out.println(dataAmount);
 
-        if (counter%5==0) {
-            System.out.println("should calculate deltas now");
-            calculateDeltas();
-        }
-    }
-    public void calculateDeltas() {
-        long delta = 0;
-        long currentRamSize;
-        //long previousRamSize = osProcessList.get(0).getResidentSetSize();
-        double rollingMean = 0;
-        int index = 0;
-        Queue<Long> residentSizes = new LinkedList<>();
+        //this calculates statistical stuff every minute, however slight differences can occur
+        //problem: data is not always exactly minute
+        //solution: artificial delay, deal with it, split up data
 
-        for(Map.Entry<Long, List<OSProcess>> entry : this.osProcessMap.entrySet()) { //loop through map
+        //this.osProcessMap.put(timestamp, osProcesses);
+        this.processDataMap = performMerging(osProcesses);
 
-            ArrayList<OSProcess> osProcessList = (ArrayList<OSProcess>) entry.getValue();
-            long totalSum = 0;
-            for(int i=0; i<osProcessList.size(); i++) { //loop through all saved data for the timestamp
 
-                OSProcess osProcess = osProcessList.get(i);
-                currentRamSize = osProcess.getResidentSetSize();
-                totalSum+=currentRamSize;
-                //delta = currentRamSize - previousRamSize;
-                //previousRamSize=currentRamSize;
+        if (timestamp >= (lastTimestamp + this.timeDifference * 1000)) { //if X amount has passed since the last timeStamp
+            lastTimestamp = timestamp;
+            List<ProcessData> stats = calculateStats();
+            System.out.println("Stats for ");
+            //write into csv and view in console
+            for(ProcessData processData : stats) {
+                System.out.println(processData.getName()+" "+processData.getResidentSetSize());
             }
+            writingService.writeProcessDataToCsv(lastTimestamp, stats);
+            processDataMap.clear();
+        }
 
-            //the below part should be put into the above for loop if it should go per process and not overall
+    }
 
-            residentSizes.add(totalSum);
 
-            if (index>=windowSize-1) {
-                rollingMean = calculateRollingAVG(residentSizes);
-                System.out.println(residentSizes);
-                residentSizes.remove();
+    private Map<String, List<ProcessData>> performMerging(List<OSProcess> processList) { //merges processes into applications
+        //create map to assign and access values better, then turn that into a normal list
+        Map<String, ProcessData> osProcessMapTemp = new TreeMap<>();
+        for (OSProcess process : processList) {
+            String name = process.getName();
 
-                if (isAnomaly(totalSum, rollingMean)) {
-                    System.out.println("Anomaly detected");
-                }
+            ProcessData processData;
+            if (osProcessMapTemp.containsKey(name)) {
+                processData = osProcessMapTemp.get(name);
+            } else {
+                processData = new ProcessData();
             }
-
-
-            System.out.println("rollingMean "+rollingMean);
-            System.out.println("delta "+delta);
-            System.out.println("totalSum "+totalSum);
-            index++;
+            processData.setResidentSetSize(processData.getResidentSetSize()+process.getResidentSetSize());
+            osProcessMapTemp.put(name, processData);
         }
 
 
-        this.osProcessMap=new TreeMap<>(); //clear map
+        //insert into existing map
+        for(Map.Entry<String, ProcessData> current : osProcessMapTemp.entrySet()) {
+            List<ProcessData> processDataList;
+            String key = current.getKey();
+            if (processDataMap.containsKey(key)) { //if it contains key just get ProcessData
+                processDataList = processDataMap.get(key);
+            } else {
+                processDataList = new ArrayList<>();
+            }
+            processDataList.add(current.getValue());
+            processDataMap.put(key, processDataList);
+        }
+
+        return processDataMap;
     }
 
-    private boolean isAnomaly(long currentRamSize, double rollingMean) {
-        if (currentRamSize > rollingMean && currentRamSize/rollingMean > (1+sens)) {
-            return true;
-        } else if (currentRamSize < rollingMean && currentRamSize/rollingMean < sens) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+    private List<ProcessData> calculateStats() { //does statistical calculations on minutely data
+        this.dataAmount = 0;
+        List<ProcessData> processDataList = new ArrayList<>();
+        for(Map.Entry<String, List<ProcessData>> current : this.processDataMap.entrySet()) {
 
-    private double calculateRollingAVG(Queue<Long> residentSizes) {
-        long sum = 0;
-        for(Long curr : residentSizes) {
-            sum+=curr;
+            List<ProcessData> currentList = current.getValue();
+            long sum = 0;
+            for(ProcessData curr : currentList) {
+                sum += curr.getResidentSetSize();
+            }
+            ProcessData processData = new ProcessData();
+            processData.setName(current.getKey());
+            processData.setResidentSetSize(sum/currentList.size());
+            processDataList.add(processData);
         }
-        return ((double) sum /windowSize);
+        return processDataList;
     }
 }
