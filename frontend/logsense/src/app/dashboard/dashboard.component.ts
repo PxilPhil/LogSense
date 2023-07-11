@@ -12,9 +12,11 @@ export interface Tile {
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
+
   rowHeight: number = 64;
   gutterSize: number = 16;
   constructor() { }
+
   tiles: Tile[] = [
     {text: 'Host-Information', cols: 4, rows: 3, color: 'lightblue'},
     {text: 'Two', cols: 2, rows: 2, color: 'lightgreen'},
