@@ -1,0 +1,8 @@
+--DROP Table pc_measurements;
+--CREATE TABLE pc_measurements (
+--    measurement_time TIMESTAMP NOT NULL,
+--    user_id bigserial,
+--    measurement_value FLOAT
+--);
+--SELECT create_hypertable('pc_measurements', 'measurement_time');
+--SELECT create_hypertable('pc_measurements', 'measurement_time', chunk_time_interval => INTERVAL '1 day');
