@@ -25,7 +25,7 @@ public class Agent {
         SystemInfo systemInfo = new SystemInfo();
         HardwareAbstractionLayer hal = systemInfo.getHardware();
         OperatingSystem operatingSystem = systemInfo.getOperatingSystem();
-        this.statService = new StatService();
+        operatingSystem.getSystemUptime();
 
         while (true) {
             writeProcessDataToCsv(operatingSystem);
