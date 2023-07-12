@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84.4 63.12">
-  <rect x="14.83" y=".5" width="54.4" height="32.68" rx="2.72" ry="2.72" style="fill: #fff; stroke: #231f20; stroke-miterlimit: 10;"/>
+  <rect x="14.83" y=".5" width="54.4" height="32.68" rx="2.72" ry="2.72" style="fill: none; stroke: #231f20; stroke-miterlimit: 10;"/>
   <circle cx="24.36" cy="24.87" r="1.7" style="fill: none; stroke: #231f20; stroke-miterlimit: 10; stroke-width: .8px;"/>
   <circle cx="35.74" cy="14.16" r="1.7" style="fill: none; stroke: #231f20; stroke-miterlimit: 10; stroke-width: .8px;"/>
   <circle cx="50.32" cy="18.54" r="1.7" style="fill: none; stroke: #231f20; stroke-miterlimit: 10; stroke-width: .8px;"/>

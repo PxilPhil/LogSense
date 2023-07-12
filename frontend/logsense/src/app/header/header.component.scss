@@ -1,1 +1,11 @@
 @import "../../styles.scss";
+
+.logo {
+  height: 52px;
+}
+
+.logo-alignment {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+}

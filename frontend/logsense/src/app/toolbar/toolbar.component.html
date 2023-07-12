@@ -1,1 +1,21 @@
-<div class="toolbar"></div>
+<router-outlet></router-outlet>
+<div class="toolbar" *ngIf="showBar">
+  <div routerLink="main" class="div-32 mar-top-32">
+    <mat-icon class="icon-32 icon">home</mat-icon>
+  </div>
+  <div routerLink="processes" class="div-32 mar-top-32">
+    <mat-icon class="icon-32 icon">timeline</mat-icon>
+  </div>
+  <div routerLink="cpu" class="div-32 mar-top-32">
+    <mat-icon class="icon-32 icon">memory</mat-icon>
+  </div>
+  <div routerLink="ram" class="div-32 mar-top-32">
+    <mat-icon class="icon-32 icon">storage</mat-icon>
+  </div>
+  <div routerLink="disk" class="div-32 mar-top-32">
+    <mat-icon class="icon-32 icon">data_usage</mat-icon>
+  </div>
+  <div routerLink="network" class="div-32 mar-top-32">
+    <mat-icon class="icon-32 icon">language</mat-icon>
+  </div>
+</div>

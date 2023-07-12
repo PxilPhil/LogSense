@@ -17,6 +17,10 @@ import { CpuComponent } from './cpu/cpu.component';
 import { RamComponent } from './ram/ram.component';
 import { DiskComponent } from './disk/disk.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import {MatIconModule} from "@angular/material/icon";
+import { NetworkComponent } from './network/network.component';
+import { LoginComponent } from './login/login.component';
+
 
 
 
@@ -34,13 +38,16 @@ import { DashboardComponent } from './dashboard/dashboard.component';
     CpuComponent,
     RamComponent,
     DiskComponent,
-    DashboardComponent
+    DashboardComponent,
+    NetworkComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
-    MatGridListModule
+    MatGridListModule,
+    MatIconModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,4 +1,9 @@
 <router-outlet></router-outlet>
-<div class="header">
-
+<div class="header" *ngIf="showHeader">
+  <div class="mar-left-96 h-100 logo-alignment">
+    <img src="./assets/LogSenseLogo.svg" class="logo">
+  </div>
+  <div routerLink="login" class="mar-right-32 h-100 logo-alignment">
+    <mat-icon class="div-32 icon-32 icon">account_circle</mat-icon>
+  </div>
 </div>
