@@ -38,8 +38,8 @@ public class ApplicationData {
     private String userID;
     private int userTime;
     private int virtualSize;
-    private long cpuUsage;
-    private Map<Integer, Long> containedProcessesMap = new HashMap<>(); //saves all contained processes, if a new processes is added or one is removed, processCounter should be changed
+    private double cpuUsage;
+    private Map<Integer, Double> containedProcessesMap = new HashMap<>(); //saves all contained processes, if a new processes is added or one is removed, processCounter should be changed
     private int processCounter;
     private long timestamp;
 
@@ -316,11 +316,11 @@ public class ApplicationData {
         return processCounter;
     }
 
-    public long getCpuUsage() {
+    public double getCpuUsage() {
         return cpuUsage;
     }
 
-    public void setCpuUsage(long cpuUsage) {
+    public void setCpuUsage(double cpuUsage) {
         this.cpuUsage = cpuUsage;
     }
 
@@ -340,18 +340,22 @@ public class ApplicationData {
         return timestamp;
     }
 
-    public void addProcess(int processID, long cpuUsage) {
+    public void addProcess(int processID, double cpuUsage) {
+        System.out.println("adding process");
+        System.out.println(cpuUsage);
         this.containedProcessesMap.put(processID, cpuUsage);
     }
 
-    public long getProcessValueByID(int processID) {
+    public double getProcessValueByID(int processID) {
         if (this.containedProcessesMap.containsKey(processID)) {
             return containedProcessesMap.get(processID);
         }
         return 0;
     }
 
-    public Map<Integer, Long> getContainedProcessesMap() {
+
+
+    public Map<Integer, Double> getContainedProcessesMap() {
         return containedProcessesMap;
     }
 
@@ -379,6 +383,6 @@ public class ApplicationData {
         this.contextSwitches=contextSwitches/amount;
         this.upTime=upTime/amount;
         this.userTime=userTime/amount;
+        this.cpuUsage=cpuUsage/amount;
     }
-    //set running, bitness, working directory manually
 }

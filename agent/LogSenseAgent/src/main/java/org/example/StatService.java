@@ -66,6 +66,7 @@ public class StatService {
                 applicationData.addProcess(process.getProcessID(), calculateCPUUsage(process, 0));
             }
             applicationData.setTimestamp(timestamp);
+
             applicationData.mergeData(process.getResidentSetSize(), process.getBytesRead(), process.getBytesWritten(), process.getKernelTime(), process.getMajorFaults(), process.getMinorFaults(), process.getThreadCount(), process.getContextSwitches(), process.getUpTime(), process.getUserTime());
             osProcessMapTemp.put(name, applicationData);
         }
@@ -87,9 +88,13 @@ public class StatService {
         return processDataMap;
     }
 
-    private long calculateCPUUsage(OSProcess osProcess, long prev) { //calculates cpu usage per proces
-        long timeDiff = (osProcess.getKernelTime()+osProcess.getUserTime()) - prev;
-        return (100 * (timeDiff/osProcess.getUpTime()));
+    private double calculateCPUUsage(OSProcess osProcess, double prev) { //calculates cpu usage per proces
+        System.out.println("calculateCPUUsage");
+        double timeDiff = (osProcess.getKernelTime()+osProcess.getUserTime()) - prev;
+        System.out.println(timeDiff);
+        double cpuUsage = (100 * (timeDiff/osProcess.getUpTime()));
+        System.out.println(cpuUsage);
+        return cpuUsage;
     }
 
     private int compareProcessesAmount(List<ApplicationData> applicationDataList) {
@@ -102,6 +107,16 @@ public class StatService {
         return lastAppData.getContainedProcessesMap().size() - firstAppData.getContainedProcessesMap().size();
     }
 
+    private double calcTotalCPUUsage(Map<Integer, Double> processes) {
+        double sum = 0;
+        for (Map.Entry<Integer, Double> current : processes.entrySet()) {
+            sum+=current.getValue();
+            System.out.println("sum");
+            System.out.println(sum);
+        }
+        return sum;
+    }
+
 
 
 
@@ -112,16 +127,17 @@ public class StatService {
             List<ApplicationData> currentList = current.getValue();
             ApplicationData sumProcess = new ApplicationData();
             for(ApplicationData process : currentList) {
+                sumProcess.setCpuUsage(calcTotalCPUUsage(process.getContainedProcessesMap()));
                 sumProcess.mergeData(process.getResidentSetSize(), process.getBytesRead(), process.getBytesWritten(), process.getKernelTime(), process.getMajorFaults(), process.getMinorFaults(), process.getThreadCount(), process.getContextSwitches(), process.getUpTime(), process.getUserTime()); //put cpu here
             }
             System.out.println("Application Amount List");
             System.out.println(currentList.size());
             System.out.println(dataAmount);
-            if (currentList.size() < dataAmount && currentList.get(currentList.size()-1).getTimestamp()<timestamp) { //indicates that a application was closed during measuring
+            if (currentList.size() < dataAmount && currentList.get(currentList.size()-1).getTimestamp()<timestamp) { //indicates that an application was closed during measuring
                 //save by number value or string, you could compare first and last or loop through everything
                 System.out.println("SOMETHING WAS CLOSED");
                 sumProcess.setState("STOPPED");
-            } else if (currentList.size() < dataAmount && currentList.get(currentList.size()-1).getTimestamp()==timestamp) { //indicates that a application was opened during measuring
+            } else if (currentList.size() < dataAmount && currentList.get(currentList.size()-1).getTimestamp()==timestamp) { //indicates that an application was opened during measuring
                 System.out.println("SOMETHING WAS OPENED");
                 sumProcess.setState("STARTED");
             }
