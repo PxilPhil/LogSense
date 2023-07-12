@@ -20,7 +20,7 @@ public class ProcessData {
     private String group;
     private String groupID;
     private int hardOpenFileLimit;
-    private int kernelTime;
+    private long kernelTime;
     private int minorFaults;
     private String name;
     private int openFiles;
@@ -103,7 +103,7 @@ public class ProcessData {
         return hardOpenFileLimit;
     }
 
-    public int getKernelTime() {
+    public long getKernelTime() {
         return kernelTime;
     }
 
@@ -307,4 +307,32 @@ public class ProcessData {
     public void setVirtualSize(int virtualSize) {
         this.virtualSize = virtualSize;
     }
+
+    public void mergeData(long residentSetSize, long bytesRead, long bytesWritten, long kernelTime, long majorFaults, long minorFaults, long threadCount, long contextSwitches, long upTime, long userTime) {
+        this.residentSetSize+=residentSetSize;
+        this.bytesRead+=bytesRead;
+        this.bytesWritten+=bytesWritten;
+        this.kernelTime+=kernelTime;
+        this.majorFaults+=majorFaults;
+        this.minorFaults+=minorFaults;
+        this.threadCount+=threadCount;
+        this.contextSwitches+=contextSwitches;
+        this.upTime+=upTime;
+        this.userTime+=userTime;
+    }
+
+    public void calculateAverage(int amount) {
+        this.residentSetSize=residentSetSize/amount;
+        this.bytesRead=bytesRead/amount;
+        this.bytesWritten=bytesWritten/amount;
+        this.kernelTime=kernelTime/amount;
+        this.majorFaults=majorFaults/amount;
+        this.minorFaults=minorFaults/amount;
+        this.threadCount=threadCount/amount;
+        this.contextSwitches=contextSwitches/amount;
+        this.upTime=upTime/amount;
+        this.userTime=userTime/amount;
+    }
+
+    //set running, bitness, working directory manually
 }

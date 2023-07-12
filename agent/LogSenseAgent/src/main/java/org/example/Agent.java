@@ -32,7 +32,7 @@ public class Agent {
             writeResourceDataToCsv(operatingSystem, hal);
             writeIpConnectionsToCsv(operatingSystem);
             try {
-                TimeUnit.SECONDS.sleep(1);
+                TimeUnit.SECONDS.sleep(10);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
@@ -40,27 +40,9 @@ public class Agent {
     }
 
     private void writeProcessDataToCsv(OperatingSystem operatingSystem) { //TODO: deprecated once its moved to WritingService
-        List<String[]> processData = new ArrayList<>();
-        String[] processHeaders = {"timestamp", "contextSwitches", "majorFaults", "processID", "bitness", "bytesRead", "bytesWritten", "commandLine", "currentWorkingDirectory", "kernelTime", "minorFaults", "name", "openFiles", "parentProcessID", "path", "residentSetSize", "startTime", "state", "threadCount", "upTime", "user", "userTime", "virtualSize"};
-        processData.add(processHeaders);
-
         long timestamp = Instant.now().toEpochMilli();
         List<OSProcess> osProcesses = operatingSystem.getProcesses();
         statService.ingestData(timestamp, osProcesses);
-
-        for (OSProcess process : osProcesses) {
-            String[] record = {String.valueOf(timestamp), String.valueOf(process.getContextSwitches()), String.valueOf(process.getMajorFaults()), String.valueOf(process.getProcessID()), String.valueOf(process.getBitness()), String.valueOf(process.getBytesRead()), String.valueOf(process.getBytesWritten()), process.getCommandLine(), process.getCurrentWorkingDirectory(), String.valueOf(process.getKernelTime()), String.valueOf(process.getMinorFaults()), process.getName(), String.valueOf(process.getOpenFiles()), String.valueOf(process.getParentProcessID()), process.getPath(), String.valueOf(process.getResidentSetSize()), String.valueOf(process.getStartTime()), process.getState().toString(), String.valueOf(process.getThreadCount()), String.valueOf(process.getUpTime()), process.getUser(), String.valueOf(process.getUserTime()), String.valueOf(process.getVirtualSize())};
-            processData.add(record);
-        }
-
-        try {
-            CSVWriter writer = new CSVWriter(new FileWriter("C:\\test\\process_" + timestamp + ".csv"));
-            writer.writeAll(processData);
-            writer.flush();
-            writer.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
 

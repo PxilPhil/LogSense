@@ -17,6 +17,30 @@ public class StatService {
 
     }
 
+    /*
+    private void writeProcessDataToCsv(OperatingSystem operatingSystem) {
+        List<String[]> processData = new ArrayList<>();
+        String[] processHeaders = {"timestamp", "contextSwitches", "majorFaults", "processID", "bitness", "bytesRead", "bytesWritten", "commandLine", "currentWorkingDirectory", "kernelTime", "minorFaults", "name", "openFiles", "parentProcessID", "path", "residentSetSize", "startTime", "state", "threadCount", "upTime", "user", "userTime", "virtualSize"};
+        processData.add(processHeaders);
+
+        long timestamp = Instant.now().toEpochMilli();
+        for (OSProcess process : operatingSystem.getProcesses()) {
+            String[] record = {String.valueOf(timestamp), String.valueOf(process.getContextSwitches()), String.valueOf(process.getMajorFaults()), String.valueOf(process.getProcessID()), String.valueOf(process.getBitness()), String.valueOf(process.getBytesRead()), String.valueOf(process.getBytesWritten()), process.getCommandLine(), process.getCurrentWorkingDirectory(), String.valueOf(process.getKernelTime()), String.valueOf(process.getMinorFaults()), process.getName(), String.valueOf(process.getOpenFiles()), String.valueOf(process.getParentProcessID()), process.getPath(), String.valueOf(process.getResidentSetSize()), String.valueOf(process.getStartTime()), process.getState().toString(), String.valueOf(process.getThreadCount()), String.valueOf(process.getUpTime()), process.getUser(), String.valueOf(process.getUserTime()), String.valueOf(process.getVirtualSize())};
+            processData.add(record);
+        }
+
+        try {
+            CSVWriter writer = new CSVWriter(new FileWriter("C:\\test\\process_" + timestamp + ".csv"));
+            writer.writeAll(processData);
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+     */
+
     public void ingestData(long timestamp, List<OSProcess> osProcesses) {
         this.dataAmount++;
         System.out.println(dataAmount);
@@ -32,11 +56,7 @@ public class StatService {
         if (timestamp >= (lastTimestamp + this.timeDifference * 1000)) { //if X amount has passed since the last timeStamp
             lastTimestamp = timestamp;
             List<ProcessData> stats = calculateStats();
-            System.out.println("Stats for ");
             //write into csv and view in console
-            for(ProcessData processData : stats) {
-                System.out.println(processData.getName()+" "+processData.getResidentSetSize());
-            }
             writingService.writeProcessDataToCsv(lastTimestamp, stats);
             processDataMap.clear();
         }
@@ -55,8 +75,11 @@ public class StatService {
                 processData = osProcessMapTemp.get(name);
             } else {
                 processData = new ProcessData();
+                processData.setUser(process.getUser());
+                processData.setPath(process.getPath());
+
             }
-            processData.setResidentSetSize(processData.getResidentSetSize()+process.getResidentSetSize());
+            processData.mergeData(process.getResidentSetSize(), process.getBytesRead(), process.getBytesWritten(), process.getKernelTime(), process.getMajorFaults(), process.getMinorFaults(), process.getThreadCount(), process.getContextSwitches(), process.getUpTime(), process.getUserTime());
             osProcessMapTemp.put(name, processData);
         }
 
@@ -77,21 +100,23 @@ public class StatService {
         return processDataMap;
     }
 
-    private List<ProcessData> calculateStats() { //does statistical calculations on minutely data
+    private List<ProcessData> calculateStats() { //does statistical calculations on minutely data (keep in mind that everything not transfered here will be lost)
         this.dataAmount = 0;
         List<ProcessData> processDataList = new ArrayList<>();
         for(Map.Entry<String, List<ProcessData>> current : this.processDataMap.entrySet()) {
 
             List<ProcessData> currentList = current.getValue();
-            long sum = 0;
-            for(ProcessData curr : currentList) {
-                sum += curr.getResidentSetSize();
+            ProcessData sumProcess = new ProcessData();
+            for(ProcessData process : currentList) {
+                sumProcess.mergeData(process.getResidentSetSize(), process.getBytesRead(), process.getBytesWritten(), process.getKernelTime(), process.getMajorFaults(), process.getMinorFaults(), process.getThreadCount(), process.getContextSwitches(), process.getUpTime(), process.getUserTime());
             }
-            ProcessData processData = new ProcessData();
-            processData.setName(current.getKey());
-            processData.setResidentSetSize(sum/currentList.size());
-            processDataList.add(processData);
+            sumProcess.setName(current.getKey());
+            sumProcess.setPath(currentList.get(0).getPath());
+            sumProcess.setUser(currentList.get(0).getUser());
+            sumProcess.calculateAverage(currentList.size());
+            processDataList.add(sumProcess);
         }
         return processDataList;
     }
+
 }
