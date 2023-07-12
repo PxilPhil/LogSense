@@ -1,11 +1,10 @@
 package org.example.model;
 
-import org.example.model.ThreadData;
-
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-public class ProcessData {
+public class ApplicationData {
     private int contextSwitches;
     private int majorFaults;
     private double processCpuLoadCumulative;
@@ -40,10 +39,11 @@ public class ProcessData {
     private int userTime;
     private int virtualSize;
     private long cpuUsage;
-    private List<String> containedProcesses; //saves all contained processes, if a new processes is added or one is removed, another attribute should be changed
+    private Map<Integer, Long> containedProcessesMap = new HashMap<>(); //saves all contained processes, if a new processes is added or one is removed, processCounter should be changed
     private int processCounter;
+    private long timestamp;
 
-    public ProcessData() {
+    public ApplicationData() {
     }
 
     // Getters
@@ -310,6 +310,49 @@ public class ProcessData {
 
     public void setVirtualSize(int virtualSize) {
         this.virtualSize = virtualSize;
+    }
+
+    public int getProcessCounter() {
+        return processCounter;
+    }
+
+    public long getCpuUsage() {
+        return cpuUsage;
+    }
+
+    public void setCpuUsage(long cpuUsage) {
+        this.cpuUsage = cpuUsage;
+    }
+
+    public void setKernelTime(long kernelTime) {
+        this.kernelTime = kernelTime;
+    }
+
+    public void setProcessCounter(int processCounter) {
+        this.processCounter = processCounter;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void addProcess(int processID, long cpuUsage) {
+        this.containedProcessesMap.put(processID, cpuUsage);
+    }
+
+    public long getProcessValueByID(int processID) {
+        if (this.containedProcessesMap.containsKey(processID)) {
+            return containedProcessesMap.get(processID);
+        }
+        return 0;
+    }
+
+    public Map<Integer, Long> getContainedProcessesMap() {
+        return containedProcessesMap;
     }
 
     public void mergeData(long residentSetSize, long bytesRead, long bytesWritten, long kernelTime, long majorFaults, long minorFaults, long threadCount, long contextSwitches, long upTime, long userTime) {
