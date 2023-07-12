@@ -140,6 +140,8 @@ public class StatService {
             } else if (currentList.size() < dataAmount && currentList.get(currentList.size()-1).getTimestamp()==timestamp) { //indicates that an application was opened during measuring
                 System.out.println("SOMETHING WAS OPENED");
                 sumProcess.setState("STARTED");
+            } else {
+                sumProcess.setState("RUNNING");
             }
             sumProcess.setName(current.getKey());
             sumProcess.setPath(currentList.get(0).getPath());

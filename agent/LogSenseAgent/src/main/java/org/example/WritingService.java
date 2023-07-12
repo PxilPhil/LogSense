@@ -13,12 +13,12 @@ public class WritingService { //this class is used to write csv files from other
         //unknown if upTime is working that well
         System.out.println("writeProcessDataToCsv");
         List<String[]> processDataString = new ArrayList<>();
-        String[] processHeaders = {"timestamp", "contextSwitches", "majorFaults", "bytesRead", "bytesWritten", "kernelTime", "minorFaults", "name", "path", "residentSetSize", "upTime", "user", "userTime", "eventHeader", "cpu"};
+        String[] processHeaders = {"timestamp", "contextSwitches", "majorFaults", "bytesRead", "bytesWritten", "kernelTime", "minorFaults", "name", "path", "residentSetSize", "upTime", "user", "userTime", "eventHeader", "cpu", "state"};
         processDataString.add(processHeaders);
 
 
         for (ApplicationData process : applicationData) {
-            String[] record = {String.valueOf(timestamp), String.valueOf(process.getContextSwitches()), String.valueOf(process.getMajorFaults()), String.valueOf(process.getBytesRead()), String.valueOf(process.getBytesWritten()), String.valueOf(process.getKernelTime()), String.valueOf(process.getMinorFaults()), process.getName(), process.getPath(), String.valueOf(process.getResidentSetSize()), String.valueOf(process.getUpTime()), process.getUser(), String.valueOf(process.getUserTime()), String.valueOf(process.getProcessCounter()), String.valueOf(process.getCpuUsage())};
+            String[] record = {String.valueOf(timestamp), String.valueOf(process.getContextSwitches()), String.valueOf(process.getMajorFaults()), String.valueOf(process.getBytesRead()), String.valueOf(process.getBytesWritten()), String.valueOf(process.getKernelTime()), String.valueOf(process.getMinorFaults()), process.getName(), process.getPath(), String.valueOf(process.getResidentSetSize()), String.valueOf(process.getUpTime()), process.getUser(), String.valueOf(process.getUserTime()), String.valueOf(process.getProcessCounter()), String.valueOf(process.getCpuUsage()), process.getState()};
             processDataString.add(record);
         }
 
