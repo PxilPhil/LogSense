@@ -9,37 +9,13 @@ public class StatService {
     //private ArrayList<OSProcess> osProcessList=new ArrayList<>(); //only for processes for now
     private Map<String, List<ProcessData>> processDataMap = new TreeMap<>();
     private int dataAmount = 0;
-    private int timeDifference = 60; //performs operations every 10 seconds
+    private int timeDifference = 60; //performs operations every 60 seconds
     private long lastTimestamp; //last timestamp of last request
     private WritingService writingService = new WritingService();
 
     public StatService() {
 
     }
-
-    /*
-    private void writeProcessDataToCsv(OperatingSystem operatingSystem) {
-        List<String[]> processData = new ArrayList<>();
-        String[] processHeaders = {"timestamp", "contextSwitches", "majorFaults", "processID", "bitness", "bytesRead", "bytesWritten", "commandLine", "currentWorkingDirectory", "kernelTime", "minorFaults", "name", "openFiles", "parentProcessID", "path", "residentSetSize", "startTime", "state", "threadCount", "upTime", "user", "userTime", "virtualSize"};
-        processData.add(processHeaders);
-
-        long timestamp = Instant.now().toEpochMilli();
-        for (OSProcess process : operatingSystem.getProcesses()) {
-            String[] record = {String.valueOf(timestamp), String.valueOf(process.getContextSwitches()), String.valueOf(process.getMajorFaults()), String.valueOf(process.getProcessID()), String.valueOf(process.getBitness()), String.valueOf(process.getBytesRead()), String.valueOf(process.getBytesWritten()), process.getCommandLine(), process.getCurrentWorkingDirectory(), String.valueOf(process.getKernelTime()), String.valueOf(process.getMinorFaults()), process.getName(), String.valueOf(process.getOpenFiles()), String.valueOf(process.getParentProcessID()), process.getPath(), String.valueOf(process.getResidentSetSize()), String.valueOf(process.getStartTime()), process.getState().toString(), String.valueOf(process.getThreadCount()), String.valueOf(process.getUpTime()), process.getUser(), String.valueOf(process.getUserTime()), String.valueOf(process.getVirtualSize())};
-            processData.add(record);
-        }
-
-        try {
-            CSVWriter writer = new CSVWriter(new FileWriter("C:\\test\\process_" + timestamp + ".csv"));
-            writer.writeAll(processData);
-            writer.flush();
-            writer.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-     */
 
     public void ingestData(long timestamp, List<OSProcess> osProcesses) {
         this.dataAmount++;
@@ -100,6 +76,11 @@ public class StatService {
         return processDataMap;
     }
 
+    private long calculateCPUUsage(OSProcess osProcess, long prev) { //calculates cpu usage per proces
+        long timeDiff = (osProcess.getKernelTime()+osProcess.getUserTime()) - prev;
+        return (100 * (timeDiff/osProcess.getUpTime()));
+    }
+
     private List<ProcessData> calculateStats() { //does statistical calculations on minutely data (keep in mind that everything not transfered here will be lost)
         this.dataAmount = 0;
         List<ProcessData> processDataList = new ArrayList<>();
@@ -118,5 +99,7 @@ public class StatService {
         }
         return processDataList;
     }
+
+
 
 }

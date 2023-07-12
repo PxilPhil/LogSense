@@ -3,6 +3,7 @@ package org.example.model;
 import org.example.model.ThreadData;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ProcessData {
     private int contextSwitches;
@@ -38,6 +39,9 @@ public class ProcessData {
     private String userID;
     private int userTime;
     private int virtualSize;
+    private long cpuUsage;
+    private List<String> containedProcesses; //saves all contained processes, if a new processes is added or one is removed, another attribute should be changed
+    private int processCounter;
 
     public ProcessData() {
     }
@@ -333,6 +337,5 @@ public class ProcessData {
         this.upTime=upTime/amount;
         this.userTime=userTime/amount;
     }
-
     //set running, bitness, working directory manually
 }
