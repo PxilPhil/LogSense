@@ -54,20 +54,28 @@ h1 {
   font-family: $font-family;
   font-size: 36px;
   color: $off-black;
+  margin: 0;
 }
 
 h2 {
   font-family: $font-family;
   font-size: 28px;
   color: $dark-grey-2;
+  margin: 0;
 }
 
 h3 {
   font-family: $font-family;
   font-size: 22px;
   color: $dark-grey-2;
+  margin: 0;
 }
 
+.txt-16 {
+  font-family: $font-family;
+  font-size: 16px;
+  color: $dark-grey-2;
+}
 //Borders, Shadows, etc
 $shadow: 0 0 5px 0 rgba(0, 0, 0, 0.25);
 $border-1px: solid $black 1px;
@@ -119,6 +127,12 @@ $border-1px: solid $black 1px;
   display: inline-flex;
   align-items: center;
 }
+
+.space-base {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
 //Icons
 .icon {
   color: $black;
@@ -131,6 +145,12 @@ $border-1px: solid $black 1px;
 }
 .icon-32 {
   font-size: 32px;
+}
+.info-icon:hover {
+  color: $dark-grey-1;
+}
+.info-icon {
+  color: $grey;
 }
 //Width, Height
 .w-100 {
@@ -179,6 +199,9 @@ $border-1px: solid $black 1px;
 }
 .mar-bot-32 {
   margin-bottom: 32px;
+}
+.mar-left-12 {
+  margin-left: 12px;
 }
 .mar-16 {
   margin: 16px;
