@@ -27,7 +27,7 @@ public class CSVDataConverter implements DataConverter {
             csv.append(application.getUserTime()).append(",");
             csv.append(application.getProcessCounter()).append(",");
             csv.append(application.getCpuUsage()).append(",");
-            csv.append(application.getState()).append(",");
+            csv.append(application.getState());
         }
         return csv.toString();
     }

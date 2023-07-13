@@ -51,7 +51,10 @@ public class Agent {
         long timestamp = Instant.now().toEpochMilli();
         List<OSProcess> osProcesses = this.monitor.getProcesses();
         List<ApplicationData> evaluatedApplicationData = this.statService.ingestData(timestamp, osProcesses);
-        String csv = this.csvDataConverter.convertApplicationData(timestamp, evaluatedApplicationData);
+        if (evaluatedApplicationData != null) {
+            String csv = this.csvDataConverter.convertApplicationData(timestamp, evaluatedApplicationData);
+            System.out.println(csv);
+        }
     }
 
     private void writeResourceDataToCsv(OperatingSystem operatingSystem, HardwareAbstractionLayer hal) {
