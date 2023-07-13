@@ -62,39 +62,11 @@
       <workItem from="1688979945116" duration="14406000" />
       <workItem from="1689059525455" duration="8300000" />
       <workItem from="1689146300117" duration="20269000" />
+      <workItem from="1689233986647" duration="12000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-method">
-          <url>file://$PROJECT_DIR$/src/main/java/org/example/model/ApplicationData.java</url>
-          <line>336</line>
-          <properties class="org.example.model.ApplicationData">
-            <option name="EMULATED" value="true" />
-            <option name="WATCH_EXIT" value="false" />
-          </properties>
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-method">
-          <url>file://$PROJECT_DIR$/src/main/java/org/example/model/ApplicationData.java</url>
-          <line>348</line>
-          <properties class="org.example.model.ApplicationData" method="getProcessValueByID">
-            <option name="EMULATED" value="true" />
-            <option name="WATCH_EXIT" value="false" />
-          </properties>
-          <option name="timeStamp" value="6" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/org/example/StatService.java</url>
-          <line>60</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
