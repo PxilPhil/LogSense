@@ -1,6 +1,10 @@
-package org.example;
+package org.example.controller;
 
 import com.opencsv.CSVWriter;
+import org.example.analysis.StatService;
+import org.example.converter.CSVDataConverter;
+import org.example.model.ApplicationData;
+import org.example.monitor.Monitor;
 import oshi.SystemInfo;
 import oshi.hardware.*;
 import oshi.software.os.InternetProtocolStats;
@@ -20,17 +24,21 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class Agent {
-    StatService statService = new StatService();
-    public void monitor() {
-        SystemInfo systemInfo = new SystemInfo();
-        HardwareAbstractionLayer hal = systemInfo.getHardware();
-        OperatingSystem operatingSystem = systemInfo.getOperatingSystem();
-        operatingSystem.getSystemUptime();
+    private Monitor monitor;
+    private StatService statService;
+    private CSVDataConverter csvDataConverter;
 
+    public Agent() {
+        this.statService = new StatService();
+        this.monitor = new Monitor();
+        this.csvDataConverter = new CSVDataConverter();
+    }
+
+    public void monitor() {
         while (true) {
-            writeProcessDataToCsv(operatingSystem);
-            writeResourceDataToCsv(operatingSystem, hal);
-            writeIpConnectionsToCsv(operatingSystem);
+            monitorApplications();
+            writeResourceDataToCsv(new SystemInfo().getOperatingSystem(), new SystemInfo().getHardware());
+            writeIpConnectionsToCsv(new SystemInfo().getOperatingSystem());
             try {
                 TimeUnit.SECONDS.sleep(10);
             } catch (InterruptedException e) {
@@ -39,12 +47,12 @@ public class Agent {
         }
     }
 
-    private void writeProcessDataToCsv(OperatingSystem operatingSystem) { //TODO: deprecated once its moved to WritingService
+    private void monitorApplications() {
         long timestamp = Instant.now().toEpochMilli();
-        List<OSProcess> osProcesses = operatingSystem.getProcesses();
-        statService.ingestData(timestamp, osProcesses);
+        List<OSProcess> osProcesses = this.monitor.getProcesses();
+        List<ApplicationData> evaluatedApplicationData = this.statService.ingestData(timestamp, osProcesses);
+        String csv = this.csvDataConverter.convertApplicationData(timestamp, evaluatedApplicationData);
     }
-
 
     private void writeResourceDataToCsv(OperatingSystem operatingSystem, HardwareAbstractionLayer hal) {
         List<String[]> resourceData = new ArrayList<>();
