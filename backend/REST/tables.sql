@@ -1,5 +1,5 @@
 --DROP Table pc_measurements;
---CREATE TABLE pc_measurements (
+--CREATE TABLE IF NOT EXISTS pc_measurements (
 --    measurement_time TIMESTAMP NOT NULL,
 --    user_id bigserial,
 --    measurement_value FLOAT

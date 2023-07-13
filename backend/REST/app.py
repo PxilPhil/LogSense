@@ -1,9 +1,6 @@
-import time
-
 from flask import Flask, request, jsonify
 import psycopg2
-import random
-from datetime import datetime
+from psycopg2 import extras
 import configparser
 import logging
 

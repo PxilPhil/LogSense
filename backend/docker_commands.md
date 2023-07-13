@@ -6,7 +6,7 @@
 netstat -ano | findstr :5432
 ```
 
-> use taskmanager to stop process
+=> use taskmanager to stop process
 
 ---
 
@@ -44,6 +44,6 @@ connect to database to test if it works propperly
 
 ---
 
-## if things changed:
+## If things changed:
 
 If you have changed port,host, name of the database, want to use another user or the password it is possible to change these things in the `config.ini` file.
