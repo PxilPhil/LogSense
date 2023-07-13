@@ -8,8 +8,8 @@ public class ApplicationData {
     private int majorFaults;
     private int processID;
     private int bitness;
-    private int bytesRead;
-    private int bytesWritten;
+    private long bytesRead;
+    private long bytesWritten;
     private String commandLine;
     private String currentWorkingDirectory;
     private long kernelTime;
@@ -50,11 +50,11 @@ public class ApplicationData {
         return bitness;
     }
 
-    public int getBytesRead() {
+    public long getBytesRead() {
         return bytesRead;
     }
 
-    public int getBytesWritten() {
+    public long getBytesWritten() {
         return bytesWritten;
     }
 
@@ -135,11 +135,11 @@ public class ApplicationData {
         this.bitness = bitness;
     }
 
-    public void setBytesRead(int bytesRead) {
+    public void setBytesRead(long bytesRead) {
         this.bytesRead = bytesRead;
     }
 
-    public void setBytesWritten(int bytesWritten) {
+    public void setBytesWritten(long bytesWritten) {
         this.bytesWritten = bytesWritten;
     }
 
