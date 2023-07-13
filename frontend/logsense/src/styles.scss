@@ -122,7 +122,13 @@ $border-1px: solid $black 1px;
   border: $border-1px;
   padding: 16px;
 }
-
+.grey-box {
+  background-color: $light-grey-2;
+  border: none;
+  border-radius: 5px;
+  padding: 32px;
+  margin-right: 128px;
+}
 .flex-center {
   display: inline-flex;
   align-items: center;
@@ -200,9 +206,12 @@ $border-1px: solid $black 1px;
 .mar-bot-32 {
   margin-bottom: 32px;
 }
+.mar-16 {
+  margin: 16px;
+}
 .mar-left-12 {
   margin-left: 12px;
 }
-.mar-16 {
-  margin: 16px;
+.mar-bot-12 {
+  margin-bottom: 12px;
 }
