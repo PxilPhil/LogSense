@@ -4,45 +4,44 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ApplicationData {
-    private int contextSwitches;
-    private int majorFaults;
-    private int processID;
+    private long contextSwitches;
+    private long majorFaults;
+    private long processID;
     private int bitness;
     private long bytesRead;
     private long bytesWritten;
     private String commandLine;
     private String currentWorkingDirectory;
     private long kernelTime;
-    private int minorFaults;
+    private long minorFaults;
     private String name;
-    private int openFiles;
-    private int parentProcessID;
+    private long openFiles;
+    private long parentProcessID;
     private String path;
     private long residentSetSize;
     private long startTime;
     private String state;
     private int threadCount;
-    private int upTime;
+    private long upTime;
     private String user;
-    private int userTime;
+    private long userTime;
     private double cpuUsage;
-    private Map<Integer, Double> containedProcessesMap = new HashMap<>(); //saves all contained processes, if a new processes is added or one is removed, processCounter should be changed
-    private int processCounter;
+    private Map<Long, Double> containedProcessesMap = new HashMap<>(); //saves all contained processes, if a new processes is added or one is removed, processCounter should be changed
+    private int processCountDifference;
     private long timestamp;
 
     public ApplicationData() {
     }
 
-    // Getters
-    public int getContextSwitches() {
+    public long getContextSwitches() {
         return contextSwitches;
     }
 
-    public int getMajorFaults() {
+    public long getMajorFaults() {
         return majorFaults;
     }
 
-    public int getProcessID() {
+    public long getProcessID() {
         return processID;
     }
 
@@ -70,7 +69,7 @@ public class ApplicationData {
         return kernelTime;
     }
 
-    public int getMinorFaults() {
+    public long getMinorFaults() {
         return minorFaults;
     }
 
@@ -78,11 +77,11 @@ public class ApplicationData {
         return name;
     }
 
-    public int getOpenFiles() {
+    public long getOpenFiles() {
         return openFiles;
     }
 
-    public int getParentProcessID() {
+    public long getParentProcessID() {
         return parentProcessID;
     }
 
@@ -106,7 +105,7 @@ public class ApplicationData {
         return threadCount;
     }
 
-    public int getUpTime() {
+    public long getUpTime() {
         return upTime;
     }
 
@@ -114,20 +113,19 @@ public class ApplicationData {
         return user;
     }
 
-    public int getUserTime() {
+    public long getUserTime() {
         return userTime;
     }
 
-    // Setters
-    public void setContextSwitches(int contextSwitches) {
+    public void setContextSwitches(long contextSwitches) {
         this.contextSwitches = contextSwitches;
     }
 
-    public void setMajorFaults(int majorFaults) {
+    public void setMajorFaults(long majorFaults) {
         this.majorFaults = majorFaults;
     }
 
-    public void setProcessID(int processID) {
+    public void setProcessID(long processID) {
         this.processID = processID;
     }
 
@@ -155,7 +153,7 @@ public class ApplicationData {
         this.kernelTime = kernelTime;
     }
 
-    public void setMinorFaults(int minorFaults) {
+    public void setMinorFaults(long minorFaults) {
         this.minorFaults = minorFaults;
     }
 
@@ -163,11 +161,11 @@ public class ApplicationData {
         this.name = name;
     }
 
-    public void setOpenFiles(int openFiles) {
+    public void setOpenFiles(long openFiles) {
         this.openFiles = openFiles;
     }
 
-    public void setParentProcessID(int parentProcessID) {
+    public void setParentProcessID(long parentProcessID) {
         this.parentProcessID = parentProcessID;
     }
 
@@ -191,7 +189,7 @@ public class ApplicationData {
         this.threadCount = threadCount;
     }
 
-    public void setUpTime(int upTime) {
+    public void setUpTime(long upTime) {
         this.upTime = upTime;
     }
 
@@ -199,12 +197,12 @@ public class ApplicationData {
         this.user = user;
     }
 
-    public void setUserTime(int userTime) {
+    public void setUserTime(long userTime) {
         this.userTime = userTime;
     }
 
-    public int getProcessCounter() {
-        return processCounter;
+    public int getProcessCountDifference() {
+        return processCountDifference;
     }
 
     public double getCpuUsage() {
@@ -219,8 +217,8 @@ public class ApplicationData {
         this.kernelTime = kernelTime;
     }
 
-    public void setProcessCounter(int processCounter) {
-        this.processCounter = processCounter;
+    public void setProcessCountDifference(int processCountDifference) {
+        this.processCountDifference = processCountDifference;
     }
 
     public void setTimestamp(long timestamp) {
@@ -231,21 +229,20 @@ public class ApplicationData {
         return timestamp;
     }
 
-    public void addProcess(int processID, double cpuUsage) {
+    public void addProcess(long processID, double cpuUsage) {
         System.out.println("adding process");
         System.out.println(cpuUsage);
         this.containedProcessesMap.put(processID, cpuUsage);
     }
 
-    public double getProcessValueByID(int processID) {
+    public double getProcessValueByID(long processID) {
         if (this.containedProcessesMap.containsKey(processID)) {
             return containedProcessesMap.get(processID);
         }
         return 0;
     }
 
-
-    public Map<Integer, Double> getContainedProcessesMap() {
+    public Map<Long, Double> getContainedProcessesMap() {
         return containedProcessesMap;
     }
 

@@ -107,9 +107,9 @@ public class StatService {
         return lastAppData.getContainedProcessesMap().size() - firstAppData.getContainedProcessesMap().size();
     }
 
-    private double calcTotalCPUUsage(Map<Integer, Double> processes) {
+    private double calcTotalCPUUsage(Map<Long, Double> processes) {
         double sum = 0;
-        for (Map.Entry<Integer, Double> current : processes.entrySet()) {
+        for (Map.Entry<Long, Double> current : processes.entrySet()) {
             sum += current.getValue();
             System.out.println("sum");
             System.out.println(sum);
@@ -129,7 +129,7 @@ public class StatService {
             sumApplication.setPath(applicationDataList.get(0).getPath());
             sumApplication.setUser(applicationDataList.get(0).getUser());
             sumApplication.calculateAverage(applicationDataList.size());
-            sumApplication.setProcessCounter(compareProcessesAmount(applicationDataList)); //TODO: does this work or is nothing saved??????????
+            sumApplication.setProcessCountDifference(compareProcessesAmount(applicationDataList)); //TODO: does this work or is nothing saved??????????
             //have to implement way to detect applications themselves closing too (just look if list is different from max value in list)
             evaluatedApplicationData.add(sumApplication);
         }
