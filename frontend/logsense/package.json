@@ -21,6 +21,7 @@
     "@angular/platform-browser-dynamic": "~15.2.9",
     "@angular/router": "~15.2.9",
     "chart.js": "^4.3.0",
+    "n": "^9.1.0",
     "rxjs": "~7.4.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"
