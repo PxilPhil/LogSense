@@ -1,4 +1,4 @@
-### Add User Request ###
+### Add User ###
 
 POST http://localhost:5000/user/add_user
 Content-Type: application/json
@@ -34,4 +34,18 @@ Content-Type: application/json
 {
   "email": "johndoe1@example.com",
   "password": "password123"
+}
+
+
+### GET ALL PCS ###
+GET http://localhost:5000/pc/
+
+### ADD PC ###
+POST http://localhost:5000/pc/add_pc
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "hardware_uuid": "ABC123",
+  "clientName": "Test Client"
 }

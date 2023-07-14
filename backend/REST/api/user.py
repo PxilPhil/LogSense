@@ -28,15 +28,17 @@ def check_login_api():
     # Query the database to check if the login credentials are valid
     # Replace the code below with your database query
     if email:
-        valid_login = check_login(email, IdentifierType.EMAIL, password)
+        valid_login, userid = check_login(email, IdentifierType.EMAIL, password)
     elif user_id:
-        valid_login = check_login(user_id, IdentifierType.ID, password)
+        valid_login, userid = check_login(user_id, IdentifierType.ID, password)
     elif name:
-        valid_login = check_login(name, IdentifierType.NAME, password)
+        valid_login, userid = check_login(name, IdentifierType.NAME, password)
     else:
         return jsonify({'error': 'Invalid request'}), 400
 
-    return jsonify({'valid_login': valid_login})
+    response_data = {'valid_login': valid_login, 'user_id': userid}
+
+    return jsonify(response_data)
 
 
 @user.route('/add_user', methods=['POST'])

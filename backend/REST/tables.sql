@@ -1,3 +1,6 @@
+DROP TABLE  logSenseUser CASCADE;
+DROP TABLE PC CASCADE;
+
 CREATE TABLE IF NOT EXISTS logSenseUser (
     ID bigserial PRIMARY KEY,
     --Group_ID int,
@@ -10,10 +13,12 @@ CREATE TABLE IF NOT EXISTS logSenseUser (
 CREATE TABLE IF NOT EXISTS PC(
     ID bigserial PRIMARY KEY,
     USER_ID int,
-    hardwareUUID varchar,
+    hardwareUUID varchar UNIQUE,
+    clientName varchar,
     manufacturer varchar,
     model varchar,
-    FOREIGN KEY (USER_ID) REFERENCES logSenseUser (ID)
+    FOREIGN KEY (USER_ID) REFERENCES logSenseUser (ID),
+    UNIQUE (clientName, USER_ID)
 );
 
 --DROP Table pc_measurements;
