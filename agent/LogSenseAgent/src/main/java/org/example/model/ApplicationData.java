@@ -1,5 +1,7 @@
 package org.example.model;
 
+import oshi.software.os.OSProcess;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +28,7 @@ public class ApplicationData {
     private String user;
     private long userTime;
     private double cpuUsage;
-    private final Map<Long, Double> containedProcessesMap = new HashMap<>(); //saves all contained processes, if a new processes is added or one is removed, processCounter should be changed
+    private final Map<OSProcess, Double> containedProcessesMap = new HashMap<>(); //saves all contained processes, if a new processes is added or one is removed, processCounter should be changed
     private int processCountDifference;
     private long timestamp;
 
@@ -229,10 +231,8 @@ public class ApplicationData {
         this.timestamp = timestamp;
     }
 
-    public void addProcess(long processID, double cpuUsage) {
-        System.out.println("adding process");
-        System.out.println(cpuUsage);
-        this.containedProcessesMap.put(processID, cpuUsage);
+    public void addProcess(OSProcess process, double cpuUsage) {
+        this.containedProcessesMap.put(process, cpuUsage);
     }
 
     public double getProcessValueByID(long processID) {
@@ -242,7 +242,7 @@ public class ApplicationData {
         return 0;
     }
 
-    public Map<Long, Double> getContainedProcessesMap() {
+    public Map<OSProcess, Double> getContainedProcessesMap() {
         return containedProcessesMap;
     }
 

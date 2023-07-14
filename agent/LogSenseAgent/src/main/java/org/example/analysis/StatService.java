@@ -68,9 +68,13 @@ public class StatService {
         if (this.applicationMeasurementPoints.containsKey(process.getName())) { //if already has entry get previous cpu usage of respective process
             List<ApplicationData> applicationDataList = this.applicationMeasurementPoints.get(process.getName());
             ApplicationData previousAppData = applicationDataList.get(applicationDataList.size() - 1);
-            applicationData.addProcess(process.getProcessID(), calculateCPUUsage(process, previousAppData.getProcessValueByID(process.getProcessID())));
+            for (OSProcess previousProcess : previousAppData.getContainedProcessesMap().keySet()) {
+                if (previousProcess.getProcessID() == process.getProcessID()) {
+                    applicationData.addProcess(process, calculateCPUUsage(process, previousProcess));
+                }
+            }
         } else {
-            applicationData.addProcess(process.getProcessID(), calculateCPUUsage(process, 0));
+            applicationData.addProcess(process, calculateCPUUsage(process, null));
         }
     }
 
@@ -88,35 +92,29 @@ public class StatService {
         }
     }
 
-    private double calculateCPUUsage(OSProcess osProcess, double prev) { //calculates cpu usage per process
-        System.out.println("calculateCPUUsage");
-        double timeDiff = (osProcess.getKernelTime() + osProcess.getUserTime()) - prev;
-        System.out.println(timeDiff);
-        double cpuUsage = (100 * (timeDiff / osProcess.getUpTime()));
-        System.out.println(cpuUsage);
+    //TODO: docu says to devide cpu usage through number of logical processors, is that correct?
+    private double calculateCPUUsage(OSProcess osProcess, OSProcess previousProcess) { //calculates cpu usage per process
+        //System.out.println("calculateCPUUsage");
+        double cpuUsage = osProcess.getProcessCpuLoadBetweenTicks(previousProcess);
+        if (osProcess.getName().equals("Taskmgr")) {
+            System.out.println(osProcess.getName() + " " + cpuUsage);
+        }
         return cpuUsage;
     }
 
     private int compareProcessesAmount(List<ApplicationData> applicationDataList) {
         ApplicationData firstAppData = applicationDataList.get(0);
         ApplicationData lastAppData = applicationDataList.get(applicationDataList.size() - 1);
-
-        System.out.println("size of maps");
-        System.out.println(firstAppData.getContainedProcessesMap().size());
-        System.out.println(lastAppData.getContainedProcessesMap().size());
         return lastAppData.getContainedProcessesMap().size() - firstAppData.getContainedProcessesMap().size();
     }
 
-    private double calcTotalCPUUsage(Map<Long, Double> processes) {
+    private double calcTotalCPUUsage(Map<OSProcess, Double> processes) {
         double sum = 0;
-        for (Map.Entry<Long, Double> current : processes.entrySet()) {
+        for (Map.Entry<OSProcess, Double> current : processes.entrySet()) {
             sum += current.getValue();
-            System.out.println("sum");
-            System.out.println(sum);
         }
         return sum;
     }
-
 
     private List<ApplicationData> evaluateApplicationMeasurementPoints(long timestamp) { //does statistical calculations on minutely data (keep in mind that everything not transferred here will be lost)
         List<ApplicationData> evaluatedApplicationData = new ArrayList<>();
