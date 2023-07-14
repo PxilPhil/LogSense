@@ -1,0 +1,37 @@
+### Add User Request ###
+
+POST http://localhost:5000/user/add_user
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "johndoe@example.com",
+  "password": "password123"
+}
+
+### CHECK FOR CORRECT LOGIN ###
+POST http://localhost:5000/user/check_login
+Content-Type: application/json
+
+{
+  "email": "johndoe@example.com",
+  "password": "password123"
+}
+
+### CHECK FOR INCORRECT LOGIN ###
+POST http://localhost:5000/user/check_login
+Content-Type: application/json
+
+{
+  "email": "johndoe@example.com",
+  "password": "password1234"
+}
+
+### CHECK FOR INCORRECT LOGIN ###
+POST http://localhost:5000/user/check_login
+Content-Type: application/json
+
+{
+  "email": "johndoe1@example.com",
+  "password": "password123"
+}
