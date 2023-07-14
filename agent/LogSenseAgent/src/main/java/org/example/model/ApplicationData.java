@@ -26,7 +26,7 @@ public class ApplicationData {
     private String user;
     private long userTime;
     private double cpuUsage;
-    private Map<Long, Double> containedProcessesMap = new HashMap<>(); //saves all contained processes, if a new processes is added or one is removed, processCounter should be changed
+    private final Map<Long, Double> containedProcessesMap = new HashMap<>(); //saves all contained processes, if a new processes is added or one is removed, processCounter should be changed
     private int processCountDifference;
     private long timestamp;
 
@@ -37,164 +37,168 @@ public class ApplicationData {
         return contextSwitches;
     }
 
-    public long getMajorFaults() {
-        return majorFaults;
-    }
-
-    public long getProcessID() {
-        return processID;
-    }
-
-    public int getBitness() {
-        return bitness;
-    }
-
-    public long getBytesRead() {
-        return bytesRead;
-    }
-
-    public long getBytesWritten() {
-        return bytesWritten;
-    }
-
-    public String getCommandLine() {
-        return commandLine;
-    }
-
-    public String getCurrentWorkingDirectory() {
-        return currentWorkingDirectory;
-    }
-
-    public long getKernelTime() {
-        return kernelTime;
-    }
-
-    public long getMinorFaults() {
-        return minorFaults;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public long getOpenFiles() {
-        return openFiles;
-    }
-
-    public long getParentProcessID() {
-        return parentProcessID;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public long getResidentSetSize() {
-        return residentSetSize;
-    }
-
-    public long getStartTime() {
-        return startTime;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public int getThreadCount() {
-        return threadCount;
-    }
-
-    public long getUpTime() {
-        return upTime;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public long getUserTime() {
-        return userTime;
-    }
-
     public void setContextSwitches(long contextSwitches) {
         this.contextSwitches = contextSwitches;
+    }
+
+    public long getMajorFaults() {
+        return majorFaults;
     }
 
     public void setMajorFaults(long majorFaults) {
         this.majorFaults = majorFaults;
     }
 
+    public long getProcessID() {
+        return processID;
+    }
+
     public void setProcessID(long processID) {
         this.processID = processID;
+    }
+
+    public int getBitness() {
+        return bitness;
     }
 
     public void setBitness(int bitness) {
         this.bitness = bitness;
     }
 
+    public long getBytesRead() {
+        return bytesRead;
+    }
+
     public void setBytesRead(long bytesRead) {
         this.bytesRead = bytesRead;
+    }
+
+    public long getBytesWritten() {
+        return bytesWritten;
     }
 
     public void setBytesWritten(long bytesWritten) {
         this.bytesWritten = bytesWritten;
     }
 
+    public String getCommandLine() {
+        return commandLine;
+    }
+
     public void setCommandLine(String commandLine) {
         this.commandLine = commandLine;
+    }
+
+    public String getCurrentWorkingDirectory() {
+        return currentWorkingDirectory;
     }
 
     public void setCurrentWorkingDirectory(String currentWorkingDirectory) {
         this.currentWorkingDirectory = currentWorkingDirectory;
     }
 
+    public long getKernelTime() {
+        return kernelTime;
+    }
+
     public void setKernelTime(int kernelTime) {
         this.kernelTime = kernelTime;
+    }
+
+    public void setKernelTime(long kernelTime) {
+        this.kernelTime = kernelTime;
+    }
+
+    public long getMinorFaults() {
+        return minorFaults;
     }
 
     public void setMinorFaults(long minorFaults) {
         this.minorFaults = minorFaults;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public void setName(String name) {
         this.name = name;
+    }
+
+    public long getOpenFiles() {
+        return openFiles;
     }
 
     public void setOpenFiles(long openFiles) {
         this.openFiles = openFiles;
     }
 
+    public long getParentProcessID() {
+        return parentProcessID;
+    }
+
     public void setParentProcessID(long parentProcessID) {
         this.parentProcessID = parentProcessID;
+    }
+
+    public String getPath() {
+        return path;
     }
 
     public void setPath(String path) {
         this.path = path;
     }
 
+    public long getResidentSetSize() {
+        return residentSetSize;
+    }
+
     public void setResidentSetSize(long residentSetSize) {
         this.residentSetSize = residentSetSize;
+    }
+
+    public long getStartTime() {
+        return startTime;
     }
 
     public void setStartTime(long startTime) {
         this.startTime = startTime;
     }
 
+    public String getState() {
+        return state;
+    }
+
     public void setState(String state) {
         this.state = state;
+    }
+
+    public int getThreadCount() {
+        return threadCount;
     }
 
     public void setThreadCount(int threadCount) {
         this.threadCount = threadCount;
     }
 
+    public long getUpTime() {
+        return upTime;
+    }
+
     public void setUpTime(long upTime) {
         this.upTime = upTime;
     }
 
+    public String getUser() {
+        return user;
+    }
+
     public void setUser(String user) {
         this.user = user;
+    }
+
+    public long getUserTime() {
+        return userTime;
     }
 
     public void setUserTime(long userTime) {
@@ -205,6 +209,10 @@ public class ApplicationData {
         return processCountDifference;
     }
 
+    public void setProcessCountDifference(int processCountDifference) {
+        this.processCountDifference = processCountDifference;
+    }
+
     public double getCpuUsage() {
         return cpuUsage;
     }
@@ -213,20 +221,12 @@ public class ApplicationData {
         this.cpuUsage = cpuUsage;
     }
 
-    public void setKernelTime(long kernelTime) {
-        this.kernelTime = kernelTime;
-    }
-
-    public void setProcessCountDifference(int processCountDifference) {
-        this.processCountDifference = processCountDifference;
+    public long getTimestamp() {
+        return timestamp;
     }
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
     }
 
     public void addProcess(long processID, double cpuUsage) {

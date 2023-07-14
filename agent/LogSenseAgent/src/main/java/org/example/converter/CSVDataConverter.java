@@ -1,7 +1,9 @@
 package org.example.converter;
 
-import org.example.commons.DataConverter;
+import org.example.common.DataConverter;
+import org.example.common.ListToStringConverter;
 import org.example.model.ApplicationData;
+import org.example.model.ResourcesData;
 
 import java.util.List;
 
@@ -29,6 +31,45 @@ public class CSVDataConverter implements DataConverter {
             csv.append(application.getCpuUsage()).append(",");
             csv.append(application.getState());
         }
+        return csv.toString();
+    }
+
+    @Override
+    public String convertResourceData(long timestamp, ResourcesData resourcesData) {
+        ListToStringConverter<Long> longListToStringConverter = new ListToStringSpacesConverter<>();
+        ListToStringConverter<Boolean> booleanListToStringConverter = new ListToStringSpacesConverter<>();
+        ListToStringConverter<Double> doubleListToStringConverter = new ListToStringSpacesConverter<>();
+
+        StringBuilder csv = new StringBuilder();
+        csv.append("timestamp,freeDiskSpace,readBytesDiskStores,readsDiskStores,writeBytesDiskStores,writesDiskStores,partitionsMajorFaults,partitionsMinorFaults,availableMemory,bytesReceivedNetworkInterfaces,bytesSentNetworkInterfaces,collisionsNetworkInterfaces,packetsReceivedNetworkInterfaces,packetsSentNetworkInterfaces,chargingPowerSources,dischargingPowerSources,powerOnLinePowerSources,powerUsageRatePowerSources,remainingCapacityPercentPowerSources,contextSwitchesProcessor,interruptsProcessor\n");
+
+        csv.append(timestamp).append(",");
+
+        csv.append(resourcesData.getFreeDiskSpace()).append(",");
+
+        csv.append(longListToStringConverter.convert(resourcesData.getDiskStoresReadBytes())).append(",");
+        csv.append(longListToStringConverter.convert(resourcesData.getDiskStoresReads())).append(",");
+        csv.append(longListToStringConverter.convert(resourcesData.getDiskStoresWriteBytes())).append(",");
+        csv.append(longListToStringConverter.convert(resourcesData.getDiskStoresWrites())).append(",");
+        csv.append(longListToStringConverter.convert(resourcesData.getPartitionsMajorFaults())).append(",");
+        csv.append(longListToStringConverter.convert(resourcesData.getPartitionsMinorFaults())).append(",");
+
+        csv.append(resourcesData.getAvailableMemory()).append(",");
+
+        csv.append(longListToStringConverter.convert(resourcesData.getNetworkInterfacesBytesReceived())).append(",");
+        csv.append(longListToStringConverter.convert(resourcesData.getNetworkInterfacesBytesSent())).append(",");
+        csv.append(longListToStringConverter.convert(resourcesData.getNetworkInterfacesCollisions())).append(",");
+        csv.append(longListToStringConverter.convert(resourcesData.getNetworkInterfacesPacketsReceived())).append(",");
+        csv.append(longListToStringConverter.convert(resourcesData.getNetworkInterfacesPacketsSent())).append(",");
+
+        csv.append(booleanListToStringConverter.convert(resourcesData.getPowerSourcesCharging())).append(",");
+        csv.append(booleanListToStringConverter.convert(resourcesData.getPowerSourcesDischarging())).append(",");
+        csv.append(booleanListToStringConverter.convert(resourcesData.getPowerSourcesPowerOnLine())).append(",");
+        csv.append(doubleListToStringConverter.convert(resourcesData.getPowerSourcesPowerUsageRate())).append(",");
+        csv.append(doubleListToStringConverter.convert(resourcesData.getPowerSourcesRemainingCapacityPercent())).append(",");
+
+        csv.append(resourcesData.getProcessorContextSwitches()).append(",");
+        csv.append(resourcesData.getProcessorInterrupts());
         return csv.toString();
     }
 }

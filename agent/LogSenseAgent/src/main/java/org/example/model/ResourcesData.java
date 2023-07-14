@@ -3,7 +3,6 @@ package org.example.model;
 import java.util.List;
 
 public class ResourcesData {
-    private long timestamp;
     private long freeDiskSpace;
     private List<Long> diskStoresReadBytes;
     private List<Long> diskStoresReads;
@@ -22,14 +21,8 @@ public class ResourcesData {
     private List<Boolean> powerSourcesPowerOnLine;
     private List<Double> powerSourcesPowerUsageRate;
     private List<Double> powerSourcesRemainingCapacityPercent;
-
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
+    private long processorContextSwitches;
+    private long processorInterrupts;
 
     public long getFreeDiskSpace() {
         return freeDiskSpace;
@@ -173,5 +166,21 @@ public class ResourcesData {
 
     public void setPowerSourcesRemainingCapacityPercent(List<Double> powerSourcesRemainingCapacityPercent) {
         this.powerSourcesRemainingCapacityPercent = powerSourcesRemainingCapacityPercent;
+    }
+
+    public long getProcessorContextSwitches() {
+        return processorContextSwitches;
+    }
+
+    public void setProcessorContextSwitches(long processorContextSwitches) {
+        this.processorContextSwitches = processorContextSwitches;
+    }
+
+    public long getProcessorInterrupts() {
+        return processorInterrupts;
+    }
+
+    public void setProcessorInterrupts(long processorInterrupts) {
+        this.processorInterrupts = processorInterrupts;
     }
 }
