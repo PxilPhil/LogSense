@@ -2,7 +2,7 @@ from db_access import cursor, conn
 
 
 def add_pc(user_id, hardware_uuid, client_name):
-    #check if user exsists
+    #TODO: check if user exsists
 
     query = "INSERT INTO PC (USER_ID, hardwareUUID, clientName) VALUES (%s, %s, %s) RETURNING ID;"
     params = (str(user_id), str(hardware_uuid), str(client_name))
@@ -48,6 +48,6 @@ def get_pcs_by_userid(user_id):
 
     pcs = []
     for row in rows:
-        pc = row[0]
+        pc = (row[0], row[1], row[2], row[3])
         pcs.append(pc)
     return pcs

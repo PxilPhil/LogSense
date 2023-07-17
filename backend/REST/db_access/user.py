@@ -2,7 +2,7 @@ import logging
 import hashlib
 
 from db_access import cursor, conn
-from db_access.helper import is_valid_email
+from db_access.helper import is_valid_email, hash_password
 
 logging.basicConfig(filename='app.log', level=logging.INFO)
 
@@ -51,10 +51,8 @@ def check_login(identifier, identifier_type, password):
 
     if result:
         stored_password_hash, user_id = result
-        hashed_password = str(hashlib.sha256(
-            (str(get_salt(identifier, identifier_type)) + str(password)).encode()
-        ).hexdigest())
-        return hashed_password == stored_password_hash[0], user_id
+        hashed_password = hash_password(password, get_salt(identifier, identifier_type))
+        return hashed_password == stored_password_hash, user_id
     else:
         return False, None
 
@@ -64,7 +62,7 @@ def add_user(name, email, password, salt):
         raise ValueError("Invalid email")
 
     # Hash the provided password using the salt
-    hashed_password = str(hashlib.sha256((str(salt) + str(password)).encode()).hexdigest())
+    hashed_password = hash_password(password, salt)
 
     # Insert the new user into the database
     query = "INSERT INTO logSenseUser (Name, EMail, PasswordHash, Salt) VALUES (%s, %s, %s, %s) RETURNING ID;"

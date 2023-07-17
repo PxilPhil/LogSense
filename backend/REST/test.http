@@ -36,6 +36,8 @@ Content-Type: application/json
   "password": "password123"
 }
 
+### GET ALL USERS ###
+GET http://localhost:5000/user
 
 ### GET ALL PCS ###
 GET http://localhost:5000/pc/
@@ -47,5 +49,7 @@ Content-Type: application/json
 {
   "user_id": 1,
   "hardware_uuid": "ABC123",
-  "clientName": "Test Client"
+  "client_name": "Test Client"
 }
+### GET PCs OF USER 1 ###
+GET http://localhost:5000/pc/user/1

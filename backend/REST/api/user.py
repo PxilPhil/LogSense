@@ -1,8 +1,4 @@
 from flask import Flask, jsonify, request, Blueprint
-import random
-import string
-import secrets
-import hashlib
 
 import api.helper
 import db_access.user
@@ -24,9 +20,8 @@ def check_login_api():
     user_id = data.get('id')
     name = data.get('name')
     password = data.get('password')
+    valid_login = False
 
-    # Query the database to check if the login credentials are valid
-    # Replace the code below with your database query
     if email:
         valid_login, userid = check_login(email, IdentifierType.EMAIL, password)
     elif user_id:
