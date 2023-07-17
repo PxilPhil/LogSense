@@ -1,8 +1,4 @@
 from flask import Flask, jsonify, request, Blueprint
-import random
-import string
-import secrets
-import hashlib
 
 import api.helper
 import db_access.user

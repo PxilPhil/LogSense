@@ -1,6 +1,3 @@
-DROP TABLE  logSenseUser CASCADE;
-DROP TABLE PC CASCADE;
-
 CREATE TABLE IF NOT EXISTS logSenseUser (
     ID bigserial PRIMARY KEY,
     --Group_ID int,
