@@ -12,6 +12,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatIconModule} from "@angular/material/icon";
 import { LoginComponent } from './login/login.component';
+import { CpuComponent } from './cpu/cpu.component';
 
 
 @NgModule({
@@ -22,7 +23,8 @@ import { LoginComponent } from './login/login.component';
     HeaderComponent,
     OverviewComponent,
     DashboardComponent,
-    LoginComponent
+    LoginComponent,
+    CpuComponent
   ],
   imports: [
     BrowserModule,

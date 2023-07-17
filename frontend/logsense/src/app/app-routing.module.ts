@@ -1,18 +1,19 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import {PreloadAllModules, RouterModule, Routes} from '@angular/router';
 import {MainPageComponent} from "./main-page/main-page.component";
 import {OverviewComponent} from "./overview/overview.component";
 import {LoginComponent} from "./login/login.component";
+import {CpuComponent} from "./cpu/cpu.component";
 
 const routes: Routes = [
-  //{ path: '', component: MainPageComponent},
-  //{ path: 'main', component: MainPageComponent},
-  //{ path: 'overview', component: OverviewComponent},
-  //{ path: 'login', component: LoginComponent},
+  { path: '', component: OverviewComponent},
+  { path: 'overview', component: OverviewComponent},
+  { path: 'login', component: LoginComponent},
+  { path: 'cpu', component: CpuComponent}
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, {preloadingStrategy: PreloadAllModules})],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

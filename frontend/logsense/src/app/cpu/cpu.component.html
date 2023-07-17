@@ -1,0 +1,19 @@
+<router-outlet></router-outlet>
+<div class="anti-th">
+  <h1 class="mar-left-64 mar-top-48">CPU</h1>
+  <h3 class="mar-left-64 mar-top-32">Usage</h3>
+  <div class="grey-box mar-left-64 mar-right-128 mar-top-32">
+    <form class="">
+      <select id="time" class="dropdown-btn">
+        <option value="1">Last Hour</option>
+        <option value="24">Last 24h</option>
+        <option value="7">Last Week</option>
+        <option value="30">Last Month</option>
+        <option value="6">Last 6 Months</option>
+        <option value="12">Last 12 Months</option>
+        <option value="0">All Time</option>
+      </select>
+    </form>
+    <canvas id="usage" class="white-bg"></canvas>
+  </div>
+</div>
