@@ -1,6 +1,10 @@
 @import "../../styles.scss";
 
-.tmp {
+.white-bg {
   background-color: $white;
   padding: 16px;
+}
+.alignment{
+  display: inline-flex;
+  align-items: flex-start;
 }

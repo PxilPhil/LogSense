@@ -12,8 +12,19 @@
   </div>
   <div class="mar-left-64">
     <h3 class="mar-top-24 mar-bot-12">Resource Metrics</h3>
-    <div class="grey-box">
-        <canvas id="resMetrics" class="tmp"></canvas>
+    <div class="grey-box alignment">
+        <canvas id="resMetrics" class="white-bg"></canvas>
+        <form class="mar-left-64">
+          <select id="time" class="dropdown-btn">
+            <option value="1">Last Hour</option>
+            <option value="24">Last 24h</option>
+            <option value="7">Last Week</option>
+            <option value="30">Last Month</option>
+            <option value="6">Last 6 Months</option>
+            <option value="12">Last 12 Months</option>
+            <option value="0">All Time</option>
+          </select>
+        </form>
     </div>
   </div>
 </div>
