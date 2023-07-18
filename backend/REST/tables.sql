@@ -19,9 +19,9 @@ CREATE TABLE IF NOT EXISTS PC(
 );
 
 CREATE TABLE IF NOT EXISTS applicationdata (
-    ApplicationID BIGSERIAL PRIMARY KEY,
+    ApplicationID BIGSERIAL,
     PcData_ID INT REFERENCES PcData(ID),
-    measurement_time TIMESTAMP,
+    measurement_time TIMESTAMP NOT NULL,
     name VARCHAR,
     path VARCHAR,
     cpu DOUBLE PRECISION,
@@ -46,11 +46,13 @@ BEGIN
         SELECT 1
         FROM timescaledb_information.hypertables
         WHERE hypertable_name = 'applicationdata'
-        )
+    )
     THEN
-        SELECT create_hypertable('applicationdata', 'measurement_time');
+        PERFORM create_hypertable('applicationdata', 'measurement_time');
     END IF;
 END $$;
+
+
 
 --DROP Table pc_measurements;
 --CREATE TABLE IF NOT EXISTS pc_measurements (
