@@ -18,6 +18,40 @@ CREATE TABLE IF NOT EXISTS PC(
     UNIQUE (clientName, USER_ID)
 );
 
+CREATE TABLE IF NOT EXISTS applicationdata (
+    ApplicationID BIGSERIAL PRIMARY KEY,
+    PcData_ID INT REFERENCES PcData(ID),
+    measurement_time TIMESTAMP,
+    name VARCHAR,
+    path VARCHAR,
+    cpu DOUBLE PRECISION,
+    ram BIGINT,
+    State VARCHAR,
+    "user" VARCHAR,
+    contextSwitches INT,
+    majorFaults INT,
+    bitness INT,
+    commandLine VARCHAR,
+    "currentWorkingDirectory" VARCHAR,
+    openFiles INT,
+    parentProcessID INT,
+    threadCount INT,
+    upTime BIGINT,
+    processCountDifference INT
+);
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM timescaledb_information.hypertables
+        WHERE hypertable_name = 'applicationdata'
+        )
+    THEN
+        SELECT create_hypertable('applicationdata', 'measurement_time');
+    END IF;
+END $$;
+
 --DROP Table pc_measurements;
 --CREATE TABLE IF NOT EXISTS pc_measurements (
 --    measurement_time TIMESTAMP NOT NULL,

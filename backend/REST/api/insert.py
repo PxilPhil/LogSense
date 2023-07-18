@@ -9,5 +9,4 @@ insert_data = Blueprint("insert_data", static_folder="../static", template_folde
 def injest_all_data():
     data = request.get_json()
 
-
-    return jsonify(db_access.pc.get_pcs())
+    return jsonify({'error':'notimplementet yet'})

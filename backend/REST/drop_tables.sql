@@ -1,2 +1,1 @@
-DROP TABLE  logSenseUser CASCADE;
-DROP TABLE PC CASCADE;
+DROP TABLE IF EXISTS logSenseUser, PC, ApplicationData CASCADE;
