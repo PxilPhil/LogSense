@@ -1,12 +1,6 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
-from scipy import stats
-import datetime
-import time
 import os
 import glob
-import statsmodels.api as sm
 import manipulation
 
 path = os.getcwd()
