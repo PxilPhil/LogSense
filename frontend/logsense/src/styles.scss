@@ -74,6 +74,11 @@ h3 {
   font-size: 16px;
   color: $dark-grey-2;
 }
+.txt-14 {
+  font-family: $font-family;
+  font-size: 14px;
+  color: $dark-grey-2;
+}
 //Borders, Shadows, etc
 $shadow: 0 0 5px 0 rgba(0, 0, 0, 0.25);
 $lil-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.20);
@@ -132,6 +137,10 @@ $border-1px: solid $black 1px;
   display: inline-flex;
   align-items: center;
 }
+.flex-start {
+  display: inline-flex;
+  align-items: flex-start;
+}
 
 .space-base {
   display: flex;
@@ -152,7 +161,6 @@ button:focus-visible {
   outline: none !important;
   box-shadow: none !important;
 }
-
 
 //Icons
 .icon {
@@ -232,6 +240,12 @@ button:focus-visible {
 .mar-bot-24 {
   margin-bottom: 24px;
 }
+.mar-left-24 {
+  margin-left: 24px;
+}
+.mar-right-24 {
+  margin-right: 24px;
+}
 .mar-top-16{
   margin-top: 16px;
 }
@@ -246,6 +260,9 @@ button:focus-visible {
 }
 .mar-bot-12 {
   margin-bottom: 12px;
+}
+.mar-bot-5 {
+  margin-bottom: 5px;
 }
 
 html, body { height: 100%; }
