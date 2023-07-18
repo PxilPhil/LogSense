@@ -31,7 +31,7 @@ def get_pcs():
 
     pcs = []
     for row in rows:
-        pc = (row[0], row[1], row[2], row[3], row[4], row[5])
+        pc = {'user_name': row[0], 'email': row[1], 'hardware_uuid': row[2], 'client_name': row[3], 'manufacturer': row[4], 'model': row[5]}
         pcs.append(pc)
     return pcs
 
@@ -48,6 +48,6 @@ def get_pcs_by_userid(user_id):
 
     pcs = []
     for row in rows:
-        pc = (row[0], row[1], row[2], row[3])
+        pc = {'hardware_uuid': row[0], 'client_name': row[1], 'manufacturer': row[2], 'model': row[3]}
         pcs.append(pc)
     return pcs

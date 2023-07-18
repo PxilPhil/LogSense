@@ -8,7 +8,7 @@ pc = Blueprint("pc", static_folder="../static", template_folder="../templates", 
 
 @pc.route('/', methods=['GET'])
 def get_all_pcs():
-    return jsonify(db_access.pc.get_pcs())
+    return jsonify({'pcs': db_access.pc.get_pcs()})
 
 
 @pc.route('/user/<user_id>', methods=['GET'])

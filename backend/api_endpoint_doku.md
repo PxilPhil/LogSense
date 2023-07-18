@@ -13,9 +13,9 @@ Returns the Names of all users
 /
 ```
 
-| input | input json name | output | output json name | 
-| ----- | --------------- | ------ | ---------------- | 
-|       |                 | Name[] | 0                |    
+| input | input json name | output | output json name |
+| ----- | --------------- | ------ | ---------------- |
+|       |                 | Name[] | name             | 
 
 ### Add user
 when given name, valid email and password returns id of the user, if the email is valid or another error occurs an error is returned   
@@ -62,13 +62,13 @@ To confirm if a user is valid and can log in, you can pass either an email, ID, 
 
 | input | input json name | output        | output json name |
 | ----- | --------------- | ------------- | ---------------- |
-|       |                 | list of lists | -                 |
-|       |                 | User Name     | 0                |
-|       |                 | User Mail     | 1                |
-|       |                 | Hardware UUID | 2                |
-|       |                 | PC Name       | 3                |
-|       |                 | Manufacturer  | 4                |
-|       |                 | Model         | 5                 |
+|       |                 | list of lists | pcs              | 
+|       |                 | User Name     | user_name        |
+|       |                 | User Mail     | email            |
+|       |                 | Hardware UUID | hardware_uuid    |
+|       |                 | PC Name       | client_name      |
+|       |                 | Manufacturer  | manufacturer     |
+|       |                 | Model         | model            |
 
 ### Get all pcs of user wit id
 **GET**
@@ -78,11 +78,11 @@ To confirm if a user is valid and can log in, you can pass either an email, ID, 
 
 | input   | input json name | output        | output json name |
 | ------- | --------------- | ------------- | ---------------- |
-| User ID | -               | list of lists | pcs                |
-|         |                 | Hardware UUID | 0                |
-|         |                 | PC Name       | 1                |
-|         |                 | Manufacturer  | 2                |
-|         |                 | Model         | 3                |
+| User ID | -               | list of lists | pcs              |
+|         |                 | Hardware UUID | hardware_uuid    |
+|         |                 | PC Name       | client_name      |
+|         |                 | Manufacturer  | manufacturer     |
+|         |                 | Model         | model            | 
 
 ### Add new PC
 **POST**
@@ -94,5 +94,11 @@ To confirm if a user is valid and can log in, you can pass either an email, ID, 
 | ----------------------- | --------------- | ------ | ---------------- |
 | User ID                 | user_id         | ERROR  | error            |
 | Hardware UUID           | hardware_uuid   | PC ID  | pc_id            | 
-| Nick Name for Client PC | clientName      |        |                  |
+| Nick Name for Client PC | client_name      |        |                  |
+
+
+| timestamp     | contextSwitches | majorFaults | bitness | commandLine                                                                                                                                                     | currentWorkingDirectory | name                  | openFiles | parentProcessID | path                                                                                         | residentSetSize | state   | threadCount | upTime | user            | processCountDifference | cpuUsage             |
+| ------------- | --------------- | ----------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | --------------------- | --------- | --------------- | -------------------------------------------------------------------------------------------- | --------------- | ------- | ----------- | ------ | --------------- | ---------------------- | -------------------- |
+| 1689682829717 | 0               | 0           | 32      | "C:\Program Files (x86)\Common Files\Adobe\Adobe Desktop Common\ADS\Adobe Desktop Service.exe" --onOSstartup=true --showwindow=false --waitForRegistration=true |                         | Adobe Desktop Service | 5851      | 0               | C:\Program Files (x86)\Common Files\Adobe\Adobe Desktop Common\ADS\Adobe Desktop Service.exe | 77963264        | RUNNING | 47          | 0      | sarah.ettlinger | 0                      | 1.344439922529359E-4 |
+|               |                 |             |         |                                                                                                                                                                 |                         |                       |           |                 |                                                                                              |                 |         |             |        |                 |                        |                      |
 

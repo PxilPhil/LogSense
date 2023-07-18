@@ -90,6 +90,6 @@ def get_users():
 
     users = []
     for row in rows:
-        user = row[0]
+        user = {'name': row[0]}
         users.append(user)
     return users
