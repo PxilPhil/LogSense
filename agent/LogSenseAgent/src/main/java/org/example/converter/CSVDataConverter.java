@@ -44,12 +44,15 @@ public class CSVDataConverter implements DataConverter {
         ListToStringConverter<String> stringListToStringConvert = new ListToStringSpacesConverter<>();
 
         StringBuilder csv = new StringBuilder();
-        csv.append("timestamp|freeDiskSpace|partitionsMajorFaults|partitionsMinorFaults|availableMemory|namesPowerSources|chargingPowerSources|dischargingPowerSources|powerOnLinePowerSources|remainingCapacityPercentPowerSources|contextSwitchesProcessor|interruptsProcessor\n");
+        csv.append("timestamp|freeDiskSpace|readBytesDiskStores|readsDiskStores|writeBytesDiskStores|writesDiskStores|partitionsMajorFaults|partitionsMinorFaults|availableMemory|namesPowerSources|chargingPowerSources|dischargingPowerSources|powerOnLinePowerSources|remainingCapacityPercentPowerSources|contextSwitchesProcessor|interruptsProcessor\n");
 
         csv.append(timestamp).append("|");
 
         csv.append(resources.getFreeDiskSpace()).append("|");
-
+        csv.append(longListToStringConverter.convert(resources.getReadBytesDiskStores())).append("|");
+        csv.append(longListToStringConverter.convert(resources.getReadsDiskStores())).append("|");
+        csv.append(longListToStringConverter.convert(resources.getWriteBytesDiskStores())).append("|");
+        csv.append(longListToStringConverter.convert(resources.getWritesDiskStores())).append("|");
         csv.append(longListToStringConverter.convert(resources.getPartitionsMajorFaults())).append("|");
         csv.append(longListToStringConverter.convert(resources.getPartitionsMinorFaults())).append("|");
 
@@ -139,15 +142,11 @@ public class CSVDataConverter implements DataConverter {
     @Override
     public String convertDiskStoreData(List<DiskStore> diskStores) {
         StringBuilder csv = new StringBuilder();
-        csv.append("model|name|size|readBytes|reads|writeBytes|writes\n");
+        csv.append("model|name|size\n");
         for (DiskStore diskStore : diskStores) {
             csv.append(diskStore.getModel()).append("|");
             csv.append(diskStore.getName()).append("|");
             csv.append(diskStore.getSize()).append("|");
-            csv.append(diskStore.getReadBytes()).append("|");
-            csv.append(diskStore.getReads()).append("|");
-            csv.append(diskStore.getWriteBytes()).append("|");
-            csv.append(diskStore.getWrites()).append("\n");
         }
         return csv.toString();
     }

@@ -4,6 +4,11 @@ import java.util.List;
 
 public class Resources {
     private long freeDiskSpace;
+    private List<Long> readBytesDiskStores;
+    private List<Long> readsDiskStores;
+    private List<Long> writeBytesDiskStores;
+
+    private List<Long> writesDiskStores;
     private List<Long> partitionsMajorFaults;   //numbers are sorted by disk store then by partition
     private List<Long> partitionsMinorFaults;   //numbers are sorted by disk store then by partition
     private long availableMemory;
@@ -22,6 +27,38 @@ public class Resources {
 
     public void setFreeDiskSpace(long freeDiskSpace) {
         this.freeDiskSpace = freeDiskSpace;
+    }
+
+    public List<Long> getReadBytesDiskStores() {
+        return readBytesDiskStores;
+    }
+
+    public void setReadBytesDiskStores(List<Long> readBytesDiskStores) {
+        this.readBytesDiskStores = readBytesDiskStores;
+    }
+
+    public List<Long> getReadsDiskStores() {
+        return readsDiskStores;
+    }
+
+    public void setReadsDiskStores(List<Long> readsDiskStores) {
+        this.readsDiskStores = readsDiskStores;
+    }
+
+    public List<Long> getWriteBytesDiskStores() {
+        return writeBytesDiskStores;
+    }
+
+    public void setWriteBytesDiskStores(List<Long> writeBytesDiskStores) {
+        this.writeBytesDiskStores = writeBytesDiskStores;
+    }
+
+    public List<Long> getWritesDiskStores() {
+        return writesDiskStores;
+    }
+
+    public void setWritesDiskStores(List<Long> writesDiskStores) {
+        this.writesDiskStores = writesDiskStores;
     }
 
     public List<Long> getPartitionsMajorFaults() {

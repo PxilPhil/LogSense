@@ -1,5 +1,6 @@
 package org.example.monitor;
 
+import com.sun.jna.platform.win32.WinDef;
 import org.example.converter.ObjectListConverter;
 import org.example.model.*;
 import oshi.SystemInfo;
@@ -34,6 +35,10 @@ public class Monitor {
 
         List<HWDiskStore> diskStores = this.hardware.getDiskStores();
         Map<String, List<Long>> diskStoresInformation = getDiskStoresInformation(diskStores);
+        resources.setReadBytesDiskStores(diskStoresInformation.get("readBytesDiskStores"));
+        resources.setReadsDiskStores(diskStoresInformation.get("readsDiskStores"));
+        resources.setWriteBytesDiskStores(diskStoresInformation.get("writeBytesDiskStores"));
+        resources.setWritesDiskStores(diskStoresInformation.get("writesDiskStores"));
         resources.setPartitionsMajorFaults(diskStoresInformation.get("partitionsMajorFaults"));
         resources.setPartitionsMinorFaults(diskStoresInformation.get("partitionsMinorFaults"));
 
@@ -67,6 +72,18 @@ public class Monitor {
     private Map<String, List<Long>> getDiskStoresInformation(List<HWDiskStore> diskStores) {
         Map<String, List<Long>> diskStoresInformation = new HashMap<>();
         for (HWDiskStore diskStore : diskStores) {
+            List<Long> readBytesDiskStores = getReadBytesOfDiskStores(diskStoresInformation, diskStore);
+            diskStoresInformation.put("readBytesDiskStores", readBytesDiskStores);
+
+            List<Long> readsDiskStores = getReadsOfDiskStores(diskStoresInformation, diskStore);
+            diskStoresInformation.put("readsDiskStores", readsDiskStores);
+
+            List<Long> writeBytesDiskStores = getWriteBytesOfDiskStores(diskStoresInformation, diskStore);
+            diskStoresInformation.put("writeBytesDiskStores", writeBytesDiskStores);
+
+            List<Long> writesDiskStores = getWritesOfDiskStores(diskStoresInformation, diskStore);
+            diskStoresInformation.put("writesDiskStores", writesDiskStores);
+
             List<Long> partitionsMajorFaults = getPartitionsMajorFaultsOfDiskStore(diskStoresInformation, diskStore);
             diskStoresInformation.put("partitionsMajorFaults", partitionsMajorFaults);
 
@@ -74,6 +91,50 @@ public class Monitor {
             diskStoresInformation.put("partitionsMinorFaults", partitionsMinorFaults);
         }
         return diskStoresInformation;
+    }
+
+    private List<Long> getReadBytesOfDiskStores(Map<String, List<Long>> diskStoresInformation, HWDiskStore diskStore) {
+        List<Long> readBytesDiskStores;
+        if (diskStoresInformation.get("readBytesDiskStores") != null) {
+            readBytesDiskStores = diskStoresInformation.get("readBytesDiskStores");
+        } else {
+            readBytesDiskStores = new ArrayList<>();
+        }
+        readBytesDiskStores.add(diskStore.getReadBytes());
+        return readBytesDiskStores;
+    }
+
+    private List<Long> getReadsOfDiskStores(Map<String, List<Long>> diskStoresInformation, HWDiskStore diskStore) {
+        List<Long> readsDiskStores;
+        if (diskStoresInformation.get("readsDiskStores") != null) {
+            readsDiskStores = diskStoresInformation.get("readsDiskStores");
+        } else {
+            readsDiskStores = new ArrayList<>();
+        }
+        readsDiskStores.add(diskStore.getReads());
+        return readsDiskStores;
+    }
+
+    public List<Long> getWriteBytesOfDiskStores(Map<String, List<Long>> diskStoresInformation, HWDiskStore diskStore) {
+        List<Long> writeBytesDiskStores;
+        if (diskStoresInformation.get("writeBytesDiskStores") != null) {
+            writeBytesDiskStores = diskStoresInformation.get("writeBytesDiskStores");
+        } else {
+            writeBytesDiskStores = new ArrayList<>();
+        }
+        writeBytesDiskStores.add(diskStore.getWriteBytes());
+        return writeBytesDiskStores;
+    }
+
+    public List<Long> getWritesOfDiskStores(Map<String, List<Long>> diskStoresInformation, HWDiskStore diskStore) {
+        List<Long> writesDiskStores;
+        if (diskStoresInformation.get("writesDiskStores") != null) {
+            writesDiskStores = diskStoresInformation.get("writesDiskStores");
+        } else {
+            writesDiskStores = new ArrayList<>();
+        }
+        writesDiskStores.add(diskStore.getWrites());
+        return writesDiskStores;
     }
 
     private List<Long> getPartitionsMajorFaultsOfDiskStore(Map<String, List<Long>> diskStoresInformation, HWDiskStore diskStore) {
@@ -269,10 +330,6 @@ public class Monitor {
             diskStoreData.setModel(diskStore.getModel());
             diskStoreData.setName(diskStore.getName());
             diskStoreData.setSize(diskStore.getSize());
-            diskStoreData.setReadBytes(diskStore.getReadBytes());
-            diskStoreData.setReads(diskStore.getReads());
-            diskStoreData.setWriteBytes(diskStore.getWriteBytes());
-            diskStoreData.setWrites(diskStore.getWrites());
             diskStores.add(diskStoreData);
         }
         return diskStores;
