@@ -1,6 +1,6 @@
 package org.example.analysis;
 
-import org.example.model.ApplicationData;
+import org.example.model.Application;
 import oshi.software.os.OSProcess;
 
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class StatService {
-    private final Map<String, List<ApplicationData>> applicationMeasurementPoints = new TreeMap<>();
+    private final Map<String, List<Application>> applicationMeasurements = new TreeMap<>();
     private int dataAmount = 0; //saves how many times data was measured
     private final int analysisInterval = 60;
     private long lastAnalysis;
@@ -18,20 +18,15 @@ public class StatService {
 
     }
 
-    public List<ApplicationData> ingestData(long timestamp, List<OSProcess> osProcesses) {
+    public List<Application> ingestData(long timestamp, List<OSProcess> osProcesses) {
         this.dataAmount++;
-
-        //this calculates statistical stuff every minute, however slight differences can occur
-        //problem: data is not always exactly minute
-        //solution: artificial delay, deal with it, split up data
-
-        //this.osProcessMap.put(timestamp, osProcesses);
-        Map<String, ApplicationData> applications = mergeProcessesIntoApplications(timestamp, osProcesses);
-        insertApplicationDataIntoMeasurementPointMap(applications);
+        List<OSProcess> filteredOsProcesses = filterSystemProcesses(osProcesses);
+        Map<String, Application> mergedApplications = mergeProcessesIntoApplications(timestamp, filteredOsProcesses);
+        insertApplicationDataIntoApplicationMeasurements(mergedApplications);
 
         if (timestamp >= (this.lastAnalysis + this.analysisInterval * 1000L)) { //if X amount has passed since the last timeStamp / analysis
-            List<ApplicationData> evaluatedApplicationData = evaluateApplicationMeasurementPoints(timestamp);
-            this.applicationMeasurementPoints.clear();
+            List<Application> evaluatedApplicationData = evaluateApplicationMeasurements(timestamp);
+            this.applicationMeasurements.clear();
             this.lastAnalysis = timestamp;
             this.dataAmount = 0;
             return evaluatedApplicationData;
@@ -39,76 +34,107 @@ public class StatService {
         return null;
     }
 
+    private List<OSProcess> filterSystemProcesses(List<OSProcess> osProcesses) {
+        List<OSProcess> filteredOsProcesses = new ArrayList<>();
+        for (OSProcess process : osProcesses) {
+            if (process.getCommandLine() != null && !process.getCommandLine().equalsIgnoreCase("") && !process.getCommandLine().equalsIgnoreCase("C:\\Windows") && !process.getCommandLine().equalsIgnoreCase("C:\\Windows\\system32")) {
+                filteredOsProcesses.add(process);
+            }
+        }
+        return filteredOsProcesses;
+    }
 
-    private Map<String, ApplicationData> mergeProcessesIntoApplications(long timestamp, List<OSProcess> processList) { //merges processes into applications
-        //create map to assign and access values better, then turn that into a normal list
-        Map<String, ApplicationData> osProcessMapTemp = new TreeMap<>();
+    private Map<String, Application> mergeProcessesIntoApplications(long timestamp, List<OSProcess> processList) {
+        Map<String, Application> mergedApplications = new TreeMap<>();
         for (OSProcess process : processList) {
             String name = process.getName();
 
-            ApplicationData applicationData;
-            if (osProcessMapTemp.containsKey(name)) {
-                applicationData = osProcessMapTemp.get(name);
+            Application application;
+            if (mergedApplications.containsKey(name)) {
+                application = mergedApplications.get(name);
             } else {
-                applicationData = new ApplicationData();
-                applicationData.setUser(process.getUser());
-                applicationData.setPath(process.getPath());
+                application = new Application();
+                application.setTimestamp(timestamp);
+                application.setBitness(process.getBitness());
+                application.setCommandLine(process.getCommandLine());
+                application.setCurrentWorkingDirectory(process.getCurrentWorkingDirectory());
+                application.setName(name);
+                application.setPath(process.getPath());
+                application.setState(process.getState().toString());
+                application.setUser(process.getUser());
             }
+            addProcessAndCpuUsageToApplication(application, process);
 
-            applicationData.setTimestamp(timestamp);
-            addProcessAndCpuUsageToApplication(process, applicationData);
-
-            applicationData.mergeData(process.getResidentSetSize(), process.getBytesRead(), process.getBytesWritten(), process.getKernelTime(), process.getMajorFaults(), process.getMinorFaults(), process.getThreadCount(), process.getContextSwitches(), process.getUpTime(), process.getUserTime());
-            osProcessMapTemp.put(name, applicationData);
+            application.mergeData(process.getContextSwitches(), process.getMajorFaults(), process.getOpenFiles(), process.getResidentSetSize(), process.getThreadCount());
+            mergedApplications.put(name, application);
         }
-        return osProcessMapTemp;
+        return mergedApplications;
     }
 
-    private void addProcessAndCpuUsageToApplication(OSProcess process, ApplicationData applicationData) {
-        if (this.applicationMeasurementPoints.containsKey(process.getName())) { //if already has entry get previous cpu usage of respective process
-            List<ApplicationData> applicationDataList = this.applicationMeasurementPoints.get(process.getName());
-            ApplicationData previousAppData = applicationDataList.get(applicationDataList.size() - 1);
+    private void addProcessAndCpuUsageToApplication(Application application, OSProcess process) {
+        if (this.applicationMeasurements.containsKey(process.getName())) { //if already has entry get previous cpu usage of respective process
+            List<Application> applicationList = this.applicationMeasurements.get(process.getName());
+            Application previousAppData = applicationList.get(applicationList.size() - 1);
             for (OSProcess previousProcess : previousAppData.getContainedProcessesMap().keySet()) {
                 if (previousProcess.getProcessID() == process.getProcessID()) {
-                    applicationData.addProcess(process, calculateCPUUsage(process, previousProcess));
+                    application.addProcess(process, calculateCpuUsage(process, previousProcess));
                 }
             }
         } else {
-            applicationData.addProcess(process, calculateCPUUsage(process, null));
+            application.addProcess(process, calculateCpuUsage(process, null));
         }
     }
 
-    private void insertApplicationDataIntoMeasurementPointMap(Map<String, ApplicationData> osProcessMapTemp) {
-        for (Map.Entry<String, ApplicationData> current : osProcessMapTemp.entrySet()) {
-            List<ApplicationData> applicationDataList;
-            String key = current.getKey();
-            if (applicationMeasurementPoints.containsKey(key)) { //if it contains key just get ProcessData
-                applicationDataList = applicationMeasurementPoints.get(key);
+    private double calculateCpuUsage(OSProcess osProcess, OSProcess previousProcess) {
+        return osProcess.getProcessCpuLoadBetweenTicks(previousProcess);
+    }
+
+    private void insertApplicationDataIntoApplicationMeasurements(Map<String, Application> mergedApplications) {
+        for (Map.Entry<String, Application> applicationMeasurementsEntry : mergedApplications.entrySet()) {
+            List<Application> applicationList;
+            String applicationName = applicationMeasurementsEntry.getKey();
+            if (this.applicationMeasurements.containsKey(applicationName)) { //if it contains key just get ProcessData
+                applicationList = this.applicationMeasurements.get(applicationName);
             } else {
-                applicationDataList = new ArrayList<>();
+                applicationList = new ArrayList<>();
             }
-            applicationDataList.add(current.getValue());
-            applicationMeasurementPoints.put(key, applicationDataList);
+            applicationList.add(applicationMeasurementsEntry.getValue());
+            this.applicationMeasurements.put(applicationName, applicationList);
         }
     }
 
-    //TODO: docu says to devide cpu usage through number of logical processors, is that correct?
-    private double calculateCPUUsage(OSProcess osProcess, OSProcess previousProcess) { //calculates cpu usage per process
-        //System.out.println("calculateCPUUsage");
-        double cpuUsage = osProcess.getProcessCpuLoadBetweenTicks(previousProcess);
-        if (osProcess.getName().equals("Taskmgr")) {
-            System.out.println(osProcess.getName() + " " + cpuUsage);
+    private List<Application> evaluateApplicationMeasurements(long timestamp) { //does statistical calculations on minutely data (keep in mind that everything not transferred here will be lost)
+        List<Application> evaluatedApplicationData = new ArrayList<>();
+        for (Map.Entry<String, List<Application>> applicationMeasurementEntry : this.applicationMeasurements.entrySet()) {
+            List<Application> applicationList = applicationMeasurementEntry.getValue();
+
+            Application averageApplication = performStatisticalAnalysis(applicationList, timestamp);
+
+            averageApplication.setBitness(applicationList.get(0).getBitness());
+            averageApplication.setCommandLine(applicationList.get(0).getCommandLine());
+            averageApplication.setCurrentWorkingDirectory(applicationList.get(0).getCurrentWorkingDirectory());
+            averageApplication.setName(applicationMeasurementEntry.getKey());
+            averageApplication.setPath(applicationList.get(0).getPath());
+            averageApplication.setUser(applicationList.get(0).getUser());
+            averageApplication.setProcessCountDifference(compareProcessesAmount(applicationList)); //TODO: detect applications themselves closing too (just look if list is different from max value in list)
+
+            averageApplication.calculateAverage(applicationList.size());
+
+            evaluatedApplicationData.add(averageApplication);
         }
-        return cpuUsage;
+        return evaluatedApplicationData;
     }
 
-    private int compareProcessesAmount(List<ApplicationData> applicationDataList) {
-        ApplicationData firstAppData = applicationDataList.get(0);
-        ApplicationData lastAppData = applicationDataList.get(applicationDataList.size() - 1);
-        return lastAppData.getContainedProcessesMap().size() - firstAppData.getContainedProcessesMap().size();
+    private Application performStatisticalAnalysis(List<Application> applicationList, long timestamp) {
+        Application averageApplication = new Application();
+        for (Application application : applicationList) {
+            averageApplication.setCpuUsage(averageApplication.getCpuUsage() + calcTotalApplicationCpuUsage(application.getContainedProcessesMap()));
+            averageApplication.mergeData(application.getContextSwitches(), application.getMajorFaults(), application.getOpenFiles(), application.getResidentSetSize(), application.getThreadCount());
+        }
+        return setApplicationState(applicationList, averageApplication, timestamp);
     }
 
-    private double calcTotalCPUUsage(Map<OSProcess, Double> processes) {
+    private double calcTotalApplicationCpuUsage(Map<OSProcess, Double> processes) {
         double sum = 0;
         for (Map.Entry<OSProcess, Double> current : processes.entrySet()) {
             sum += current.getValue();
@@ -116,43 +142,20 @@ public class StatService {
         return sum;
     }
 
-    private List<ApplicationData> evaluateApplicationMeasurementPoints(long timestamp) { //does statistical calculations on minutely data (keep in mind that everything not transferred here will be lost)
-        List<ApplicationData> evaluatedApplicationData = new ArrayList<>();
-        for (Map.Entry<String, List<ApplicationData>> currentApplication : this.applicationMeasurementPoints.entrySet()) {
-            List<ApplicationData> applicationDataList = currentApplication.getValue();
-
-            ApplicationData sumApplication = performStatisticalAnalysis(applicationDataList, timestamp);
-
-            sumApplication.setName(currentApplication.getKey());
-            sumApplication.setPath(applicationDataList.get(0).getPath());
-            sumApplication.setUser(applicationDataList.get(0).getUser());
-            sumApplication.calculateAverage(applicationDataList.size());
-            sumApplication.setProcessCountDifference(compareProcessesAmount(applicationDataList)); //TODO: does this work or is nothing saved??????????
-            //have to implement way to detect applications themselves closing too (just look if list is different from max value in list)
-            evaluatedApplicationData.add(sumApplication);
-        }
-        return evaluatedApplicationData;
-    }
-
-    private ApplicationData setSumApplicationState(List<ApplicationData> applicationDataList, ApplicationData sumApplication, long timestamp) {
-        if (applicationDataList.size() < this.dataAmount && applicationDataList.get(applicationDataList.size() - 1).getTimestamp() < timestamp) { //indicates that an application was closed during measuring
-            //save by number value or string, you could compare first and last or loop through everything
-            sumApplication.setState("STOPPED");
-        } else if (applicationDataList.size() < this.dataAmount && applicationDataList.get(applicationDataList.size() - 1).getTimestamp() == timestamp) { //indicates that an application was opened during measuring
-            sumApplication.setState("STARTED");
+    private Application setApplicationState(List<Application> applicationMeasurements, Application averageApplication, long timestamp) {
+        if (applicationMeasurements.size() < this.dataAmount && applicationMeasurements.get(applicationMeasurements.size() - 1).getTimestamp() < timestamp) { //indicates that an application was closed during measuring
+            averageApplication.setState("STOPPED");
+        } else if (applicationMeasurements.size() < this.dataAmount && applicationMeasurements.get(applicationMeasurements.size() - 1).getTimestamp() == timestamp) { //indicates that an application was opened during measuring
+            averageApplication.setState("STARTED");
         } else {
-            sumApplication.setState("RUNNING");
+            averageApplication.setState("RUNNING");
         }
-        return sumApplication;
+        return averageApplication;
     }
 
-    private ApplicationData performStatisticalAnalysis(List<ApplicationData> applicationDataList, long timestamp) {
-        ApplicationData sumApplication = new ApplicationData();
-        for (ApplicationData application : applicationDataList) {
-            sumApplication.setCpuUsage(calcTotalCPUUsage(application.getContainedProcessesMap()));
-            sumApplication.mergeData(application.getResidentSetSize(), application.getBytesRead(), application.getBytesWritten(), application.getKernelTime(), application.getMajorFaults(), application.getMinorFaults(), application.getThreadCount(), application.getContextSwitches(), application.getUpTime(), application.getUserTime()); //put cpu here
-        }
-
-        return setSumApplicationState(applicationDataList, sumApplication, timestamp);
+    private int compareProcessesAmount(List<Application> applicationList) {
+        Application firstAppData = applicationList.get(0);
+        Application lastAppData = applicationList.get(applicationList.size() - 1);
+        return lastAppData.getContainedProcessesMap().size() - firstAppData.getContainedProcessesMap().size();
     }
 }

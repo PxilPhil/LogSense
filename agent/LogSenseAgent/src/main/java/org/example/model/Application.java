@@ -3,19 +3,16 @@ package org.example.model;
 import oshi.software.os.OSProcess;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class ApplicationData {
+public class Application {
     private long contextSwitches;
     private long majorFaults;
-    private long processID;
+    private List<Long> processIDs;
     private int bitness;
-    private long bytesRead;
-    private long bytesWritten;
     private String commandLine;
     private String currentWorkingDirectory;
-    private long kernelTime;
-    private long minorFaults;
     private String name;
     private long openFiles;
     private long parentProcessID;
@@ -26,13 +23,12 @@ public class ApplicationData {
     private int threadCount;
     private long upTime;
     private String user;
-    private long userTime;
     private double cpuUsage;
     private final Map<OSProcess, Double> containedProcessesMap = new HashMap<>(); //saves all contained processes, if a new processes is added or one is removed, processCounter should be changed
     private int processCountDifference;
     private long timestamp;
 
-    public ApplicationData() {
+    public Application() {
     }
 
     public long getContextSwitches() {
@@ -51,12 +47,12 @@ public class ApplicationData {
         this.majorFaults = majorFaults;
     }
 
-    public long getProcessID() {
-        return processID;
+    public List<Long> getProcessIDs() {
+        return processIDs;
     }
 
-    public void setProcessID(long processID) {
-        this.processID = processID;
+    public void setProcessIDs(List<Long> processIDs) {
+        this.processIDs = processIDs;
     }
 
     public int getBitness() {
@@ -65,22 +61,6 @@ public class ApplicationData {
 
     public void setBitness(int bitness) {
         this.bitness = bitness;
-    }
-
-    public long getBytesRead() {
-        return bytesRead;
-    }
-
-    public void setBytesRead(long bytesRead) {
-        this.bytesRead = bytesRead;
-    }
-
-    public long getBytesWritten() {
-        return bytesWritten;
-    }
-
-    public void setBytesWritten(long bytesWritten) {
-        this.bytesWritten = bytesWritten;
     }
 
     public String getCommandLine() {
@@ -97,26 +77,6 @@ public class ApplicationData {
 
     public void setCurrentWorkingDirectory(String currentWorkingDirectory) {
         this.currentWorkingDirectory = currentWorkingDirectory;
-    }
-
-    public long getKernelTime() {
-        return kernelTime;
-    }
-
-    public void setKernelTime(int kernelTime) {
-        this.kernelTime = kernelTime;
-    }
-
-    public void setKernelTime(long kernelTime) {
-        this.kernelTime = kernelTime;
-    }
-
-    public long getMinorFaults() {
-        return minorFaults;
-    }
-
-    public void setMinorFaults(long minorFaults) {
-        this.minorFaults = minorFaults;
     }
 
     public String getName() {
@@ -199,14 +159,6 @@ public class ApplicationData {
         this.user = user;
     }
 
-    public long getUserTime() {
-        return userTime;
-    }
-
-    public void setUserTime(long userTime) {
-        this.userTime = userTime;
-    }
-
     public int getProcessCountDifference() {
         return processCountDifference;
     }
@@ -246,30 +198,20 @@ public class ApplicationData {
         return containedProcessesMap;
     }
 
-    public void mergeData(long residentSetSize, long bytesRead, long bytesWritten, long kernelTime, long majorFaults, long minorFaults, long threadCount, long contextSwitches, long upTime, long userTime) {
-        this.residentSetSize += residentSetSize;
-        this.bytesRead += bytesRead;
-        this.bytesWritten += bytesWritten;
-        this.kernelTime += kernelTime;
-        this.majorFaults += majorFaults;
-        this.minorFaults += minorFaults;
-        this.threadCount += threadCount;
+    public void mergeData(long contextSwitches, long majorFaults, long openFiles, long residentSetSize, long threadCount) {
         this.contextSwitches += contextSwitches;
-        this.upTime += upTime;
-        this.userTime += userTime;
+        this.majorFaults += majorFaults;
+        this.openFiles += openFiles;
+        this.residentSetSize += residentSetSize;
+        this.threadCount += threadCount;
     }
 
     public void calculateAverage(int amount) {
-        this.residentSetSize = residentSetSize / amount;
-        this.bytesRead = bytesRead / amount;
-        this.bytesWritten = bytesWritten / amount;
-        this.kernelTime = kernelTime / amount;
-        this.majorFaults = majorFaults / amount;
-        this.minorFaults = minorFaults / amount;
-        this.threadCount = threadCount / amount;
-        this.contextSwitches = contextSwitches / amount;
-        this.upTime = upTime / amount;
-        this.userTime = userTime / amount;
-        this.cpuUsage = cpuUsage / amount;
+        this.residentSetSize /= amount;
+        this.majorFaults /= amount;
+        this.threadCount /= amount;
+        this.contextSwitches /= amount;
+        this.upTime /= amount;
+        this.cpuUsage /= amount;
     }
 }

@@ -2,20 +2,12 @@ package org.example.model;
 
 import java.util.List;
 
-public class ResourcesData {
+public class Resources {
     private long freeDiskSpace;
-    private List<Long> diskStoresReadBytes;
-    private List<Long> diskStoresReads;
-    private List<Long> diskStoresWriteBytes;
-    private List<Long> diskStoresWrites;
-    private List<Long> partitionsMajorFaults; //numbers are sorted by disk store then by partition
-    private List<Long> partitionsMinorFaults;
+    private List<Long> partitionsMajorFaults;   //numbers are sorted by disk store then by partition
+    private List<Long> partitionsMinorFaults;   //numbers are sorted by disk store then by partition
     private long availableMemory;
-    private List<Long> networkInterfacesBytesReceived;
-    private List<Long> networkInterfacesBytesSent;
-    private List<Long> networkInterfacesCollisions;
-    private List<Long> networkInterfacesPacketsReceived;
-    private List<Long> networkInterfacesPacketsSent;
+    private List<String> powerSourcesNames;
     private List<Boolean> powerSourcesCharging;
     private List<Boolean> powerSourcesDischarging;
     private List<Boolean> powerSourcesPowerOnLine;
@@ -30,38 +22,6 @@ public class ResourcesData {
 
     public void setFreeDiskSpace(long freeDiskSpace) {
         this.freeDiskSpace = freeDiskSpace;
-    }
-
-    public List<Long> getDiskStoresReadBytes() {
-        return diskStoresReadBytes;
-    }
-
-    public void setDiskStoresReadBytes(List<Long> diskStoresReadBytes) {
-        this.diskStoresReadBytes = diskStoresReadBytes;
-    }
-
-    public List<Long> getDiskStoresReads() {
-        return diskStoresReads;
-    }
-
-    public void setDiskStoresReads(List<Long> diskStoresReads) {
-        this.diskStoresReads = diskStoresReads;
-    }
-
-    public List<Long> getDiskStoresWriteBytes() {
-        return diskStoresWriteBytes;
-    }
-
-    public void setDiskStoresWriteBytes(List<Long> diskStoresWriteBytes) {
-        this.diskStoresWriteBytes = diskStoresWriteBytes;
-    }
-
-    public List<Long> getDiskStoresWrites() {
-        return diskStoresWrites;
-    }
-
-    public void setDiskStoresWrites(List<Long> diskStoresWrites) {
-        this.diskStoresWrites = diskStoresWrites;
     }
 
     public List<Long> getPartitionsMajorFaults() {
@@ -88,44 +48,12 @@ public class ResourcesData {
         this.availableMemory = availableMemory;
     }
 
-    public List<Long> getNetworkInterfacesBytesReceived() {
-        return networkInterfacesBytesReceived;
+    public List<String> getPowerSourcesNames() {
+        return powerSourcesNames;
     }
 
-    public void setNetworkInterfacesBytesReceived(List<Long> networkInterfacesBytesReceived) {
-        this.networkInterfacesBytesReceived = networkInterfacesBytesReceived;
-    }
-
-    public List<Long> getNetworkInterfacesBytesSent() {
-        return networkInterfacesBytesSent;
-    }
-
-    public void setNetworkInterfacesBytesSent(List<Long> networkInterfacesBytesSent) {
-        this.networkInterfacesBytesSent = networkInterfacesBytesSent;
-    }
-
-    public List<Long> getNetworkInterfacesCollisions() {
-        return networkInterfacesCollisions;
-    }
-
-    public void setNetworkInterfacesCollisions(List<Long> networkInterfacesCollisions) {
-        this.networkInterfacesCollisions = networkInterfacesCollisions;
-    }
-
-    public List<Long> getNetworkInterfacesPacketsReceived() {
-        return networkInterfacesPacketsReceived;
-    }
-
-    public void setNetworkInterfacesPacketsReceived(List<Long> networkInterfacesPacketsReceived) {
-        this.networkInterfacesPacketsReceived = networkInterfacesPacketsReceived;
-    }
-
-    public List<Long> getNetworkInterfacesPacketsSent() {
-        return networkInterfacesPacketsSent;
-    }
-
-    public void setNetworkInterfacesPacketsSent(List<Long> networkInterfacesPacketsSent) {
-        this.networkInterfacesPacketsSent = networkInterfacesPacketsSent;
+    public void setPowerSourcesNames(List<String> powerSourcesNames) {
+        this.powerSourcesNames = powerSourcesNames;
     }
 
     public List<Boolean> getPowerSourcesCharging() {

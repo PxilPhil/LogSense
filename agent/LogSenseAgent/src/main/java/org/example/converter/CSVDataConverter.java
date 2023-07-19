@@ -2,74 +2,170 @@ package org.example.converter;
 
 import org.example.common.DataConverter;
 import org.example.common.ListToStringConverter;
-import org.example.model.ApplicationData;
-import org.example.model.ResourcesData;
+import org.example.model.*;
 
+import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.List;
 
 public class CSVDataConverter implements DataConverter {
-    public String convertApplicationData(long timestamp, List<ApplicationData> applicationData) {
+    @Override
+    public String convertApplicationData(long timestamp, List<Application> applicationData) {
         StringBuilder csv = new StringBuilder();
-        csv.append("timestamp,contextSwitches,majorFaults,bytesRead,bytesWritten,kernelTime,minorFaults,name,path,residentSetSize,upTime,user,userTime,eventHeader,cpu,state");
+        csv.append("timestamp|contextSwitches|majorFaults|bitness|commandLine|currentWorkingDirectory|name|openFiles|parentProcessID|path|residentSetSize|state|threadCount|upTime|user|processCountDifference|cpuUsage\n");
 
-        for (ApplicationData application : applicationData) {
-            csv.append("\n");
-            csv.append(timestamp).append(",");
-            csv.append(application.getContextSwitches()).append(",");
-            csv.append(application.getMajorFaults()).append(",");
-            csv.append(application.getBytesRead()).append(",");
-            csv.append(application.getBytesWritten()).append(",");
-            csv.append(application.getKernelTime()).append(",");
-            csv.append(application.getMinorFaults()).append(",");
-            csv.append(application.getName()).append(",");
-            csv.append(application.getPath()).append(",");
-            csv.append(application.getResidentSetSize()).append(",");
-            csv.append(application.getUpTime()).append(",");
-            csv.append(application.getUser()).append(",");
-            csv.append(application.getUserTime()).append(",");
-            csv.append(application.getProcessCountDifference()).append(",");
-            csv.append(application.getCpuUsage()).append(",");
-            csv.append(application.getState());
+        for (Application application : applicationData) {
+            csv.append(timestamp).append("|");
+            csv.append(application.getContextSwitches()).append("|");
+            csv.append(application.getMajorFaults()).append("|");
+            csv.append(application.getBitness()).append("|");
+            csv.append(application.getCommandLine()).append("|");
+            csv.append(application.getCurrentWorkingDirectory()).append("|");
+            csv.append(application.getName()).append("|");
+            csv.append(application.getOpenFiles()).append("|");
+            csv.append(application.getParentProcessID()).append("|");
+            csv.append(application.getPath()).append("|");
+            csv.append(application.getResidentSetSize()).append("|");
+            csv.append(application.getState()).append("|");
+            csv.append(application.getThreadCount()).append("|");
+            csv.append(application.getUpTime()).append("|");
+            csv.append(application.getUser()).append("|");
+            csv.append(application.getProcessCountDifference()).append("|");
+            csv.append(application.getCpuUsage()).append("\n");
         }
         return csv.toString();
     }
 
     @Override
-    public String convertResourceData(long timestamp, ResourcesData resourcesData) {
+    public String convertResourceData(long timestamp, Resources resources) {
         ListToStringConverter<Long> longListToStringConverter = new ListToStringSpacesConverter<>();
         ListToStringConverter<Boolean> booleanListToStringConverter = new ListToStringSpacesConverter<>();
         ListToStringConverter<Double> doubleListToStringConverter = new ListToStringSpacesConverter<>();
+        ListToStringConverter<String> stringListToStringConvert = new ListToStringSpacesConverter<>();
 
         StringBuilder csv = new StringBuilder();
-        csv.append("timestamp,freeDiskSpace,readBytesDiskStores,readsDiskStores,writeBytesDiskStores,writesDiskStores,partitionsMajorFaults,partitionsMinorFaults,availableMemory,bytesReceivedNetworkInterfaces,bytesSentNetworkInterfaces,collisionsNetworkInterfaces,packetsReceivedNetworkInterfaces,packetsSentNetworkInterfaces,chargingPowerSources,dischargingPowerSources,powerOnLinePowerSources,powerUsageRatePowerSources,remainingCapacityPercentPowerSources,contextSwitchesProcessor,interruptsProcessor\n");
+        csv.append("timestamp|freeDiskSpace|partitionsMajorFaults|partitionsMinorFaults|availableMemory|namesPowerSources|chargingPowerSources|dischargingPowerSources|powerOnLinePowerSources|remainingCapacityPercentPowerSources|contextSwitchesProcessor|interruptsProcessor\n");
 
-        csv.append(timestamp).append(",");
+        csv.append(timestamp).append("|");
 
-        csv.append(resourcesData.getFreeDiskSpace()).append(",");
+        csv.append(resources.getFreeDiskSpace()).append("|");
 
-        csv.append(longListToStringConverter.convert(resourcesData.getDiskStoresReadBytes())).append(",");
-        csv.append(longListToStringConverter.convert(resourcesData.getDiskStoresReads())).append(",");
-        csv.append(longListToStringConverter.convert(resourcesData.getDiskStoresWriteBytes())).append(",");
-        csv.append(longListToStringConverter.convert(resourcesData.getDiskStoresWrites())).append(",");
-        csv.append(longListToStringConverter.convert(resourcesData.getPartitionsMajorFaults())).append(",");
-        csv.append(longListToStringConverter.convert(resourcesData.getPartitionsMinorFaults())).append(",");
+        csv.append(longListToStringConverter.convert(resources.getPartitionsMajorFaults())).append("|");
+        csv.append(longListToStringConverter.convert(resources.getPartitionsMinorFaults())).append("|");
 
-        csv.append(resourcesData.getAvailableMemory()).append(",");
+        csv.append(resources.getAvailableMemory()).append("|");
 
-        csv.append(longListToStringConverter.convert(resourcesData.getNetworkInterfacesBytesReceived())).append(",");
-        csv.append(longListToStringConverter.convert(resourcesData.getNetworkInterfacesBytesSent())).append(",");
-        csv.append(longListToStringConverter.convert(resourcesData.getNetworkInterfacesCollisions())).append(",");
-        csv.append(longListToStringConverter.convert(resourcesData.getNetworkInterfacesPacketsReceived())).append(",");
-        csv.append(longListToStringConverter.convert(resourcesData.getNetworkInterfacesPacketsSent())).append(",");
+        csv.append(stringListToStringConvert.convert(resources.getPowerSourcesNames())).append("|");
+        csv.append(booleanListToStringConverter.convert(resources.getPowerSourcesCharging())).append("|");
+        csv.append(booleanListToStringConverter.convert(resources.getPowerSourcesDischarging())).append("|");
+        csv.append(booleanListToStringConverter.convert(resources.getPowerSourcesPowerOnLine())).append("|");
+        csv.append(doubleListToStringConverter.convert(resources.getPowerSourcesRemainingCapacityPercent())).append("|");
 
-        csv.append(booleanListToStringConverter.convert(resourcesData.getPowerSourcesCharging())).append(",");
-        csv.append(booleanListToStringConverter.convert(resourcesData.getPowerSourcesDischarging())).append(",");
-        csv.append(booleanListToStringConverter.convert(resourcesData.getPowerSourcesPowerOnLine())).append(",");
-        csv.append(doubleListToStringConverter.convert(resourcesData.getPowerSourcesPowerUsageRate())).append(",");
-        csv.append(doubleListToStringConverter.convert(resourcesData.getPowerSourcesRemainingCapacityPercent())).append(",");
+        csv.append(resources.getProcessorContextSwitches()).append("|");
+        csv.append(resources.getProcessorInterrupts()).append("\n");
+        return csv.toString();
+    }
 
-        csv.append(resourcesData.getProcessorContextSwitches()).append(",");
-        csv.append(resourcesData.getProcessorInterrupts());
+    @Override
+    public String convertConnectionData(long timestamp, List<Connection> connectionData) {
+        StringBuilder csv = new StringBuilder();
+        csv.append("timestamp|localAddress|localPort|foreignAddress|foreignPort|state|type|owningProcessID\n");
+
+        for (Connection connection : connectionData) {
+            csv.append(timestamp).append("|");
+            csv.append(connection.getLocalAddress()).append("|");
+            csv.append(connection.getLocalPort()).append("|");
+            csv.append(connection.getForeignAddress()).append("|");
+            csv.append(connection.getForeignPort()).append("|");
+            csv.append(connection.getState()).append("|");
+            csv.append(connection.getType()).append("|");
+            csv.append(connection.getOwningProcessID()).append("\n");
+        }
+        return csv.toString();
+    }
+
+    @Override
+    public String convertNetworkInterfacesData(long timestamp, List<NetworkInterface> networkInterfaces) {
+        ListToStringConverter<InetAddress> inetAddressListToStringConverter = new ListToStringSpacesConverter<>();
+        ListToStringConverter<Short> shortListToStringConverter = new ListToStringSpacesConverter<>();
+
+        StringBuilder csv = new StringBuilder();
+        csv.append("timestamp|displayName|name|ipv4Address|ipv6Address|macAddress|subnetMask|bytesReceived|bytesSent|packetsReceived|packetsSent\n");
+
+        for (NetworkInterface networkInterface : networkInterfaces) {
+            csv.append(timestamp).append("|");
+            csv.append(networkInterface.getDisplayName()).append("|");
+            csv.append(networkInterface.getName()).append("|");
+            csv.append(inetAddressListToStringConverter.convert(networkInterface.getIpv4Addresses())).append("|");
+            csv.append(inetAddressListToStringConverter.convert(networkInterface.getIpv6Addresses())).append("|");
+            csv.append(networkInterface.getMacAddress()).append("|");
+            csv.append(shortListToStringConverter.convert(Arrays.stream(networkInterface.getSubnetMasks()).toList())).append("|");
+            csv.append(networkInterface.getBytesReceived()).append("|");
+            csv.append(networkInterface.getBytesSent()).append("|");
+            csv.append(networkInterface.getPacketsReceived()).append("|");
+            csv.append(networkInterface.getPacketsSent()).append("\n");
+        }
+        return csv.toString();
+    }
+
+    @Override
+    public String convertClientData(long timestamp, Client client) {
+        Computer computer = client.getComputer();
+        Memory memory = client.getMemory();
+        Processor processor = client.getProcessor();
+
+        StringBuilder csv = new StringBuilder();
+        csv.append("computerHardwareUUID|computerManufacturer|computerModel|memoryTotalSize|memoryPageSize|processorName|processorIdentifier|processorID|processorVendor|processorBitness|physicalPackageCount|physicalProcessorCount|logicalProcessorCount\n");
+
+        csv.append(computer.getHardwareUUID()).append("|");
+        csv.append(computer.getManufacturer()).append("|");
+        csv.append(computer.getModel()).append("|");
+
+        csv.append(memory.getTotalSize()).append("|");
+        csv.append(memory.getPageSize()).append("|");
+
+        csv.append(processor.getName()).append("|");
+        csv.append(processor.getIdentifier()).append("|");
+        csv.append(processor.getID()).append("|");
+        csv.append(processor.getVendor()).append("|");
+        csv.append(processor.getBitness()).append("|");
+        csv.append(processor.getPhysicalPackageCount()).append("|");
+        csv.append(processor.getPhysicalProcessorCount()).append("|");
+        csv.append(processor.getLogicalProcessorCount()).append("\n");
+
+        return csv.toString();
+    }
+
+    @Override
+    public String convertDiskStoreData(List<DiskStore> diskStores) {
+        StringBuilder csv = new StringBuilder();
+        csv.append("model|name|size|readBytes|reads|writeBytes|writes\n");
+        for (DiskStore diskStore : diskStores) {
+            csv.append(diskStore.getModel()).append("|");
+            csv.append(diskStore.getName()).append("|");
+            csv.append(diskStore.getSize()).append("|");
+            csv.append(diskStore.getReadBytes()).append("|");
+            csv.append(diskStore.getReads()).append("|");
+            csv.append(diskStore.getWriteBytes()).append("|");
+            csv.append(diskStore.getWrites()).append("\n");
+        }
+        return csv.toString();
+    }
+
+    @Override
+    public String convertPartitionData(List<Partition> partitions) {
+        StringBuilder csv = new StringBuilder();
+        csv.append("diskStoreName|identification|name|type|mountPoint|size|majorFaults|minorFaults\n");
+        for (Partition partition : partitions) {
+            csv.append(partition.getDiskStoreName()).append("|");
+            csv.append(partition.getIdentification()).append("|");
+            csv.append(partition.getName()).append("|");
+            csv.append(partition.getType()).append("|");
+            csv.append(partition.getMountPoint()).append("|");
+            csv.append(partition.getSize()).append("|");
+            csv.append(partition.getMajorFaults()).append("|");
+            csv.append(partition.getMinorFaults()).append("\n");
+        }
         return csv.toString();
     }
 }
