@@ -79,6 +79,10 @@ h3 {
   font-size: 14px;
   color: $dark-grey-2;
 }
+
+.bold {
+  font-weight: bold;
+}
 //Borders, Shadows, etc
 $shadow: 0 0 5px 0 rgba(0, 0, 0, 0.25);
 $lil-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.20);
@@ -132,6 +136,15 @@ $border-1px: solid $black 1px;
   border-radius: 5px;
   padding: 32px;
   margin-right: 128px;
+}
+.alert-box {
+  width: 100%;
+  width: -moz-available;          /* WebKit-based browsers will ignore this. */
+  width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
+  display: flex;
+  background-color: $white;
+  border: $border-1px;
+  padding: 6px 12px;
 }
 .flex-center {
   display: inline-flex;
@@ -264,6 +277,6 @@ button:focus-visible {
 .mar-bot-5 {
   margin-bottom: 5px;
 }
-
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+.pad-bot-64 {
+  padding-bottom: 64px;
+}
