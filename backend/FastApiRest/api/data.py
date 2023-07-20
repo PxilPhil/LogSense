@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Request, APIRouter
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import List
+from db_access.data import insert_pcdata
 
 data = APIRouter()
 
@@ -23,7 +24,7 @@ class ApplicationData(BaseModel):
     thread_Count: int
     uptime: int
     process_Count_Difference: int
-    applicationdata_anomaly: int  # Update: Add this field for applicationdata_anomaly
+    applicationdata_anomaly: int
 
 class NetworkInterface(BaseModel):
     name: str
@@ -74,13 +75,10 @@ def injest_all_data(data: TimeseriesData):
     """
     try:
         pcdata = data.pcdata
-        applicationdata = data.applicationdata
-        applicationdata_anomaly = data.applicationdata_anomaly
-        networkInterface = data.networkInterface
 
-        # Do something with the data...
+        pcdata_id = insert_pcdata(pcdata)
 
-        return {"result": "Data inserted successfully"}
+        return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": pcdata_id}, status_code=200)
 
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid JSON data")
