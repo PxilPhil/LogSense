@@ -29,7 +29,7 @@ def generate_tables(db_host, db_port, db_name, db_user, db_password):
     cursor = conn.cursor()
 
     try:
-        with open('..\\tables.sql', 'r') as file:
+        with open('tables.sql', 'r') as file:
             sql_statements = file.read()
             cursor.execute(sql_statements)
             conn.commit()
@@ -45,5 +45,5 @@ def generate_tables(db_host, db_port, db_name, db_user, db_password):
 
 logging.basicConfig(filename='app.log', level=logging.INFO)
 
-db_host, db_port, db_name, db_user, db_password = get_database_config('..\\config.ini')
+db_host, db_port, db_name, db_user, db_password = get_database_config('config.ini')
 bool, conn, cursor = generate_tables(db_host, db_port, db_name, db_user, db_password)

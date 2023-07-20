@@ -1,6 +1,6 @@
 ### Add User ###
 
-POST http://localhost:5000/user/add_user
+POST http://localhost:8000/user/add_user
 Content-Type: application/json
 
 {

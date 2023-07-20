@@ -1,19 +1,54 @@
 from fastapi import FastAPI, HTTPException, Request, APIRouter
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from typing import List
 
 data = APIRouter()
 
+class ApplicationData(BaseModel):
+    measurement_time: str
+    name: str
+    path: str
+    cpu: float
+    ram: int
+    State: str
+    user: str
+    context_Switches: int
+    major_Faults: int
+    bitness: int
+    commandline: str
+    current_Working_Directory: str
+    open_Files: int
+    parent_ProcessID: int
+    thread_Count: int
+    uptime: int
+    process_Count_Difference: int
+
+class NetworkInterface(BaseModel):
+    name: str
+    display_name: str
+    ipv4_address: str
+    ipv6_address: str
+    art: str
+    subnet_mask: str
+    mac_address: str
+    bytes_received: int
+    bytes_sent: int
+    packets_received: int
+    packets_sent: int
+
 class TimeseriesData(BaseModel):
-    pcdata: str
-    other_field: int
+    pcdata: dict
+    applicationdata: List[ApplicationData]
+    applicationdata_anomaly: dict
+    networkInterface: List[NetworkInterface]
 
 @data.post("/", description="Insert Timeseries data", tags=["Data"], responses={
     200: {"description": "Successful response"},
     400: {"description": "Invalid JSON data"},
     500: {"description": "Internal server error"}
 })
-def injest_all_data(request: Request, data: TimeseriesData):
+def injest_all_data(data: TimeseriesData):
     """
     Insert Timeseries data.
 
@@ -26,12 +61,11 @@ def injest_all_data(request: Request, data: TimeseriesData):
     """
     try:
         pcdata = data.pcdata
-        other_field = data.other_field
+        applicationdata = data.applicationdata
+        applicationdata_anomaly = data.applicationdata_anomaly
+        networkInterface = data.networkInterface
 
-
-        if True:
-            error_data = {'error': 'not implemented yet'}
-            return JSONResponse(content=error_data, status_code=500)
+        # Do something with the data...
 
         return {"result": "Data inserted successfully"}
 
