@@ -5,11 +5,15 @@ application_list = []  # list of applications with high causality to total usage
 
 # we maybe don't need detect_causality_percentual if we just calculate the amount beforehand
 def detect_causality(timestamp_df, agg_df, df,
-                     column):  # alternatively just work with the processes with the largest usage
+                     column):  # alternatively just work with the processes with the largest usage, maybe access deltas
+    #TODO: pass timestamp here later on
     for index, row in agg_df.iterrows():
         curr_row = df.loc[df.name == index].groupby(['timestamp']).sum(numeric_only=True).sort_values(by=['timestamp'])
-        corr = timestamp_df[column].corr(curr_row[column])  # find out causality
-        if corr > causation_limit:
+        mean = curr_row[column].mean()
+
+        sum = timestamp_df.loc[curr_row.index[-1]][column]
+
+        if mean/sum > 0.05:
             application_list.append(index)
     return detect_causality_percentual(df, timestamp_df, column)
 
@@ -19,13 +23,13 @@ def detect_causality_percentual(df, timestamp_df, column):
     # calculate how much in percentual values the delta of applications and
     # total ram usage overlap
     timestamp_df['Delta'] = timestamp_df[column].diff()
-    timestamp_df['Delta'].fillna(1, inplace=True)
+    timestamp_df = timestamp_df.dropna()
 
     for application in application_list:
         application_row = df.loc[df.name == application].groupby(['timestamp']).sum(numeric_only=True).sort_values(
             by=['timestamp'])
         application_row['Delta'] = application_row[column].diff()
-        application_row['Delta'].fillna(1, inplace=True)
+        application_row = application_row.dropna()
 
         causality_list = []
         for index, row in application_row.iterrows():
@@ -45,8 +49,6 @@ def convert_to_list(
 
 def filter_causation(pair):
     key, value = pair
-    print(key)
-    print(value)
     if value >= causation_percentual_limit:
         return True  # filter pair out of the dictionary
     else:

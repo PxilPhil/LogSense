@@ -15,8 +15,6 @@ def calculate_moving_avg(df, column):  # calculates moving avg for the column
     df['MovingAvg'] = df[column].rolling(
         window=5).mean()  # moving averages can be used to flatten
     df = df.dropna()
-    print('dropped')
-    print(df)
     return df
 
 
