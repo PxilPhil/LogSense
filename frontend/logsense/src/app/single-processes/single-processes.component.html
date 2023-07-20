@@ -4,12 +4,17 @@
     <div class="white-box">
       <form class="example-form">
         <mat-form-field class="example-full-width">
-          <mat-label>Process</mat-label>
           <input type="tel" matInput placeholder="Search...">
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
       </form>
-
+      <div *ngFor="let process of tmpProcesses">
+        <div class="txt-22">
+          {{process.name}}
+        </div>
+      </div>
+    </div>
+    <div>
 
     </div>
   </div>
