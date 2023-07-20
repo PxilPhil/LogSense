@@ -13,6 +13,17 @@ public class Processor {
     public Processor() {
     }
 
+    public Processor(String name, String identifier, String ID, String vendor, int bitness, int physicalPackageCount, int physicalProcessorCount, int logicalProcessorCount) {
+        this.name = name;
+        this.identifier = identifier;
+        this.ID = ID;
+        this.vendor = vendor;
+        this.bitness = bitness;
+        this.physicalPackageCount = physicalPackageCount;
+        this.physicalProcessorCount = physicalProcessorCount;
+        this.logicalProcessorCount = logicalProcessorCount;
+    }
+
     public String getName() {
         return name;
     }

@@ -16,10 +16,30 @@ public class Resources {
     private List<Boolean> powerSourcesCharging;
     private List<Boolean> powerSourcesDischarging;
     private List<Boolean> powerSourcesPowerOnLine;
-    private List<Double> powerSourcesPowerUsageRate;
     private List<Double> powerSourcesRemainingCapacityPercent;
     private long processorContextSwitches;
     private long processorInterrupts;
+
+    public Resources() {
+    }
+
+    public Resources(long freeDiskSpace, List<Long> readBytesDiskStores, List<Long> readsDiskStores, List<Long> writeBytesDiskStores, List<Long> writesDiskStores, List<Long> partitionsMajorFaults, List<Long> partitionsMinorFaults, long availableMemory, List<String> powerSourcesNames, List<Boolean> powerSourcesCharging, List<Boolean> powerSourcesDischarging, List<Boolean> powerSourcesPowerOnLine, List<Double> powerSourcesRemainingCapacityPercent, long processorContextSwitches, long processorInterrupts) {
+        this.freeDiskSpace = freeDiskSpace;
+        this.readBytesDiskStores = readBytesDiskStores;
+        this.readsDiskStores = readsDiskStores;
+        this.writeBytesDiskStores = writeBytesDiskStores;
+        this.writesDiskStores = writesDiskStores;
+        this.partitionsMajorFaults = partitionsMajorFaults;
+        this.partitionsMinorFaults = partitionsMinorFaults;
+        this.availableMemory = availableMemory;
+        this.powerSourcesNames = powerSourcesNames;
+        this.powerSourcesCharging = powerSourcesCharging;
+        this.powerSourcesDischarging = powerSourcesDischarging;
+        this.powerSourcesPowerOnLine = powerSourcesPowerOnLine;
+        this.powerSourcesRemainingCapacityPercent = powerSourcesRemainingCapacityPercent;
+        this.processorContextSwitches = processorContextSwitches;
+        this.processorInterrupts = processorInterrupts;
+    }
 
     public long getFreeDiskSpace() {
         return freeDiskSpace;
@@ -115,14 +135,6 @@ public class Resources {
 
     public void setPowerSourcesPowerOnLine(List<Boolean> powerSourcesPowerOnLine) {
         this.powerSourcesPowerOnLine = powerSourcesPowerOnLine;
-    }
-
-    public List<Double> getPowerSourcesPowerUsageRate() {
-        return powerSourcesPowerUsageRate;
-    }
-
-    public void setPowerSourcesPowerUsageRate(List<Double> powerSourcesPowerUsageRate) {
-        this.powerSourcesPowerUsageRate = powerSourcesPowerUsageRate;
     }
 
     public List<Double> getPowerSourcesRemainingCapacityPercent() {

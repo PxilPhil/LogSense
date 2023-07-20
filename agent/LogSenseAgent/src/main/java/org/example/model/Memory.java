@@ -7,6 +7,11 @@ public class Memory {
     public Memory() {
     }
 
+    public Memory(long totalSize, long pageSize) {
+        this.totalSize = totalSize;
+        this.pageSize = pageSize;
+    }
+
     public long getTotalSize() {
         return totalSize;
     }

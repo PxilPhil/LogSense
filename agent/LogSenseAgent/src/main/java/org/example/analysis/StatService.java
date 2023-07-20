@@ -65,7 +65,7 @@ public class StatService {
             }
             addProcessAndCpuUsageToApplication(application, process);
 
-            application.mergeData(process.getContextSwitches(), process.getMajorFaults(), process.getOpenFiles(), process.getResidentSetSize(), process.getThreadCount());
+            application.mergeData(process.getContextSwitches(), process.getMajorFaults(), process.getOpenFiles(), process.getResidentSetSize(), process.getThreadCount(), process.getUpTime());
             mergedApplications.put(name, application);
         }
         return mergedApplications;
@@ -129,7 +129,7 @@ public class StatService {
         Application averageApplication = new Application();
         for (Application application : applicationList) {
             averageApplication.setCpuUsage(averageApplication.getCpuUsage() + calcTotalApplicationCpuUsage(application.getContainedProcessesMap()));
-            averageApplication.mergeData(application.getContextSwitches(), application.getMajorFaults(), application.getOpenFiles(), application.getResidentSetSize(), application.getThreadCount());
+            averageApplication.mergeData(application.getContextSwitches(), application.getMajorFaults(), application.getOpenFiles(), application.getResidentSetSize(), application.getThreadCount(), application.getUpTime());
         }
         return setApplicationState(applicationList, averageApplication, timestamp);
     }

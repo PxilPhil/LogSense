@@ -13,6 +13,17 @@ public class Partition {
     public Partition() {
     }
 
+    public Partition(String diskStoreName, String identification, String name, String type, String mountPoint, long size, long majorFaults, long minorFaults) {
+        this.diskStoreName = diskStoreName;
+        this.identification = identification;
+        this.name = name;
+        this.type = type;
+        this.mountPoint = mountPoint;
+        this.size = size;
+        this.majorFaults = majorFaults;
+        this.minorFaults = minorFaults;
+    }
+
     public String getDiskStoreName() {
         return diskStoreName;
     }

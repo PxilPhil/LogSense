@@ -8,8 +8,11 @@ import java.util.stream.Collectors;
 public class ListToStringSpacesConverter<T> implements ListToStringConverter<T> {
     @Override
     public String convert(List<T> list) {
-        return list.stream()
-                .map(n -> String.valueOf(n))
-                .collect(Collectors.joining(" "));
+        if (list != null) {
+            return list.stream()
+                    .map(n -> String.valueOf(n))
+                    .collect(Collectors.joining(" "));
+        }
+        return null;
     }
 }

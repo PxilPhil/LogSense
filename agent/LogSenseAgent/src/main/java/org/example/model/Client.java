@@ -8,6 +8,12 @@ public class Client {
     public Client() {
     }
 
+    public Client(Computer computer, Memory memory, Processor processor) {
+        this.computer = computer;
+        this.memory = memory;
+        this.processor = processor;
+    }
+
     public Computer getComputer() {
         return computer;
     }

@@ -19,6 +19,20 @@ public class NetworkInterface {
     public NetworkInterface() {
     }
 
+    public NetworkInterface(String displayName, String name, List<InetAddress> ipv4Addresses, List<InetAddress> ipv6Addresses, String macAddress, Short[] subnetMasks, long bytesReceived, long bytesSent, long collisions, long packetsReceived, long packetsSent) {
+        this.displayName = displayName;
+        this.name = name;
+        this.ipv4Addresses = ipv4Addresses;
+        this.ipv6Addresses = ipv6Addresses;
+        this.macAddress = macAddress;
+        this.subnetMasks = subnetMasks;
+        this.bytesReceived = bytesReceived;
+        this.bytesSent = bytesSent;
+        this.collisions = collisions;
+        this.packetsReceived = packetsReceived;
+        this.packetsSent = packetsSent;
+    }
+
     public String getDisplayName() {
         return displayName;
     }

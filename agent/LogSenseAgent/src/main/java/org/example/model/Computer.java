@@ -8,6 +8,12 @@ public class Computer {
     public Computer() {
     }
 
+    public Computer(String hardwareUUID, String manufacturer, String model) {
+        this.hardwareUUID = hardwareUUID;
+        this.manufacturer = manufacturer;
+        this.model = model;
+    }
+
     public String getHardwareUUID() {
         return hardwareUUID;
     }

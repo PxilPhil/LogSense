@@ -8,6 +8,12 @@ public class DiskStore {
     public DiskStore() {
     }
 
+    public DiskStore(String model, String name, long size) {
+        this.model = model;
+        this.name = name;
+        this.size = size;
+    }
+
     public String getModel() {
         return model;
     }

@@ -17,6 +17,16 @@ public class Connection {
     public Connection() {
     }
 
+    public Connection(InetAddress localAddress, int localPort, InetAddress foreignAddress, int foreignPort, InternetProtocolStats.TcpState state, String type, long owningProcessID) {
+        this.localAddress = localAddress;
+        this.localPort = localPort;
+        this.foreignAddress = foreignAddress;
+        this.foreignPort = foreignPort;
+        this.state = state;
+        this.type = type;
+        this.owningProcessID = owningProcessID;
+    }
+
     public InetAddress getLocalAddress() {
         return localAddress;
     }

@@ -9,7 +9,6 @@ import java.util.Map;
 public class Application {
     private long contextSwitches;
     private long majorFaults;
-    private List<Long> processIDs;
     private int bitness;
     private String commandLine;
     private String currentWorkingDirectory;
@@ -31,6 +30,27 @@ public class Application {
     public Application() {
     }
 
+    public Application(long contextSwitches, long majorFaults, int bitness, String commandLine, String currentWorkingDirectory, String name, long openFiles, long parentProcessID, String path, long residentSetSize, long startTime, String state, int threadCount, long upTime, String user, double cpuUsage, int processCountDifference, long timestamp) {
+        this.contextSwitches = contextSwitches;
+        this.majorFaults = majorFaults;
+        this.bitness = bitness;
+        this.commandLine = commandLine;
+        this.currentWorkingDirectory = currentWorkingDirectory;
+        this.name = name;
+        this.openFiles = openFiles;
+        this.parentProcessID = parentProcessID;
+        this.path = path;
+        this.residentSetSize = residentSetSize;
+        this.startTime = startTime;
+        this.state = state;
+        this.threadCount = threadCount;
+        this.upTime = upTime;
+        this.user = user;
+        this.cpuUsage = cpuUsage;
+        this.processCountDifference = processCountDifference;
+        this.timestamp = timestamp;
+    }
+
     public long getContextSwitches() {
         return contextSwitches;
     }
@@ -45,14 +65,6 @@ public class Application {
 
     public void setMajorFaults(long majorFaults) {
         this.majorFaults = majorFaults;
-    }
-
-    public List<Long> getProcessIDs() {
-        return processIDs;
-    }
-
-    public void setProcessIDs(List<Long> processIDs) {
-        this.processIDs = processIDs;
     }
 
     public int getBitness() {
@@ -183,35 +195,36 @@ public class Application {
         this.timestamp = timestamp;
     }
 
-    public void addProcess(OSProcess process, double cpuUsage) {
-        this.containedProcessesMap.put(process, cpuUsage);
-    }
-
-    public double getProcessValueByID(long processID) {
-        if (this.containedProcessesMap.containsKey(processID)) {
-            return containedProcessesMap.get(processID);
-        }
-        return 0;
-    }
-
     public Map<OSProcess, Double> getContainedProcessesMap() {
         return containedProcessesMap;
     }
 
-    public void mergeData(long contextSwitches, long majorFaults, long openFiles, long residentSetSize, long threadCount) {
-        this.contextSwitches += contextSwitches;
-        this.majorFaults += majorFaults;
-        this.openFiles += openFiles;
-        this.residentSetSize += residentSetSize;
-        this.threadCount += threadCount;
+    public void addProcess(OSProcess process, double cpuUsage) {
+        if (process != null && cpuUsage >= 0) {
+            this.containedProcessesMap.put(process, cpuUsage);
+        }
+    }
+
+    public void mergeData(long contextSwitches, long majorFaults, long openFiles, long residentSetSize, long threadCount, long upTime) {
+        this.contextSwitches += contextSwitches >= 0 ? contextSwitches : 0;
+        this.majorFaults += majorFaults >= 0 ? majorFaults : 0;
+        this.openFiles += openFiles >= 0 ? openFiles : 0;
+        this.residentSetSize += residentSetSize >= 0 ? residentSetSize : 0;
+        this.threadCount += threadCount >= 0 ? threadCount : 0;
+
+        if (upTime >= 0 && upTime > this.upTime) {
+            this.upTime = upTime;
+        }
     }
 
     public void calculateAverage(int amount) {
-        this.residentSetSize /= amount;
-        this.majorFaults /= amount;
-        this.threadCount /= amount;
-        this.contextSwitches /= amount;
-        this.upTime /= amount;
-        this.cpuUsage /= amount;
+        if (amount > 0) {
+            this.contextSwitches /= amount;
+            this.majorFaults /= amount;
+            this.openFiles /= amount;
+            this.residentSetSize /= amount;
+            this.threadCount /= amount;
+            this.cpuUsage /= amount;
+        }
     }
 }
