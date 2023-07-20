@@ -23,6 +23,7 @@ class ApplicationData(BaseModel):
     thread_Count: int
     uptime: int
     process_Count_Difference: int
+    applicationdata_anomaly: Dict[str, int]  # Update: Add this field for applicationdata_anomaly
 
 class NetworkInterface(BaseModel):
     name: str
@@ -37,11 +38,24 @@ class NetworkInterface(BaseModel):
     packets_received: int
     packets_sent: int
 
-class TimeseriesData(BaseModel):
-    pcdata: dict
+class PCData(BaseModel):
+    session_id: int
+    measurement_time: str
+    free_disk_space: int
+    partition_major_faults: int
+    partition_minor_faults: int
+    available_memory: int
+    names_power_source: str
+    discharging_power_sources: bool
+    power_online_power_sources: bool
+    remaining_capacity_percent_power_sources: float
+    context_switches_processor: int
+    interrupts_processor: int
     applicationdata: List[ApplicationData]
-    applicationdata_anomaly: dict
     networkInterface: List[NetworkInterface]
+
+class TimeseriesData(BaseModel):
+    pcdata: PCData
 
 @data.post("/", description="Insert Timeseries data", tags=["Data"], responses={
     200: {"description": "Successful response"},
@@ -53,7 +67,6 @@ def injest_all_data(data: TimeseriesData):
     Insert Timeseries data.
 
     Args:
-        request (Request): The FastAPI request object.
         data (TimeseriesData): The Timeseries data to insert.
 
     Returns:

@@ -2,7 +2,6 @@ import configparser
 import logging
 
 import psycopg2
-from psycopg2 import extras
 
 
 def get_database_config(path):
