@@ -4,7 +4,7 @@ from db_access import cursor, conn
 def add_pc(user_id, hardware_uuid, client_name):
     #TODO: check if user exsists
 
-    query = "INSERT INTO PC (USER_ID, hardwareUUID, clientName) VALUES (%s, %s, %s) RETURNING ID;"
+    query = "INSERT INTO PC (USER_ID, hardware_uuid, client_name) VALUES (%s, %s, %s) RETURNING ID;"
     params = (str(user_id), str(hardware_uuid), str(client_name))
 
     pc_id = -1
@@ -22,7 +22,7 @@ def add_pc(user_id, hardware_uuid, client_name):
 
 def get_pcs():
     query = """
-        SELECT u.Name AS username, u.EMail AS email, pc.hardwareUUID, pc.clientName, pc.manufacturer, pc.model
+        SELECT u.Name AS username, u.EMail AS email, pc.hardware_uuid, pc.client_name, pc.manufacturer, pc.model
         FROM logSenseUser u
         JOIN PC pc ON u.ID = pc.USER_ID;
     """
@@ -38,7 +38,7 @@ def get_pcs():
 
 def get_pcs_by_userid(user_id):
     query = """
-        SELECT pc.hardwareUUID, pc.clientName, pc.manufacturer, pc.model
+        SELECT pc.hardware_uuid, pc.client_name, pc.manufacturer, pc.model
         FROM PC pc
         WHERE pc.USER_ID = %s;
 

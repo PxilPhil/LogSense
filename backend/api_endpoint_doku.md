@@ -34,7 +34,8 @@ when given name, valid email and password returns id of the user, if the email i
 To confirm if a user is valid and can log in, you can pass either an email, ID, or name in combination with the password. The following conditions apply:
 
 - If the user exists but the password is invalid, the ID will be returned and `valid_login` will be `False`.
-- If the login is correct, `valid_login` will be `True`. If the ID is `None`, it means the user doesn't exist.
+- If the login is correct, `valid_login` will be `True`. 
+- If the ID is `None`, it means the user doesn't exist.
 - If an error is returned, it could indicate that no name, email, or ID was passed.
 
 **POST**
@@ -95,10 +96,3 @@ To confirm if a user is valid and can log in, you can pass either an email, ID, 
 | User ID                 | user_id         | ERROR  | error            |
 | Hardware UUID           | hardware_uuid   | PC ID  | pc_id            | 
 | Nick Name for Client PC | client_name      |        |                  |
-
-
-| timestamp     | contextSwitches | majorFaults | bitness | commandLine                                                                                                                                                     | currentWorkingDirectory | name                  | openFiles | parentProcessID | path                                                                                         | residentSetSize | state   | threadCount | upTime | user            | processCountDifference | cpuUsage             |
-| ------------- | --------------- | ----------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | --------------------- | --------- | --------------- | -------------------------------------------------------------------------------------------- | --------------- | ------- | ----------- | ------ | --------------- | ---------------------- | -------------------- |
-| 1689682829717 | 0               | 0           | 32      | "C:\Program Files (x86)\Common Files\Adobe\Adobe Desktop Common\ADS\Adobe Desktop Service.exe" --onOSstartup=true --showwindow=false --waitForRegistration=true |                         | Adobe Desktop Service | 5851      | 0               | C:\Program Files (x86)\Common Files\Adobe\Adobe Desktop Common\ADS\Adobe Desktop Service.exe | 77963264        | RUNNING | 47          | 0      | sarah.ettlinger | 0                      | 1.344439922529359E-4 |
-|               |                 |             |         |                                                                                                                                                                 |                         |                       |           |                 |                                                                                              |                 |         |             |        |                 |                        |                      |
-

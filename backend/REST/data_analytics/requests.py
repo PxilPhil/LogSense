@@ -5,21 +5,11 @@ import pandas as pd
 import manipulation
 import causality
 import anomaly
-
-
-def read_csv():  # helper method for testing
-    csv_files = glob.glob(os.path.join("../data/processes", "*.csv"))
-
-    df = pd.DataFrame()
-
-    for file in csv_files:
-        new_df = pd.read_csv(file)
-        df = pd.concat([df, new_df])
-    return df
+from data_analytics.helper import read_csv
 
 
 def ingest_process_data():
-    df = read_csv()
+    df = read_csv(os.path.join("../data/processes", "*.csv"))
     print(df)
     timestamp_df = manipulation.preprocess_data(df)
     agg_df = manipulation.aggregate(df)
@@ -41,6 +31,8 @@ def ingest_process_data():
         for obj in obj_list:
             print("Object timestamp:", obj.timestamp)
             print("Object anomalyType:", obj.is_event)
+
+    return df, timestamp_df
 
 
 def fetch_process_data():  # supposed to analyze trends and everything in detail for one certain application
