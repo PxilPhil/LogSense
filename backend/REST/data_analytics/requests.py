@@ -19,14 +19,15 @@ def read_csv():  # helper method for testing
 
 
 def ingest_process_data():
+    # do drop na for safety reasons and exception handling
     df = read_csv()
+    df = df.dropna()
     print(df)
+
     timestamp_df = manipulation.preprocess_data(df)
     agg_df = manipulation.aggregate(df)
-    causality_list= causality.detect_causality(timestamp_df, agg_df, df, 'residentSetSize')  # hardcoded to work for ram
-
-    # looks for anomalies for the process contained in the map
-    # anomaly detection does not work yet
+    causality_list = causality.detect_causality(timestamp_df, agg_df, df,
+                                                'residentSetSize')  # hardcoded to work for ram
 
     anomaly_map = dict()
     for application in causality_list:
