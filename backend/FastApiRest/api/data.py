@@ -23,7 +23,7 @@ class ApplicationData(BaseModel):
     thread_Count: int
     uptime: int
     process_Count_Difference: int
-    applicationdata_anomaly: Dict[str, int]  # Update: Add this field for applicationdata_anomaly
+    applicationdata_anomaly: int  # Update: Add this field for applicationdata_anomaly
 
 class NetworkInterface(BaseModel):
     name: str
