@@ -4,12 +4,14 @@ import {MainPageComponent} from "./main-page/main-page.component";
 import {OverviewComponent} from "./overview/overview.component";
 import {LoginComponent} from "./login/login.component";
 import {CpuComponent} from "./cpu/cpu.component";
+import {SingleProcessesComponent} from "./single-processes/single-processes.component";
 
 const routes: Routes = [
   { path: '', component: OverviewComponent},
   { path: 'overview', component: OverviewComponent},
   { path: 'login', component: LoginComponent},
-  { path: 'cpu', component: CpuComponent}
+  { path: 'cpu', component: CpuComponent},
+  { path: 'processes', component: SingleProcessesComponent}
 ];
 
 @NgModule({

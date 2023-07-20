@@ -13,6 +13,12 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatIconModule} from "@angular/material/icon";
 import { LoginComponent } from './login/login.component';
 import { CpuComponent } from './cpu/cpu.component';
+import { SingleProcessesComponent } from './single-processes/single-processes.component';
+import {MatFormFieldModule} from "@angular/material/form-field";
+import { FormsModule } from '@angular/forms';
+import {MatInputModule} from "@angular/material/input";
+
+
 
 
 @NgModule({
@@ -24,14 +30,18 @@ import { CpuComponent } from './cpu/cpu.component';
     OverviewComponent,
     DashboardComponent,
     LoginComponent,
-    CpuComponent
+    CpuComponent,
+    SingleProcessesComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     CommonModule,
     BrowserAnimationsModule,
-    MatIconModule
+    MatIconModule,
+    MatFormFieldModule,
+    FormsModule,
+    MatInputModule
   ],
   providers: [],
   bootstrap: [AppComponent]
