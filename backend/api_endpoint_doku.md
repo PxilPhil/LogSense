@@ -13,9 +13,9 @@ Returns the Names of all users
 /
 ```
 
-| input | input json name | output | output json name | 
-| ----- | --------------- | ------ | ---------------- | 
-|       |                 | Name[] | 0                |    
+| input | input json name | output | output json name |
+| ----- | --------------- | ------ | ---------------- |
+|       |                 | Name[] | name             | 
 
 ### Add user
 when given name, valid email and password returns id of the user, if the email is valid or another error occurs an error is returned   
@@ -34,7 +34,8 @@ when given name, valid email and password returns id of the user, if the email i
 To confirm if a user is valid and can log in, you can pass either an email, ID, or name in combination with the password. The following conditions apply:
 
 - If the user exists but the password is invalid, the ID will be returned and `valid_login` will be `False`.
-- If the login is correct, `valid_login` will be `True`. If the ID is `None`, it means the user doesn't exist.
+- If the login is correct, `valid_login` will be `True`. 
+- If the ID is `None`, it means the user doesn't exist.
 - If an error is returned, it could indicate that no name, email, or ID was passed.
 
 **POST**
@@ -62,13 +63,13 @@ To confirm if a user is valid and can log in, you can pass either an email, ID, 
 
 | input | input json name | output        | output json name |
 | ----- | --------------- | ------------- | ---------------- |
-|       |                 | list of lists | -                 |
-|       |                 | User Name     | 0                |
-|       |                 | User Mail     | 1                |
-|       |                 | Hardware UUID | 2                |
-|       |                 | PC Name       | 3                |
-|       |                 | Manufacturer  | 4                |
-|       |                 | Model         | 5                 |
+|       |                 | list of lists | pcs              | 
+|       |                 | User Name     | user_name        |
+|       |                 | User Mail     | email            |
+|       |                 | Hardware UUID | hardware_uuid    |
+|       |                 | PC Name       | client_name      |
+|       |                 | Manufacturer  | manufacturer     |
+|       |                 | Model         | model            |
 
 ### Get all pcs of user wit id
 **GET**
@@ -78,11 +79,11 @@ To confirm if a user is valid and can log in, you can pass either an email, ID, 
 
 | input   | input json name | output        | output json name |
 | ------- | --------------- | ------------- | ---------------- |
-| User ID | -               | list of lists | pcs                |
-|         |                 | Hardware UUID | 0                |
-|         |                 | PC Name       | 1                |
-|         |                 | Manufacturer  | 2                |
-|         |                 | Model         | 3                |
+| User ID | -               | list of lists | pcs              |
+|         |                 | Hardware UUID | hardware_uuid    |
+|         |                 | PC Name       | client_name      |
+|         |                 | Manufacturer  | manufacturer     |
+|         |                 | Model         | model            | 
 
 ### Add new PC
 **POST**
@@ -94,5 +95,4 @@ To confirm if a user is valid and can log in, you can pass either an email, ID, 
 | ----------------------- | --------------- | ------ | ---------------- |
 | User ID                 | user_id         | ERROR  | error            |
 | Hardware UUID           | hardware_uuid   | PC ID  | pc_id            | 
-| Nick Name for Client PC | clientName      |        |                  |
-
+| Nick Name for Client PC | client_name      |        |                  |

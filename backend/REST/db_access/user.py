@@ -36,11 +36,11 @@ def get_salt(identifier, identifier_type):
 
 def check_login(identifier, identifier_type, password):
     if identifier_type == IdentifierType.EMAIL:
-        query = "SELECT PasswordHash, ID FROM logSenseUser WHERE EMail = %s;"
+        query = "SELECT password_hash, ID FROM logSenseUser WHERE EMail = %s;"
     elif identifier_type == IdentifierType.NAME:
-        query = "SELECT PasswordHash, ID FROM logSenseUser WHERE Name = %s;"
+        query = "SELECT password_hash, ID FROM logSenseUser WHERE Name = %s;"
     elif identifier_type == IdentifierType.ID:
-        query = "SELECT PasswordHash, ID FROM logSenseUser WHERE ID = %s;"
+        query = "SELECT password_hash, ID FROM logSenseUser WHERE ID = %s;"
     else:
         return False
 
@@ -65,7 +65,7 @@ def add_user(name, email, password, salt):
     hashed_password = hash_password(password, salt)
 
     # Insert the new user into the database
-    query = "INSERT INTO logSenseUser (Name, EMail, PasswordHash, Salt) VALUES (%s, %s, %s, %s) RETURNING ID;"
+    query = "INSERT INTO logSenseUser (Name, EMail, password_hash, Salt) VALUES (%s, %s, %s, %s) RETURNING ID;"
     params = (str(name), str(email), str(hashed_password), str(salt))
 
     user_id = -1
@@ -90,6 +90,6 @@ def get_users():
 
     users = []
     for row in rows:
-        user = row[0]
+        user = {'name': row[0]}
         users.append(user)
     return users
