@@ -1,3 +1,4 @@
+@import "../../styles";
 .example-form {
   min-width: 150px;
   max-width: 500px;
@@ -6,4 +7,15 @@
 
 .example-full-width {
   width: 100%;
+}
+
+.process-box {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  width: 100%;
+  padding: 0 24px;
+}
+.process-box:hover {
+  background-color: $light-grey-1;
 }

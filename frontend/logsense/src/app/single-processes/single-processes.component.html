@@ -1,14 +1,14 @@
 <div class="anti-th">
   <h1 class="mar-top-left-64">Processes</h1>
   <div class="mar-left-64 mar-top-48">
-    <div class="white-box">
-      <form class="example-form">
+    <div class="white-box pad-top-bot-16">
+      <form class="example-form pad-left-right-16">
         <mat-form-field class="example-full-width">
           <input type="tel" matInput placeholder="Search...">
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
       </form>
-      <div *ngFor="let process of tmpProcesses">
+      <div *ngFor="let process of tmpProcesses" class="process-box">
         <div class="txt-22">
           {{process.name}}
         </div>
