@@ -31,7 +31,32 @@
       <div class="space-base mar-top-16">
         <div class="flex-center">
           <h2>{{selectedProcess.name}}</h2>
-          <mat-icon class="info-icon mar-left-12">info_outline</mat-icon>
+          <div class="flex-center">
+            <mat-icon class="info-icon mar-left-12 icon-hov">info_outline</mat-icon>
+            <div class="white-box hidden">
+              <span class="txt-22">Details</span>
+              <div class="align-general">
+                <div class="align-txt">
+                  <span class="txt-16">Proccess ID</span>
+                  <span class="txt-16">Path</span>
+                  <span class="txt-16">Working Directory</span>
+                  <span class="txt-16">Command Line</span>
+                  <span class="txt-16">Parent Process ID</span>
+                  <span class="txt-16">User</span>
+                  <span class="txt-16">Bitness</span>
+                </div>
+                <div class="align-txt mar-left-24">
+                  <span class="txt-16">{{selectedProcess.processID}}</span>
+                  <span class="txt-16">{{selectedProcess.path}}</span>
+                  <span class="txt-16">{{selectedProcess.workingDirectory}}</span>
+                  <span class="txt-16">{{selectedProcess.cmdLn}}</span>
+                  <span class="txt-16">{{selectedProcess.parentProcessID}}</span>
+                  <span class="txt-16">{{selectedProcess.user}}</span>
+                  <span class="txt-16">{{selectedProcess.bitness}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div>
           <span class="txt-16">running for: {{selectedProcess.runtime}}</span>
