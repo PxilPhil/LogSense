@@ -1,6 +1,6 @@
 <div class="anti-th">
   <h1 class="mar-top-left-64">Processes</h1>
-  <div class="mar-left-64 mar-top-48">
+  <div class="pad-left-64 mar-top-48 flex-start w-100 pad-right-128">
     <div class="white-box pad-top-bot-16">
       <form class="example-form pad-left-right-16">
         <mat-form-field class="example-full-width">
@@ -14,8 +14,29 @@
         </div>
       </div>
     </div>
-    <div>
-
+    <div class="mar-left-64 w-100">
+      <div>
+        <form class="">
+          <select id="time" class="dropdown-btn">
+            <option value="1">Last Hour</option>
+            <option value="24">Last 24h</option>
+            <option value="7">Last Week</option>
+            <option value="30">Last Month</option>
+            <option value="6">Last 6 Months</option>
+            <option value="12">Last 12 Months</option>
+            <option value="0">All Time</option>
+          </select>
+        </form>
+      </div>
+      <div class="space-base mar-top-16">
+        <div class="flex-center">
+          <h2>{{selectedProcess.name}}</h2>
+          <mat-icon class="info-icon mar-left-12">info_outline</mat-icon>
+        </div>
+        <div>
+          <span class="txt-16">running for: {{selectedProcess.runtime}}</span>
+        </div>
+      </div>
     </div>
   </div>
 </div>

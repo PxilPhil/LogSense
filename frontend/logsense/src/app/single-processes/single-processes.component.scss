@@ -19,3 +19,13 @@
 .process-box:hover {
   background-color: $light-grey-1;
 }
+
+.flex-spacing-search {
+  flex: 0 0 20%;
+  max-width: 20%;
+}
+
+.flex-spacing-process {
+  flex: 0 0 80%;
+  max-width: 80%;
+}
