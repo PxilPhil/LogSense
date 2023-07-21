@@ -1,6 +1,6 @@
 from fastapi import HTTPException, APIRouter
 from fastapi.responses import JSONResponse
-from model.data import runningPCData
+from model.data import runningPCData, sessionPCData
 
 from db_access.data import insert_pcdata
 
@@ -12,12 +12,12 @@ data = APIRouter()
     400: {"description": "Invalid JSON data"},
     500: {"description": "Internal server error"}
 })
-def injest_initial_data(data: runningPCData):
+def injest_initial_data(data: sessionPCData):
     """
     Insert Initial data.
 
     Args:
-        data (runningPCData): The Timeseries data to insert each of the
+        data (sessionPCData): The data which only change once per session
 
     Returns:
     - dict: Response message confirming successful data submission.
@@ -42,11 +42,12 @@ def injest_data(data: runningPCData):
     Insert Timeseries data.
 
     Args:
-        data (TimeseriesData): The Timeseries data to insert.
+        data (runningPCData): The Timeseries data to insert each of the datapoints
 
     Returns:
-        dict: A dictionary with a 'result' key indicating the success or failure of the operation.
+        dict: A dictionary with a 'result' key indicating the success or failure of the operation and 'pcdata_id' the ID of the pcData inserted
     """
+    return 0 #TODO: implement
     try:
         pcdata = data.pcdata
 

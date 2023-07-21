@@ -9,7 +9,7 @@ app = FastAPI()
 tags_metadata = [
     {
         "name": "Data",
-        "description": "Operations related to the Data sent every 60 Seconds",
+        "description": "Operations related to the Data sent by the Agent",
     },
     {
         "name": "PC",
@@ -24,13 +24,3 @@ tags_metadata = [
 app.include_router(data, tags=["Data"], prefix="/data")
 app.include_router(pc, tags=["PC"], prefix="/pc")
 app.include_router(user, tags=["User"], prefix="/user")
-
-@app.get("/")
-def root():
-    """
-    Root Endpoint
-
-    Returns:
-        dict: A dictionary with the message "LogSense"
-    """
-    return {"message": "LogSense"}

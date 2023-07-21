@@ -25,7 +25,7 @@ psql -U postgres -h localhost
 ```
 
 ---
-
+**Only this in Pycharm/Intelij is also ok**
 ```sql
 CREATE database logsense;
 ```
@@ -36,7 +36,7 @@ CREATE database logsense;
 \l
 ```
 
-connect to database to test if it works propperly
+connect to database to test if it works properly
 
 ```shell
 \c logsense
