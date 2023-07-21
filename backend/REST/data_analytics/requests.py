@@ -59,7 +59,7 @@ def ingest_process_data(new_df):
             print("Key:", key)
             for obj in obj_list:
                 print("Object timestamp:", obj.timestamp)
-                print("Object anomalyType:", obj.is_event)
+                print("Object isEvent:", obj.is_event)
         prev_df = current_df
         current_df = pd.DataFrame()
 
@@ -99,7 +99,7 @@ def fetch_application_data(name):  # supposed to analyze trends and everything i
 
     for entry in anomaly_list:
         print("anomaly timestamp:", entry.timestamp)
-        print("anomaly anomalyType:", entry.is_event)
+        print("anomaly isEvent:", entry.is_event)
         print("anomaly value:", entry.value)
         print("anomaly change:", entry.change)
     return 0
@@ -119,4 +119,4 @@ def fetch_process_data():  # supposed to analyze trends and everything for pc
 
 
 if __name__ == "__main__":
-    fetch_process_data()
+    ingest_loop()
