@@ -17,6 +17,8 @@ import { SingleProcessesComponent } from './single-processes/single-processes.co
 import {MatFormFieldModule} from "@angular/material/form-field";
 import { FormsModule } from '@angular/forms';
 import {MatInputModule} from "@angular/material/input";
+import { RamComponent } from './ram/ram.component';
+import { DiskComponent } from './disk/disk.component';
 
 
 
@@ -31,7 +33,9 @@ import {MatInputModule} from "@angular/material/input";
     DashboardComponent,
     LoginComponent,
     CpuComponent,
-    SingleProcessesComponent
+    SingleProcessesComponent,
+    RamComponent,
+    DiskComponent
   ],
   imports: [
     BrowserModule,

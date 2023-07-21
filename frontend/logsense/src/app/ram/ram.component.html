@@ -1,0 +1,100 @@
+<router-outlet></router-outlet>
+<div class="anti-th">
+  <div class="mar-left-64 mar-top-48">
+    <h1>RAM</h1>
+  </div>
+  <h2 class="mar-left-64 mar-top-32">Usage</h2>
+  <div class="pad-right-128 pad-left-64 mar-top-32 w-100">
+    <div class="grey-box flex-start w-100">
+      <div class="mar-right-96">
+        <form class="mar-bot-24">
+          <select id="time" class="dropdown-btn">
+            <option value="1">Last Hour</option>
+            <option value="24">Last 24h</option>
+            <option value="7">Last Week</option>
+            <option value="30">Last Month</option>
+            <option value="6">Last 6 Months</option>
+            <option value="12">Last 12 Months</option>
+            <option value="0">All Time</option>
+          </select>
+        </form>
+        <canvas id="ram" class="white-bg w-100"></canvas>
+        <div class="flex-center mar-top-12">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="events">
+            <span class="txt-16">Show Events</span>
+          </div>
+          <div class="form-check mar-left-12">
+            <input class="form-check-input" type="checkbox" value="" id="anomalies" checked>
+            <span class="txt-16">Show Anomalies</span>
+          </div>
+          <div class="form-check mar-left-12">
+            <input class="form-check-input" type="checkbox" value="" id="outlyers">
+            <span class="txt-16">Show Outlyers</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 class="mar-bot-24">Statistics ({{selectedTime}})</h3>
+        <div class="white-bg">
+          <div class="align-general">
+            <div class="align-txt">
+              <span class="txt-16">Total Memory</span>
+              <span class="txt-16">Page Size</span>
+            </div>
+            <div class="align-txt mar-left-32">
+              <span class="txt-16">{{ram.totalMemory}}</span>
+              <span class="txt-16">{{ram.pageSize}}</span>
+            </div>
+          </div>
+
+          <div class="boxes mar-top-12">
+            <div class="white-box txt-16">Current
+              <div class="value">
+                {{ram.current}}%
+              </div>
+            </div>
+            <div class="white-box txt-16 mar-left-12">
+              Average
+              <div class="value">
+                {{ram.average}}%
+              </div>
+            </div>
+            <div class="white-box txt-16 mar-left-12">Stability
+              <div class="value">
+                {{ram.stability}}
+              </div>
+            </div>
+          </div>
+          <div class="align-notes mar-top-16">
+            <span class="txt-16 mar-bot-5" *ngFor="let stat of ram.stats">{{stat}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pad-bot-64 pad-left-64 pad-right-128 align-general mar-top-32 w-100">
+    <div class="w-100 mar-right-96">
+      <h2 class="mar-bot-24">Processes</h2>
+      <div class="grey-box align-general">
+        <div class="align-txt">
+          <span class="txt-16 bold mar-bot-12">Name</span>
+          <span class="txt-16" *ngFor="let process of ram.processes; let last = last" [ngClass]="{'mar-bot-5': !last}">{{process.name}}</span>
+        </div>
+        <div class="align-txt mar-left-32">
+          <span class="txt-16 bold mar-bot-12">CPU Allocation</span>
+          <span class="txt-16 mar-bot-5" *ngFor="let process of ram.processes; let last = last" [ngClass]="{'mar-bot-5': !last}">{{process.allocation}}%</span>
+        </div>
+      </div>
+    </div>
+    <div class="w-100">
+      <h2 class="mar-bot-24 mar-bot">Alerts</h2>
+      <div class="grey-box w-100">
+        <div class="alert-box flex-center" *ngFor="let alert of ram.alerts; let last = last" [ngClass]="{'mar-bot-12': !last}">
+          <mat-icon class="icon-32 icon">warning</mat-icon>
+          <span class="mar-left-32 txt-16">{{alert}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

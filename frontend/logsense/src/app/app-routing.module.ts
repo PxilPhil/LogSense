@@ -5,13 +5,15 @@ import {OverviewComponent} from "./overview/overview.component";
 import {LoginComponent} from "./login/login.component";
 import {CpuComponent} from "./cpu/cpu.component";
 import {SingleProcessesComponent} from "./single-processes/single-processes.component";
+import {RamComponent} from "./ram/ram.component";
 
 const routes: Routes = [
   { path: '', component: OverviewComponent},
   { path: 'overview', component: OverviewComponent},
   { path: 'login', component: LoginComponent},
   { path: 'cpu', component: CpuComponent},
-  { path: 'processes', component: SingleProcessesComponent}
+  { path: 'processes', component: SingleProcessesComponent},
+  { path: 'ram', component: RamComponent}
 ];
 
 @NgModule({
