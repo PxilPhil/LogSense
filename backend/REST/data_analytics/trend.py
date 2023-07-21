@@ -8,8 +8,8 @@ class TrendData:  # can remove curr or prev_value since it can be calculated wit
         self.change = change
 
 
-def detect_trends(selected_row, selected_value, selected_column):
-    trend_map = dict()
+def detect_trends(selected_row, selected_column):
+    trend_list = []
 
     last_row_change = 0
     remembered_row = selected_row.iloc[0];
@@ -21,11 +21,8 @@ def detect_trends(selected_row, selected_value, selected_column):
             change = prev_row[selected_column] / remembered_row[selected_column]
             trend = TrendData(remembered_row.name, prev_row.name, remembered_row[selected_column], prev_row[selected_column],
                               change)
-            remembered_row = row
-            if (selected_value in trend_map) and change != 1:
-                trend_map[selected_value].append(trend)
-            elif change != 1:
-                trend_map[selected_value] = [trend]
+            remembered_row = prev_row
+            trend_list.append(trend)
         prev_row = row
         last_row_change = curr_row_change
-    return trend_map
+    return trend_list

@@ -5,15 +5,15 @@ application_list = []  # list of applications with high causality to total usage
 
 # we maybe don't need detect_causality_percentual if we just calculate the amount beforehand
 def detect_causality(timestamp_df, agg_df, df,
-                     column):  # alternatively just work with the processes with the largest usage, maybe access deltas
-    #TODO: pass timestamp here later on
+                     column):  # TODO: rework this and migrate it to method below
+
+    pc_mean = timestamp_df[column].mean()
     for index, row in agg_df.iterrows():
         curr_row = df.loc[df.name == index].groupby(['timestamp']).sum(numeric_only=True).sort_values(by=['timestamp'])
         mean = curr_row[column].mean()
 
-        sum = timestamp_df.loc[curr_row.index[-1]][column]
 
-        if mean/sum > 0.05:
+        if mean/pc_mean > 0.05:
             application_list.append(index)
     return detect_causality_percentual(df, timestamp_df, column)
 

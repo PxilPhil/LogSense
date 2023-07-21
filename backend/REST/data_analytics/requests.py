@@ -6,6 +6,7 @@ import manipulation
 import causality
 import anomaly
 import warnings
+import trend
 from prediction import fit_linear_regression, predict_for_df
 from data_analytics.helper import read_csv, calc_end_timestamp
 
@@ -25,10 +26,8 @@ def ingest_loop():
 
 
 def ingest_process_data(new_df):
-    # Idea behind the queue system is to concat a dataframe, keep 5 previous for analyzing things and 5 to be analyzed (current)
-    # prev value is always needed when we are working with moving averages, otherwise they are not required
-
-    # TODO: Fix empty maps
+    # Idea behind the queue system is to concat a dataframe, keep 5 previous for analyzing things and 5 to be
+    # analyzed (current) prev value is always needed when we are working with moving averages, otherwise not required
     global current_df
     global prev_df
 
@@ -39,7 +38,7 @@ def ingest_process_data(new_df):
         prev_df = current_df
         current_df = pd.DataFrame()
     elif current_df.index.nunique() > 4:  # only do something once we have both previous and current valuees
-        timestamp_df = manipulation.preprocess_data(current_df)
+        timestamp_df = manipulation.group_by_timestamp(current_df)
         agg_df = manipulation.aggregate(current_df)
         causality_list = causality.detect_causality(timestamp_df, agg_df, current_df,
                                                     'residentSetSize')  # hardcoded to work for ram
@@ -51,7 +50,7 @@ def ingest_process_data(new_df):
             selected_row = manipulation.select_rows_by_application(application, df)
             selected_row = manipulation.calculate_moving_avg(selected_row, 'residentSetSize')
             anomaly_list = anomaly.detect_anomalies(selected_row, 'residentSetSize')
-            if (len(anomaly_list)>0):
+            if len(anomaly_list) > 0:
                 anomaly_map[application] = anomaly_list
 
         # TODO: remove later since it is only for output
@@ -84,11 +83,40 @@ def predict_resource_data():
     return df
 
 
-def fetch_process_data(name):  # supposed to analyze trends and everything in detail for one certain application
-    # TODO: fetch data from database
-    # TODO: run algorithms on it
+def fetch_application_data(name):  # supposed to analyze trends and everything in detail for one certain application
+    df = read_csv(os.path.join("../data/processes", "*.csv"), False)
+    df = manipulation.select_rows_by_application(name, df)
+    print(df)
+    # find trends
+    df = manipulation.calculate_moving_avg(df, 'residentSetSize')
+    trend_list = trend.detect_trends(df, 'MovingAvg')
+    for entry in trend_list:
+        print("trend prev_value:", entry.prev_value)
+        print("trend curr_value:", entry.curr_value)
+        print("trend change:", entry.change)
+    # find anomalies
+    anomaly_list = anomaly.detect_anomalies(df, 'residentSetSize')
+
+    for entry in anomaly_list:
+        print("anomaly timestamp:", entry.timestamp)
+        print("anomaly anomalyType:", entry.is_event)
+        print("anomaly value:", entry.value)
+        print("anomaly change:", entry.change)
     return 0
 
 
+def fetch_process_data():  # supposed to analyze trends and everything for pc
+    df = read_csv(os.path.join("../data/processes", "*.csv"), False)
+    df = manipulation.group_by_timestamp(df)
+    print(df)
+    # find trends
+    df = manipulation.calculate_moving_avg(df, 'residentSetSize')
+    trend_list = trend.detect_trends(df, 'MovingAvg')
+    for entry in trend_list:
+        print("trend prev_value:", entry.prev_value)
+        print("trend curr_value:", entry.curr_value)
+        print("trend change:", entry.change)
+
+
 if __name__ == "__main__":
-    ingest_loop()
+    fetch_process_data()

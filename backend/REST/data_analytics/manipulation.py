@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 
-def preprocess_data(df):
+def group_by_timestamp(df):
     return df.groupby(['timestamp']).sum(numeric_only=True).sort_values('timestamp', ascending=True)
 
 
