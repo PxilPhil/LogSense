@@ -10,7 +10,7 @@ Content-Type: application/json
 }
 
 ### CHECK FOR CORRECT LOGIN ###
-POST http://localhost:5000/user/check_login
+POST http://localhost:8000/user/check_login
 Content-Type: application/json
 
 {
@@ -19,7 +19,7 @@ Content-Type: application/json
 }
 
 ### CHECK FOR INCORRECT LOGIN ###
-POST http://localhost:5000/user/check_login
+POST http://localhost:8000/user/check_login
 Content-Type: application/json
 
 {
@@ -28,7 +28,7 @@ Content-Type: application/json
 }
 
 ### CHECK FOR INCORRECT LOGIN ###
-POST http://localhost:5000/user/check_login
+POST http://localhost:8000/user/check_login
 Content-Type: application/json
 
 {
@@ -37,13 +37,13 @@ Content-Type: application/json
 }
 
 ### GET ALL USERS ###
-GET http://localhost:5000/user
+GET http://localhost:8000/user
 
 ### GET ALL PCS ###
-GET http://localhost:5000/pc/
+GET http://localhost:8000/pc/
 
 ### ADD PC ###
-POST http://localhost:5000/pc/add_pc
+POST http://localhost:8000/pc/add_pc
 Content-Type: application/json
 
 {
@@ -52,4 +52,83 @@ Content-Type: application/json
   "client_name": "Test Client"
 }
 ### GET PCs OF USER 1 ###
-GET http://localhost:5000/pc/user/1
+GET http://localhost:8000/pc/user/1
+
+
+### POST Request to Insert Timeseries Data###
+POST http://localhost:8000/api/v1/data/ HTTP/1.1
+Content-Type: application/json
+
+{
+    "pcdata": {
+        "session_id": 123,
+        "measurement_time": "2023-07-21T12:34:56",
+        "free_disk_space": 1024000000,
+        "partition_major_faults": 10,
+        "partition_minor_faults": 20,
+        "available_memory": 4096,
+        "names_power_source": "AC Power",
+        "discharging_power_sources": false,
+        "power_online_power_sources": true,
+        "remaining_capacity_percent_power_sources": 80.5,
+        "context_switches_processor": 5000,
+        "interrupts_processor": 1000,
+        "applicationdata": [
+            {
+                "measurement_time": "2023-07-21T12:34:56",
+                "name": "Application 1",
+                "path": "/path/to/application1",
+                "cpu": 12.5,
+                "ram": 2048,
+                "State": "Running",
+                "user": "user1",
+                "context_Switches": 100,
+                "major_Faults": 5,
+                "bitness": 64,
+                "commandline": "app1.exe",
+                "current_Working_Directory": "/path/to/app1",
+                "open_Files": 10,
+                "parent_ProcessID": 1000,
+                "thread_Count": 5,
+                "uptime": 3600,
+                "process_Count_Difference": 2,
+                "applicationdata_anomaly": 0
+            },
+            {
+                "measurement_time": "2023-07-21T12:34:56",
+                "name": "Application 2",
+                "path": "/path/to/application2",
+                "cpu": 20.3,
+                "ram": 4096,
+                "State": "Running",
+                "user": "user2",
+                "context_Switches": 50,
+                "major_Faults": 2,
+                "bitness": 32,
+                "commandline": "app2.exe",
+                "current_Working_Directory": "/path/to/app2",
+                "open_Files": 5,
+                "parent_ProcessID": 2000,
+                "thread_Count": 3,
+                "uptime": 1800,
+                "process_Count_Difference": 1,
+                "applicationdata_anomaly": 1
+            }
+        ],
+        "networkInterface": [
+            {
+                "name": "eth0",
+                "display_name": "Ethernet",
+                "ipv4_address": "192.168.1.100",
+                "ipv6_address": "",
+                "art": "Ethernet",
+                "subnet_mask": "255.255.255.0",
+                "mac_address": "00:11:22:33:44:55",
+                "bytes_received": 1024000,
+                "bytes_sent": 2048000,
+                "packets_received": 1000,
+                "packets_sent": 2000
+            }
+        ]
+    }
+}

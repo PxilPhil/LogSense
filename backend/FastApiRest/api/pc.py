@@ -1,14 +1,10 @@
-from fastapi import APIRouter, HTTPException, Request, Body
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, Body
 from db_access.pc import get_pcs, get_pcs_by_userid, add_pc
 
-pc = APIRouter()
+from model.pc import PCItem
 
-class PCItem(BaseModel):
-    user_id: str
-    hardware_uuid: str
-    client_name: str
+
+pc = APIRouter()
 
 @pc.get('/', response_model=dict, tags=["PC"])
 def get_all_pcs():

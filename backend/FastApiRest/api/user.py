@@ -1,24 +1,12 @@
-from fastapi import FastAPI, HTTPException, Request, APIRouter
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from fastapi import HTTPException, APIRouter
 
-from db_access.user import get_users, add_user, get_salt, check_login, IdentifierType
+from db_access.user import get_users, add_user, check_login, IdentifierType
 from api.helper import gen_salt
 
+from model.user import CheckLoginRequest, AddUserRequest
+
+
 user = APIRouter()
-
-class CheckLoginRequest(BaseModel):
-    email: str = None
-    user_id: str = None
-    name: str = None
-    password: str
-
-
-class AddUserRequest(BaseModel):
-    name: str
-    email: str
-    password: str
-
 
 @user.get('/', response_model=list, tags=["User"])
 def get_all_users():

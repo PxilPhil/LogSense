@@ -1,7 +1,8 @@
-from api.data import PCData
 from data_analytics import anomaly
 from db_access import cursor, conn
 from psycopg2 import extras
+
+from model.data import PCData
 
 
 def insert_pcdata(pcdata: PCData):
@@ -23,9 +24,7 @@ def insert_pcdata(pcdata: PCData):
         pcdata_query = """
         INSERT INTO pcdata (session_id, measurement_time, free_disk_space, partition_major_faults, partition_minor_faults,
                             available_memory, names_power_source, discharging_power_sources, power_online_power_sources,
-                            remaining_capacity_percent_power_sources, context_switches_processor, interrupts_processor)
-        VALUES %s
-        RETURNING id;
+                            remaining_capacity_percent_power_sources, context_switches_processor, interrupts_processor) VALUES %s RETURNING id;
         """
 
         cursor.execute(pcdata_query, (pcdata_values,))
@@ -41,8 +40,7 @@ def insert_pcdata(pcdata: PCData):
         extras.execute_values(cursor, """
         INSERT INTO applicationdata (pcdata_id, measurement_time, name, path, cpu, ram, State, "user", context_Switches,
                                     major_Faults, bitness, commandline, "current_Working_Directory", open_Files,
-                                    parent_ProcessID, thread_Count, uptime, process_Count_Difference)
-        VALUES %s;
+                                    parent_ProcessID, thread_Count, uptime, process_Count_Difference) VALUES %s;
         """, application_data)
 
         # Insert applicationdata_anomaly into 'applicationdata_anomaly' table
@@ -50,8 +48,7 @@ def insert_pcdata(pcdata: PCData):
                                         range(pcdata_id, pcdata_id + len(pcdata.applicationdata))]
 
         extras.execute_values(cursor, """
-        INSERT INTO applicationdata_anomaly (anomaly_id, applicationdata_id)
-        VALUES %s;
+        INSERT INTO applicationdata_anomaly (anomaly_id, applicationdata_id) VALUES %s;
         """, applicationdata_anomaly_data)
 
         # Insert NetworkInterface into 'networkInterface' table
@@ -61,8 +58,7 @@ def insert_pcdata(pcdata: PCData):
 
         extras.execute_values(cursor, """
         INSERT INTO networkInterface (pcdata_id, name, display_name, ipv4_address, ipv6_address, art, subnet_mask, mac_address,
-                                      bytes_received, bytes_sent, packets_received, packets_sent)
-        VALUES %s;
+                                      bytes_received, bytes_sent, packets_received, packets_sent) VALUES %s;
         """, network_interface_data)
 
         # Commit the changes

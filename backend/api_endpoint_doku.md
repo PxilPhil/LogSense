@@ -50,6 +50,8 @@ To confirm if a user is valid and can log in, you can pass either an email, ID, 
 | Name       | name            | ERROR          | error            | 
 | Password   | password        |                |                  |
 
+
+
 ## PC
 ```http
 /pc
@@ -96,3 +98,18 @@ To confirm if a user is valid and can log in, you can pass either an email, ID, 
 | User ID                 | user_id         | ERROR  | error            |
 | Hardware UUID           | hardware_uuid   | PC ID  | pc_id            | 
 | Nick Name for Client PC | client_name      |        |                  |
+
+
+
+## Data
+
+### Add the data from every 60 seconds
+**POST**
+```HTTP
+/data
+```
+
+| input                   | input json name | output | output json name |
+| ----------------------- | --------------- | ------ | ---------------- |
+
+
