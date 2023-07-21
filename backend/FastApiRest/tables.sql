@@ -127,6 +127,18 @@ CREATE TABLE IF NOT EXISTS networkInterface (
   packets_sent bigint
 );
 
+CREATE TABLE IF NOT EXISTS Connections (
+    ID bigserial PRIMARY KEY,
+    pcdata_ID varchar,
+    localAddress varchar,
+    localPort int,
+    foreignAddress varchar,
+    foreignPort int,
+    state varchar,
+    type varchar,
+    owningProcessID int
+);
+
 CREATE TABLE IF NOT EXISTS disk (
   id bigserial PRIMARY KEY,
   pcdata_id bigint,

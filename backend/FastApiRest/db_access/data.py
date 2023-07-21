@@ -2,10 +2,11 @@ from data_analytics import anomaly
 from db_access import cursor, conn
 from psycopg2 import extras
 
-from model.data import PCData
+from model.data import runningPCData
 
 
-def insert_pcdata(pcdata: PCData):
+def insert_pcdata(pcdata):
+    return 0 #TODO: implement
     try:
         # Insert PCData into 'pcdata' table
         pcdata_values = (pcdata.session_id,

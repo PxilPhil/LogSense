@@ -2,6 +2,19 @@ from pydantic import BaseModel
 from typing import List
 
 
+class sessionPCData(BaseModel):
+    disks: str
+    partition: str
+    client_data: str
+
+class runningPCData(BaseModel):
+    pc_recources: str
+    connection_data: str
+    application_data: str
+    network_Interface: str
+
+
+"""
 class ApplicationData(BaseModel):
     measurement_time: str
     name: str
@@ -53,3 +66,4 @@ class PCData(BaseModel):
 
 class TimeseriesData(BaseModel):
     pcdata: PCData
+"""
