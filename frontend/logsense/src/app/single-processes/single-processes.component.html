@@ -1,7 +1,7 @@
 <div class="anti-th">
   <h1 class="mar-top-left-64">Processes</h1>
-  <div class="pad-left-64 mar-top-48 flex-start w-100 pad-right-128">
-    <div class="white-box pad-top-bot-16">
+  <div class="pad-left-64 mar-top-48 flex-start w-100 pad-right-128 pad-bot-64">
+    <div class="white-box pad-top-bot-16 h-100">
       <form class="example-form pad-left-right-16">
         <mat-form-field class="example-full-width">
           <input type="tel" matInput placeholder="Search...">
@@ -35,6 +35,76 @@
         </div>
         <div>
           <span class="txt-16">running for: {{selectedProcess.runtime}}</span>
+        </div>
+      </div>
+      <div class="grey-box flex-row w-100 mar-top-24">
+        <div class="w-100 pad-right-32">
+          <div class="space-base">
+            <div>
+              <span class="txt-22">CPU</span>
+            </div>
+            <div>
+              <span class="txt-22">{{selectedProcess.cpuAverage}}%</span>
+            </div>
+          </div>
+          <div class="mar-top-16">
+            <canvas id="usageCPU" class="white-bg w-100"></canvas>
+          </div>
+        </div>
+        <div class="w-100 pad-left-32">
+          <div class="space-base">
+            <div>
+              <span class="txt-22">RAM</span>
+            </div>
+            <div>
+              <span class="txt-22">{{selectedProcess.cpuAverage}}%</span>
+            </div>
+          </div>
+          <div class="mar-top-16">
+            <canvas id="usageRAM" class="white-bg w-100"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="align-general mar-top-32 w-100">
+        <div>
+          <h2 class="mar-bot-24">General</h2>
+          <div class="grey-box">
+            <div class="align-general">
+              <div class="align-txt">
+                <span class="txt-16">State</span>
+                <span class="txt-16">Major Faults</span>
+                <span class="txt-16">Minor Faults</span>
+                <span class="txt-16">Context Switches</span>
+                <span class="txt-16">Threads</span>
+                <span class="txt-16">Open Files</span>
+              </div>
+              <div class="align-txt mar-left-24">
+                <span class="txt-16">{{selectedProcess.name}}</span>
+                <span class="txt-16">{{selectedProcess.majorFaults}}</span>
+                <span class="txt-16">{{selectedProcess.minorFaults}}</span>
+                <span class="txt-16">{{selectedProcess.contextSwitches}}</span>
+                <span class="txt-16">{{selectedProcess.threads}}</span>
+                <span class="txt-16">{{selectedProcess.openFiles}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="">
+          <h2 class="mar-bot-24">Processes</h2>
+          <div class="grey-box align-general">
+            <div class="align-txt">
+              <span class="txt-16" *ngFor="let stat of selectedProcess.statistics; let last = last">{{stat}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mar-top-32 w-100">
+        <h2 class="mar-bot-24 mar-bot">Alerts</h2>
+        <div class="grey-box w-100">
+          <div class="alert-box flex-center" *ngFor="let alert of selectedProcess.alerts; let last = last" [ngClass]="{'mar-bot-12': !last}">
+            <mat-icon class="icon-32 icon">warning</mat-icon>
+            <span class="mar-left-32 txt-16">{{alert}}</span>
+          </div>
         </div>
       </div>
     </div>

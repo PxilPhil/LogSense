@@ -29,3 +29,19 @@
   flex: 0 0 80%;
   max-width: 80%;
 }
+
+
+.align-general {
+  display: flex;
+  flex-direction: row;
+  .align-txt {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+
+.white-bg {
+  background-color: $white;
+  padding: 8px;
+}

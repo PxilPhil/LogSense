@@ -157,7 +157,14 @@ $border-1px: solid $black 1px;
   display: inline-flex;
   align-items: flex-start;
 }
-
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
 .space-base {
   display: flex;
   justify-content: space-between;
