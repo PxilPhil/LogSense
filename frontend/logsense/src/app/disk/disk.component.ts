@@ -3,6 +3,7 @@ import {Chart} from "chart.js";
 
 export class DiskModel {
   name: String = "\\\\\\\\.\\\\PHYSICALDRIVE0";
+  totalMemory: Number = 1024.204; //GB
   model: String = "WDC PC SN530 SDBPNPZ-1T00-10...";
   size: Number = 1024.203; //GB
   readBytes: Number = 33780874240;
@@ -16,7 +17,7 @@ export class DiskModel {
     {diskNr: 0, partNr: 1, name: "GPT: Standarddaten", mount: "C:\\", size: 1023.013, majorFaults: 0,minorFaults: 1},
     {diskNr: 0, partNr: 2, name: "GPT: Standarddaten", mount: "E:\\", size: 1023.013, majorFaults: 0, minorFaults: 2},
   ];
-  stats: String[] = ["RAM Usage dropped 4%", "21 anomalies detected", "5 Events registered",  "Recent Rise of 15% detected"];
+  stats: String[] = ["Disk usage dropped 4%", "21 anomalies detected", "5 Events registered",  "Recent Rise of 15% detected"];
   alerts: String[] = ["Some devices are at their workload limit", "Abnormal CPU-Spikes detected (21 Anomalies in the last 24 hours)"];
 
 }
