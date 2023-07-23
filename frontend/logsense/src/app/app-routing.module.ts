@@ -7,6 +7,7 @@ import {CpuComponent} from "./cpu/cpu.component";
 import {SingleProcessesComponent} from "./single-processes/single-processes.component";
 import {RamComponent} from "./ram/ram.component";
 import {DiskComponent} from "./disk/disk.component";
+import {NetworkComponent} from "./network/network.component";
 
 const routes: Routes = [
   { path: '', component: OverviewComponent},
@@ -15,7 +16,8 @@ const routes: Routes = [
   { path: 'cpu', component: CpuComponent},
   { path: 'processes', component: SingleProcessesComponent},
   { path: 'ram', component: RamComponent},
-  { path: 'disk', component: DiskComponent}
+  { path: 'disk', component: DiskComponent},
+  { path: 'network', component: NetworkComponent}
 ];
 
 @NgModule({

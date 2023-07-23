@@ -19,6 +19,7 @@ import { FormsModule } from '@angular/forms';
 import {MatInputModule} from "@angular/material/input";
 import { RamComponent } from './ram/ram.component';
 import { DiskComponent } from './disk/disk.component';
+import { NetworkComponent } from './network/network.component';
 
 
 
@@ -35,7 +36,8 @@ import { DiskComponent } from './disk/disk.component';
     CpuComponent,
     SingleProcessesComponent,
     RamComponent,
-    DiskComponent
+    DiskComponent,
+    NetworkComponent
   ],
   imports: [
     BrowserModule,
