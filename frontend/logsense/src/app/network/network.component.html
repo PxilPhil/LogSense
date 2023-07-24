@@ -1,1 +1,76 @@
-<p>network works!</p>
+<div class="anti-th">
+  <h1 class="mar-left-64 mar-top-48">Network</h1>
+  <div class="pad-left-64 pad-right-128 mar-top-32 w-100">
+    <h2 class="mar-bot-24">Network Interfaces</h2>
+      <div class="grey-box">
+        <table class="table txt-16">
+          <thead class="bold">
+          <tr>
+            <td class="cell">Display Name</td>
+            <td class="cell">Name</td>
+            <td class="cell">IPv4</td>
+            <td class="cell">IPv6</td>
+            <td class="cell">MAC Address</td>
+            <td class="cell">Subnet Mask</td>
+            <td class="cell">Bytes Received</td>
+            <td class="cell">Bytes Sent</td>
+            <td class="cell">Packets Received</td>
+            <td class="cell">Packets Sent</td>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let interface of network.networkInterfaces">
+            <td class="cell">{{interface.displayName}}</td>
+            <td class="cell">{{interface.name}}</td>
+            <td class="cell">{{interface.ip4}}</td>
+            <td class="cell">{{interface.ip6}}</td>
+            <td class="cell">{{interface.mac}}</td>
+            <td class="cell">{{interface.subnetMask}}</td>
+            <td class="cell">{{interface.bytesReceived}}</td>
+            <td class="cell">{{interface.bytesSent}}</td>
+            <td class="cell">{{interface.packetsReceived}}</td>
+            <td class="cell">{{interface.packetsSent}}</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="pad-left-64 pad-right-128 mar-top-32 w-100">
+      <h2 class="mar-bot-24">Connections</h2>
+      <div class="grey-box">
+        <table class="table txt-16">
+          <thead class="bold">
+          <tr>
+            <td class="cell">Timestamp</td>
+            <td class="cell">Local Port</td>
+            <td class="cell">Foreign Address</td>
+            <td class="cell">Foreign Port</td>
+            <td class="cell">State</td>
+            <td class="cell">Type</td>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let conn of network.connections">
+            <td class="cell">{{conn.timestamp}}</td>
+            <td class="cell">{{conn.localPort}}</td>
+            <td class="cell">{{conn.foreignAddress}}</td>
+            <td class="cell">{{conn.foreignPort}}</td>
+            <td class="cell">{{conn.state}}</td>
+            <td class="cell">{{conn.type}}</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <div class=" pad-bot-64 pad-left-64 pad-right-128 mar-top-32 w-100">
+    <div class="w-100">
+      <h2 class="mar-bot-24">Alerts</h2>
+      <div class="grey-box w-100">
+        <div class="alert-box flex-center" *ngFor="let alert of network.alerts; let last = last" [ngClass]="{'mar-bot-12': !last}">
+          <mat-icon class="icon-32 icon">warning</mat-icon>
+          <span class="mar-left-32 txt-16">{{alert}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
