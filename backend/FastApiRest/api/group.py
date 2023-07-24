@@ -15,7 +15,6 @@ def get_application(pc_id: int):
 
     Parameters:
         pc_id (int): ID of the PC
-        application_id (int): ID of the Application
 
     Returns:
         dict: A dictionary with PC and Application IDs
@@ -26,14 +25,13 @@ def get_application(pc_id: int):
 @group.get("/{group_id}", tags=["Group"])
 def get_application(group_id: int):
     """
-    Get PC and Application IDs
+    Get info from Group with ID
 
     Parameters:
-        pc_id (int): ID of the PC
-        application_id (int): ID of the Application
+        group_id (int): ID of the Group
 
     Returns:
-        dict: A dictionary with PC and Application IDs
+        dict: A dictionary with Group ID
     """
     return {"group": group_id}
 

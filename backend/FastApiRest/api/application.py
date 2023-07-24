@@ -10,28 +10,28 @@ application = APIRouter()
 @application.get("/{application_name}/", tags=["Application"])
 def get_application(pc_id: int, application_name: str, start: int, end: int):
     """
-    Get PC and Application IDs
+    Get Data to Application
 
     Parameters:
-        pc_id (int): ID of the PC
-        application_name (str): name of the Application
+        application_name (str): Name of the Application
+        start (int): Start value
+        end (int): End value
 
     Returns:
-        dict: A dictionary with PC and Application IDs
+        dict: A dictionary with PC ID, Application Name, Start, and End values
     """
     return {"pc": pc_id, "application": application_name, "start": start, "end": end}
 
 @application.get("/", tags=["Application"])
 def get_application(pc_id: int):
     """
-    Get PC and Application IDs
+    Get all info to application
 
     Parameters:
         pc_id (int): ID of the PC
-        application_id (int): ID of the Application
 
     Returns:
-        dict: A dictionary with PC and Application IDs
+        dict: A dictionary with PC ID
     """
     return {"pc": pc_id}
 

@@ -25,6 +25,10 @@ tags_metadata = [
     {
         "name": "Application",
         "description": "Operations related to the Applications of an PC",
+    },
+    {
+        "name": "Group",
+        "description": "Operations related to Groups",
     }
 ]
 
