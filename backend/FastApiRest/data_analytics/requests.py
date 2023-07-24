@@ -2,12 +2,12 @@ import glob
 import os
 import queue
 import pandas as pd
-import causality
-import manipulation
-import anomaly
+from data_analytics import causality
+from data_analytics import manipulation
+from data_analytics import anomaly
 import warnings
-import trend
-from prediction import fit_linear_regression, predict_for_df
+from data_analytics import trend
+from data_analytics.prediction import fit_linear_regression, predict_for_df
 from data_analytics.helper import read_csv, calc_end_timestamp
 
 warnings.filterwarnings("ignore")
