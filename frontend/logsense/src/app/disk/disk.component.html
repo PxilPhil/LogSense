@@ -86,32 +86,35 @@
   <div class="pad-bot-64 pad-left-64 pad-right-128 mar-top-32 w-100">
     <h2 class="mar-bot-24">Disk Stores</h2>
     <div class="grey-box">
-      <table class="table txt-16">
+      <table class="table">
         <thead class="bold">
           <tr>
-            <td class="cell">Name</td>
-            <td class="cell">Model</td>
-            <td class="cell">Size</td>
-            <td class="cell">Read Bytes</td>
-            <td class="cell">Reads</td>
-            <td class="cell">Write Bytes</td>
-            <td class="cell">Writes</td>
-            <td class="cell">Partitions</td>
+            <td class="cell txt-16">Name</td>
+            <td class="cell txt-16">Model</td>
+            <td class="cell txt-16">Size</td>
+            <td class="cell txt-16">Read Bytes</td>
+            <td class="cell txt-16">Reads</td>
+            <td class="cell txt-16">Write Bytes</td>
+            <td class="cell txt-16">Writes</td>
+            <td class="cell txt-16">Partitions</td>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td class="cell">{{disk.name}}</td>
-            <td class="cell">{{disk.model}}</td>
-            <td class="cell">{{disk.size}}</td>
-            <td class="cell">{{disk.readBytes}}</td>
-            <td class="cell">{{disk.read}}</td>
-            <td class="cell">{{disk.writeBytes}}</td>
-            <td class="cell">{{disk.writes}}</td>
-            <td class="cell">placeholder</td>
+            <td class="cell txt-16">{{disk.name}}</td>
+            <td class="cell txt-16">{{disk.model}}</td>
+            <td class="cell txt-16">{{disk.size}}</td>
+            <td class="cell txt-16">{{disk.readBytes}}</td>
+            <td class="cell txt-16">{{disk.read}}</td>
+            <td class="cell txt-16">{{disk.writeBytes}}</td>
+            <td class="cell txt-16">{{disk.writes}}</td>
+            <td class="cell txt-16 part-link" data-toggle="modal" data-target="#myModal">See Partitions</td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
+
+  <!--Modal-->
+
 </div>
