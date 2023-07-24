@@ -3,7 +3,6 @@ package org.example.model;
 import oshi.software.os.OSProcess;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Application {

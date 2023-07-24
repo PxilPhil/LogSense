@@ -3,6 +3,9 @@ package org.example.converter;
 import org.example.common.DataConverter;
 import org.example.common.ListToStringConverter;
 import org.example.model.*;
+import org.example.monitor.Monitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.time.Instant;
@@ -10,9 +13,11 @@ import java.util.Arrays;
 import java.util.List;
 
 public class CSVDataConverter implements DataConverter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CSVDataConverter.class);
+
     @Override
     public String convertApplicationData(long timestamp, List<Application> applications) {
-        if (applications != null && timestamp <= Instant.now().toEpochMilli()) {
+        if (applications != null && timestamp >= 0 && timestamp <= Instant.now().toEpochMilli()) {
             StringBuilder csv = new StringBuilder();
             csv.append("timestamp|contextSwitches|majorFaults|bitness|commandLine|currentWorkingDirectory|name|openFiles|parentProcessID|path|residentSetSize|state|threadCount|upTime|user|processCountDifference|cpuUsage\n");
 
@@ -36,13 +41,15 @@ public class CSVDataConverter implements DataConverter {
                 csv.append(application.getCpuUsage()).append("\n");
             }
             return csv.toString();
+        } else {
+            LOGGER.error("Error while converting applications to CSV: either the list of applications is null or the timestamp is not between epoch and now. Therefore the applications can not be converted to CSV.");
+            return null;
         }
-        return null;
     }
 
     @Override
     public String convertResourceData(long timestamp, Resources resources) {
-        if (resources != null && timestamp <= Instant.now().toEpochMilli()) {
+        if (resources != null && timestamp >= 0 && timestamp <= Instant.now().toEpochMilli()) {
             ListToStringConverter<Long> longListToStringConverter = new ListToStringSpacesConverter<>();
             ListToStringConverter<Boolean> booleanListToStringConverter = new ListToStringSpacesConverter<>();
             ListToStringConverter<Double> doubleListToStringConverter = new ListToStringSpacesConverter<>();
@@ -72,13 +79,15 @@ public class CSVDataConverter implements DataConverter {
             csv.append(resources.getProcessorContextSwitches()).append("|");
             csv.append(resources.getProcessorInterrupts()).append("\n");
             return csv.toString();
+        } else {
+            LOGGER.error("Error while converting the resource data to CSV: either the resource data object is null or the timestamp is not between epoch and now. Therefore the resource data can not be converted to CSV.");
+            return null;
         }
-        return null;
     }
 
     @Override
     public String convertConnectionData(long timestamp, List<Connection> connectionData) {
-        if (connectionData != null && timestamp <= Instant.now().toEpochMilli()) {
+        if (connectionData != null && timestamp >= 0 && timestamp <= Instant.now().toEpochMilli()) {
             StringBuilder csv = new StringBuilder();
             csv.append("timestamp|localAddress|localPort|foreignAddress|foreignPort|state|type|owningProcessID\n");
 
@@ -93,13 +102,15 @@ public class CSVDataConverter implements DataConverter {
                 csv.append(connection.getOwningProcessID()).append("\n");
             }
             return csv.toString();
+        } else {
+            LOGGER.error("Error while converting the connection data to CSV: either the list of connections is null or the timestamp is not between epoch and now. Therefore the connections can not be converted to CSV.");
+            return null;
         }
-        return null;
     }
 
     @Override
     public String convertNetworkInterfacesData(long timestamp, List<NetworkInterface> networkInterfaces) {
-        if (networkInterfaces != null && timestamp <= Instant.now().toEpochMilli()) {
+        if (networkInterfaces != null && timestamp >= 0 && timestamp <= Instant.now().toEpochMilli()) {
             ListToStringConverter<InetAddress> inetAddressListToStringConverter = new ListToStringSpacesConverter<>();
             ListToStringConverter<Short> shortListToStringConverter = new ListToStringSpacesConverter<>();
 
@@ -121,8 +132,10 @@ public class CSVDataConverter implements DataConverter {
                 csv.append(networkInterface.getPacketsSent()).append("\n");
             }
             return csv.toString();
+        } else {
+            LOGGER.error("Error while converting the network interfaces data to CSV: either the list of network interfaces is null or the timestamp is not between epoch and now. Therefore the network interfaces can not be converted to CSV.");
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -152,8 +165,10 @@ public class CSVDataConverter implements DataConverter {
             csv.append(processor.getLogicalProcessorCount()).append("\n");
 
             return csv.toString();
+        } else {
+            LOGGER.error("Error while converting the client data to CSV: either the client data object is null or the timestamp is not between epoch and now. Therefore the client data can not be converted to CSV.");
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -167,8 +182,10 @@ public class CSVDataConverter implements DataConverter {
                 csv.append(diskStore.getSize()).append("\n");
             }
             return csv.toString();
+        } else {
+            LOGGER.error("Error while converting the disk store data to CSV: either the list of disk stores is null or the timestamp is not between epoch and now. Therefore the disk stores can not be converted to CSV.");
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -187,7 +204,9 @@ public class CSVDataConverter implements DataConverter {
                 csv.append(partition.getMinorFaults()).append("\n");
             }
             return csv.toString();
+        } else {
+            LOGGER.error("Error while converting the partition data to CSV: either the list of partitions is null or the timestamp is not between epoch and now. Therefore the partitions can not be converted to CSV.");
+            return null;
         }
-        return null;
     }
 }

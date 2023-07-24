@@ -1,14 +1,18 @@
 package org.example.analysis;
 
 import org.example.model.Application;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import oshi.software.os.OSProcess;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class StatService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StatService.class);
     private final Map<String, List<Application>> applicationMeasurements = new TreeMap<>();
     private int dataAmount = 0; //saves how many times data was measured
     private final int analysisInterval = 60;
@@ -19,17 +23,21 @@ public class StatService {
     }
 
     public List<Application> ingestData(long timestamp, List<OSProcess> osProcesses) {
-        this.dataAmount++;
-        List<OSProcess> filteredOsProcesses = filterSystemProcesses(osProcesses);
-        Map<String, Application> mergedApplications = mergeProcessesIntoApplications(timestamp, filteredOsProcesses);
-        insertApplicationDataIntoApplicationMeasurements(mergedApplications);
+        if (osProcesses != null && osProcesses.size() > 0 && timestamp >= 0 && timestamp <= Instant.now().toEpochMilli()) {
+            this.dataAmount++;
+            List<OSProcess> filteredOsProcesses = filterSystemProcesses(osProcesses);
+            Map<String, Application> mergedApplications = mergeProcessesIntoApplications(timestamp, filteredOsProcesses);
+            insertApplicationDataIntoApplicationMeasurements(mergedApplications);
 
-        if (timestamp >= (this.lastAnalysis + this.analysisInterval * 1000L)) { //if X amount has passed since the last timeStamp / analysis
-            List<Application> evaluatedApplicationData = evaluateApplicationMeasurements(timestamp);
-            this.applicationMeasurements.clear();
-            this.lastAnalysis = timestamp;
-            this.dataAmount = 0;
-            return evaluatedApplicationData;
+            if (timestamp >= (this.lastAnalysis + this.analysisInterval * 1000L)) { //if X amount has passed since the last timeStamp / analysis
+                List<Application> evaluatedApplicationData = evaluateApplicationMeasurements(timestamp);
+                this.applicationMeasurements.clear();
+                this.lastAnalysis = timestamp;
+                this.dataAmount = 0;
+                return evaluatedApplicationData;
+            }
+        } else {
+            LOGGER.error("Error while analysing the processes: either the list of processes is null or the list is empty or the timestamp is not between epoch and now. Therefore the data can not be analysed.");
         }
         return null;
     }

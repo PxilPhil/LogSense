@@ -1,8 +1,9 @@
 package org.example.monitor;
 
-import com.sun.jna.platform.win32.WinDef;
 import org.example.converter.ObjectListConverter;
 import org.example.model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import oshi.SystemInfo;
 import oshi.hardware.*;
 import oshi.software.os.InternetProtocolStats;
@@ -15,48 +16,73 @@ import java.net.UnknownHostException;
 import java.util.*;
 
 public class Monitor {
-    private final SystemInfo systemInfo;
+    private static final Logger LOGGER = LoggerFactory.getLogger(Monitor.class);
     private final OperatingSystem operatingSystem;
     private final HardwareAbstractionLayer hardware;
 
     public Monitor() {
-        this.systemInfo = new SystemInfo();
-        this.operatingSystem = this.systemInfo.getOperatingSystem();
-        this.hardware = this.systemInfo.getHardware();
+        SystemInfo systemInfo = new SystemInfo();
+        this.operatingSystem = systemInfo.getOperatingSystem();
+        this.hardware = systemInfo.getHardware();
     }
 
     public List<OSProcess> monitorProcesses() {
-        return this.operatingSystem.getProcesses();
+        List<OSProcess> osProcesses = this.operatingSystem.getProcesses();
+        if (osProcesses == null) {
+            LOGGER.error("Error while monitoring the processes / application: the list of OS processes is null.");
+        }
+        return osProcesses;
     }
 
     public Resources monitorResources() {
         Resources resources = new Resources();
-        resources.setFreeDiskSpace(calculateFreeDiskSpace(this.operatingSystem.getFileSystem().getFileStores()));
+        List<OSFileStore> fileStores = this.operatingSystem.getFileSystem().getFileStores();
+        if (fileStores != null) {
+            resources.setFreeDiskSpace(calculateFreeDiskSpace(fileStores));
+        } else {
+            LOGGER.error("Error while monitoring the resources: the list of file stores is null. Therefore the free disk space can not be calculated.");
+        }
 
         List<HWDiskStore> diskStores = this.hardware.getDiskStores();
-        Map<String, List<Long>> diskStoresInformation = getDiskStoresInformation(diskStores);
-        resources.setReadBytesDiskStores(diskStoresInformation.get("readBytesDiskStores"));
-        resources.setReadsDiskStores(diskStoresInformation.get("readsDiskStores"));
-        resources.setWriteBytesDiskStores(diskStoresInformation.get("writeBytesDiskStores"));
-        resources.setWritesDiskStores(diskStoresInformation.get("writesDiskStores"));
-        resources.setPartitionsMajorFaults(diskStoresInformation.get("partitionsMajorFaults"));
-        resources.setPartitionsMinorFaults(diskStoresInformation.get("partitionsMinorFaults"));
+        if (diskStores != null) {
+            Map<String, List<Long>> diskStoresInformation = getDiskStoresInformation(diskStores);
+            resources.setReadBytesDiskStores(diskStoresInformation.get("readBytesDiskStores"));
+            resources.setReadsDiskStores(diskStoresInformation.get("readsDiskStores"));
+            resources.setWriteBytesDiskStores(diskStoresInformation.get("writeBytesDiskStores"));
+            resources.setWritesDiskStores(diskStoresInformation.get("writesDiskStores"));
+            resources.setPartitionsMajorFaults(diskStoresInformation.get("partitionsMajorFaults"));
+            resources.setPartitionsMinorFaults(diskStoresInformation.get("partitionsMinorFaults"));
+        } else {
+            LOGGER.error("Error while monitoring the resources: the list of disk stores is null. Therefore the information about the disk stores can not be collected.");
+        }
 
-        resources.setAvailableMemory(this.hardware.getMemory().getAvailable());
+        GlobalMemory memory = this.hardware.getMemory();
+        if (memory != null) {
+            resources.setAvailableMemory(memory.getAvailable());
+        } else {
+            LOGGER.error("Error while monitoring the resources: the global memory object is null. Therefore the available memory can not be collected.");
+        }
 
-        ObjectListConverter<Boolean> booleanObjectListConverter = new ObjectListConverter<>();
-        ObjectListConverter<Double> doubleObjectListConverter = new ObjectListConverter<>();
-        ObjectListConverter<String> stringObjectListConverter = new ObjectListConverter<>();
-        Map<String, List<Object>> powerSourcesInformation = getPowerSourcesInformation(this.hardware.getPowerSources());
-        resources.setPowerSourcesNames(stringObjectListConverter.convertObjectList(powerSourcesInformation.get("names"), String.class));
-        resources.setPowerSourcesCharging(booleanObjectListConverter.convertObjectList(powerSourcesInformation.get("charging"), Boolean.class));
-        resources.setPowerSourcesDischarging(booleanObjectListConverter.convertObjectList(powerSourcesInformation.get("discharging"), Boolean.class));
-        resources.setPowerSourcesPowerOnLine(booleanObjectListConverter.convertObjectList(powerSourcesInformation.get("powerOnLine"), Boolean.class));
-        resources.setPowerSourcesRemainingCapacityPercent(doubleObjectListConverter.convertObjectList(powerSourcesInformation.get("remainingCapacityPercent"), Double.class));
+        List<PowerSource> powerSources = this.hardware.getPowerSources();
+        if (powerSources != null) {
+            Map<String, List<Object>> powerSourcesInformation = getPowerSourcesInformation(powerSources);
+            ObjectListConverter<Boolean> booleanObjectListConverter = new ObjectListConverter<>();
+            ObjectListConverter<Double> doubleObjectListConverter = new ObjectListConverter<>();
+            ObjectListConverter<String> stringObjectListConverter = new ObjectListConverter<>();
+            resources.setPowerSourcesNames(stringObjectListConverter.convertObjectList(powerSourcesInformation.get("names"), String.class));
+            resources.setPowerSourcesCharging(booleanObjectListConverter.convertObjectList(powerSourcesInformation.get("charging"), Boolean.class));
+            resources.setPowerSourcesDischarging(booleanObjectListConverter.convertObjectList(powerSourcesInformation.get("discharging"), Boolean.class));
+            resources.setPowerSourcesPowerOnLine(booleanObjectListConverter.convertObjectList(powerSourcesInformation.get("powerOnLine"), Boolean.class));
+            resources.setPowerSourcesRemainingCapacityPercent(doubleObjectListConverter.convertObjectList(powerSourcesInformation.get("remainingCapacityPercent"), Double.class));
+        } else {
+            LOGGER.error("Error while monitoring the resources: the list of power sources is null. Therefore the information about the power sources can noz be collected.");
+        }
 
         CentralProcessor processor = this.hardware.getProcessor();
-        resources.setProcessorContextSwitches(processor.getContextSwitches());
-        resources.setProcessorInterrupts(processor.getInterrupts());
+        if (processor != null) {
+            resources.setProcessorContextSwitches(processor.getContextSwitches());
+            resources.setProcessorInterrupts(processor.getInterrupts());
+        }
 
         return resources;
     }
@@ -115,7 +141,7 @@ public class Monitor {
         return readsDiskStores;
     }
 
-    public List<Long> getWriteBytesOfDiskStores(Map<String, List<Long>> diskStoresInformation, HWDiskStore diskStore) {
+    private List<Long> getWriteBytesOfDiskStores(Map<String, List<Long>> diskStoresInformation, HWDiskStore diskStore) {
         List<Long> writeBytesDiskStores;
         if (diskStoresInformation.get("writeBytesDiskStores") != null) {
             writeBytesDiskStores = diskStoresInformation.get("writeBytesDiskStores");
@@ -126,7 +152,7 @@ public class Monitor {
         return writeBytesDiskStores;
     }
 
-    public List<Long> getWritesOfDiskStores(Map<String, List<Long>> diskStoresInformation, HWDiskStore diskStore) {
+    private List<Long> getWritesOfDiskStores(Map<String, List<Long>> diskStoresInformation, HWDiskStore diskStore) {
         List<Long> writesDiskStores;
         if (diskStoresInformation.get("writesDiskStores") != null) {
             writesDiskStores = diskStoresInformation.get("writesDiskStores");
@@ -221,19 +247,25 @@ public class Monitor {
 
     public List<NetworkInterface> monitorNetworkInterfaces() {
         List<NetworkInterface> networkInterfaces = new ArrayList<>();
-        for (NetworkIF networkIF : this.hardware.getNetworkIFs()) {
-            NetworkInterface networkInterface = new NetworkInterface();
-            networkInterface.setDisplayName(networkIF.getDisplayName());
-            networkInterface.setName(networkIF.getName());
-            networkInterface.setIpv4Addresses(convertStringArrayToIpAddressList(networkIF.getIPv4addr()));
-            networkInterface.setIpv6Addresses(convertStringArrayToIpAddressList(networkIF.getIPv6addr()));
-            networkInterface.setMacAddress(networkIF.getMacaddr());
-            networkInterface.setSubnetMasks(networkIF.getSubnetMasks());
-            networkInterface.setBytesReceived(networkIF.getBytesRecv());
-            networkInterface.setBytesSent(networkIF.getBytesSent());
-            networkInterface.setPacketsReceived(networkIF.getPacketsRecv());
-            networkInterface.setPacketsSent(networkIF.getPacketsSent());
-            networkInterfaces.add(networkInterface);
+
+        List<NetworkIF> networkIFList = this.hardware.getNetworkIFs();
+        if (networkIFList != null) {
+            for (NetworkIF networkIF : this.hardware.getNetworkIFs()) {
+                NetworkInterface networkInterface = new NetworkInterface();
+                networkInterface.setDisplayName(networkIF.getDisplayName());
+                networkInterface.setName(networkIF.getName());
+                networkInterface.setIpv4Addresses(convertStringArrayToIpAddressList(networkIF.getIPv4addr()));
+                networkInterface.setIpv6Addresses(convertStringArrayToIpAddressList(networkIF.getIPv6addr()));
+                networkInterface.setMacAddress(networkIF.getMacaddr());
+                networkInterface.setSubnetMasks(networkIF.getSubnetMasks());
+                networkInterface.setBytesReceived(networkIF.getBytesRecv());
+                networkInterface.setBytesSent(networkIF.getBytesSent());
+                networkInterface.setPacketsReceived(networkIF.getPacketsRecv());
+                networkInterface.setPacketsSent(networkIF.getPacketsSent());
+                networkInterfaces.add(networkInterface);
+            }
+        } else {
+            LOGGER.error("Error while monitoring the network interfaces: the list of network interfaces is null. Therefore the information about the network interfaces can not be collected.");
         }
         return networkInterfaces;
     }
@@ -252,40 +284,72 @@ public class Monitor {
 
     public List<Connection> monitorIpConnections() {
         List<Connection> connections = new ArrayList<>();
-        for (InternetProtocolStats.IPConnection connection : this.operatingSystem.getInternetProtocolStats().getConnections()) {
-            Connection connectionData = new Connection();
 
-            try {
-                connectionData.setLocalAddress(InetAddress.getByAddress(connection.getLocalAddress()));
-            } catch (UnknownHostException e) {
-                connectionData.setLocalAddress(null);
-            }
+        List<InternetProtocolStats.IPConnection> ipConnections = this.operatingSystem.getInternetProtocolStats().getConnections();
+        if (ipConnections != null) {
+            for (InternetProtocolStats.IPConnection connection : ipConnections) {
+                Connection connectionData = new Connection();
+                connectionData.setLocalPort(connection.getLocalPort());
+                connectionData.setForeignPort(connection.getForeignPort());
+                connectionData.setState(connection.getState());
+                connectionData.setType(connection.getType());
+                connectionData.setOwningProcessID(connection.getowningProcessId());
 
-            try {
-                connectionData.setForeignAddress(InetAddress.getByAddress(connection.getForeignAddress()));
-            } catch (UnknownHostException e) {
-                connectionData.setForeignAddress(null);
+                try {
+                    connectionData.setLocalAddress(InetAddress.getByAddress(connection.getLocalAddress()));
+                } catch (UnknownHostException e) {
+                    LOGGER.error("Error while monitoring the IP connections: the local address of the IP connection could not be parsed to an InetAddress. Therefore the local address attribute of the IP connection will be null.");
+                }
+
+                try {
+                    connectionData.setForeignAddress(InetAddress.getByAddress(connection.getForeignAddress()));
+                } catch (UnknownHostException e) {
+                    LOGGER.error("Error while monitoring the IP connections: the foreign address of the IP connection could not be parsed to an InetAddress. Therefore the foreign address attribute of the IP connection will be null.");
+                }
+
+                connections.add(connectionData);
             }
-            connectionData.setLocalPort(connection.getLocalPort());
-            connectionData.setForeignPort(connection.getForeignPort());
-            connectionData.setState(connection.getState());
-            connectionData.setType(connection.getType());
-            connectionData.setOwningProcessID(connection.getowningProcessId());
-            connections.add(connectionData);
+        } else {
+            LOGGER.error("Error while monitoring the IP connections: the list of IP connections is null. Therefore the information about the IP connections can not be collected.");
         }
+
         return connections;
     }
 
     public Client monitorClientData() {
-        ComputerSystem computerSystem = this.hardware.getComputerSystem();
-        GlobalMemory globalMemory = this.hardware.getMemory();
-        CentralProcessor centralProcessor = this.hardware.getProcessor();
-        CentralProcessor.ProcessorIdentifier processorIdentifier = centralProcessor.getProcessorIdentifier();
-
+        List<String> monitoringErrors = new ArrayList<>();
         Client client = new Client();
-        client.setComputer(getComputerData(computerSystem));
-        client.setMemory(getMemoryData(globalMemory));
-        client.setProcessor(getProcessorData(centralProcessor, processorIdentifier));
+
+        ComputerSystem computerSystem = this.hardware.getComputerSystem();
+        if (computerSystem != null) {
+            client.setComputer(getComputerData(computerSystem));
+        } else {
+            monitoringErrors.add("computer system");
+        }
+
+        GlobalMemory globalMemory = this.hardware.getMemory();
+        if (globalMemory != null) {
+            client.setMemory(getMemoryData(globalMemory));
+        } else {
+            monitoringErrors.add("global memory");
+        }
+
+        CentralProcessor centralProcessor = this.hardware.getProcessor();
+        if (centralProcessor != null) {
+            CentralProcessor.ProcessorIdentifier processorIdentifier = centralProcessor.getProcessorIdentifier();
+            if (processorIdentifier != null) {
+                client.setProcessor(getProcessorData(centralProcessor, processorIdentifier));
+            } else {
+                monitoringErrors.add("processor");
+            }
+        } else {
+            monitoringErrors.add("processor");
+        }
+
+        if (monitoringErrors.size() > 0) {
+            LOGGER.error("Error while monitoring the client data: " + monitoringErrors + "is / are null. Therefore the information about the client can not be collected.");
+        }
+
         return client;
     }
 
@@ -304,7 +368,7 @@ public class Monitor {
         return memory;
     }
 
-    private static Processor getProcessorData(CentralProcessor centralProcessor, CentralProcessor.ProcessorIdentifier processorIdentifier) {
+    private Processor getProcessorData(CentralProcessor centralProcessor, CentralProcessor.ProcessorIdentifier processorIdentifier) {
         Processor processor = new Processor();
         processor.setName(processorIdentifier.getName());
         processor.setIdentifier(processorIdentifier.getIdentifier());
@@ -324,32 +388,50 @@ public class Monitor {
     }
 
     public List<DiskStore> monitorDiskStores() {
+        List<HWDiskStore> hwDiskStoreList = this.hardware.getDiskStores();
         List<DiskStore> diskStores = new ArrayList<>();
-        for (HWDiskStore diskStore : this.hardware.getDiskStores()) {
-            DiskStore diskStoreData = new DiskStore();
-            diskStoreData.setModel(diskStore.getModel());
-            diskStoreData.setName(diskStore.getName());
-            diskStoreData.setSize(diskStore.getSize());
-            diskStores.add(diskStoreData);
+
+        if (hwDiskStoreList != null) {
+            for (HWDiskStore diskStore : hwDiskStoreList) {
+                DiskStore diskStoreData = new DiskStore();
+                diskStoreData.setModel(diskStore.getModel());
+                diskStoreData.setName(diskStore.getName());
+                diskStoreData.setSize(diskStore.getSize());
+                diskStores.add(diskStoreData);
+            }
+        } else {
+            LOGGER.error("Error while monitoring the disk stores: the list of HW disk stores is null. Therefore the information about the disk stores can not be collected.");
         }
+
         return diskStores;
     }
 
     public List<Partition> monitorPartitions() {
         List<Partition> partitions = new ArrayList<>();
-        for (HWDiskStore diskStore : this.hardware.getDiskStores()) {
-            for (HWPartition partition : diskStore.getPartitions()) {
-                Partition partitionData = new Partition();
-                partitionData.setDiskStoreName(diskStore.getName());
-                partitionData.setIdentification(partition.getIdentification());
-                partitionData.setName(partition.getName());
-                partitionData.setType(partition.getType());
-                partitionData.setMountPoint(partition.getMountPoint());
-                partitionData.setSize(partition.getSize());
-                partitionData.setMajorFaults(partition.getMajor());
-                partitionData.setMinorFaults(partition.getMinor());
-                partitions.add(partitionData);
+
+        List<HWDiskStore> hwDiskStoreList = this.hardware.getDiskStores();
+        if (hwDiskStoreList != null) {
+            for (HWDiskStore diskStore : hwDiskStoreList) {
+                List<HWPartition> hwPartitionList = diskStore.getPartitions();
+                if (hwPartitionList != null) {
+                    for (HWPartition partition : hwPartitionList) {
+                        Partition partitionData = new Partition();
+                        partitionData.setDiskStoreName(diskStore.getName());
+                        partitionData.setIdentification(partition.getIdentification());
+                        partitionData.setName(partition.getName());
+                        partitionData.setType(partition.getType());
+                        partitionData.setMountPoint(partition.getMountPoint());
+                        partitionData.setSize(partition.getSize());
+                        partitionData.setMajorFaults(partition.getMajor());
+                        partitionData.setMinorFaults(partition.getMinor());
+                        partitions.add(partitionData);
+                    }
+                } else {
+                    LOGGER.error("Error while monitoring the partitions: the list of HW partitions of the disk store " + diskStore.getName() + " is null. Therefore the information about the partitions of this disk store can not be collected.");
+                }
             }
+        } else {
+            LOGGER.error("Error while monitoring the partitions: the list of HW disk stores is null. Therefore the information about the partitions of the disk stores can not be collected.");
         }
         return partitions;
     }

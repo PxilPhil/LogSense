@@ -4,6 +4,8 @@ import org.example.analysis.StatService;
 import org.example.converter.CSVDataConverter;
 import org.example.model.*;
 import org.example.monitor.Monitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import oshi.software.os.OSProcess;
 
 import java.io.BufferedWriter;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class Agent {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Agent.class);
     private final Monitor monitor;
     private final StatService statService;
     private final CSVDataConverter csvDataConverter;
@@ -62,7 +65,7 @@ public class Agent {
             try {
                 TimeUnit.SECONDS.sleep(1);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                LOGGER.error("Error while waiting until next measurement in the agent:\n" + e);
             }
         }
     }
@@ -70,16 +73,22 @@ public class Agent {
     private void monitorApplications() {
         long timestamp = Instant.now().toEpochMilli();
         List<OSProcess> osProcesses = this.monitor.monitorProcesses();
-        List<Application> evaluatedApplicationData = this.statService.ingestData(timestamp, osProcesses);
-        if (evaluatedApplicationData != null) {
-            String csv = this.csvDataConverter.convertApplicationData(timestamp, evaluatedApplicationData);
-            try {
-                BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\test\\application_" + timestamp + ".csv"));
-                writer.write(csv);
-                writer.close();
-            } catch (IOException e) {
-                System.out.println(csv);
+        if (osProcesses != null) {
+            List<Application> evaluatedApplicationData = this.statService.ingestData(timestamp, osProcesses);
+            if (evaluatedApplicationData != null) {
+                String csv = this.csvDataConverter.convertApplicationData(timestamp, evaluatedApplicationData);
+                try {
+                    BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\test\\application_" + timestamp + ".csv"));
+                    writer.write(csv);
+                    writer.close();
+                } catch (IOException e) {
+                    System.out.println(csv);
+                }
+            } else {
+                LOGGER.error("Error while monitoring the applications: the evaluated and analysed list of applications is null. Therefore the data can not be sent to the server.");
             }
+        } else {
+            LOGGER.error("Error while monitoring the applications: the list of OS processes is null. Therefore the data can not be analysed and sent to the server.");
         }
     }
 
@@ -95,6 +104,8 @@ public class Agent {
             } catch (IOException e) {
                 System.out.println(csv);
             }
+        } else {
+            LOGGER.error("Error while monitoring the resources: the resource data object is null. Therefore the data can not be sent to the server.");
         }
     }
 
@@ -110,6 +121,8 @@ public class Agent {
             } catch (IOException e) {
                 System.out.println(csv);
             }
+        } else {
+            LOGGER.error("Error while monitoring the network interfaces: the list of network interfaces is null. Therefore the data can not be sent to the server.");
         }
     }
 
@@ -125,6 +138,8 @@ public class Agent {
             } catch (IOException e) {
                 System.out.println(csv);
             }
+        } else {
+            LOGGER.error("Error while monitoring the IP connections: the list of connections is null. Therefore the data can not be sent to the server.");
         }
     }
 
@@ -140,6 +155,8 @@ public class Agent {
             } catch (IOException e) {
                 System.out.println(csv);
             }
+        } else {
+            LOGGER.error("Error while monitoring the client data: the client data object is null. Therefore the data can not be sent to the server.");
         }
     }
 
@@ -155,6 +172,8 @@ public class Agent {
             } catch (IOException e) {
                 System.out.println(csv);
             }
+        } else {
+            LOGGER.error("Error while monitoring the disk stores: the list of disk stores is null. Therefore the data can not be sent to the server.");
         }
     }
 
@@ -170,6 +189,8 @@ public class Agent {
             } catch (IOException e) {
                 System.out.println(csv);
             }
+        } else {
+            LOGGER.error("Error while monitoring the partitions: the list of partitions is null. Therefore the data can not be sent to the server");
         }
     }
 }
