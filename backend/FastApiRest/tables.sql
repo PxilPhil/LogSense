@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS PC(
     UNIQUE (client_Name, USER_ID)
 );
 
-CREATE TABLE IF NOT EXISTS UserSession(
+CREATE TABLE IF NOT EXISTS PCState(
   id bigserial PRIMARY KEY,
   pc_id bigint,
   total_memory_size bigint,
@@ -35,7 +35,8 @@ CREATE TABLE IF NOT EXISTS UserSession(
 
 CREATE TABLE IF NOT EXISTS pcdata(
   id bigserial,
-  session_id bigint REFERENCES UserSession(ID),
+  state_id bigint REFERENCES PCState(ID),
+    pc_id bigint REFERENCES pc (ID),
   measurement_time timestamp NOT NULL,
   free_disk_space bigint,
   partition_major_faults int,
@@ -107,7 +108,10 @@ CREATE TABLE IF NOT EXISTS anomaly (
 
 CREATE TABLE IF NOT EXISTS applicationdata_anomaly (
   anomaly_id bigint REFERENCES anomaly (id),
-  applicationdata_id bigint
+  applicationdata_id bigint,
+   user_id bigint REFERENCES logsenseuser (id),
+   type varchar,
+   PRIMARY KEY (anomaly_id, applicationdata_id)
 );
 
 
