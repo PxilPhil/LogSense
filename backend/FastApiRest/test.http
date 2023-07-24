@@ -71,6 +71,7 @@ POST http://localhost:8000/data/
 Content-Type: application/json
 
 {
+    "session_id": 1,
     "pc_recources": "High",
     "connection_data": "1",
     "application_data": "Running",
