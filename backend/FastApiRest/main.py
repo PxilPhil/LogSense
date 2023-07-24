@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from api.data import data
+from api.group import group
 from api.pc import pc
 from api.user import user
 from api.application import application
@@ -28,6 +29,7 @@ tags_metadata = [
 ]
 
 app.include_router(user, tags=["User"], prefix="/user")
+app.include_router(group, tags=["Group"], prefix="/group")
 app.include_router(pc, tags=["PC"], prefix="/pc")
 app.include_router(application, tags=["Application"], prefix="/pc/{pc_id}/application")
 app.include_router(data, tags=["Data"], prefix="/data")

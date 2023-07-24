@@ -99,11 +99,11 @@ END $$;
 
 CREATE TABLE IF NOT EXISTS anomaly (
   id bigserial PRIMARY KEY,
-  user_id bigint REFERENCES logSenseUser (id),
+  user_id bigint REFERENCES logSenseUser (id), --NULL
   type varchar,
   severity_level int,
   message varchar,
-  condition json
+  condition json                                --NULL
 );
 
 CREATE TABLE IF NOT EXISTS applicationdata_anomaly (

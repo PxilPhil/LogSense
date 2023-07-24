@@ -5,23 +5,10 @@ from db_access.pc import get_pcs, get_pcs_by_userid, add_pc
 from model.pc import PCItem
 
 
-application = APIRouter()
+group = APIRouter()
 
-@application.get("/{application_name}/", tags=["Application"])
-def get_application(pc_id: int, application_name: str, start: int, end: int):
-    """
-    Get PC and Application IDs
 
-    Parameters:
-        pc_id (int): ID of the PC
-        application_name (str): name of the Application
-
-    Returns:
-        dict: A dictionary with PC and Application IDs
-    """
-    return {"pc": pc_id, "application": application_name, "start": start, "end": end}
-
-@application.get("/", tags=["Application"])
+@group.get("/", tags=["Group"])
 def get_application(pc_id: int):
     """
     Get PC and Application IDs
@@ -34,5 +21,20 @@ def get_application(pc_id: int):
         dict: A dictionary with PC and Application IDs
     """
     return {"pc": pc_id}
+
+
+@group.get("/{group_id}", tags=["Group"])
+def get_application(group_id: int):
+    """
+    Get PC and Application IDs
+
+    Parameters:
+        pc_id (int): ID of the PC
+        application_id (int): ID of the Application
+
+    Returns:
+        dict: A dictionary with PC and Application IDs
+    """
+    return {"group": group_id}
 
 
