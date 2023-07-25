@@ -5,7 +5,7 @@ from psycopg2 import extras
 from model.data import runningPCData
 
 
-def insert_pcdata(timestamp_df, current_df, anomaly_map):
+def insert_pcdata(timestamp_df, current_df, anomalies):
     for index, row in timestamp_df.iterrows():
         print(index)
         print(row['residentSetSize'])

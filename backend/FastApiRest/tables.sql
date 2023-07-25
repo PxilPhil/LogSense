@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS PCState(
 CREATE TABLE IF NOT EXISTS pcdata(
   id bigserial,
   state_id bigint REFERENCES PCState(ID),
-    pc_id bigint REFERENCES pc (ID),
+  pc_id bigint REFERENCES pc (ID),
   measurement_time timestamp NOT NULL,
   free_disk_space bigint,
   partition_major_faults int,
@@ -47,7 +47,14 @@ CREATE TABLE IF NOT EXISTS pcdata(
   power_online_power_sources boolean,
   remaining_capacity_percent_power_sources double precision,
   context_switches_processor bigint,
-  interrupts_processor bigint
+  interrupts_processor bigint,
+  total_cpu double precision,
+  total_ram bigint,
+  total_context_switches int,
+  total_major_faults int,
+  total_minor_faults int,
+  total_open_files int,
+  total_thread_count int
 );
 
 DO $$
@@ -71,18 +78,19 @@ CREATE TABLE IF NOT EXISTS applicationdata (
     path VARCHAR,
     cpu DOUBLE PRECISION,
     ram BIGINT,
-    State VARCHAR,
+    state VARCHAR,
     "user" VARCHAR,
-    context_Switches int,
-    major_Faults int,
+    context_switches int,
+    major_faults int,
+    minor_faults int,
     bitness int,
     commandline VARCHAR,
     "current_Working_Directory" VARCHAR,
     open_Files int,
-    parent_ProcessID int,
-    thread_Count int,
+    parent_Process_ID int,
+    thread_count int,
     uptime BIGINT,
-    process_Count_Difference int
+    process_count_difference int
 );
 
 DO $$
@@ -109,9 +117,9 @@ CREATE TABLE IF NOT EXISTS anomaly (
 CREATE TABLE IF NOT EXISTS applicationdata_anomaly (
   anomaly_id bigint REFERENCES anomaly (id),
   applicationdata_id bigint,
-   user_id bigint REFERENCES logsenseuser (id),
-   type varchar,
-   PRIMARY KEY (anomaly_id, applicationdata_id)
+  user_id bigint REFERENCES logsenseuser (id),
+  type varchar,
+  PRIMARY KEY (anomaly_id, applicationdata_id)
 );
 
 
@@ -122,7 +130,6 @@ CREATE TABLE IF NOT EXISTS networkInterface (
   display_name varchar,
   ipv4_address varchar,
   ipv6_address varchar,
-  art varchar,
   subnet_mask varchar,
   mac_address varchar,
   bytes_received bigint,
