@@ -3,7 +3,7 @@ package org.example.converter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.common.JSONConverter;
-import org.example.model.InitialData;
+import org.example.model.SessionComputerData;
 import org.example.model.RunningData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,12 +17,12 @@ public class CSVsToJSONConverter implements JSONConverter {
     }
 
     @Override
-    public String convertInitialDataToJson(InitialData initialData) {
+    public String convertSessionComputerDataToJson(SessionComputerData sessionComputerData) {
         String json = "";
         try {
-            json = this.objectMapper.writeValueAsString(initialData);
+            json = this.objectMapper.writeValueAsString(sessionComputerData);
         } catch (JsonProcessingException e) {
-            LOGGER.error("Error while converting the CSVs of the initial data to JSON:\n" + e);
+            LOGGER.error("Error while converting the CSVs of the session computer data to JSON:\n" + e);
         }
         return json;
     }

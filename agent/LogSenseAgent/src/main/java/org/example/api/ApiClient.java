@@ -18,13 +18,13 @@ public class ApiClient {
         this.httpClient = HttpClient.newHttpClient();
     }
 
-    public void postInitialData(String initialDataJSON) {
+    public void postSessionComputerData(String sessionComputerDataJSON) {
         try {
             URI uri = new URI("http://127.0.0.1:8000/data/initial");
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(uri)
                     .header("Content-type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(initialDataJSON))
+                    .POST(HttpRequest.BodyPublishers.ofString(sessionComputerDataJSON))
                     .build();
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
@@ -33,7 +33,7 @@ public class ApiClient {
             System.out.println("Status code: " + statusCode);
             System.out.println("Response: " + responseBody);
         } catch (URISyntaxException | IOException | InterruptedException e) {
-            LOGGER.error("Error while sending a POST request with the initial data to the REST API of the server: " + e);
+            LOGGER.error("Error while sending a POST request with the session computer data to the REST API of the server: " + e);
         }
     }
 

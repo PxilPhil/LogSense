@@ -24,6 +24,7 @@ public class Agent {
     private final CSVDataConverter csvDataConverter;
     private final CSVsToJSONConverter csvsToJSONConverter;
     private final ApiClient apiClient;
+    private SessionComputerData sessionComputerData;
     private long nextMeasuringTimestamp;
 
     public Agent() {
@@ -32,11 +33,12 @@ public class Agent {
         this.csvDataConverter = new CSVDataConverter();
         this.nextMeasuringTimestamp = System.currentTimeMillis();
         this.csvsToJSONConverter = new CSVsToJSONConverter();
+        this.sessionComputerData = null;
         this.apiClient = new ApiClient();
     }
 
     public void monitor() {
-        monitorInitialData();
+        monitorSessionComputerData();
 
         while (true) {
             long timestampNow = System.currentTimeMillis();
@@ -44,6 +46,7 @@ public class Agent {
                 List<Application> analysedApplications = getAnalysedApplications(timestampNow);
                 if (analysedApplications != null) {     // 60 seconds passed & applications got merged and analysed
                     monitorRunningData(analysedApplications);
+                    monitorSessionComputerData();   // check for changes of disk stores and partitions, send session computer data again when the data changed
                 }
                 this.nextMeasuringTimestamp += 10000;
             }
@@ -56,21 +59,24 @@ public class Agent {
         }
     }
 
-    private void monitorInitialData() {
+    private void monitorSessionComputerData() {
         long timestamp = Instant.now().toEpochMilli();
 
         Client client = getClientData();
         List<DiskStore> diskStores = getDiskStores();
         List<Partition> partitions = getPartitions();
 
-        InitialData initialData = new InitialData();
-        initialData.setClient_data(this.csvDataConverter.convertClientData(timestamp, client));
-        initialData.setDisks(this.csvDataConverter.convertDiskStoreData(diskStores));
-        initialData.setPartition(this.csvDataConverter.convertPartitionData(partitions));
+        if (this.sessionComputerData == null || diskStoresChanged(diskStores)) {     // session computer data has never been set --> initial data that starts a new "session"
+            SessionComputerData sessionComputerData = new SessionComputerData();
+            sessionComputerData.setClient_data(this.csvDataConverter.convertClientData(timestamp, client));
+            sessionComputerData.setDisks(this.csvDataConverter.convertDiskStoreData(diskStores));
+            sessionComputerData.setPartition(this.csvDataConverter.convertPartitionData(partitions));
+            this.sessionComputerData = sessionComputerData;
 
-        String initialDataJSON = this.csvsToJSONConverter.convertInitialDataToJson(initialData);
+            String sessionComputerDataJSON = this.csvsToJSONConverter.convertSessionComputerDataToJson(sessionComputerData);
 
-        this.apiClient.postInitialData(initialDataJSON);
+            this.apiClient.postSessionComputerData(sessionComputerDataJSON);
+        }
     }
 
     private Client getClientData() {
@@ -95,6 +101,11 @@ public class Agent {
             LOGGER.error("Error while monitoring the partitions: the list of partitions is null. Therefore the data can not be sent to the server");
         }
         return partitions;
+    }
+
+    private boolean diskStoresChanged(List<DiskStore> diskStores) {
+        String diskStoresCSV = this.csvDataConverter.convertDiskStoreData(diskStores);
+        return !diskStoresCSV.equals(this.sessionComputerData.getDisks());
     }
 
     private void monitorRunningData(List<Application> analysedApplications) {

@@ -1,11 +1,11 @@
 package org.example.model;
 
-public class InitialData {
+public class SessionComputerData {
     private String client_data;
     private String disks;
     private String partition;
 
-    public InitialData() {
+    public SessionComputerData() {
     }
 
     public String getClient_data() {

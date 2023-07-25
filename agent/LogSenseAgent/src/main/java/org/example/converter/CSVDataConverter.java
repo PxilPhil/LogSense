@@ -3,7 +3,6 @@ package org.example.converter;
 import org.example.common.DataConverter;
 import org.example.common.ListToStringConverter;
 import org.example.model.*;
-import org.example.monitor.Monitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +39,7 @@ public class CSVDataConverter implements DataConverter {
                 csv.append(application.getProcessCountDifference()).append("|");
                 csv.append(application.getCpuUsage()).append("\n");
             }
-            return csv.toString();
+            return csv.toString().replace("\\", "/").replace("\"", "'").replace("\n", "\\\\n");
         } else {
             LOGGER.error("Error while converting applications to CSV: either the list of applications is null or the timestamp is not between epoch and now. Therefore the applications can not be converted to CSV.");
             return null;
