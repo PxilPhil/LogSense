@@ -23,7 +23,7 @@ def get_application(pc_id: int, application_name: str, start: int, end: int):
     return {"pc": pc_id, "application": application_name, "start": start, "end": end}
 
 @application.get("/", tags=["Application"])
-def get_application(pc_id: int):
+def get_application(pc_id: int, start: int, end: int):
     """
     Get all info to application
 
@@ -33,6 +33,6 @@ def get_application(pc_id: int):
     Returns:
         dict: A dictionary with PC ID
     """
-    return {"pc": pc_id}
+    return {"pc": pc_id, "start": start, "end": end}
 
 

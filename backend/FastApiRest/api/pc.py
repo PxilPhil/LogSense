@@ -52,7 +52,7 @@ def add_pc_api(data: PCItem = Body(...)):
 
 
 @pc.get('/{pc_id}/data/{type}', response_model=dict, tags=["PC"])
-def get_pc_by_user_id(pc_id: int,type: str):
+def get_pc_by_user_id(pc_id: int,type: str, start: int, end: int):
     """
     Get data from PCs by ID and from Type type.
 
@@ -62,11 +62,11 @@ def get_pc_by_user_id(pc_id: int,type: str):
     Returns:
         dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
     """
-    return {'pc': pc_id, 'type': type}
+    return {'pc': pc_id, 'type': type, "start": start, "end": end}
 
 
 @pc.get('/{pc_id}/data/', response_model=dict, tags=["PC"])
-def get_pc_by_user_id(pc_id: int):
+def get_pc_by_user_id(pc_id: int, start: int, end: int):
     """
     Get data from PCs by ID.
 
@@ -76,4 +76,4 @@ def get_pc_by_user_id(pc_id: int):
     Returns:
         dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
     """
-    return {'pc': {pc_id}}
+    return {'pc': pc_id, "start": start, "end": end}
