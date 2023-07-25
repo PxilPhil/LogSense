@@ -62,31 +62,3 @@ def ingest_data(data: runningPCData):
 
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid JSON data")
-
-@data.get("/", description="Fetch Timeseries data", tags=["Data"], responses={
-    200: {"description": "Successful response"},
-    400: {"description": "Invalid JSON data"},
-    500: {"description": "Internal server error"}
-})
-def fetch_data():
-    """
-    Fetch Timeseries data from PC
-
-    Args:
-        data (TimeseriesData): The Timeseries data to fetch.
-
-    Returns:
-        dict: A dictionary with a 'result' key indicating the success or failure of the operation.
-    """
-    try:
-        # TODO: GET CSV AND INSERT IT HERE
-        timestamp_df, allocation_map, std, mean, trend_list, involvement_map = requests.fetch_process_trends()
-
-
-        #TODO: Remove later
-        for entry in trend_list:
-            print(entry.change)
-        return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": 0}, status_code=200)
-
-    except Exception as e:
-        raise HTTPException(status_code=400, detail="Invalid JSON data")

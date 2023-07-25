@@ -80,5 +80,10 @@ Content-Type: application/json
 }
 
 
-### GET REQUEST TO GET TIMESERIES FROM PC###
-GET http://localhost:8000/data/1
+### GET REQUEST TO GET PC BY USER ID###
+GET http://localhost:8000/pc/1/data/RAM?start=1&end=1
+
+
+### GET REQUEST TO GET INFOS ABOUT AN APPLICATION###
+GET http://localhost:8000/pc/1/application/chrome?start=1&end=1
+

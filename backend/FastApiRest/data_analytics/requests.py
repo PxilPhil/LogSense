@@ -38,7 +38,7 @@ def ingest_process_data(file):
     elif current_df.index.nunique() > 4:  # only do something once we have both previous and current valuees
         timestamp_df = manipulation.group_by_timestamp(current_df)
         relevant_list = involvement.detect_relevancy(timestamp_df, current_df,
-                                                      'residentSetSize')  # hardcoded to work for ram
+                                                     'residentSetSize')  # hardcoded to work for ram
         anomaly_map = dict()
         for application in relevant_list:
             #  here concat prev and curr
@@ -80,7 +80,7 @@ def predict_resource_data():
 
 
 def fetch_application_data(name):  # supposed to analyze trends and everything in detail for one certain application
-    df = read_csv(os.path.join("../data/processes", "*.csv"), False)
+    df = read_csv(os.path.join("C:/Users/philipp.borbely/Documents/LogSenseRepo/logsense/backend/FastApiRest/data/processes", "*.csv"), False)
     df = manipulation.select_rows_by_application(name, df)
     print(df)
     # find trends
@@ -92,11 +92,13 @@ def fetch_application_data(name):  # supposed to analyze trends and everything i
         print("trend change:", entry.change)
     # find anomalies
     anomaly_list = anomaly.detect_anomalies(df, 'residentSetSize')
-    return anomaly_list
+    return df, anomaly_list
 
 
 def fetch_pc_data():  # in database for certain time period and currently only set for ram
-    df = read_csv(os.path.join("../data/processes", "*.csv"), False)
+    df = read_csv(
+        os.path.join("C:/Users/philipp.borbely/Documents/LogSenseRepo/logsense/backend/FastApiRest/data/processes",
+                     "*.csv"), False)
     timestamp_df = manipulation.group_by_timestamp(df)
     print(timestamp_df)
     # get influence percentage
