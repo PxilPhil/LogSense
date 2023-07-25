@@ -20,6 +20,8 @@ import {MatInputModule} from "@angular/material/input";
 import { RamComponent } from './ram/ram.component';
 import { DiskComponent } from './disk/disk.component';
 import { NetworkComponent } from './network/network.component';
+import {MatDialogModule} from "@angular/material/dialog";
+import { PartDialogComponent } from './part-dialog/part-dialog.component';
 
 
 
@@ -37,7 +39,8 @@ import { NetworkComponent } from './network/network.component';
     SingleProcessesComponent,
     RamComponent,
     DiskComponent,
-    NetworkComponent
+    NetworkComponent,
+    PartDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -47,7 +50,8 @@ import { NetworkComponent } from './network/network.component';
     MatIconModule,
     MatFormFieldModule,
     FormsModule,
-    MatInputModule
+    MatInputModule,
+    MatDialogModule
   ],
   providers: [],
   bootstrap: [AppComponent]

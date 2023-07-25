@@ -108,7 +108,7 @@
             <td class="cell txt-16">{{disk.read}}</td>
             <td class="cell txt-16">{{disk.writeBytes}}</td>
             <td class="cell txt-16">{{disk.writes}}</td>
-            <td class="cell txt-16 part-link" data-toggle="modal" data-target="#myModal">See Partitions</td>
+            <td class="cell txt-16 part-link" (click)="openDialog()">See Partitions</td>
           </tr>
         </tbody>
       </table>

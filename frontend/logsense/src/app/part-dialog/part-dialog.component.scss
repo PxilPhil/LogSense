@@ -1,0 +1,13 @@
+@import "../../styles";
+
+.cell {
+  border-collapse: collapse;
+  border: 1px solid $dark-grey-2;
+  padding: 5px 10px;
+}
+
+.table {
+  border-collapse: collapse;
+  border-style: hidden;
+  margin: 0;
+}

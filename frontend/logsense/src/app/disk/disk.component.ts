@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {Chart} from "chart.js";
+import {MatDialog} from "@angular/material/dialog";
+import {PartDialogComponent} from "../part-dialog/part-dialog.component";
 
 export class DiskModel {
   name: String = "\\\\\\\\.\\\\PHYSICALDRIVE0";
@@ -14,8 +16,8 @@ export class DiskModel {
   average: Number = 48; //%
   stability: String = "Low";
   partitions: PartitionModel[] = [
-    {diskNr: 0, partNr: 1, name: "GPT: Standarddaten", mount: "C:\\", size: 1023.013, majorFaults: 0,minorFaults: 1},
-    {diskNr: 0, partNr: 2, name: "GPT: Standarddaten", mount: "E:\\", size: 1023.013, majorFaults: 0, minorFaults: 2},
+    {diskNr: 0, partNr: 1, name: "GPT: Standarddaten", type: "GPT: Standarddaten", mount: "C:\\", size: 1023.013, majorFaults: 0,minorFaults: 1},
+    {diskNr: 0, partNr: 2, name: "GPT: Standarddaten", type: "GPT: Standarddaten", mount: "E:\\", size: 1023.013, majorFaults: 0, minorFaults: 2},
   ];
   stats: String[] = ["Disk usage dropped 4%", "21 anomalies detected", "5 Events registered",  "Recent Rise of 15% detected"];
   alerts: String[] = ["Some devices are at their workload limit", "Abnormal CPU-Spikes detected (21 Anomalies in the last 24 hours)"];
@@ -25,7 +27,8 @@ export class DiskModel {
 export class PartitionModel {
   diskNr: Number = 0;
   partNr: Number = 1;
-  name: String = "GPT: Standarddaten";
+  name: String = "GPT: Basicdata";
+  type: String = "GPT: Standarddaten"
   mount: String = "C:\\";
   size: Number = 1023.013; //GB
   majorFaults: Number = 0;
@@ -40,10 +43,18 @@ export class DiskComponent implements OnInit{
   selectedTime: String = "Last 24h";
   disk: DiskModel = new DiskModel();
 
+  constructor(public dialog: MatDialog) {}
   ngOnInit() {
     this.usageChart();
   }
 
+  openDialog() {
+    this.dialog.open(PartDialogComponent, {
+      data: {
+        partitions: this.disk.partitions
+      }
+    });
+  }
   usageChart(): void {
     const data = this.getData();
     const usage = new Chart("disk", {
