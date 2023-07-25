@@ -42,7 +42,7 @@ def ingest_process_data(csv_string):
     if current_df.index.nunique() > 4 and prev_df.empty:  # don't do anything yet untiil we have saved previous values
         prev_df = current_df
         current_df = pd.DataFrame()
-    elif current_df.index.nunique() > 4:  # only do something once we have both previous and current valuees
+    elif current_df.index.nunique() > 4:  # only do something once we have both previous and current values
         pc_total_df = manipulation.group_by_timestamp(current_df)
         relevant_list = involvement.detect_relevancy(pc_total_df, current_df,
                                                      'residentSetSize')  # hardcoded to work for ram
