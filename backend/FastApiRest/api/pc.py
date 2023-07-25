@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Body
 from db_access.pc import get_pcs, get_pcs_by_userid, add_pc
-
+from data_analytics import requests
 from model.pc import PCItem
 
 
@@ -62,6 +62,8 @@ def get_pc_by_user_id(pc_id: int,type: str, start: int, end: int):
     Returns:
         dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
     """
+    timestamp_df, allocation_map, std, mean, trend_list, involvement_map = requests.fetch_pc_data()
+    print(timestamp_df, allocation_map, std, mean, trend_list, involvement_map)
     return {'pc': pc_id, 'type': type, "start": start, "end": end}
 
 
