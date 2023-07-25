@@ -1,13 +1,9 @@
 import glob
 import os
-import queue
 import pandas as pd
-import causality
-import manipulation
-import anomaly
 import warnings
-import trend
-from prediction import fit_linear_regression, predict_for_df
+from data_analytics import involvement, manipulation, anomaly, trend, stats
+from data_analytics.prediction import fit_linear_regression, predict_for_df
 from data_analytics.helper import read_csv, calc_end_timestamp
 
 warnings.filterwarnings("ignore")
@@ -39,9 +35,8 @@ def ingest_process_data(new_df):
         current_df = pd.DataFrame()
     elif current_df.index.nunique() > 4:  # only do something once we have both previous and current valuees
         timestamp_df = manipulation.group_by_timestamp(current_df)
-        causality_list = causality.detect_relevancy(timestamp_df, current_df,
-                                                    'residentSetSize')  # hardcoded to work for ram
-
+        causality_list = involvement.detect_relevancy(timestamp_df, current_df,
+                                                      'residentSetSize')  # hardcoded to work for ram
         anomaly_map = dict()
         for application in causality_list:
             #  here concat prev and curr
@@ -51,6 +46,12 @@ def ingest_process_data(new_df):
             anomaly_list = anomaly.detect_anomalies(selected_row, 'residentSetSize')
             if len(anomaly_list) > 0:
                 anomaly_map[application] = anomaly_list
+
+        for key, obj_list in anomaly_map.items():
+            print("Key:", key)
+            for obj in obj_list:
+                print("Object timestamp:", obj.timestamp)
+                print("Object anomalyType:", obj.is_event)
 
         prev_df = current_df
         current_df = pd.DataFrame()
@@ -92,15 +93,38 @@ def fetch_application_data(name):  # supposed to analyze trends and everything i
     return anomaly_list
 
 
-def fetch_process_trends():  # supposed get trends
+def fetch_pc_data():  # in database for certain time period and currently only set for ram
     df = read_csv(os.path.join("../data/processes", "*.csv"), False)
-    df = manipulation.group_by_timestamp(df)
-    print(df)
+    timestamp_df = manipulation.group_by_timestamp(df)
+    print(timestamp_df)
+    # get influence percentage
+    involvement_map = involvement.detect_involvement_percentual(df, timestamp_df, 'residentSetSize')
+    print('influence')
+    for key, value in involvement_map.items():
+        print("Key:", key)
+        print("Value: ", value)
     # find trends
-    df = manipulation.calculate_moving_avg(df, 'residentSetSize')
-    trend_list = trend.detect_trends(df, 'MovingAvg')
+    timestamp_df = manipulation.calculate_moving_avg(timestamp_df, 'residentSetSize')
+    trend_list = trend.detect_trends(timestamp_df, 'MovingAvg')
+    # get stats
+    std = df['residentSetSize'].std()
+    print(std)
+    mean = df['residentSetSize'].mean()
+    print(mean)
+    # get list of relevant data
+    application_list = involvement.detect_relevancy(timestamp_df, df, 'residentSetSize')
+    # get allocation percentage
+    df = df.set_index(['timestamp'])
+    latest_row = df[df.index == df.index.max()]
+    allocation_map = stats.calc_allocation(latest_row, 'residentSetSize', application_list)
+    print('allocation')
+    for key, value in allocation_map.items():
+        print("Key:", key)
+        print("Value: ", value)
+    # TODO: compare current value with last
+
     return trend_list
 
 
 if __name__ == "__main__":
-    ingest_loop()
+    fetch_pc_data()

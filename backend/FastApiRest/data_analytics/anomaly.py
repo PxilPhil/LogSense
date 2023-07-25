@@ -26,3 +26,6 @@ def detect_anomalies(selected_row, column):  # only makes sense for processes as
         else:
             previous_was_flagged = False
     return anomaly_list
+
+def detect_custom_anomaly(df, custom_anomaly_list): #checks current dataframe if custom anomalies have occured
+    return 0
