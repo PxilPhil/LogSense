@@ -17,16 +17,18 @@ def ingest_loop():
     csv_files = glob.glob(os.path.join("../data/processes", "*.csv"))
 
     for file in csv_files:
-        new_df = pd.read_csv(file)
+        new_df = pd.read_csv(file, sep='|')
         ingest_process_data(new_df)
 
 
-def ingest_process_data(new_df):
+def ingest_process_data(file):
+    # TODO: Implement for multiple clients (either queue with kafka or do database access once a client has inserted 5 dataframes)
     # Idea behind the queue system is to concat a dataframe, keep 5 previous for analyzing things and 5 to be
     # analyzed (current) prev value is always needed when we are working with moving averages, otherwise not required
     global current_df
     global prev_df
 
+    new_df = pd.read_csv(file, sep='|')
     new_df = new_df.set_index('timestamp')
     current_df = pd.concat([current_df, new_df])
 
@@ -35,10 +37,10 @@ def ingest_process_data(new_df):
         current_df = pd.DataFrame()
     elif current_df.index.nunique() > 4:  # only do something once we have both previous and current valuees
         timestamp_df = manipulation.group_by_timestamp(current_df)
-        causality_list = involvement.detect_relevancy(timestamp_df, current_df,
+        relevant_list = involvement.detect_relevancy(timestamp_df, current_df,
                                                       'residentSetSize')  # hardcoded to work for ram
         anomaly_map = dict()
-        for application in causality_list:
+        for application in relevant_list:
             #  here concat prev and curr
             df = pd.concat([prev_df, current_df])
             selected_row = manipulation.select_rows_by_application(application, df)
@@ -55,7 +57,7 @@ def ingest_process_data(new_df):
 
         prev_df = current_df
         current_df = pd.DataFrame()
-        return anomaly_map
+        return timestamp_df, current_df, anomaly_map
 
 
 def predict_resource_data():
@@ -123,7 +125,7 @@ def fetch_pc_data():  # in database for certain time period and currently only s
         print("Value: ", value)
     # TODO: compare current value with last
 
-    return trend_list
+    return timestamp_df, allocation_map, std, mean, trend_list, involvement_map
 
 
 if __name__ == "__main__":

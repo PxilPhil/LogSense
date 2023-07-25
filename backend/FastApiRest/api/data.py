@@ -39,7 +39,8 @@ def injest_initial_data(data: sessionPCData):
     400: {"description": "Invalid JSON data"},
     500: {"description": "Internal server error"}
 })
-def injest_data(data: runningPCData):
+def ingest_data(data: runningPCData):
+
     """
     Insert Timeseries data.
 
@@ -49,23 +50,15 @@ def injest_data(data: runningPCData):
     Returns:
         dict: A dictionary with a 'result' key indicating the success or failure of the operation and 'pcdata_id' the ID of the pcData inserted
     """
-    return 0 #TODO: implement
+    if not data.pc_recources and not data.application_data:
+        raise HTTPException(status_code=400, detail="Invalid JSON data")
     try:
-        pcdata = data.pcdata
+        pcdata = data.pc_resources
         application_data = data.application_data
 
-        # TODO: GET CSV AND INSERT IT HERE
-        anomaly_map = requests.ingest_process_data(application_data)
 
-        # TODO: Remove later on
-        for key, obj_list in anomaly_map.items():
-            print("Key:", key)
-            for obj in obj_list:
-                print("Object timestamp:", obj.timestamp)
-                print("Object anomalyType:", obj.isEvent)
-        pcdata_id = insert_pcdata(pcdata)
 
-        return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": pcdata_id}, status_code=200)
+        return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": 0}, status_code=200)
 
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid JSON data")
@@ -75,7 +68,7 @@ def injest_data(data: runningPCData):
     400: {"description": "Invalid JSON data"},
     500: {"description": "Internal server error"}
 })
-def fetch_data(pc_id):
+def fetch_data():
     """
     Fetch Timeseries data from PC
 
@@ -87,39 +80,12 @@ def fetch_data(pc_id):
     """
     try:
         # TODO: GET CSV AND INSERT IT HERE
-        trends = requests.fetch_process_trends()
+        timestamp_df, allocation_map, std, mean, trend_list, involvement_map = requests.fetch_process_trends()
+
 
         #TODO: Remove later
-        for entry in trends:
+        for entry in trend_list:
             print(entry.change)
-        return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": 0}, status_code=200)
-
-    except Exception as e:
-        raise HTTPException(status_code=400, detail="Invalid JSON data")
-
-@data.get("/application", description="Fetch Timeseries data for a certain Application", tags=["Data"], responses={
-    200: {"description": "Successful response"},
-    400: {"description": "Invalid JSON data"},
-    500: {"description": "Internal server error"}
-})
-def fetch_app_data(name):
-    """
-    Fetch Timeseries data from PC
-
-    Args:
-        data (TimeseriesData): The Timeseries data to fetch.
-
-    Returns:
-        dict: A dictionary with a 'result' key indicating the success or failure of the operation.
-    """
-    try:
-        # TODO: GET CSV AND INSERT IT HERE
-        anomaly_list = requests.fetch_application_data(name)
-
-        #TODO: Remove later
-        for entry in anomaly_list:
-            print(entry.is_event)
-
         return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": 0}, status_code=200)
 
     except Exception as e:

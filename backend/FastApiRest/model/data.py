@@ -8,7 +8,7 @@ class sessionPCData(BaseModel):
     client_data: str
 
 class runningPCData(BaseModel):
-    pc_recources: str
+    pc_resources: str
     connection_data: str
     application_data: str
     network_Interface: str

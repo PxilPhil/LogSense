@@ -60,11 +60,12 @@ POST http://localhost:8000/data/
 Content-Type: application/json
 
 {
-    "pc_recources": "High",
+    "pc_resources": "relevant_list",
     "connection_data": "Ethernet",
     "application_data": "Running",
     "network_Interface": "Wi-Fi"
 }
+
 
 ### POST Request to Insert wrong Timeseries Data###
 POST http://localhost:8000/data/
@@ -77,3 +78,7 @@ Content-Type: application/json
     "application_data": "Running",
     "network_Interface": "Wi-Fi"
 }
+
+
+### GET REQUEST TO GET TIMESERIES FROM PC###
+GET http://localhost:8000/data/1
