@@ -49,3 +49,31 @@ def add_pc_api(data: PCItem = Body(...)):
         raise HTTPException(status_code=500, detail="Failed to insert PC.")
 
     return {'pc_id': pc_id}
+
+
+@pc.get('/{pc_id}/data/{type}', response_model=dict, tags=["PC"])
+def get_pc_by_user_id(pc_id: int,type: str, start: int, end: int):
+    """
+    Get data from PCs by ID and from Type type.
+
+    Args:
+        user_id (str): The user ID to filter PCs.
+
+    Returns:
+        dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
+    """
+    return {'pc': pc_id, 'type': type, "start": start, "end": end}
+
+
+@pc.get('/{pc_id}/data/', response_model=dict, tags=["PC"])
+def get_pc_by_user_id(pc_id: int, start: int, end: int):
+    """
+    Get data from PCs by ID.
+
+    Args:
+        user_id (str): The user ID to filter PCs.
+
+    Returns:
+        dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
+    """
+    return {'pc': pc_id, "start": start, "end": end}
