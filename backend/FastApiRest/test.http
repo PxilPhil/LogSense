@@ -62,7 +62,7 @@ Content-Type: application/json
 {
     "pc_resources": "relevant_list",
     "connection_data": "Ethernet",
-    "application_data": "Running",
+    "application_data": "timestamp|contextSwitches|majorFaults|bitness|commandLine|currentWorkingDirectory|name|openFiles|parentProcessID|path|residentSetSize|state|threadCount|upTime|user|processCountDifference|cpuUsage\n1690273216270|0|0|32|C:/Program Files (x86)/Common Files/Adobe/Adobe Desktop Common/ADS/Adobe Desktop Service.exe --onOSstartup=true --showwindow=false --waitForRegistration=true||Adobe Desktop Service|1003|0|C:/Program Files (x86)/Common Files/Adobe/Adobe Desktop Common/ADS/Adobe Desktop Service.exe|14651392|RUNNING|50|6016945|sarah.ettlinger|0|0.0014464150827371697\n1690273216270|0|0|32|C:/Program Files (x86)/Common Files/Adobe/Adobe Desktop Common/IPCBox/AdobeIPCBroker.exe -launchedbyvulcan-13196 C:/Program Files/Adobe/Adobe Creative Cloud/ACC/Creative Cloud.exe||AdobeIPCBroker|247|0|C:/Program Files (x86)/Common Files/Adobe/Adobe Desktop Common/IPCBox/AdobeIPCBroker.exe|3129344|RUNNING|30|6017839|sarah.ettlinger|0|1.7115778604246475E-4\n1690273216270|0|0|32|C:/Program Files/WindowsApps/AdobeNotificationClient_3.0.1.1_x86__enpm4xejd91yc/AdobeNotificationClient.exe -ServerName:CreativeCloud.AppXkc26ec7ewq1x9dww5fbpte7xrjdypftp.mca||AdobeNotificationClient|415|0|C:/Program Files/WindowsApps/AdobeNotificationClient_3.0.1.1_x86__enpm4xejd91yc/AdobeNotificationClient.exe|45056|RUNNING|11|6011392|sarah.ettlinger|0|1.0313750958180734E-5\n1690273216270|0|0|64|C:/Windows/system32/svchost.exe -k UnistackSvcGroup|C:/Windows/system32/|svchost|2437|0|C:/Windows/System32/svchost.exe|17874944|RUNNING|37|6040057|sarah.ettlinger|0|1.5204792830625434E-4",
     "network_Interface": "Wi-Fi"
 }
 
