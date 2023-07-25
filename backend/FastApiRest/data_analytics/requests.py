@@ -43,8 +43,8 @@ def ingest_process_data(csv_string):
         prev_df = current_df
         current_df = pd.DataFrame()
     elif current_df.index.nunique() > 4:  # only do something once we have both previous and current valuees
-        timestamp_df = manipulation.group_by_timestamp(current_df)
-        relevant_list = involvement.detect_relevancy(timestamp_df, current_df,
+        pc_total_df = manipulation.group_by_timestamp(current_df)
+        relevant_list = involvement.detect_relevancy(pc_total_df, current_df,
                                                      'residentSetSize')  # hardcoded to work for ram
         for application in relevant_list:
             #  here concat prev and curr
@@ -63,9 +63,9 @@ def ingest_process_data(csv_string):
 
         prev_df = current_df
         current_df = pd.DataFrame()
-        return timestamp_df, current_df, anomaly_map
-    timestamp_df = manipulation.group_by_timestamp(new_df)
-    return timestamp_df, new_df, anomaly_map
+        return pc_total_df, current_df, anomaly_map
+    pc_total_df = manipulation.group_by_timestamp(new_df)
+    return pc_total_df, new_df, anomaly_map
 
 def predict_resource_data():
     # read dataframe, remove nans, select only needed columns
@@ -106,24 +106,24 @@ def fetch_pc_data():  # in database for certain time period and currently only s
     df = read_csv(
         os.path.join("C:/Users/philipp.borbely/Documents/LogSenseRepo/logsense/backend/FastApiRest/data/processes",
                      "*.csv"), False)
-    timestamp_df = manipulation.group_by_timestamp(df)
-    print(timestamp_df)
+    pc_total_df = manipulation.group_by_timestamp(df)
+    print(pc_total_df)
     # get influence percentage
-    involvement_map = involvement.detect_involvement_percentual(df, timestamp_df, 'residentSetSize')
+    involvement_map = involvement.detect_involvement_percentual(df, pc_total_df, 'residentSetSize')
     print('influence')
     for key, value in involvement_map.items():
         print("Key:", key)
         print("Value: ", value)
     # find trends
-    timestamp_df = manipulation.calculate_moving_avg(timestamp_df, 'residentSetSize')
-    trend_list = trend.detect_trends(timestamp_df, 'MovingAvg')
+    pc_total_df = manipulation.calculate_moving_avg(pc_total_df, 'residentSetSize')
+    trend_list = trend.detect_trends(pc_total_df, 'MovingAvg')
     # get stats
     std = df['residentSetSize'].std()
     print(std)
     mean = df['residentSetSize'].mean()
     print(mean)
     # get list of relevant data
-    application_list = involvement.detect_relevancy(timestamp_df, df, 'residentSetSize')
+    application_list = involvement.detect_relevancy(pc_total_df, df, 'residentSetSize')
     # get allocation percentage
     df = df.set_index(['timestamp'])
     latest_row = df[df.index == df.index.max()]
@@ -134,7 +134,7 @@ def fetch_pc_data():  # in database for certain time period and currently only s
         print("Value: ", value)
     # TODO: compare current value with last
 
-    return timestamp_df, allocation_map, std, mean, trend_list, involvement_map
+    return pc_total_df, allocation_map, std, mean, trend_list, involvement_map
 
 
 if __name__ == "__main__":

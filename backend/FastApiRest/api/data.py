@@ -54,11 +54,10 @@ def ingest_data(data: runningPCData):
         pcdata = data.pc_resources
         application_data = data.application_data
 
-        timestamp_df, current_df, anomaly_map = requests.ingest_process_data(application_data)
-        print('ingesting data')
-        print(timestamp_df)
-        print(current_df)
-        print(anomaly_map)
+        pc_total_df, pc_df, anomaly_map = requests.ingest_process_data(application_data)
+
+        # TODO: Insert multiple dataframes, so far we only do it for application dataframes
+        #insert_pcdata(pc_total_df, pc_df, anomaly_map)
 
         return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": 0}, status_code=200)
 
