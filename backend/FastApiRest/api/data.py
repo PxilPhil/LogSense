@@ -26,8 +26,6 @@ def injest_initial_data(data: sessionPCData):
     try:
         pcdata = data.pcdata
 
-        pcdata_id = insert_pcdata(pcdata)
-
         return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": pcdata_id}, status_code=200)
 
     except Exception as e:
@@ -57,7 +55,7 @@ def ingest_data(data: runningPCData):
         pc_total_df, pc_df, anomaly_map = requests.ingest_process_data(application_data)
 
         # TODO: Insert multiple dataframes, so far we only do it for application dataframes
-        #insert_pcdata(pc_total_df, pc_df, anomaly_map)
+        pcdata_id = insert_pcdata(pc_total_df, pc_df, anomaly_map)
 
         return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": 0}, status_code=200)
 
