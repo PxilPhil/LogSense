@@ -30,7 +30,3 @@ def detect_trends(selected_row, selected_column):
         prev_row = row
         last_row_change = curr_row_change
     return trend_list
-
-
-def compare_to_last(currAvg, lastAvg):
-    return currAvg / lastAvg
