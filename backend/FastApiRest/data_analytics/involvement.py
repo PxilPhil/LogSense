@@ -4,12 +4,12 @@ relevancy_limit = 0.05
 application_list = []  # list of applications with high causality to total usage
 
 
-def detect_relevancy(timestamp_df, df, column):
-    pc_mean = timestamp_df[column].mean()
+def detect_relevancy(pc_total_df, df, column):
+    pc_total = pc_total_df.iloc[0][column]
     application_mean = df.groupby("name").mean(numeric_only=True)
     for index, row in application_mean.iterrows():
         mean = row[column]
-        if mean/pc_mean > relevancy_limit:
+        if mean/pc_total > relevancy_limit:
             application_list.append(index)
     return application_list
 

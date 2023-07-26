@@ -20,9 +20,9 @@ def read_csv(file, custom):  # helper method for testing
 
 
 def calc_end_timestamp(timestamp,
-                       hours):  # helper method to calculate the last timestamp going from a starting timestamp
+                       days):  # helper method to calculate the last timestamp going from a starting timestamp
     # and a time period
-    time_delta = timedelta(hours=hours)
+    time_delta = timedelta(days=days)
     end_date_time = datetime.fromtimestamp(timestamp / 1000) + time_delta
     end_timestamp = int(end_date_time.timestamp() * 1000)
     return end_timestamp
