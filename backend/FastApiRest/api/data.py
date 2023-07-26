@@ -56,7 +56,7 @@ def ingest_data(files: list[UploadFile]):
         df_map = dict()
         print(files)
         for file in files:
-            df_map[file.filename] = pd.read_csv(file.file)
+            df_map[file.filename] = pd.read_csv(file.file, sep='|')
         print(df_map)
 
 
@@ -64,8 +64,12 @@ def ingest_data(files: list[UploadFile]):
         #application_data = data.application_data
         #pc_total_df, pc_df, anomaly_map = requests.ingest_process_data(application_data)
 
+        print(df_map["application"])
+
         # TODO: Insert multiple dataframes, so far we only do it for application dataframes
-        #pcdata_id = insert_pcdata(pc_total_df, pc_df, anomaly_map)
+        pc_total_df, anomaly_map = requests.ingest_process_data(df_map["application"])
+
+        print(pc_total_df)
 
         return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": 0}, status_code=200)
 

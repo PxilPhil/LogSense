@@ -4,7 +4,7 @@ import requests
 if __name__ == "__main__":
     url = "http://localhost:8000/data"
     files = {
-        ('files', ('application', open('C:/Users/philipp.borbely/Documents/LogSenseRepo/logsense/backend/FastApiRest/data/processes/process_1689237893216.csv', 'rb'), 'text/csv')),
+        ('files', ('application', open('C:/Users/philipp.borbely/Documents/LogSenseRepo/logsense/backend/FastApiRest/data/application/application_1690273216270.csv', 'rb'), 'text/csv')),
         ('files', ('connection', open('C:/Users/philipp.borbely/Documents/LogSenseRepo/logsense/backend/FastApiRest/data/connection/connection_1690273226472.csv', 'rb'), 'text/csv')),
         ('files', ('resources', open(
             'C:/Users/philipp.borbely/Documents/LogSenseRepo/logsense/backend/FastApiRest/data/resource/resource_1690273226120.csv',
