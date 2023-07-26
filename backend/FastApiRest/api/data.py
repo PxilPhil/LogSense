@@ -1,5 +1,9 @@
+from typing import List
+
+import pandas as pd
+
 from data_analytics import requests
-from fastapi import HTTPException, APIRouter
+from fastapi import HTTPException, APIRouter, UploadFile
 from fastapi.responses import JSONResponse
 from model.data import runningPCData, sessionPCData
 
@@ -26,7 +30,7 @@ def injest_initial_data(data: sessionPCData):
     try:
         pcdata = data.pcdata
 
-        return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": pcdata_id}, status_code=200)
+        return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": 1}, status_code=200)
 
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid JSON data")
@@ -37,7 +41,7 @@ def injest_initial_data(data: sessionPCData):
     400: {"description": "Invalid JSON data"},
     500: {"description": "Internal server error"}
 })
-def ingest_data(data: runningPCData):
+def ingest_data(files: list[UploadFile]):
 
     """
     Insert Timeseries data.
@@ -49,13 +53,19 @@ def ingest_data(data: runningPCData):
         dict: A dictionary with a 'result' key indicating the success or failure of the operation and 'pcdata_id' the ID of the pcData inserted
     """
     try:
-        pcdata = data.pc_resources
-        application_data = data.application_data
+        df_map = dict()
+        print(files)
+        for file in files:
+            df_map[file.filename] = pd.read_csv(file.file)
+        print(df_map)
 
-        pc_total_df, pc_df, anomaly_map = requests.ingest_process_data(application_data)
+
+        #pcdata = data.pc_resources
+        #application_data = data.application_data
+        #pc_total_df, pc_df, anomaly_map = requests.ingest_process_data(application_data)
 
         # TODO: Insert multiple dataframes, so far we only do it for application dataframes
-        pcdata_id = insert_pcdata(pc_total_df, pc_df, anomaly_map)
+        #pcdata_id = insert_pcdata(pc_total_df, pc_df, anomaly_map)
 
         return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": 0}, status_code=200)
 

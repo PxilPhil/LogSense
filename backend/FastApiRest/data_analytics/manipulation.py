@@ -1,9 +1,12 @@
 import pandas as pd
 import numpy as np
+import io
 
 
 def group_by_timestamp(df):
-    return df.groupby('timestamp')[['majorFaults', 'contextSwitches', 'threadCount', 'openFiles', 'residentSetSize', 'cpuUsage']].sum(numeric_only=True).sort_values('timestamp', ascending=True)
+    return df.groupby('timestamp')[
+        ['majorFaults', 'contextSwitches', 'threadCount', 'openFiles', 'residentSetSize', 'cpuUsage']].sum(
+        numeric_only=True).sort_values('timestamp', ascending=True)
 
 
 def select_rows_by_application(selected_value, df):  # Method to select rows by value
@@ -34,4 +37,7 @@ def create_df_between(start_timestamp, end_timestamp, frequency):
     return new_df
 
 
-
+def convert_to_data_frame(csv_string):
+    csv_io = io.StringIO(csv_string)
+    df = pd.read_csv(csv_io, sep="|")
+    return df

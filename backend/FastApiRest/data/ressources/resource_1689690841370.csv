@@ -1,2 +1,0 @@
-timestamp|freeDiskSpace|partitionsMajorFaults|partitionsMinorFaults|availableMemory|bytesReceivedNetworkInterfaces|bytesSentNetworkInterfaces|collisionsNetworkInterfaces|packetsReceivedNetworkInterfaces|packetsSentNetworkInterfaces|chargingPowerSources|dischargingPowerSources|powerOnLinePowerSources|powerUsageRatePowerSources|remainingCapacityPercentPowerSources|contextSwitchesProcessor|interruptsProcessor
-1689690841370|938147037184|0|1|17762897920|0 10261 15407871 0 0|0 5431 4683741 0 0|0 0 0 0 0|0 29 965274 0 0|0 26 12654 0 0|true|false|true|7832.0|1.0|499604809|357813223
