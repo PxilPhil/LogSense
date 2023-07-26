@@ -82,7 +82,6 @@ CREATE TABLE IF NOT EXISTS applicationdata (
     "user" VARCHAR,
     context_switches int,
     major_faults int,
-    minor_faults int,
     bitness int,
     commandline VARCHAR,
     "current_Working_Directory" VARCHAR,

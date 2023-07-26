@@ -49,7 +49,6 @@ def ingest_data(data: runningPCData):
         dict: A dictionary with a 'result' key indicating the success or failure of the operation and 'pcdata_id' the ID of the pcData inserted
     """
     try:
-        pcdata = data.pc_resources
         application_data = data.application_data
 
         pc_total_df, pc_df, anomaly_map = requests.ingest_process_data(application_data)
