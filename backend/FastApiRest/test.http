@@ -102,6 +102,7 @@ GET http://localhost:8000/pc/1/application/chrome?start=1&end=1
 ### POST Request to Insert Timeseries Data###
 POST http://localhost:8000/data/
 Content-Type: application/json
+
 {
     "pc_resources": "relevant_list",
     "connection_data": "Ethernet",
