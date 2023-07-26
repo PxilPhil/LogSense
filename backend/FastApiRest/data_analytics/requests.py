@@ -50,7 +50,7 @@ def predict_resource_data(df, days):
 def fetch_application_data(df):  # supposed to analyze trends and everything in detail for one certain application
     df = queue_df  # TODO: Only temporary until database access works
     # find trends
-    df = manipulation.calculate_moving_avg(df, 'residentSetSize')
+    df = manipulation.calculate_moving_avg(df, 'residentSetSize')  #TODO: Get from database
     trend_list = trend.detect_trends(df, 'MovingAvg')
     # find anomalies
     anomaly_list = anomaly.detect_anomalies(df, 'residentSetSize')
@@ -60,14 +60,14 @@ def fetch_application_data(df):  # supposed to analyze trends and everything in 
     return df, anomaly_list, trend_list, std, mean
 
 
-def fetch_pc_data(df, column):  # fetch all application data in database for a certain time period
+def fetch_pc_data(df, pc_total_df, column):  # fetch all application data in database for a certain time period
     df = queue_df  # TODO: Only temporary until database access works
     pc_total_df = manipulation.group_by_timestamp(df) #TODO: We can skip this if we get pc_total_data itself from database
     print(pc_total_df)
     # get influence percentage
     involvement_map = involvement.detect_involvement_percentual(df, pc_total_df, column)
     # find trends
-    pc_total_df = manipulation.calculate_moving_avg(pc_total_df, column)
+    pc_total_df = manipulation.calculate_moving_avg(pc_total_df, column) #TODO: GET FROM DATABASE
     trend_list = trend.detect_trends(pc_total_df, 'MovingAvg')
     # get stats
     std = df[column].std()
