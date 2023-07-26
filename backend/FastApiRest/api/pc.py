@@ -1,3 +1,4 @@
+import pandas as pd
 from fastapi import APIRouter, HTTPException, Body
 from db_access.pc import get_pcs, get_pcs_by_userid, add_pc
 from data_analytics import requests
@@ -62,10 +63,20 @@ def get_pc_by_user_id(pc_id: int,type: str, start: int, end: int):
     Returns:
         dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
     """
-    timestamp_df, allocation_map, std, mean, trend_list, involvement_map = requests.fetch_pc_data()
-    print(timestamp_df, allocation_map, std, mean, trend_list, involvement_map)
-    return {'pc': pc_id, 'type': type, "start": start, "end": end}
+    try:
+        column = ''
+        if type == 'RAM':
+            column = 'residentSetSize'
+        elif type == 'CPU':
+            column = 'cpuUsage'
+        else:
+            raise HTTPException(status_code=400, detail="Not implemented yet")
 
+        pc_total_df, allocation_map, std, mean, trend_list, involvement_map = requests.fetch_pc_data(pd.DataFrame(), column)
+        print(pc_total_df, allocation_map, std, mean, trend_list, involvement_map)
+        return {'pc': pc_id, 'type': type, "start": start, "end": end}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid JSON data")
 
 @pc.get('/{pc_id}/data/', response_model=dict, tags=["PC"])
 def get_pc_by_user_id(pc_id: int, start: int, end: int):

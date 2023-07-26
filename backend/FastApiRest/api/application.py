@@ -28,9 +28,9 @@ def get_application(pc_id: int, application_name: str, start: int, end: int):
 
 
 @application.get("/", tags=["Application"])
-def get_application(pc_id: int, start: int, end: int):
+def get_application_list(pc_id: int, start: int, end: int):
     """
-    Get all info to application
+    Get a list of running applications on the pc
 
     Parameters:
         pc_id (int): ID of the PC
@@ -38,4 +38,5 @@ def get_application(pc_id: int, start: int, end: int):
     Returns:
         dict: A dictionary with PC ID
     """
+    # TODO: Return List of Applications from DB
     return {"pc": pc_id, "start": start, "end": end}
