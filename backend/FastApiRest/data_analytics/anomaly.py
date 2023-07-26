@@ -16,7 +16,7 @@ def detect_anomalies(selected_row, column):  # only makes sense for processes as
     previous_was_flagged = False
     for index, row in selected_row.iterrows():
         percentage_change = row['PercentageChange']
-        event_header = row['eventHeader']
+        event_header = row['processCountDifference']
 
         if abs(percentage_change - 1) > event_sensitivity:
             if (percentage_change > 1 and event_header > 1) or (percentage_change < 1 and event_header < 1):
