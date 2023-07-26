@@ -41,7 +41,7 @@ def injest_initial_data(data: sessionPCData):
     400: {"description": "Invalid JSON data"},
     500: {"description": "Internal server error"}
 })
-def ingest_data(files: list[UploadFile]):
+def ingest_data(files: list[UploadFile], stateId: int):
 
     """
     Insert Timeseries data.
@@ -67,9 +67,8 @@ def ingest_data(files: list[UploadFile]):
         pc_total_df, anomaly_map = requests.ingest_process_data(df_map["application"])
 
         # TODO: Insert multiple dataframes, so far we only do it for application dataframes
-        pcdata_id = insert_pcdata(df_map, pc_total_df, anomaly_map)
+        pcdata_id = insert_pcdata(stateId, df_map, pc_total_df, anomaly_map)
 
-        return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": 0}, status_code=200)
-
+        return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": pcdata_id}, status_code=200)
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid JSON data")

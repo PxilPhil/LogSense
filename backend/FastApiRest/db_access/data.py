@@ -2,43 +2,62 @@ from datetime import datetime
 
 import psycopg2
 
-from data_analytics import anomaly
 from db_access import cursor, conn
 from psycopg2 import extras
 
-from model.data import runningPCData
+from db_access.helper import get_pcid_by_stateid
 
 
-def insert_pcdata(pc_total_df, application_df, anomalies):
+def insert_pcdata(state_id, df_dict, pc_total_df, anomalies):
     try:
         first_row_pc_total = pc_total_df.iloc[0]
-        #first_row_pc = pc_df.iloc[0]
+        first_row_pc = df_dict['resources'].iloc[0]
         pcdata_id = 0
 
-        """
+        timestamp_pc = datetime.fromtimestamp(first_row_pc['timestamp'] / 1000)
+        pc_id = get_pcid_by_stateid(state_id)
         pcdata_values = (
-                            row[measurement_time],
-                            pcdata.free_disk_space,
-                            pcdata.partition_major_faults,
-                            pcdata.partition_minor_faults,
-                            pcdata.available_memory,
-                            pcdata.names_power_source,
-                            pcdata.discharging_power_sources,
-                            pcdata.power_online_power_sources,
-                            pcdata.remaining_capacity_percent_power_sources,
-                            pcdata.context_switches_processor,
-                            pcdata.interrupts_processor)
+                            state_id,
+                            pc_id,
+                            timestamp_pc,
+                            int(first_row_pc["freeDiskSpace"]),
+                            int(first_row_pc["readBytesDiskStores"]),
+                            int(first_row_pc["readsDiskStores"]),
+                            int(first_row_pc["writeBytesDiskStores"]),
+                            int(first_row_pc["writesDiskStores"]),
+                            int(first_row_pc["partitionsMajorFaults"]),
+                            int(first_row_pc["partitionsMinorFaults"]),
+                            int(first_row_pc["availableMemory"]),
+                            first_row_pc["namesPowerSources"],
+                            bool(first_row_pc["chargingPowerSources"]),
+                            bool(first_row_pc["dischargingPowerSources"]),
+                            bool(first_row_pc["powerOnLinePowerSources"]),
+                            int(first_row_pc["remainingCapacityPercentPowerSources"]),
+                            int(first_row_pc["contextSwitchesProcessor"]),
+                            int(first_row_pc["interruptsProcessor"]),
+                            float(pc_total_df["cpuUsage"]),
+                            int(pc_total_df["residentSetSize"]),
+                            int(pc_total_df["contextSwitches"]),
+                            int(pc_total_df["majorFaults"]),
+                            int(pc_total_df["openFiles"]),
+                            int(pc_total_df["threadCount"])
+        )
 
-        pcdata_query = ""
+        pcdata_query = """
             INSERT INTO pcdata (
                 state_id,
                 pc_id,
                 measurement_time,
                 free_disk_space,
+                read_bytes_disks,
+                reads_disks,
+                write_bytes_Disks,
+                writes_disks,
                 partition_major_faults,
                 partition_minor_faults,
                 available_memory,
                 names_power_source,
+                charging_power_sources,
                 discharging_power_sources,
                 power_online_power_sources,
                 remaining_capacity_percent_power_sources,
@@ -48,18 +67,17 @@ def insert_pcdata(pc_total_df, application_df, anomalies):
                 total_ram,
                 total_context_switches,
                 total_major_faults,
-                total_minor_faults,
                 total_open_files,
                 total_thread_count
             ) VALUES %s RETURNING id;
-        ""
+            """
 
         cursor.execute(pcdata_query, (pcdata_values,))
         pcdata_id = cursor.fetchone()[0]
-        """
+
 
         applications =  []
-        for index, row in application_df.iterrows():
+        for index, row in df_dict["application"].iterrows():
             #print(index)
             #print(row[index])
             #print(row['residentSetSize'])
@@ -93,39 +111,54 @@ def insert_pcdata(pc_total_df, application_df, anomalies):
         """
         psycopg2.extras.execute_values(cursor, application_data_query, applications)
 
-        # Insert ApplicationData into 'applicationdata' table
+        connections = []
+        for index, row in df_dict["connection"].iterrows():
+            timestamp = datetime.fromtimestamp(index / 1000)
+            connection_data = (
+                pcdata_id,
+                row['localAddress'],
+                row['localPort'],
+                row['foreignAddress'],
+                row['foreignPort'],
+                row['state'],
+                row['type'],
+                row['owningProcessID']
+            )
+            connections.append(connection_data)
 
-        """        
-        application_data = [(pcdata_id, app.measurement_time, app.name, app.path, app.cpu, app.ram, app.State, app.user,
-                             app.context_Switches, app.major_Faults, app.bitness, app.commandline,
-                             app.current_Working_Directory, app.open_Files, app.parent_ProcessID,
-                             app.thread_Count, app.uptime, app.process_Count_Difference) for app in
-                            pcdata.applicationdata]
-
-        extras.execute_values(cursor, ""
-        INSERT INTO applicationdata (pcdata_id, measurement_time, name, path, cpu, ram, State, "user", context_Switches,
-                                    major_Faults, bitness, commandline, "current_Working_Directory", open_Files,
-                                    parent_ProcessID, thread_Count, uptime, process_Count_Difference) VALUES %s;
-        "", application_data)
-
-        # Insert applicationdata_anomaly into 'applicationdata_anomaly' table
-        applicationdata_anomaly_data = [(anomaly.anomaly_id, app_id) for app_id in
-                                        range(pcdata_id, pcdata_id + len(pcdata.applicationdata))]
-
-        extras.execute_values(cursor, ""
-        INSERT INTO applicationdata_anomaly (anomaly_id, applicationdata_id) VALUES %s;
-        "", applicationdata_anomaly_data)
-
-        # Insert NetworkInterface into 'networkInterface' table
-        network_interface_data = [(pcdata_id, net.name, net.display_name, net.ipv4_address, net.ipv6_address, net.art,
-                                   net.subnet_mask, net.mac_address, net.bytes_received, net.bytes_sent,
-                                   net.packets_received, net.packets_sent) for net in pcdata.networkInterface]
-
-        extras.execute_values(cursor, ""
-        INSERT INTO networkInterface (pcdata_id, name, display_name, ipv4_address, ipv6_address, art, subnet_mask, mac_address,
-                                      bytes_received, bytes_sent, packets_received, packets_sent) VALUES %s;
-        "", network_interface_data)
+        connection_data_query = """
+            INSERT INTO Connection
+            (pcdata_ID, localAddress, localPort, foreignAddress, foreignPort, state, type, owningProcessID)
+            VALUES %s
         """
+        psycopg2.extras.execute_values(cursor, connection_data_query, connections)
+
+        # Assuming you have imported the required libraries and established a connection to the database
+
+        network_interfaces = []
+        for index, row in df_dict["network"].iterrows():
+            timestamp = datetime.fromtimestamp(index / 1000)
+            network_interface_data = (
+                pcdata_id,
+                row['name'],
+                row['displayName'],
+                row['ipv4Address'],
+                row['ipv6Address'],
+                row['subnetMask'],
+                row['macAddress'],
+                row['packetsReceived'],
+                row['bytesSent'],
+                row['packetsReceived'],
+                row['packetsSent']
+            )
+            network_interfaces.append(network_interface_data)
+
+        network_interface_data_query = """
+            INSERT INTO networkInterface 
+            (PcData_ID, name, display_name, ipv4_address, ipv6_address, subnet_mask, mac_address, bytes_received, bytes_sent, packets_received, packets_sent)
+            VALUES %s
+        """
+        psycopg2.extras.execute_values(cursor, network_interface_data_query, network_interfaces)
 
         conn.commit()
         return pcdata_id
