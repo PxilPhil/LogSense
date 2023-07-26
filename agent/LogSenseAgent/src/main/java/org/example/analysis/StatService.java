@@ -22,24 +22,23 @@ public class StatService {
 
     }
 
-    public List<Application> ingestData(long timestamp, List<OSProcess> osProcesses) {
+    public void ingestData(long timestamp, List<OSProcess> osProcesses) {
         if (osProcesses != null && osProcesses.size() > 0 && timestamp >= 0 && timestamp <= Instant.now().toEpochMilli()) {
             this.dataAmount++;
             List<OSProcess> filteredOsProcesses = filterSystemProcesses(osProcesses);
             Map<String, Application> mergedApplications = mergeProcessesIntoApplications(timestamp, filteredOsProcesses);
             insertApplicationDataIntoApplicationMeasurements(mergedApplications);
-
-            if (timestamp >= (this.lastAnalysis + this.analysisInterval * 1000L)) { //if X amount has passed since the last timeStamp / analysis
-                List<Application> evaluatedApplicationData = evaluateApplicationMeasurements(timestamp);
-                this.applicationMeasurements.clear();
-                this.lastAnalysis = timestamp;
-                this.dataAmount = 0;
-                return evaluatedApplicationData;
-            }
         } else {
-            LOGGER.error("Error while analysing the processes: either the list of processes is null or the list is empty or the timestamp is not between epoch and now. Therefore the data can not be analysed.");
+            LOGGER.error("Error while ingesting the data: either the list of processes is null or the list is empty or the timestamp is not between epoch and now. Therefore the data can not be ingested.");
         }
-        return null;
+    }
+
+    public List<Application> analyseApplicationMeasurements(long timestamp) {
+        List<Application> evaluatedApplicationData = evaluateApplicationMeasurements(timestamp);
+        this.applicationMeasurements.clear();
+        this.lastAnalysis = timestamp;
+        this.dataAmount = 0;
+        return evaluatedApplicationData;
     }
 
     private List<OSProcess> filterSystemProcesses(List<OSProcess> osProcesses) {

@@ -1,7 +1,7 @@
 package org.example.common;
 
-import org.example.model.SessionComputerData;
 import org.example.model.RunningData;
+import org.example.model.SessionComputerData;
 
 public interface JSONConverter {
     String convertSessionComputerDataToJson(SessionComputerData sessionComputerData);

@@ -3,8 +3,8 @@ package org.example.converter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.common.JSONConverter;
-import org.example.model.SessionComputerData;
 import org.example.model.RunningData;
+import org.example.model.SessionComputerData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
