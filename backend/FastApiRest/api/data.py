@@ -17,7 +17,7 @@ data = APIRouter()
     400: {"description": "Invalid JSON data"},
     500: {"description": "Internal server error"}
 })
-def injest_initial_data(data: sessionPCData):
+def ingest_initial_data(data: sessionPCData):
     """
     Insert Initial data.
 

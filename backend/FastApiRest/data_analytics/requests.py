@@ -10,17 +10,18 @@ from db_access.data import get_moving_avg_of_total_ram
 warnings.filterwarnings("ignore")
 queue_df = pd.DataFrame()  # current data frame
 
+
 def ingest_process_data(df):
-    #TODO: We could already detect a lot of useful data on ingest, find out if we leave it at a hybrid approach or ingest
+    # TODO: We could already detect a lot of useful data on ingest, find out if we leave it at a hybrid approach or ingest
     df = df.set_index('timestamp')
     anomaly_map = dict()
     pc_total_df = manipulation.group_by_timestamp(df)
 
-
     relevant_list = involvement.detect_relevancy(pc_total_df, df,
-                                                     'residentSetSize')  # hardcoded to work for ram
+                                                 'residentSetSize')  # hardcoded to work for ram
     for application in relevant_list:
         selected_row = manipulation.select_rows_by_application(application, df)
+        # TODO: Fetch from Database if last row was an anomaly
         moving_avg = get_moving_avg_of_total_ram(1, application)
         if moving_avg > 0:
             anomaly.detect_anomalies(selected_row, 'residentSetSize', moving_avg, False, anomaly_map, application)
@@ -46,7 +47,7 @@ def predict_resource_data(df, days):
 def fetch_application_data(df):  # supposed to analyze trends and everything in detail for one certain application
     df = queue_df  # TODO: Only temporary until database access works
     # find trends
-    df = manipulation.calculate_moving_avg(df, 'residentSetSize')  #TODO: Get from database
+    df = manipulation.calculate_moving_avg(df, 'residentSetSize')  # TODO: Get from database
     trend_list = trend.detect_trends(df, 'MovingAvg')
     # find anomalies
     anomaly_list = anomaly.detect_anomalies(df, 'residentSetSize')
@@ -58,12 +59,13 @@ def fetch_application_data(df):  # supposed to analyze trends and everything in 
 
 def fetch_pc_data(df, pc_total_df, column):  # fetch all application data in database for a certain time period
     df = queue_df  # TODO: Only temporary until database access works
-    pc_total_df = manipulation.group_by_timestamp(df) #TODO: We can skip this if we get pc_total_data itself from database
+    pc_total_df = manipulation.group_by_timestamp(
+        df)  # TODO: We can skip this if we get pc_total_data itself from database
     print(pc_total_df)
     # get influence percentage
     involvement_map = involvement.detect_involvement_percentual(df, pc_total_df, column)
     # find trends
-    pc_total_df = manipulation.calculate_moving_avg(pc_total_df, column) #TODO: GET FROM DATABASE
+    pc_total_df = manipulation.calculate_moving_avg(pc_total_df, column)  # TODO: GET FROM DATABASE
     trend_list = trend.detect_trends(pc_total_df, 'MovingAvg')
     # get stats
     std = df[column].std()

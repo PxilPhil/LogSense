@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Body
 from data_analytics import requests
-from db_access.pc import get_pcs, get_pcs_by_userid, add_pc
+from db_access.application import get_application
 
 from model.pc import PCItem
 
@@ -8,7 +8,7 @@ application = APIRouter()
 
 
 @application.get("/{application_name}/", tags=["Application"])
-def get_application(pc_id: int, application_name: str, start: int, end: int):
+def fetch_application(pc_id: int, application_name: str, start: str, end: str):
     """
     Get Data to Application
 
@@ -20,9 +20,10 @@ def get_application(pc_id: int, application_name: str, start: int, end: int):
     Returns:
         dict: A dictionary with PC ID, Application Name, Start, and End values
     """
-    df, anomaly_list = requests.fetch_application_data(application_name)
+    df, data_list = get_application(pc_id, application_name, start, end)
+    #df, anomaly_list = requests.fetch_application_data(application_name)
     print(df)
-    print(anomaly_list)
+    print(data_list)
     # TODO: The way all gets should return time series data is in form of arrays
     return {"pc": pc_id, "application": application_name, "start": start, "end": end}
 
