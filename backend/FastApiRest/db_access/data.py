@@ -8,39 +8,40 @@ from psycopg2 import extras
 from db_access.helper import get_pcid_by_stateid
 
 
-def insert_pcdata(state_id, df_dict, pc_total_df, anomalies):
+def insert_pcdata(state_id, df_dict, pc_total_df,
+                  anomalies):  # TODO: Optionally save moving averages into database if its too slow to calculate it every time
     try:
         first_row_pc_total = pc_total_df.iloc[0]
         first_row_pc = df_dict['resources'].iloc[0]
         pcdata_id = 0
 
-        timestamp_pc = datetime.fromtimestamp(first_row_pc['timestamp'] / 1000)
+        timestamp_pc = datetime.fromtimestamp(pc_total_df.index[0] / 1000)
         pc_id = get_pcid_by_stateid(state_id)
         pcdata_values = (
-                            state_id,
-                            pc_id,
-                            timestamp_pc,
-                            int(first_row_pc["freeDiskSpace"]),
-                            int(first_row_pc["readBytesDiskStores"]),
-                            int(first_row_pc["readsDiskStores"]),
-                            int(first_row_pc["writeBytesDiskStores"]),
-                            int(first_row_pc["writesDiskStores"]),
-                            int(first_row_pc["partitionsMajorFaults"]),
-                            int(first_row_pc["partitionsMinorFaults"]),
-                            int(first_row_pc["availableMemory"]),
-                            first_row_pc["namesPowerSources"],
-                            bool(first_row_pc["chargingPowerSources"]),
-                            bool(first_row_pc["dischargingPowerSources"]),
-                            bool(first_row_pc["powerOnLinePowerSources"]),
-                            int(first_row_pc["remainingCapacityPercentPowerSources"]),
-                            int(first_row_pc["contextSwitchesProcessor"]),
-                            int(first_row_pc["interruptsProcessor"]),
-                            float(pc_total_df["cpuUsage"]),
-                            int(pc_total_df["residentSetSize"]),
-                            int(pc_total_df["contextSwitches"]),
-                            int(pc_total_df["majorFaults"]),
-                            int(pc_total_df["openFiles"]),
-                            int(pc_total_df["threadCount"])
+            state_id,
+            pc_id,
+            timestamp_pc,
+            int(first_row_pc["freeDiskSpace"]),
+            int(first_row_pc["readBytesDiskStores"]),
+            int(first_row_pc["readsDiskStores"]),
+            int(first_row_pc["writeBytesDiskStores"]),
+            int(first_row_pc["writesDiskStores"]),
+            int(first_row_pc["partitionsMajorFaults"]),
+            int(first_row_pc["partitionsMinorFaults"]),
+            int(first_row_pc["availableMemory"]),
+            first_row_pc["namesPowerSources"],
+            bool(first_row_pc["chargingPowerSources"]),
+            bool(first_row_pc["dischargingPowerSources"]),
+            bool(first_row_pc["powerOnLinePowerSources"]),
+            int(first_row_pc["remainingCapacityPercentPowerSources"]),
+            int(first_row_pc["contextSwitchesProcessor"]),
+            int(first_row_pc["interruptsProcessor"]),
+            float(pc_total_df["cpuUsage"]),
+            int(pc_total_df["residentSetSize"]),
+            int(pc_total_df["contextSwitches"]),
+            int(pc_total_df["majorFaults"]),
+            int(pc_total_df["openFiles"]),
+            int(pc_total_df["threadCount"])
         )
 
         pcdata_query = """
@@ -75,16 +76,14 @@ def insert_pcdata(state_id, df_dict, pc_total_df, anomalies):
         cursor.execute(pcdata_query, (pcdata_values,))
         pcdata_id = cursor.fetchone()[0]
 
-
-        applications =  []
+        applications = []
         for index, row in df_dict["application"].iterrows():
-            #print(index)
-            #print(row[index])
-            #print(row['residentSetSize'])
-            timestamp = datetime.fromtimestamp(index/1000)
+            # print(index)
+            # print(row[index])
+            # print(row['residentSetSize'])
             application_data = (
                 pcdata_id,
-                timestamp,
+                timestamp_pc,
                 row['name'],
                 row['path'],
                 row['cpuUsage'],
@@ -165,3 +164,28 @@ def insert_pcdata(state_id, df_dict, pc_total_df, anomalies):
     except Exception as e:
         conn.rollback()
         raise e
+
+
+def get_moving_avg_of_total_ram(pc_id: int, application): # returns moving avg of the last 5 columns
+    moving_avg_query = """
+    SELECT
+    app.measurement_time,
+    app.ram,
+    AVG(app.ram) OVER (ORDER BY app.measurement_time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS rolling_avg_ram
+    FROM
+    applicationdata AS app
+    JOIN
+    pcdata AS pc ON app.pcdata_id = pc.id
+    WHERE
+    pc.pc_id = %s AND app.name = %s
+    ORDER BY
+    app.measurement_time;
+    """
+
+    cursor.execute(moving_avg_query, (pc_id, application))
+    result = cursor.fetchone()
+
+    if result:
+        return result[0]
+    else:
+        return 0

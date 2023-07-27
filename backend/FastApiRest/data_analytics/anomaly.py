@@ -9,10 +9,9 @@ class AnomalyData:
         self.is_event = is_event
 
 
-def detect_anomalies(selected_row, column):  # only makes sense for processes as of now
+def detect_anomalies(selected_row, column, moving_avg):  # only makes sense for processes as of now
     anomaly_list = []
-    selected_row['PercentageChange'] = selected_row[column] / selected_row['MovingAvg'].shift()
-    selected_row = selected_row.dropna()
+    selected_row['PercentageChange'] = selected_row[column] / moving_avg
     previous_was_flagged = False
     for index, row in selected_row.iterrows():
         percentage_change = row['PercentageChange']

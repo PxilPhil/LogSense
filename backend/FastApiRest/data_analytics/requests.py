@@ -5,29 +5,28 @@ import warnings
 from data_analytics import involvement, manipulation, anomaly, trend, stats
 from data_analytics.prediction import fit_linear_regression, predict_for_df
 from data_analytics.helper import read_csv, calc_end_timestamp
+from db_access.data import get_moving_avg_of_total_ram
 
 warnings.filterwarnings("ignore")
 queue_df = pd.DataFrame()  # current data frame
 
-def ingest_process_data(new_df):
+def ingest_process_data(df):
     #TODO: We could already detect a lot of useful data on ingest, find out if we leave it at a hybrid approach or ingest
-    global queue_df
-    new_df = new_df.set_index('timestamp')
+    df = df.set_index('timestamp')
     anomaly_map = dict()
-    print(queue_df)
-    queue_df = pd.concat([queue_df, new_df])
-    print(queue_df)
-    pc_total_df = manipulation.group_by_timestamp(new_df)
-    if queue_df.index.nunique() > 5:  # don't do anything yet until we have saved previous values
-        relevant_list = involvement.detect_relevancy(pc_total_df, queue_df,
+    pc_total_df = manipulation.group_by_timestamp(df)
+
+
+    relevant_list = involvement.detect_relevancy(pc_total_df, df,
                                                      'residentSetSize')  # hardcoded to work for ram
-        for application in relevant_list:
-            selected_row = manipulation.select_rows_by_application(application, queue_df)
-            selected_row = manipulation.calculate_moving_avg(selected_row, 'residentSetSize')
-            anomaly_list = anomaly.detect_anomalies(selected_row, 'residentSetSize')
-            if len(anomaly_list) > 0:
-                anomaly_map[application] = anomaly_list
-        queue_df = queue_df.drop(queue_df.index[1])
+    for application in relevant_list:
+        selected_row = manipulation.select_rows_by_application(application, df)
+        moving_avg = get_moving_avg_of_total_ram(1, application)
+        anomaly_map[application] = moving_avg
+        #if moving_avg > 0:
+            #anomaly_list = anomaly.detect_anomalies(selected_row, 'residentSetSize', moving_avg)
+            #if len(anomaly_list) > 0:
+                #anomaly_map[application] = anomaly_list
     return pc_total_df, anomaly_map
 
 

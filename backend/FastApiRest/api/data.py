@@ -7,7 +7,7 @@ from fastapi import HTTPException, APIRouter, UploadFile
 from fastapi.responses import JSONResponse
 from model.data import runningPCData, sessionPCData
 
-from db_access.data import insert_pcdata
+from db_access.data import insert_pcdata, get_moving_avg_of_total_ram
 
 data = APIRouter()
 
@@ -64,6 +64,7 @@ def ingest_data(files: list[UploadFile], stateId: int):
         application_data = df_map["application"]
 
         print(application_data)
+
         pc_total_df, anomaly_map = requests.ingest_process_data(df_map["application"])
 
         # TODO: Insert multiple dataframes, so far we only do it for application dataframes
