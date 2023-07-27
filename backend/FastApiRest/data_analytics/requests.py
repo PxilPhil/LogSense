@@ -24,7 +24,7 @@ def ingest_process_data(df):
         # TODO: Fetch from Database if last row was an anomaly
         moving_avg = get_moving_avg_of_total_ram(1, application)
         if moving_avg > 0:
-            anomaly.detect_anomalies(selected_row, 'residentSetSize', moving_avg, False, anomaly_map, application)
+            anomaly.detect_anomaly(selected_row, 'residentSetSize', moving_avg, False, anomaly_map, application)
     return pc_total_df, anomaly_map
 
 
@@ -45,15 +45,15 @@ def predict_resource_data(df, days):
 
 
 def fetch_application_data(df):  # supposed to analyze trends and everything in detail for one certain application
-    df = queue_df  # TODO: Only temporary until database access works
     # find trends
-    df = manipulation.calculate_moving_avg(df, 'residentSetSize')  # TODO: Get from database
+    df = manipulation.calculate_moving_avg(df, 'ram')
     trend_list = trend.detect_trends(df, 'MovingAvg')
+    print(df)
     # find anomalies
-    anomaly_list = anomaly.detect_anomalies(df, 'residentSetSize')
+    anomaly_list = anomaly.detect_anomalies(df, 'ram')
     # get stats
-    std = df['residentSetSize'].std()
-    mean = df['residentSetSize'].mean()
+    std = df['ram'].std()
+    mean = df['ram'].mean()
     return df, anomaly_list, trend_list, std, mean
 
 
