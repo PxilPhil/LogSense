@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from db_access.data_helper import get_dfdict_from_filelist, get_pc_state_df
 from model.data import runningPCData, sessionPCData
 
-from db_access.data import insert_pcdata, get_moving_avg_of_total_ram
+from db_access.data import insert_inital_pcdata, get_moving_avg_of_total_ram
 from db_access.data import insert_running_pcdata
 
 data = APIRouter()

@@ -1,4 +1,4 @@
-trend_limit = 0.05  # TODO: Implement trend limit
+trend_limit = 0.05  # TODO: Trend limit doesnt work if it is too high, maybe change it depending on application/pc?
 
 
 class TrendData:  # can remove curr or prev_value since it can be calculated with change but its easier this way

@@ -70,7 +70,6 @@ def get_pc_data(pc_id: int, type: str, start: str, end: str):
     """
     try:
         column = type.lower()
-        #TODO: Dont get the entirety of the saved data just an average value in order to use less resouces
         total_df, total_data_list = db_access.pc.get_total_pc_data(pc_id, start, end)
         df, application_data_list = get_latest_application_data(pc_id)
         if df is None or total_df is None:
