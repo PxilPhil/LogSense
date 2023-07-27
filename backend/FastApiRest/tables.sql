@@ -120,6 +120,7 @@ CREATE TABLE IF NOT EXISTS anomaly (
 CREATE TABLE IF NOT EXISTS applicationdata_anomaly (
   anomaly_id bigint REFERENCES anomaly (id),
   applicationdata_id bigint,
+  change_in_percentage double precision,
   user_id bigint REFERENCES logsenseuser (id),
   type varchar,
   PRIMARY KEY (anomaly_id, applicationdata_id)
@@ -155,7 +156,9 @@ CREATE TABLE IF NOT EXISTS Connection (
 
 CREATE TABLE IF NOT EXISTS disk (
   id bigserial PRIMARY KEY,
-  pcdata_id bigint,
+  state_id bigint REFERENCES PCState (id),
+  measurement_time TIMESTAMP NOT NULL,
+  serialnumber varchar,
   model varchar,
   name varchar,
   size bigint

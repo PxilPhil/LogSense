@@ -5,30 +5,43 @@ import pandas as pd
 from data_analytics import requests
 from fastapi import HTTPException, APIRouter, UploadFile
 from fastapi.responses import JSONResponse
+
+from db_access.data_helper import get_dfdict_from_filelist, get_pc_state_df
 from model.data import runningPCData, sessionPCData
 
 from db_access.data import insert_pcdata, get_moving_avg_of_total_ram
+from db_access.data import insert_running_pcdata
 
 data = APIRouter()
 
 
-@data.post("/initial", description="Insert Timeseries data", tags=["Data"], responses={
+@data.post("/initial", description="Check PC State", tags=["Data"], responses={
     200: {"description": "Successful response"},
     400: {"description": "Invalid JSON data"},
     500: {"description": "Internal server error"}
 })
-def ingest_initial_data(data: sessionPCData):
+def injest_initial_data(files: list[UploadFile]):
     """
     Insert Initial data.
 
     Args:
-        data (sessionPCData): The data which only change once per session
+        files (list[UploadFile]): A list of UploadFile objects representing the Timeseries data files.
+            - File names must include: "client", "disk", "partition"
 
     Returns:
-    - dict: Response message confirming successful data submission.
+        dict:
+        A dictionary with a 'result' key indicating the success or failure of the operation,
+        'pcdata_id' the ID of the pcData inserted,
+        and 'Anomalies found' indicating the number of anomalies detected.
     """
     try:
-        pcdata = data.pcdata
+        df_map = get_dfdict_from_filelist(files)
+
+        state_id = get_pc_state_df(df_map['client'])
+        if not state_id:
+            raise HTTPException(status_code=400, detail="Pc does Not Exsist")
+
+
 
         return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": 1}, status_code=200)
 
@@ -42,33 +55,31 @@ def ingest_initial_data(data: sessionPCData):
     500: {"description": "Internal server error"}
 })
 def ingest_data(files: list[UploadFile], stateId: int):
-
     """
     Insert Timeseries data.
 
     Args:
-        data (runningPCData): The Timeseries data to insert each of the datapoints
+        stateId (int): The ID of the state.
+        files (list[UploadFile]): A list of UploadFile objects representing the Timeseries data files.
+            - File names must include: "application", "connection", "resources", "network".
 
     Returns:
-        dict: A dictionary with a 'result' key indicating the success or failure of the operation and 'pcdata_id' the ID of the pcData inserted
+        dict:
+        A dictionary with a 'result' key indicating the success or failure of the operation,
+        'pcdata_id' the ID of the pcData inserted,
+        and 'Anomalies found' indicating the number of anomalies detected.
     """
     try:
-        df_map = dict()
-        print(files)
-        for file in files:
-            df_map[file.filename] = pd.read_csv(file.file, sep='|')
-        print(df_map)
-
+        df_map = get_dfdict_from_filelist(files)
 
         pcdata = df_map["resources"]
         application_data = df_map["application"]
 
         print(application_data)
-
         pc_total_df, anomaly_map = requests.ingest_process_data(df_map["application"])
 
         # TODO: Insert multiple dataframes, so far we only do it for application dataframes
-        pcdata_id = insert_pcdata(stateId, df_map, pc_total_df, anomaly_map)
+        pcdata_id = insert_running_pcdata(stateId, df_map, pc_total_df, anomaly_map)
 
         return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": pcdata_id, "Anomalies found:": len(anomaly_map)}, status_code=200)
     except Exception as e:
