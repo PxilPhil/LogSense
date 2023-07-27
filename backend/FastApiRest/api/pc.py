@@ -1,6 +1,9 @@
 import pandas as pd
 from fastapi import APIRouter, HTTPException, Body
-from db_access.pc import get_pcs, get_pcs_by_userid, add_pc
+
+import db_access.pc
+from db_access.pc import get_pcs, get_pcs_by_userid, add_pc, get_pc_data
+from db_access.application import get_latest_application_data
 from data_analytics import requests
 from model.pc import PCItem
 
@@ -53,7 +56,7 @@ def add_pc_api(data: PCItem = Body(...)):
 
 
 @pc.get('/{pc_id}/data/{type}', response_model=dict, tags=["PC"])
-def get_pc_by_user_id(pc_id: int,type: str, start: int, end: int):
+def get_pc_data(pc_id: int, type: str, start: str, end: str):
     """
     Get data from PCs by ID and from Type type.
 
@@ -62,18 +65,18 @@ def get_pc_by_user_id(pc_id: int,type: str, start: int, end: int):
 
     Returns:
         dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
+        :param start:
+        :param end:
     """
     try:
-        column = ''
-        if type == 'RAM':
-            column = 'residentSetSize'
-        elif type == 'CPU':
-            column = 'cpuUsage'
-        else:
-            raise HTTPException(status_code=400, detail="Not implemented yet")
-
-        pc_total_df, allocation_map, std, mean, trend_list, involvement_map = requests.fetch_pc_data(pd.DataFrame(), column)
-        print(pc_total_df, allocation_map, std, mean, trend_list, involvement_map)
+        column = type.lower()
+        #TODO: Dont get the entirety of the saved data just an average value in order to use less resouces
+        total_df, total_data_list = db_access.pc.get_total_pc_data(pc_id, start, end)
+        df, application_data_list = get_latest_application_data(pc_id)
+        if df is None or total_df is None:
+            return None
+        pc_total_df, allocation_map, std, mean, trend_list = requests.fetch_pc_data(df, total_df, column)
+        print(pc_total_df, allocation_map, std, mean, trend_list)
         return {'pc': pc_id, 'type': type, "start": start, "end": end}
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid JSON data")

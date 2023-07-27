@@ -58,23 +58,14 @@ def fetch_application_data(df):  # supposed to analyze trends and everything in 
 
 
 def fetch_pc_data(df, pc_total_df, column):  # fetch all application data in database for a certain time period
-    df = queue_df  # TODO: Only temporary until database access works
-    pc_total_df = manipulation.group_by_timestamp(
-        df)  # TODO: We can skip this if we get pc_total_data itself from database
-    print(pc_total_df)
-    # get influence percentage
-    involvement_map = involvement.detect_involvement_percentual(df, pc_total_df, column)
     # find trends
     pc_total_df = manipulation.calculate_moving_avg(pc_total_df, column)  # TODO: GET FROM DATABASE
     trend_list = trend.detect_trends(pc_total_df, 'MovingAvg')
     # get stats
-    std = df[column].std()
-    mean = df[column].mean()
-    # get list of relevant data
-    application_list = involvement.detect_relevancy(pc_total_df, df, column)
+    std = pc_total_df[column].std()
+    mean = pc_total_df[column].mean()
     # get allocation percentage
-    df = df.set_index(['timestamp'])
-    latest_row = df[df.index == df.index.max()]
-    allocation_map = stats.calc_allocation(latest_row, column, application_list)
+    latest_total_value = pc_total_df.at[pc_total_df.index.max(), column]
+    allocation_map = stats.calc_allocation(latest_total_value, column, df)
     # TODO: compare current value with last
-    return pc_total_df, allocation_map, std, mean, trend_list, involvement_map
+    return pc_total_df, allocation_map, std, mean, trend_list
