@@ -74,7 +74,6 @@ def insert_new_state(pc_id,
 
         cursor.execute(sql_query, pcdata)
         result = cursor.fetchone()
-        conn.commit()
 
         if result:
             state_id = result[0]
@@ -170,14 +169,14 @@ def get_dfdict_from_filelist(files: list[UploadFile]):
 
 
 def update_disk_df(state_id, disk_df, partition_df):
-    exists = get_time_of_last_disk(state_id, disk_df)
-    if not exists:
-        #insert
-        time = insert_disk_and_partition(state_id, disk_df, partition_df)
-        return time
-    return exists
+    exists = does_last_disk_overlap(state_id, disk_df)
+    if exists:
+        return True
 
-def get_time_of_last_disk(state_id, disk_df):
+    return insert_disk_and_partition(state_id, disk_df, partition_df)
+
+
+def does_last_disk_overlap(state_id, disk_df):
     for i, row in disk_df:
         querry = """
                 SELECT measurement_time
@@ -228,19 +227,30 @@ def insert_disk_and_partition(state_id, disk_df, partition_df):
     for i, row in disk_df:
         timestamp = datetime.fromtimestamp(i / 1000)
         disks.append((state_id, timestamp, row['serialNumber'], row['model'], row['name'], row['size']))
-    disk_ids = psycopg2.extras.execute_values(cursor, insert_disk, disks)
+    psycopg2.extras.execute_values(cursor, insert_disk, disks)
 
-    """SELECT d.id
-FROM disk d
-WHERE d.name = 'YourDiskName'
-  AND d.state_id = %s
-  AND d.measurement_time = (
-    SELECT MAX(measurement_time)
-    FROM disk
-    WHERE name = 'YourDiskName'
-      AND state_id = %s
-  );
-"""
+    selct_disk_id = """ 
+        SELECT d.id
+        FROM disk d
+        WHERE d.name = %s
+          AND d.state_id = %s
+          AND d.measurement_time = (
+            SELECT MAX(measurement_time)
+            FROM disk
+            WHERE name = %s
+              AND state_id = %s
+          );
+    """
+    insert_partition = """
+        INSERT INTO diskpartition 
+        (disk_id, disk_store_name, identification, name, type, mount_point, size, major_faults, minor_faults)
+        VALUES %s;
+    """
+    partitions = []
+    for i, row in partition_df:
+        cursor.execute(selct_disk_id, (row['diskStoreName'], state_id, row['diskStoreName'], state_id))
+        disk_id = cursor.fetchone()
+        partitions.append(disk_id, row['diskStoreName'], row['identification'], row['name'], row['type'], row['mountPoint'], row['size'], row['majorFaults'] , row['minorFaults'])
+    psycopg2.extras.execute_values(cursor, insert_partition, partitions)
 
-    conn.commit()
-    return None
+    return True
