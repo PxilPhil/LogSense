@@ -1,5 +1,11 @@
 event_sensitivity = 0.1
 
+class AnomalyDataNew:
+    def __init__(self, timestamp, change, application, type):
+        self.timestamp = timestamp
+        self.change = change
+        self.application = application
+        self.type = type
 
 class AnomalyData:
     def __init__(self, timestamp, change, value, is_event):

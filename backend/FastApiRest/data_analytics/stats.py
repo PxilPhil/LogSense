@@ -1,9 +1,7 @@
 
-def calc_allocation(df, column, application_list):  # ONLY PASS THE MOST CURRENT DATAFRAME
+def calc_allocation(latest_total_value, column, df):  # ONLY PASS THE MOST CURRENT DATAFRAME
     allocation_map = dict()
-    sum = df[column].sum()
-    for application in application_list:
-        result = df.loc[df.name == application, 'residentSetSize'].iloc[0]
-        allocation_map[application] = result/sum
+    for index, row in df.iterrows():
+        allocation_map[row['name']] = row[column]/latest_total_value
     return allocation_map
 

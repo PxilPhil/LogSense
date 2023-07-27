@@ -53,12 +53,12 @@ CREATE TABLE IF NOT EXISTS pcdata(
     remaining_capacity_percent_power_sources double precision,
     context_switches_processor bigint,
     interrupts_processor bigint,
-    total_cpu double precision,
-    total_ram bigint,
-    total_context_switches int,
-    total_major_faults int,
-    total_open_files int,
-    total_thread_count int
+    cpu double precision,
+    ram bigint,
+    context_switches int,
+    major_faults int,
+    open_files int,
+    thread_count int
 );
 
 DO $$

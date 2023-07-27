@@ -1,4 +1,5 @@
 from db_access import cursor, conn
+import pandas as pd
 
 
 def add_pc(user_id, hardware_uuid, client_name):
@@ -51,3 +52,94 @@ def get_pcs_by_userid(user_id):
         pc = {'hardware_uuid': row[0], 'client_name': row[1], 'manufacturer': row[2], 'model': row[3]}
         pcs.append(pc)
     return pcs
+
+def get_total_pc_data(pc_id, start, end):
+    query = """
+    SELECT
+    id,
+    state_id,
+    pc_id,
+    measurement_time,
+    free_disk_space,
+    read_bytes_disks,
+    reads_disks,
+    write_bytes_disks,
+    writes_disks,
+    partition_major_faults,
+    partition_minor_faults,
+    available_memory,
+    names_power_source,
+    charging_power_sources,
+    discharging_power_sources,
+    power_online_power_sources,
+    remaining_capacity_percent_power_sources,
+    context_switches_processor,
+    interrupts_processor,
+    cpu,
+    ram,
+    context_switches,
+    major_faults,
+    open_files,
+    thread_count
+FROM
+    pcdata
+WHERE
+    pc_id = %s AND
+    measurement_time BETWEEN %s AND %s;
+    """
+
+    cursor.execute(query, (pc_id, start, end))
+    result = cursor.fetchall()
+
+    if result:
+        columns = [desc[0] for desc in cursor.description]
+        df = pd.DataFrame(result, columns=columns)
+        data_list = df.to_dict(orient='records')
+
+        return df, data_list
+    else:
+        return None, None
+
+
+def get_pc_data(pc_id, start, end):
+    query = """
+    SELECT
+    app.id,
+    app.pcdata_id,
+    app.measurement_time,
+    app.name,
+    app.path,
+    app.cpu,
+    app.ram,
+    app.state,
+    app."user",
+    app.context_switches,
+    app.major_faults,
+    app.bitness,
+    app.commandline,
+    app."current_Working_Directory",
+    app.open_files,
+    app.parent_process_id,
+    app.thread_count,
+    app.uptime,
+    app.process_count_difference
+    FROM
+    applicationdata AS app
+    JOIN
+    pcdata AS pc ON app.pcdata_id = pc.id
+    WHERE
+    pc.pc_id = %s AND
+    app.measurement_time BETWEEN %s AND %s;
+    """
+
+    cursor.execute(query, (pc_id, start, end))
+    result = cursor.fetchall()
+
+    if result:
+        columns = [desc[0] for desc in cursor.description]
+        df = pd.DataFrame(result, columns=columns)
+        data_list = df.to_dict(orient='records')
+
+        return df, data_list
+    else:
+        return None, None

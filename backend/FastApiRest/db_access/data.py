@@ -64,12 +64,12 @@ def insert_pcdata(state_id, df_dict, pc_total_df,
                 remaining_capacity_percent_power_sources,
                 context_switches_processor,
                 interrupts_processor,
-                total_cpu,
-                total_ram,
-                total_context_switches,
-                total_major_faults,
-                total_open_files,
-                total_thread_count
+                cpu,
+                ram,
+                context_switches,
+                major_faults,
+                open_files,
+                thread_count
             ) VALUES %s RETURNING id;
             """
 
