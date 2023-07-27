@@ -22,11 +22,8 @@ def ingest_process_data(df):
     for application in relevant_list:
         selected_row = manipulation.select_rows_by_application(application, df)
         moving_avg = get_moving_avg_of_total_ram(1, application)
-        anomaly_map[application] = moving_avg
-        #if moving_avg > 0:
-            #anomaly_list = anomaly.detect_anomalies(selected_row, 'residentSetSize', moving_avg)
-            #if len(anomaly_list) > 0:
-                #anomaly_map[application] = anomaly_list
+        if moving_avg > 0:
+            anomaly.detect_anomalies(selected_row, 'residentSetSize', moving_avg, False, anomaly_map, application)
     return pc_total_df, anomaly_map
 
 

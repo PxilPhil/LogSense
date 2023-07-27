@@ -169,8 +169,6 @@ def insert_pcdata(state_id, df_dict, pc_total_df,
 def get_moving_avg_of_total_ram(pc_id: int, application): # returns moving avg of the last 5 columns
     moving_avg_query = """
     SELECT
-    app.measurement_time,
-    app.ram,
     AVG(app.ram) OVER (ORDER BY app.measurement_time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS rolling_avg_ram
     FROM
     applicationdata AS app
