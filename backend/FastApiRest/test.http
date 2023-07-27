@@ -99,6 +99,9 @@ GET http://localhost:8000/pc/1/data/RAM?start=1&end=1
 ### GET REQUEST TO GET INFOS ABOUT AN APPLICATION###
 GET http://localhost:8000/pc/1/application/chrome?start=2023-07-25 10:20:16&end=2023-07-25 10:33:01
 
+### GET A LIST OF APPLICATIONS FOR A TIME PERIOD
+GET http://localhost:8000/pc/1/application/?start=2023-07-25 10:20:16&end=2023-07-25 10:33:01
+
 ### POST Request to Insert Timeseries Data###
 POST http://localhost:8000/data/
 Content-Type: application/json

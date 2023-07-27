@@ -53,3 +53,27 @@ ORDER BY
         return df, data_list
     else:
         return 0
+
+
+def get_application_list(pc_id: int, start, end):
+    select_app_list_query = """
+    SELECT
+    app.name
+    FROM
+    applicationdata AS app
+    JOIN
+    pcdata AS pc ON app.pcdata_id = pc.id
+    WHERE
+    pc.pc_id = %s AND
+    app.measurement_time BETWEEN %s AND %s
+    GROUP BY
+    app.name"""
+
+    cursor.execute(select_app_list_query, (pc_id, start, end))
+    result = cursor.fetchall()
+
+    application_list = []  # List to hold the dictionaries
+    if result:
+        for row in result:
+            application_list.append(row)
+    return application_list
