@@ -43,4 +43,5 @@ def detect_anomalies(selected_row, column):
 
 
 def detect_custom_anomaly(df, custom_anomaly_list):  # checks current dataframe if custom anomalies have occured
+
     return 0
