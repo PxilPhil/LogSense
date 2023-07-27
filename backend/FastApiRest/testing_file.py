@@ -1,3 +1,5 @@
+import os
+
 import requests
 
 # List of CSV file paths you want to send
