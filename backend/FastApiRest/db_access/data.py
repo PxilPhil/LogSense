@@ -5,6 +5,7 @@ import psycopg2
 from db_access import cursor, conn
 from psycopg2 import extras
 
+from db_access.data_helper import get_pc_state_df, update_disk_df
 from db_access.helper import get_pcid_by_stateid
 
 
@@ -193,97 +194,14 @@ def get_moving_avg_of_total_ram(pc_id: int, application): # returns moving avg o
 
 def insert_inital_pcdata(df_dict):
     try:
-        first_row_pc = df_dict['resources'].iloc[0]
-        pcdata_id = 0
+        state_id = get_pc_state_df(df_dict['client'])
 
-        timestamp_pc = datetime.fromtimestamp(first_row_pc['timestamp'] / 1000)
-        pcdata_values = (
-                            timestamp_pc,
-                            int(first_row_pc["freeDiskSpace"]),
-                            int(first_row_pc["readBytesDiskStores"]),
-                            int(first_row_pc["readsDiskStores"]),
-                            int(first_row_pc["writeBytesDiskStores"]),
-                            int(first_row_pc["writesDiskStores"]),
-                            int(first_row_pc["partitionsMajorFaults"]),
-                            int(first_row_pc["partitionsMinorFaults"]),
-                            int(first_row_pc["availableMemory"]),
-                            first_row_pc["namesPowerSources"],
-                            bool(first_row_pc["chargingPowerSources"]),
-                            bool(first_row_pc["dischargingPowerSources"]),
-                            bool(first_row_pc["powerOnLinePowerSources"]),
-                            int(first_row_pc["remainingCapacityPercentPowerSources"]),
-                            int(first_row_pc["contextSwitchesProcessor"]),
-                            int(first_row_pc["interruptsProcessor"])
-        )
+        success = update_disk_df(state_id, df_dict['disk'], df_dict['partition'])
 
-        pcdata_query = """
-            INSERT INTO pcdata (
-                measurement_time,
-                free_disk_space,
-                read_bytes_disks,
-                reads_disks,
-                write_bytes_Disks,
-                writes_disks,
-                partition_major_faults,
-                partition_minor_faults,
-                available_memory,
-                names_power_source,
-                charging_power_sources,
-                discharging_power_sources,
-                power_online_power_sources,
-                remaining_capacity_percent_power_sources,
-                context_switches_processor,
-                interrupts_processor,
-                total_cpu,
-                total_ram,
-                total_context_switches,
-                total_major_faults,
-                total_open_files,
-                total_thread_count
-            ) VALUES %s RETURNING id;
-            """
-
-        cursor.execute(pcdata_query, (pcdata_values,))
-        pcdata_id = cursor.fetchone()[0]
-
-
-        applications =  []
-        for index, row in df_dict["application"].iterrows():
-            #print(index)
-            #print(row[index])
-            #print(row['residentSetSize'])
-            timestamp = datetime.fromtimestamp(index/1000)
-            application_data = (
-                pcdata_id,
-                timestamp,
-                row['name'],
-                row['path'],
-                row['cpuUsage'],
-                row['residentSetSize'],
-                row['state'],
-                row['user'],
-                row['contextSwitches'],
-                row['majorFaults'],
-                row['bitness'],
-                row['commandLine'],
-                row['currentWorkingDirectory'],
-                row['openFiles'],
-                row['parentProcessID'],
-                row['threadCount'],
-                row['upTime'],
-                row['processCountDifference']
-            )
-            applications.append(application_data)
-
-        application_data_query = """
-            INSERT INTO applicationdata 
-            (PcData_ID, measurement_time, name, path, cpu, ram, state, "user", context_switches, major_faults, bitness, commandline, "current_Working_Directory", open_Files, parent_Process_ID, thread_count, uptime, process_count_difference)
-            VALUES %s;
-        """
-        psycopg2.extras.execute_values(cursor, application_data_query, applications)
-
-        conn.commit()
-        return pcdata_id
+        if success:
+            conn.commit()
+            return state_id
+        return None
     except Exception as e:
         conn.rollback()
         raise e

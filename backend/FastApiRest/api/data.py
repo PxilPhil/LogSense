@@ -9,8 +9,7 @@ from fastapi.responses import JSONResponse
 from db_access.data_helper import get_dfdict_from_filelist, get_pc_state_df
 from model.data import runningPCData, sessionPCData
 
-from db_access.data import insert_pcdata, get_moving_avg_of_total_ram
-from db_access.data import insert_running_pcdata
+from db_access.data import insert_running_pcdata, get_moving_avg_of_total_ram, insert_inital_pcdata
 
 data = APIRouter()
 
@@ -35,13 +34,11 @@ def injest_initial_data(files: list[UploadFile]):
         and 'Anomalies found' indicating the number of anomalies detected.
     """
     try:
-        df_map = get_dfdict_from_filelist(files)
+        df_dict = get_dfdict_from_filelist(files)
 
-        state_id = get_pc_state_df(df_map['client'])
+        state_id = insert_inital_pcdata(df_dict)
         if not state_id:
             raise HTTPException(status_code=400, detail="Pc does Not Exsist")
-
-
 
         return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": 1}, status_code=200)
 
