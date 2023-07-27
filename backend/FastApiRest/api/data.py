@@ -40,7 +40,7 @@ def injest_initial_data(files: list[UploadFile]):
         if not state_id:
             raise HTTPException(status_code=400, detail="Pc does Not Exsist")
 
-        return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": 1}, status_code=200)
+        return JSONResponse(content={"result": "Data inserted successfully", "state_id": state_id}, status_code=200)
 
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid JSON data")
