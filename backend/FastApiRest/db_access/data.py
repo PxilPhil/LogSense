@@ -9,7 +9,7 @@ from db_access.data_helper import get_pc_state_df, update_disk_df
 from db_access.helper import get_pcid_by_stateid
 
 
-def insert_running_pcdata(state_id, running_df_dict, pc_total_df, anomalies): #TODO: anomalies
+def insert_running_pcdata(state_id, running_df_dict, pc_total_df, anomaly_list):
     # TODO: Optionally save moving averages into database if its too slow to calculate it every time
     try:
         first_row_pc_total = pc_total_df.iloc[0]
@@ -205,3 +205,22 @@ def insert_inital_pcdata(df_dict):
     except Exception as e:
         conn.rollback()
         raise e
+
+def insert_anomalies(anomaly_list):
+    insert_anomaly_query = "INSERT INTO applicationdata_anomaly (anomaly_id, applicationdata_id, type) VALUES (1, (SELECT id FROM applicationdata where name='chrome' and measurement_time='2023-07-25 10:20:16'), 'ram')"
+
+
+    anomaly_inserts = [] # needed to insert multiple at once
+    try:
+        for anomaly in anomaly_list:
+            anomaly_data = (
+
+            )
+            anomaly_inserts.append(anomaly_data)
+        psycopg2.extras.execute_values(cursor, insert_anomaly_query, anomaly_inserts)
+
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+
