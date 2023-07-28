@@ -28,7 +28,7 @@ def fetch_application(pc_id: int, application_name: str, start: str, end: str):
         print(df)
         print(data_list)
         # TODO: The way all gets should return time series data is in form of arrays
-        return {"pc": pc_id, "application": application_name, "start": start, "end": end}
+        return {"pc": pc_id, "application_name": application_name, "time_series_data": data_list, "anomaly_list": anomaly_list, "standard_deviation": std, "mean": mean}
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid JSON data")
 
@@ -46,10 +46,8 @@ def fetch_application_list(pc_id: int, start: str, end: str):
         :param end:
         :param start:
     """
-    # TODO: Return List of Applications from DB
     try:
         application_list = get_application_list(pc_id, start, end)
-        # TODO: The way all gets should return time series data is in form of arrays
         return {"pc": pc_id, "start": start, "end": end, "list": application_list}
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid JSON data")

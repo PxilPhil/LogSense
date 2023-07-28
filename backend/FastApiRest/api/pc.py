@@ -2,13 +2,13 @@ import pandas as pd
 from fastapi import APIRouter, HTTPException, Body
 
 import db_access.pc
-from db_access.pc import get_pcs, get_pcs_by_userid, add_pc, get_pc_data
+from db_access.pc import get_pcs, get_pcs_by_userid, add_pc, get_pc_data, get_free_disk_space_data
 from db_access.application import get_latest_application_data
 from data_analytics import requests
 from model.pc import PCItem
 
-
 pc = APIRouter()
+
 
 @pc.get('/', response_model=dict, tags=["PC"])
 def get_all_pcs():
@@ -19,6 +19,7 @@ def get_all_pcs():
         dict: A dictionary with a 'pcs' key containing a list of PCs.
     """
     return {'pcs': get_pcs()}
+
 
 @pc.get('/user/{user_id}', response_model=dict, tags=["PC"])
 def get_pc_by_user_id(user_id: str):
@@ -32,6 +33,7 @@ def get_pc_by_user_id(user_id: str):
         dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
     """
     return {'pcs': get_pcs_by_userid(user_id)}
+
 
 @pc.post('/add_pc', response_model=dict, status_code=201, tags=["PC"])
 def add_pc_api(data: PCItem = Body(...)):
@@ -58,7 +60,7 @@ def add_pc_api(data: PCItem = Body(...)):
 @pc.get('/{pc_id}/data/{type}', response_model=dict, tags=["PC"])
 def get_pc_data(pc_id: int, type: str, start: str, end: str):
     """
-    Get data from PCs by ID and from Type type.
+    Get data from PCs by ID and for a defined type like RAM or CPU
 
     Args:
         user_id (str): The user ID to filter PCs.
@@ -69,17 +71,21 @@ def get_pc_data(pc_id: int, type: str, start: str, end: str):
         :param end:
     """
     try:
-        column = type.lower()
-        #TODO: Dont get the entirety of the saved data just an average value in order to use less resouces
-        total_df, total_data_list = db_access.pc.get_total_pc_data(pc_id, start, end)
+        type = type.lower()
+        total_df, total_data_list = db_access.pc.get_total_pc_data(pc_id, start, end, type)
         df, application_data_list = get_latest_application_data(pc_id)
         if df is None or total_df is None:
             return None
-        pc_total_df, allocation_map, std, mean, trend_list = requests.fetch_pc_data(df, total_df, column)
+        pc_total_df, allocation_map, std, mean, trend_list = requests.fetch_pc_data(df, total_df, type)
         print(pc_total_df, allocation_map, std, mean, trend_list)
-        return {'pc': pc_id, 'type': type, "start": start, "end": end}
+        # TODO: Temporarily removed trend map since it leads to errors TODO: Analyzing cpu data doesnt really make
+        #  sense(atleast like RAM), remove feature or take a closer look at it
+        return {'pc': pc_id, 'type': type, "start": start, "end": end, "total_data_list": total_data_list,
+                "allocation_map": allocation_map, "standard_deviation": int(std),
+                "mean": int(mean)}
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid JSON data")
+
 
 @pc.get('/{pc_id}/data/', response_model=dict, tags=["PC"])
 def get_pc_by_user_id(pc_id: int, start: int, end: int):
@@ -93,3 +99,22 @@ def get_pc_by_user_id(pc_id: int, start: int, end: int):
         dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
     """
     return {'pc': pc_id, "start": start, "end": end}
+
+
+@pc.get('/{pc_id}/data/forecast/{days}', response_model=dict, tags=["PC"])
+def forecast_free_disk_space(pc_id: int, days: int):
+    """
+    Forecasts free disk space data for a certain PC in daily interevals
+
+    Args:
+        user_id (str): The pc ID to filter PCs.
+
+    Returns:
+        dict: A dictionary with a measurement time and the forecasted free disk space at that time.
+        :param days:
+    """
+    df = get_free_disk_space_data(pc_id)
+    if df is None:
+        return None
+    df = requests.predict_resource_data(df, days)
+    return {'pc': pc_id, 'days': days}

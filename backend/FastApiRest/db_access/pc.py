@@ -3,7 +3,7 @@ import pandas as pd
 
 
 def add_pc(user_id, hardware_uuid, client_name):
-    #TODO: check if user exsists
+    # TODO: check if user exsists
 
     query = "INSERT INTO PC (USER_ID, hardware_uuid, client_name) VALUES (%s, %s, %s) RETURNING ID;"
     params = (str(user_id), str(hardware_uuid), str(client_name))
@@ -32,7 +32,8 @@ def get_pcs():
 
     pcs = []
     for row in rows:
-        pc = {'user_name': row[0], 'email': row[1], 'hardware_uuid': row[2], 'client_name': row[3], 'manufacturer': row[4], 'model': row[5]}
+        pc = {'user_name': row[0], 'email': row[1], 'hardware_uuid': row[2], 'client_name': row[3],
+              'manufacturer': row[4], 'model': row[5]}
         pcs.append(pc)
     return pcs
 
@@ -53,8 +54,9 @@ def get_pcs_by_userid(user_id):
         pcs.append(pc)
     return pcs
 
-def get_total_pc_data(pc_id, start, end):
-    query = """
+
+def get_total_pc_data(pc_id, start, end, type):
+    query = f"""
     SELECT
     id,
     state_id,
@@ -75,8 +77,7 @@ def get_total_pc_data(pc_id, start, end):
     remaining_capacity_percent_power_sources,
     context_switches_processor,
     interrupts_processor,
-    cpu,
-    ram,
+    {type}, 
     context_switches,
     major_faults,
     open_files,
@@ -97,8 +98,7 @@ WHERE
         data_list = df.to_dict(orient='records')
 
         return df, data_list
-    else:
-        return None, None
+    return None, None
 
 
 def get_pc_data(pc_id, start, end):
@@ -109,7 +109,6 @@ def get_pc_data(pc_id, start, end):
     app.measurement_time,
     app.name,
     app.path,
-    app.cpu,
     app.ram,
     app.state,
     app."user",
@@ -139,7 +138,16 @@ def get_pc_data(pc_id, start, end):
         columns = [desc[0] for desc in cursor.description]
         df = pd.DataFrame(result, columns=columns)
         data_list = df.to_dict(orient='records')
-
         return df, data_list
-    else:
-        return None, None
+    return None, None
+
+def get_free_disk_space_data(pc_id):
+    query = "select measurement_time,free_disk_space from pcdata where pc_id = %s"
+    cursor.execute(query, (pc_id,))
+    result = cursor.fetchall()
+
+    if result:
+        columns = [desc[0] for desc in cursor.description]
+        df = pd.DataFrame(result, columns=columns)
+        return df
+    return None
