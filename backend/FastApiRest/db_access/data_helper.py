@@ -20,17 +20,18 @@ def get_pc_state_df(client_df):
 
 
 def insert_new_state_df(pc_id, client_df):
-    for i, row in client_df:
-        return get_pc_state_by_attributes(pc_id,
-                                      row['memoryTotalSize'],
-                                      row['memoryPageSize'],
-                                      row['processorName'],
-                                      row['processorIdentifier'],
-                                      row['processorID'],
-                                      row['processorVendor'],
-                                      row['processorBitness'],
-                                      row['physicalProcessorCount'],
-                                      row['logicalProcessorCount'])
+    row = client_df.iloc[0]
+    return insert_new_state(pc_id,
+                            int(row['memoryTotalSize']),
+                            int(row['memoryPageSize']),
+                            row['processorName'],
+                            row['processorIdentifier'],
+                            row['processorID'],
+                            row['processorVendor'],
+                            int(row['processorBitness']),
+                            int(row['physicalPackageCount']),
+                            int(row['physicalProcessorCount']),
+                            int(row['logicalProcessorCount']))
 
 
 def insert_new_state(pc_id,
@@ -41,6 +42,7 @@ def insert_new_state(pc_id,
                      provided_processor_id,
                      provided_processor_vendor,
                      provided_processor_bitness,
+                     provided_package_count,
                      provided_physical_processor_count,
                      provided_logical_processor_count):
     try:
@@ -53,6 +55,7 @@ def insert_new_state(pc_id,
             provided_processor_id,
             provided_processor_vendor,
             provided_processor_bitness,
+            provided_package_count,
             provided_physical_processor_count,
             provided_logical_processor_count)
 
@@ -69,7 +72,7 @@ def insert_new_state(pc_id,
             physical_package_count, 
             physical_processor_count, 
             logical_processor_count
-            ) VALUES %s RETURNING id;
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;
         """
 
         cursor.execute(sql_query, pcdata)
@@ -86,23 +89,28 @@ def insert_new_state(pc_id,
 
 
 def get_pc_state_by_attributes_df(client_df):
-    for i, row in client_df:
-        return get_pc_state_by_attributes(row['computerHardwareUUID'],
-                                      row['memoryTotalSize'],
-                                      row['memoryPageSize'],
+    row = client_df.iloc[0]
+    return get_pc_state_by_attributes(row['computerHardwareUUID'],
+                                      int(row['memoryTotalSize']),
+                                      int(row['memoryPageSize']),
                                       row['processorName'],
                                       row['processorIdentifier'],
                                       row['processorID'],
                                       row['processorVendor'],
-                                      row['processorBitness'],
-                                      row['physicalProcessorCount'],
-                                      row['logicalProcessorCount'])
+                                      int(row['processorBitness']),
+                                      int(row['physicalProcessorCount']),
+                                      int(row['logicalProcessorCount']))
 
 
-def get_pc_state_by_attributes(provided_uuid, provided_total_memory_size, provided_memory_page_size,
-                               provided_processor_name, provided_processor_identifier,
-                               provided_processor_id, provided_processor_vendor,
-                               provided_processor_bitness, provided_physical_processor_count,
+def get_pc_state_by_attributes(provided_uuid,
+                               provided_total_memory_size,
+                               provided_memory_page_size,
+                               provided_processor_name,
+                               provided_processor_identifier,
+                               provided_processor_id,
+                               provided_processor_vendor,
+                               provided_processor_bitness,
+                               provided_physical_processor_count,
                                provided_logical_processor_count):
     try:
         pc = (provided_uuid,)
@@ -122,15 +130,15 @@ def get_pc_state_by_attributes(provided_uuid, provided_total_memory_size, provid
         pc_id = pcresult[0]
 
         pcdata = (provided_uuid,
-                  provided_total_memory_size,
-                  provided_memory_page_size,
+                  int(provided_total_memory_size),
+                  int(provided_memory_page_size),
                   provided_processor_name,
                   provided_processor_identifier,
                   provided_processor_id,
                   provided_processor_vendor,
-                  provided_processor_bitness,
-                  provided_physical_processor_count,
-                  provided_logical_processor_count)
+                  int(provided_processor_bitness),
+                  int(provided_physical_processor_count),
+                  int(provided_logical_processor_count))
 
         sql_query = """
             SELECT pc.ID AS pc_id, state.id AS state_id
@@ -177,21 +185,21 @@ def update_disk_df(state_id, disk_df, partition_df):
 
 
 def does_last_disk_overlap(state_id, disk_df):
-    for i, row in disk_df:
-        querry = """
-                SELECT measurement_time
-                FROM disk
-                WHERE serialnumber = %s
-                    AND model = %s
-                    AND name = %s
-                    AND size = %s
-                    AND state_id = %s
-                    AND measurement_time = (
-                        SELECT MAX(measurement_time)
-                        FROM disk
-                        WHERE state_id = %s
-                    )
-                ;"""
+    querry = """
+            SELECT measurement_time
+            FROM disk
+            WHERE serialnumber = %s
+                AND model = %s
+                AND name = %s
+                AND size = %s
+                AND state_id = %s
+                AND measurement_time = (
+                    SELECT MAX(measurement_time)
+                    FROM disk
+                    WHERE state_id = %s
+                )
+            ;"""
+    for i, row in disk_df.iterrows():
         cursor.execute(querry, (row['serialNumber'],
                                 row['model'],
                                 row['name'],
@@ -203,7 +211,7 @@ def does_last_disk_overlap(state_id, disk_df):
             return None
 
     querry = """
-            SELECT count()
+            SELECT count(*)
             FROM disk
             WHERE state_id = %s
                 AND measurement_time = (
@@ -224,9 +232,10 @@ def does_last_disk_overlap(state_id, disk_df):
 def insert_disk_and_partition(state_id, disk_df, partition_df):
     insert_disk = """INSERT INTO disk(state_id, measurement_time, serialnumber, model, name, size)VALUES %s RETURNING id;"""
     disks = []
-    for i, row in disk_df:
+    for i, row in disk_df.iterrows():
         timestamp = datetime.fromtimestamp(i / 1000)
-        disks.append((state_id, timestamp, row['serialNumber'], row['model'], row['name'], row['size']))
+        disk = (state_id, timestamp, row['serialNumber'], row['model'], row['name'], row['size'])
+        disks.append(disk)
     psycopg2.extras.execute_values(cursor, insert_disk, disks)
 
     selct_disk_id = """ 
@@ -247,10 +256,11 @@ def insert_disk_and_partition(state_id, disk_df, partition_df):
         VALUES %s;
     """
     partitions = []
-    for i, row in partition_df:
+    for i, row in partition_df.iterrows():
         cursor.execute(selct_disk_id, (row['diskStoreName'], state_id, row['diskStoreName'], state_id))
         disk_id = cursor.fetchone()
-        partitions.append(disk_id, row['diskStoreName'], row['identification'], row['name'], row['type'], row['mountPoint'], row['size'], row['majorFaults'] , row['minorFaults'])
+        partition = (disk_id, row['diskStoreName'], row['identification'], row['name'], row['type'], row['mountPoint'], row['size'], row['majorFaults'] , row['minorFaults'])
+        partitions.append(partition)
     psycopg2.extras.execute_values(cursor, insert_partition, partitions)
 
     return True
