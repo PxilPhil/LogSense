@@ -7,6 +7,7 @@ class sessionPCData(BaseModel):
     partition: str
     client_data: str
 
+
 class runningPCData(BaseModel):
     pc_resources: str
     connection_data: str
@@ -14,15 +15,13 @@ class runningPCData(BaseModel):
     network_Interface: str
 
 
-"""
-class ApplicationData(BaseModel):
+class ApplicationTimeSeriesData(BaseModel):
     measurement_time: str
     name: str
     path: str
     cpu: float
     ram: int
-    State: str
-    user: str
+    state: str
     context_Switches: int
     major_Faults: int
     bitness: int
@@ -33,8 +32,27 @@ class ApplicationData(BaseModel):
     thread_Count: int
     uptime: int
     process_Count_Difference: int
-    #applicationdata_anomaly: int #TODO: check if needed in definition (should be done here, right)
+    # applicationdata_anomaly: int #TODO: check if needed in definition (should be done here, right)
 
+
+class PCData(BaseModel):
+    pc_id: int
+    type: str
+    start: str
+    end: str
+    standard_deviation: float
+    mean: float
+
+
+class Anomaly(BaseModel):
+    timestamp: str
+    change: float
+    application: str
+    type: str
+    pc_id: int
+
+
+"""
 class NetworkInterface(BaseModel):
     name: str
     display_name: str

@@ -28,19 +28,15 @@ def ingest_process_data(df):
     return pc_total_df, anomaly_map
 
 
-def predict_resource_data(df, days):
-    # read dataframe, remove nans, select only needed columns
-    df = queue_df  # TODO: Only temporary until database access works
-    df = df.dropna()
-    df = df.filter(['timestamp', 'freeDiskSpace'])
-    df = df.set_index('timestamp')
-    print(df)
+def predict_resource_data(df, days):  # predict disk space for the next x days
+    # read dataframe, elect only needed columns
+    df = df.filter(['measurement_time', 'free_disk_space'])
+    df = df.set_index('measurement_time')
     # get latest timestamp, fit to model, extend dataframe by time input and predict values for it
     timestamp = df.index[-1]
     LR = fit_linear_regression(df)
     df = manipulation.create_df_between(timestamp, calc_end_timestamp(timestamp=timestamp, days=days), 'D')
     df = predict_for_df(LR, df)
-    print(df)
     return df
 
 

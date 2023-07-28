@@ -76,7 +76,7 @@ def get_application_list(pc_id: int, start, end):
     application_list = []  # List to hold the dictionaries
     if result:
         for row in result:
-            application_list.append(row)
+            application_list.append(row[0])
     return application_list
 
 
