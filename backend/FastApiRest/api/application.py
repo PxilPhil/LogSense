@@ -24,7 +24,7 @@ def fetch_application(pc_id: int, application_name: str, start: str, end: str):
         df, data_list = get_application(pc_id, application_name, start, end)
         if df is None:
             return None
-        df, anomaly_list, trend_list, std, mean = requests.fetch_application_data(df)
+        df, anomaly_list, trend_list, std, mean = requests.fetch_application_data(df, application_name)
         print(df)
         print(data_list)
         # TODO: The way all gets should return time series data is in form of arrays

@@ -12,11 +12,9 @@ queue_df = pd.DataFrame()  # current data frame
 
 
 def ingest_process_data(df):
-    # TODO: We could already detect a lot of useful data on ingest, find out if we leave it at a hybrid approach or ingest
     df = df.set_index('timestamp')
-    anomaly_map = dict()
+    anomaly_list = []
     pc_total_df = manipulation.group_by_timestamp(df)
-
     relevant_list = involvement.detect_relevancy(pc_total_df, df,
                                                  'residentSetSize')  # hardcoded to work for ram
     for application in relevant_list:
@@ -24,8 +22,9 @@ def ingest_process_data(df):
         # TODO: Fetch from Database if last row was an anomaly
         moving_avg = get_moving_avg_of_total_ram(1, application)
         if moving_avg > 0:
-            anomaly.detect_anomaly(selected_row, 'residentSetSize', moving_avg, False, anomaly_map, application)
-    return pc_total_df, anomaly_map
+            last_entry_was_anomaly = False
+            anomaly.detect_anomaly(selected_row, 'residentSetSize', moving_avg, last_entry_was_anomaly, anomaly_list, application)
+    return pc_total_df, anomaly_list
 
 
 def predict_resource_data(df, days):  # predict disk space for the next x days
@@ -40,13 +39,12 @@ def predict_resource_data(df, days):  # predict disk space for the next x days
     return df
 
 
-def fetch_application_data(df):  # supposed to analyze trends and everything in detail for one certain application
+def fetch_application_data(df, application_name):  # supposed to analyze trends and everything in detail for one certain application
     # find trends
     df = manipulation.calculate_moving_avg(df, 'ram')
     trend_list = trend.detect_trends(df, 'MovingAvg')
-    print(df)
     # find anomalies
-    anomaly_list = anomaly.detect_anomalies(df, 'ram')
+    anomaly_list = anomaly.detect_anomalies(df, 'ram', application_name)
     # get stats
     std = df['ram'].std()
     mean = df['ram'].mean()
