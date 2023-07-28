@@ -33,17 +33,20 @@ def injest_initial_data(files: list[UploadFile]):
         'pcdata_id' the ID of the pcData inserted,
         and 'Anomalies found' indicating the number of anomalies detected.
     """
+    state_id = None
     try:
         df_dict = get_dfdict_from_filelist(files)
 
         state_id = insert_inital_pcdata(df_dict)
-        if not state_id:
-            raise HTTPException(status_code=400, detail="Pc does Not Exsist")
-
-        return JSONResponse(content={"result": "Data inserted successfully", "state_id": state_id}, status_code=200)
 
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid JSON data")
+
+    if not state_id:
+        raise HTTPException(status_code=400, detail="Pc does Not Exsist")
+
+    return JSONResponse(content={"result": "Data inserted successfully", "state_id": state_id}, status_code=200)
+
 
 
 @data.post("/", description="Insert Timeseries data", tags=["Data"], responses={
