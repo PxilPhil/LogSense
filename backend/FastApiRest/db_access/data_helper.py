@@ -7,8 +7,24 @@ from fastapi import UploadFile
 from db_access import cursor, conn
 
 
+def update_pc_description(pc_id, client_df):
+    row = client_df.iloc[0]
+    manufacturer = row['computerManufacturer']
+    model = row['computerModel']
+    update_pc = """
+    UPDATE PC
+    SET manufacturer = %s,
+    model = %s
+    WHERE ID = %s;
+    """
+    cursor.execute(update_pc, (manufacturer, model, pc_id))
+    return True
+
 def get_pc_state_df(client_df):
     pc_id, state_id = get_pc_state_by_attributes_df(client_df)
+
+    if pc_id:
+        update_pc_description(pc_id, client_df)
 
     if state_id:
         return state_id

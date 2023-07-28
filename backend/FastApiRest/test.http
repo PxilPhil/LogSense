@@ -48,8 +48,8 @@ Content-Type: application/json
 
 {
   "user_id": "1",
-  "hardware_uuid": "4C4C4544-0052-5210-8050-C8C04F385932",
-  "client_name": "Test Client"
+  "hardware_uuid": "4C4C4544-0052-3910-8051-B5C04F354D32",
+  "client_name": "Test Client 2"
 }
 ### GET PCs OF USER 1 ###
 GET http://localhost:8000/pc/user/1
