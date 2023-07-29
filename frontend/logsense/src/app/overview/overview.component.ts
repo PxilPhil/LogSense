@@ -1,6 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import {Chart, Plugin, registerables} from 'chart.js';
+import {CPUModel} from "../cpu/cpu.component";
+import {RAMModel} from "../ram/ram.component";
+import {DiskModel} from "../disk/disk.component";
 Chart.register(...registerables);
+
+export class PowerSourceModel {
+  systemBattery: String = "PowerSourceName";
+  remainingCapacity: Number = 75; //%
+  charging: Boolean = true;
+  discharging: Boolean = false;
+  powerOnLine: Boolean = true;
+}
+
+export class Client {
+  manufacturer: String = "Acer";
+  model: String = "Nitro AN517-52";
+  uuid: String = "E4A2D298-F59B-EA11-80D6-089798A075FA";
+  powerSources: PowerSourceModel = new PowerSourceModel();
+}
 
 @Component({
   selector: 'app-overview',
@@ -9,76 +27,46 @@ Chart.register(...registerables);
 })
 export class OverviewComponent implements OnInit {
 
-  client: String = "Acer Nitro 5";
+  client: Client = new Client();
   runtime: String = "2h 30min";
-
+  cpu: CPUModel = new CPUModel();
+  ram: RAMModel = new RAMModel();
+  disk: DiskModel = new DiskModel();
+  alerts: String[] = ["Abnormal RAM-Spikes detected", "Memory leak possible"];
+  selectedTime: String = "Last 24h";
 
   constructor() { }
 
   ngOnInit(): void {
-    this.resourceMetricsCharts();
+    this.timeChart();
   }
 
-  xValues: Number[] = [50,60,70,80,90,100,110,120,130,140,150];
-  yValues: Number[] = [7,8,8,9,9,9,10,11,14,14,15];
-
-
-  resourceMetricsCharts(): void {
-    var resMetrics = new Chart("resMetrics", {
-      type: 'line',
+  timeChart() {
+    const data = this.getData();
+    const config = new Chart("timeChart",  {
+      type: 'bar',
       data: {
-        labels: [1500,1600,1700,1750,1800,1850,1900,1950,1999,2050],
+        labels: data.labels,
         datasets: [{
-          data: [86,114,106,106,107,111,133,221,783,2478],
-          label: "Africa",
-          borderColor: "#3e95cd",
-          fill: false
-        }, {
-          data: [282,350,411,502,635,809,947,1402,3700,5267],
-          label: "Asia",
-          borderColor: "#8e5ea2",
-          fill: false
-        }, {
-          data: [168,170,178,190,203,276,408,547,675,734],
-          label: "Europe",
-          borderColor: "#3cba9f",
-          fill: false
-        }, {
-          data: [40,20,10,16,24,38,74,167,508,784],
-          label: "Latin America",
-          borderColor: "#e8c3b9",
-          fill: false
-        }, {
-          data: [6,3,2,2,7,26,82,172,312,433],
-          label: "North America",
-          borderColor: "#c45850",
-          fill: false
-        }
-        ]
+          data: data.values,
+          borderColor: "#2b26a8",
+          backgroundColor: "#7BE1DF",
+        }]
       },
       options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: {
-          legend: {
-            position: 'right',
-            align: 'center',
-            labels: {
-              usePointStyle: true,
-              padding: 24,
-              font: {
-                family: "'Arial'",
-                size: 16,
-              }
-            },
-          }
-        },
         scales: {
           y: {
-            beginAtZero: true
-          }
-        }
-      }
+            beginAtZero: true,
+          },
+        },
+      },
     });
   }
+
+  getData(): { labels: string[], values: number[] } {
+      const labels = ['Zeitpunkt 1', 'Zeitpunkt 2', 'Zeitpunkt 3']; // Beispiellabels
+      const values = [75, 90, 60]; // Beispielauslastung
+      return { labels, values };
+  }
+
 }

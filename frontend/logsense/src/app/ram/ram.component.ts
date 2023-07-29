@@ -5,6 +5,7 @@ import {Chart} from "chart.js";
 
 export class RAMModel {
   totalMemory: Number = 17.02; //GB
+  freeMemory: Number = 12.02; //GB
   pageSize: Number = 4.096; //KB
   current: Number = 21; //%
   average: Number = 48; //%

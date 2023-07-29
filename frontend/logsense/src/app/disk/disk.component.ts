@@ -6,6 +6,7 @@ import {PartDialogComponent} from "../part-dialog/part-dialog.component";
 export class DiskModel {
   name: String = "\\\\\\\\.\\\\PHYSICALDRIVE0";
   totalMemory: Number = 1024.204; //GB
+  free: Number = 825.02; //GB
   model: String = "WDC PC SN530 SDBPNPZ-1T00-10...";
   size: Number = 1024.203; //GB
   readBytes: Number = 33780874240;
