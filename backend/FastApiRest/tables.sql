@@ -77,6 +77,7 @@ END $$;
 CREATE TABLE IF NOT EXISTS applicationdata (
     ID BIGSERIAL,
     PcData_ID bigint,
+    pc_id bigint REFERENCES pc(ID),
     measurement_time TIMESTAMP NOT NULL,
     name VARCHAR,
     path VARCHAR,
@@ -122,7 +123,9 @@ CREATE TABLE IF NOT EXISTS applicationdata_anomaly (
   applicationdata_id bigint,
   change_in_percentage double precision,
   user_id bigint REFERENCES logsenseuser (id),
-  type varchar,
+  pc_id bigint REFERENCES pc (id),
+  data_type varchar,
+  subsequent_anomaly bool, -- if it is of the same type as the anomaly in the preceding application
   PRIMARY KEY (anomaly_id, applicationdata_id)
 );
 
