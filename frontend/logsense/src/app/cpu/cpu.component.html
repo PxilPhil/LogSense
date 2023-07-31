@@ -12,17 +12,9 @@
   <div class="pad-right-128 pad-left-64 mar-top-32 w-100">
     <div class="grey-box flex-start w-100">
       <div class="mar-right-96">
-        <form class="mar-bot-24">
-          <select id="time" class="dropdown-btn">
-            <option value="1">Last Hour</option>
-            <option value="24">Last 24h</option>
-            <option value="7">Last Week</option>
-            <option value="30">Last Month</option>
-            <option value="6">Last 6 Months</option>
-            <option value="12">Last 12 Months</option>
-            <option value="0">All Time</option>
-          </select>
-        </form>
+        <select class="dropdown-btn mar-bot-24" [(ngModel)]="selectedTime">
+          <option *ngFor="let elem of times" [ngValue]="elem">{{elem.time}}</option>
+        </select>
         <canvas id="usage" class="white-bg w-100"></canvas>
         <div class="flex-center mar-top-12">
           <div class="form-check">

@@ -34,6 +34,14 @@ export class CpuComponent implements OnInit{
   notes: String[] = ["CPU Usage dropped 4%", "21 Anomalies detected", "5 Events registered"];
   processes: ProcessModel[] = [{name: "Chrome", allocation: 15}, {name: "Explorer", allocation: 10},{name: "Intellij", allocation: 48}];
   alerts: String[] = ["Some devices are at their workload limit", "Abnormal CPU-Spikes detected (21 Anomalies in the last 24 hours)"];
+  times = [
+    {id: 1, time: "Last 24h"},
+    {id: 2, time: "Last Week"},
+    {id: 3, time: "Last Month"},
+    {id: 4, time: "Last 6 Months"},
+    {id: 5, time: "Last 12 Months"},
+    {id: 6, time: "All Time"}
+  ];
   constructor() {
   }
   ngOnInit() {

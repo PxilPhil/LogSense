@@ -35,14 +35,26 @@ export class PartitionModel {
   majorFaults: Number = 0;
   minorFaults: Number = 1;
 }
+interface TimeModel {
+  id: Number;
+  time: String;
+}
 @Component({
   selector: 'app-disk',
   templateUrl: './disk.component.html',
   styleUrls: ['./disk.component.scss']
 })
 export class DiskComponent implements OnInit{
-  selectedTime: String = "Last 24h";
+  selectedTime: TimeModel = {id: 1, time: "Last 24h"};
   disk: DiskModel = new DiskModel();
+  times = [
+    {id: 1, time: "Last 24h"},
+    {id: 2, time: "Last Week"},
+    {id: 3, time: "Last Month"},
+    {id: 4, time: "Last 6 Months"},
+    {id: 5, time: "Last 12 Months"},
+    {id: 6, time: "All Time"}
+  ];
 
   constructor(public dialog: MatDialog) {}
   ngOnInit() {

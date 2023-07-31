@@ -35,6 +35,14 @@ export class OverviewComponent implements OnInit {
   alerts: String[] = ["Abnormal RAM-Spikes detected", "Memory leak possible"];
   selectedTime: String = "Last 24h";
 
+  times = [
+    {id: 1, time: "Last 24h"},
+    {id: 2, time: "Last Week"},
+    {id: 3, time: "Last Month"},
+    {id: 4, time: "Last 6 Months"},
+    {id: 5, time: "Last 12 Months"},
+    {id: 6, time: "All Time"}
+  ];
   constructor() { }
 
   ngOnInit(): void {
