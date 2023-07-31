@@ -280,3 +280,20 @@ def insert_disk_and_partition(state_id, disk_df, partition_df):
     psycopg2.extras.execute_values(cursor, insert_partition, partitions)
 
     return True
+
+def is_anomaly_subsequent(anomaly_id, pc_id): # TODO: remove Joins
+    querry = """
+    SELECT
+    LAG(ad.ID) OVER (PARTITION BY pcd.state_id, ad.name ORDER BY ad.measurement_time) AS preceding_applicationdata_id
+    FROM applicationdata ad
+    JOIN pcdata pcd ON ad.PcData_ID = pcd.id
+    WHERE ad.name = %s and pcdata_id != %s
+    ORDER BY pcdata_id desc LIMIT 1;"""
+
+    cursor.execute(querry, (name, pcdata_id))
+    disk_amount = cursor.fetchone()
+
+
+    if disk_amount:
+        return disk_amount[0] == len(disk_df.index)
+    return None

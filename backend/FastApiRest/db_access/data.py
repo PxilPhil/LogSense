@@ -86,6 +86,7 @@ def insert_running_pcdata(state_id, running_df_dict, pc_total_df, anomaly_list):
             timestamp = datetime.fromtimestamp(index/1000)
             application_data = (
                 pcdata_id,
+                pc_id,
                 timestamp_pc,
                 row['name'],
                 row['path'],
@@ -108,7 +109,7 @@ def insert_running_pcdata(state_id, running_df_dict, pc_total_df, anomaly_list):
 
         application_data_query = """
             INSERT INTO applicationdata 
-            (PcData_ID, measurement_time, name, path, cpu, ram, state, "user", context_switches, major_faults, bitness, commandline, "current_Working_Directory", open_Files, parent_Process_ID, thread_count, uptime, process_count_difference)
+            (PcData_ID, PC_id, measurement_time, name, path, cpu, ram, state, "user", context_switches, major_faults, bitness, commandline, "current_Working_Directory", open_Files, parent_Process_ID, thread_count, uptime, process_count_difference)
             VALUES %s;
         """
         psycopg2.extras.execute_values(cursor, application_data_query, applications)
@@ -163,6 +164,9 @@ def insert_running_pcdata(state_id, running_df_dict, pc_total_df, anomaly_list):
         psycopg2.extras.execute_values(cursor, network_interface_data_query, network_interfaces)
 
         conn.commit()
+
+        insert_anomalies(pcdata_id, anomaly_list)
+
         return pcdata_id
     except Exception as e:
         conn.rollback()
@@ -206,21 +210,29 @@ def insert_inital_pcdata(df_dict):
         conn.rollback()
         raise e
 
-def insert_anomalies(anomaly_list):
-    insert_anomaly_query = "INSERT INTO applicationdata_anomaly (anomaly_id, applicationdata_id, type) VALUES (1, (SELECT id FROM applicationdata where name='chrome' and measurement_time='2023-07-25 10:20:16'), 'ram')"
-
-
-    anomaly_inserts = [] # needed to insert multiple at once
+def insert_anomalies(pcdata_id, anomaly_list):
     try:
+        insert_anomaly_query = """INSERT INTO applicationdata_anomaly (anomaly_id, applicationdata_id, user_id, change_in_percentage, data_type, subsequent_anomaly) VALUES (%s, (SELECT id FROM applicationdata where name=%s and pcdata_id=%s),(SELECT user_id FROM anomaly WHERE id = %s), %s ,%s, FALSE)"""
         for anomaly in anomaly_list:
             anomaly_data = (
-
+                anomaly.anomaly_type,
+                anomaly.application,
+                pcdata_id,
+                anomaly.anomaly_type,
+                anomaly.change,
+                anomaly.column
             )
-            anomaly_inserts.append(anomaly_data)
-        psycopg2.extras.execute_values(cursor, insert_anomaly_query, anomaly_inserts)
+            cursor.execute(insert_anomaly_query, anomaly_data)
 
-        conn.commit()
     except Exception as e:
         conn.rollback()
         raise e
 
+
+class AnomalyData: # Anomaly Type 1 means Anomaly and type 2 means Eveent
+    def __init__(self, anomaly_type, timestamp, change, application, column):
+        self.anomaly_type = anomaly_type
+        self.timestamp = timestamp
+        self.change = change
+        self.application = application
+        self.column = column
