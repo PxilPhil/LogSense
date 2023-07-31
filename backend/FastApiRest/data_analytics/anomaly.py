@@ -1,14 +1,6 @@
+from model.data import AnomalyData
+
 event_sensitivity = 0.1
-
-
-class AnomalyData: # Anomaly Type 1 means Anomaly and type 2 means Eveent
-    def __init__(self, anomaly_type, timestamp, change, application, column):
-        self.anomaly_type = anomaly_type
-        self.timestamp = timestamp
-        self.change = change
-        self.application = application
-        self.column = column
-
 
 def detect_anomaly(selected_row, column, moving_avg, previous_anomaly, anomaly_list, application):
     percentual_change = selected_row[column].values[0] / moving_avg
@@ -17,10 +9,11 @@ def detect_anomaly(selected_row, column, moving_avg, previous_anomaly, anomaly_l
     print(percentual_change)
     if (not previous_anomaly) and (abs(percentual_change - 1) > event_sensitivity):
         if event_header != 0:
-            anomaly_list.append(AnomalyData(1, selected_row.index[0], percentual_change, application, column))
+            anomaly_data=AnomalyData(anomaly_type=1, timestamp=selected_row.index[0], change=percentual_change, application=application, column=column)
+            anomaly_list.append(anomaly_data)
         else:
-            anomaly_list.append(AnomalyData(2, selected_row.index[0], percentual_change, application, column))
-
+            anomaly_data=AnomalyData(anomaly_type=2, timestamp=selected_row.index[0], change=percentual_change, application=application, column=column)
+            anomaly_list.append(anomaly_data)
 
 def detect_anomalies(selected_row, column, application_name):
     anomaly_list = []
@@ -33,9 +26,11 @@ def detect_anomalies(selected_row, column, application_name):
 
         if abs(percentual_change - 1) > event_sensitivity:
             if (percentual_change > 1 and event_header > 1) or (percentual_change < 1 and event_header < 1):
-                anomaly_list.append(AnomalyData(1, index, percentual_change, application_name, column))
+                anomaly_data = AnomalyData(anomaly_type=1, timestamp=selected_row.index[0], change=percentual_change, application=application_name, column=column)
+                anomaly_list.append(anomaly_data)
             elif not previous_was_flagged:
-                anomaly_list.append(AnomalyData(2, index, percentual_change, application_name, column))
+                anomaly_data = AnomalyData(anomaly_type=2, timestamp=selected_row.index[0], change=percentual_change, application=application_name, column=column)
+                anomaly_list.append(anomaly_data)
             previous_was_flagged = True
         else:
             previous_was_flagged = False

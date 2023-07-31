@@ -7,6 +7,7 @@ import psycopg2
 
 from db_access import cursor, conn
 from psycopg2 import extras
+from model.data import ApplicationTimeSeriesData
 
 
 def get_application(pc_id: int, application_name, start, end):
@@ -49,9 +50,14 @@ ORDER BY
     if result:
         columns = [desc[0] for desc in cursor.description]
         df = pd.DataFrame(result, columns=columns)
-        data_list = df.to_dict(orient='records')
+        #data_list = df.to_dict(orient='records')
+        #TODO: Move into manipulation
+        application_list = []
+        for _, row in df.iterrows():
+            # Convert the 'measurement_time' from string to a datetime object
+            application_list.append(ApplicationTimeSeriesData(**row.to_dict()))
 
-        return df, data_list
+        return df, application_list
     else:
         return None, None
 

@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import io
 from datetime import datetime, timedelta
+from model.data import AllocationClass
 
 def group_by_timestamp(df):
     return df.groupby('timestamp')[
