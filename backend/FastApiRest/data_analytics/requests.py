@@ -4,8 +4,9 @@ import pandas as pd
 import warnings
 from data_analytics import involvement, manipulation, anomaly, trend, stats
 from data_analytics.prediction import fit_linear_regression, predict_for_df
-from data_analytics.helper import read_csv, calc_end_timestamp
+from data_analytics.helper import read_csv
 from db_access.data import get_moving_avg_of_total_ram
+import datetime
 
 warnings.filterwarnings("ignore")
 queue_df = pd.DataFrame()  # current data frame
@@ -30,13 +31,24 @@ def ingest_process_data(df):
 def predict_resource_data(df, days):  # predict disk space for the next x days
     # read dataframe, elect only needed columns
     df = df.filter(['measurement_time', 'free_disk_space'])
-    df = df.set_index('measurement_time')
+    df = df.set_index(pd.to_datetime(df['measurement_time']).astype('int64') // 10**6)
     # get latest timestamp, fit to model, extend dataframe by time input and predict values for it
     timestamp = df.index[-1]
-    LR = fit_linear_regression(df)
-    df = manipulation.create_df_between(timestamp, calc_end_timestamp(timestamp=timestamp, days=days), 'D')
+    LR = fit_linear_regression(df, 'free_disk_space')
+    df = manipulation.create_df_between(timestamp, days, 'D')
     df = predict_for_df(LR, df)
-    return df
+
+    # convert timestamps to datetime
+    df['datetime'] = pd.to_datetime(df.index, unit='ms')
+    data_list = df.to_dict(orient='records')
+
+    last_timestamp = None
+    # find out if and when LinearRegression is less than 0 (free disk space running out)
+    no_disk_space_rows = df[df['LinearRegression'] <= 0]
+    if not no_disk_space_rows.empty:
+        last_timestamp = no_disk_space_rows['datetime'].iloc[0]
+
+    return data_list, last_timestamp
 
 
 def fetch_application_data(df, application_name):  # supposed to analyze trends and everything in detail for one certain application

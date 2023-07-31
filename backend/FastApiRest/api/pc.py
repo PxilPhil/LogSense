@@ -113,8 +113,14 @@ def forecast_free_disk_space(pc_id: int, days: int):
         dict: A dictionary with a measurement time and the forecasted free disk space at that time.
         :param days:
     """
-    df = get_free_disk_space_data(pc_id)
-    if df is None:
-        return None
-    df = requests.predict_resource_data(df, days)
-    return {'pc': pc_id, 'days': days}
+    try:
+        df = get_free_disk_space_data(pc_id)
+        if df is None:
+            return None
+        data_list, last_timestamp = requests.predict_resource_data(df, days)
+        print(last_timestamp)
+        #TODO: Change format if needed, currently its a map thats returned for data_list (timestamp + value)
+        return {'pc': pc_id, 'days': days, 'last_timestamp': last_timestamp, 'data_list': data_list}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid JSON data")
+
