@@ -245,6 +245,7 @@ def insert_inital_pcdata(df_dict):
         if success:
             conn.commit()
             return state_id
+        conn.rollback()
         return None
     except Exception as e:
         conn.rollback()
