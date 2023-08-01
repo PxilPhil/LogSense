@@ -1,7 +1,7 @@
 import hashlib
 import re
 
-from db_access import cursor
+from db_access import conn_pool
 
 
 def is_valid_email(email: str):
@@ -14,22 +14,32 @@ def hash_password(pwd, salt):
 
 
 def get_pcid_by_stateid(state_id: int):
-    cursor.execute("SELECT pc_id FROM PCState WHERE id = %s", (state_id,))
-    result = cursor.fetchone()
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT pc_id FROM PCState WHERE id = %s", (state_id,))
+        result = cursor.fetchone()
 
-    if result:
-        pc_id = result[0]
-        return pc_id
-    else:
-        return None
+        if result:
+            pc_id = result[0]
+            return pc_id
+        else:
+            return None
+    finally:
+        conn_pool.putconn(conn)
 
 def get_stateid_and_pcid_by_uuid(uuid: str):
-    cursor.execute("SELECT id, pc_id FROM PCState WHERE pc_id = (SELECT id FROM PC WHERE hardware_UUID = %s)",
-                       (uuid,))
-    pcstate_id = cursor.fetchone()
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT id, pc_id FROM PCState WHERE pc_id = (SELECT id FROM PC WHERE hardware_UUID = %s)",
+                           (uuid,))
+        pcstate_id = cursor.fetchone()
 
-    if pcstate_id:
-        #       state_id    , pc_id
-        return pcstate_id[0], pcstate_id[1]
-    else:
-        return None
+        if pcstate_id:
+            #       state_id    , pc_id
+            return pcstate_id[0], pcstate_id[1]
+        else:
+            return None
+    finally:
+        conn_pool.putconn(conn)
