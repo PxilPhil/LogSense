@@ -31,7 +31,8 @@ SELECT
     app.parent_process_id,
     app.thread_count,
     app.uptime,
-    app.process_count_difference
+    app.process_count_difference,
+    AVG(app.ram) OVER (PARTITION BY app.name ORDER BY app.measurement_time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS rolling_avg_ram
 FROM
     applicationdata AS app
 JOIN

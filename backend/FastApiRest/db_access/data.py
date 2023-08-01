@@ -7,6 +7,7 @@ from psycopg2 import extras
 
 from db_access.data_helper import get_pc_state_df, update_disk_df
 from db_access.helper import get_pcid_by_stateid
+from model.data import Alert
 
 
 def insert_running_pcdata(state_id, running_df_dict, pc_total_df, anomaly_list):
@@ -19,30 +20,30 @@ def insert_running_pcdata(state_id, running_df_dict, pc_total_df, anomaly_list):
         timestamp_pc = datetime.fromtimestamp(pc_total_df.index[0] / 1000)
         pc_id = get_pcid_by_stateid(state_id)
         pcdata_values = (
-                            state_id,
-                            pc_id,
-                            timestamp_pc,
-                            int(first_row_pc["freeDiskSpace"]),
-                            int(first_row_pc["readBytesDiskStores"]),
-                            int(first_row_pc["readsDiskStores"]),
-                            int(first_row_pc["writeBytesDiskStores"]),
-                            int(first_row_pc["writesDiskStores"]),
-                            int(first_row_pc["partitionsMajorFaults"]),
-                            int(first_row_pc["partitionsMinorFaults"]),
-                            int(first_row_pc["availableMemory"]),
-                            first_row_pc["namesPowerSources"],
-                            bool(first_row_pc["chargingPowerSources"]),
-                            bool(first_row_pc["dischargingPowerSources"]),
-                            bool(first_row_pc["powerOnLinePowerSources"]),
-                            int(first_row_pc["remainingCapacityPercentPowerSources"]),
-                            int(first_row_pc["contextSwitchesProcessor"]),
-                            int(first_row_pc["interruptsProcessor"]),
-                            float(pc_total_df["cpuUsage"]),
-                            int(pc_total_df["residentSetSize"]),
-                            int(pc_total_df["contextSwitches"]),
-                            int(pc_total_df["majorFaults"]),
-                            int(pc_total_df["openFiles"]),
-                            int(pc_total_df["threadCount"])
+            state_id,
+            pc_id,
+            timestamp_pc,
+            int(first_row_pc["freeDiskSpace"]),
+            int(first_row_pc["readBytesDiskStores"]),
+            int(first_row_pc["readsDiskStores"]),
+            int(first_row_pc["writeBytesDiskStores"]),
+            int(first_row_pc["writesDiskStores"]),
+            int(first_row_pc["partitionsMajorFaults"]),
+            int(first_row_pc["partitionsMinorFaults"]),
+            int(first_row_pc["availableMemory"]),
+            first_row_pc["namesPowerSources"],
+            bool(first_row_pc["chargingPowerSources"]),
+            bool(first_row_pc["dischargingPowerSources"]),
+            bool(first_row_pc["powerOnLinePowerSources"]),
+            int(first_row_pc["remainingCapacityPercentPowerSources"]),
+            int(first_row_pc["contextSwitchesProcessor"]),
+            int(first_row_pc["interruptsProcessor"]),
+            float(pc_total_df["cpuUsage"]),
+            int(pc_total_df["residentSetSize"]),
+            int(pc_total_df["contextSwitches"]),
+            int(pc_total_df["majorFaults"]),
+            int(pc_total_df["openFiles"]),
+            int(pc_total_df["threadCount"])
         )
 
         pcdata_query = """
@@ -77,13 +78,12 @@ def insert_running_pcdata(state_id, running_df_dict, pc_total_df, anomaly_list):
         cursor.execute(pcdata_query, (pcdata_values,))
         pcdata_id = cursor.fetchone()[0]
 
-
-        applications =  []
+        applications = []
         for index, row in running_df_dict["application"].iterrows():
-            #print(index)
-            #print(row[index])
-            #print(row['residentSetSize'])
-            timestamp = datetime.fromtimestamp(index/1000)
+            # print(index)
+            # print(row[index])
+            # print(row['residentSetSize'])
+            timestamp = datetime.fromtimestamp(index / 1000)
             application_data = (
                 pcdata_id,
                 pc_id,
@@ -173,7 +173,7 @@ def insert_running_pcdata(state_id, running_df_dict, pc_total_df, anomaly_list):
         raise e
 
 
-def get_moving_avg_of_total_ram(pc_id: int, application): # returns moving avg of the last 5 columns
+def get_moving_avg_of_application_ram(pc_id: int, application):  # returns moving avg of the last 5 columns
     moving_avg_query = """
     SELECT
     AVG(app.ram) OVER (ORDER BY app.measurement_time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS rolling_avg_ram
@@ -196,6 +196,29 @@ def get_moving_avg_of_total_ram(pc_id: int, application): # returns moving avg o
         return 0
 
 
+def get_moving_avg_of_total_ram(pc_id: int):  # returns moving avg of the last 5 columns
+    moving_avg_query = """
+    SELECT
+    AVG(app.ram) OVER (ORDER BY app.measurement_time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS rolling_avg_ram
+    FROM
+    applicationdata AS app
+    JOIN
+    pcdata AS pc ON app.pcdata_id = pc.id
+    WHERE
+    pc.pc_id = %s AND app.name = %s
+    ORDER BY
+    app.measurement_time;
+    """
+
+    cursor.execute(moving_avg_query, (pc_id,))
+    result = cursor.fetchone()
+
+    if result:
+        return result[0]
+    else:
+        return 0
+
+
 def insert_inital_pcdata(df_dict):
     try:
         state_id = get_pc_state_df(df_dict['client'])
@@ -209,6 +232,7 @@ def insert_inital_pcdata(df_dict):
     except Exception as e:
         conn.rollback()
         raise e
+
 
 def insert_anomalies(pcdata_id, anomaly_list):
     try:
@@ -229,10 +253,24 @@ def insert_anomalies(pcdata_id, anomaly_list):
         raise e
 
 
-class AnomalyData: # Anomaly Type 1 means Anomaly and type 2 means Eveent
-    def __init__(self, anomaly_type, timestamp, change, application, column):
-        self.anomaly_type = anomaly_type
-        self.timestamp = timestamp
-        self.change = change
-        self.application = application
-        self.column = column
+def get_all_user_alerts(user_id, start, end):  # gets all alerts per user between a start and end date
+    get_user_anomalies_query = """
+    WITH user_pc AS (
+    SELECT id
+    FROM pc
+    WHERE user_id = %s
+)
+SELECT ada.*, a.*
+FROM applicationdata_anomaly ada
+INNER JOIN applicationdata a ON ada.applicationdata_id = a.id
+WHERE ada.pc_id = (SELECT id FROM user_pc)
+  AND a.measurement_time BETWEEN %s AND %s;
+"""
+    cursor.execute(get_user_anomalies_query, (user_id, start, end))
+    result = cursor.fetchone()
+
+    anomaly_list = []  # List to hold the dictionaries
+    if result:
+        for row in result:
+            anomaly_list.append(Alert(**row.to_dict()))
+    print(anomaly_list)

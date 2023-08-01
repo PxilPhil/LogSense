@@ -77,9 +77,8 @@ def get_pc_data(pc_id: int, type: str, start: str, end: str):
         df, application_data_list = get_latest_application_data(pc_id)
         if df is None or total_df is None:
             return None
-        pc_total_df, allocation_map, standard_deviation, mean, trend_list = requests.fetch_pc_data(df, total_df, type)
-        print(pc_total_df, allocation_map, standard_deviation, mean, trend_list)
-        # TODO: Temporarily removed trend map since it leads to errors
+        pc_total_df, allocation_map, standard_deviation, mean = requests.analyze_pc_data(df, total_df, type)
+
         # TODO: Analyzing cpu data doesnt really makesense(atleast like RAM), remove feature or take a closer look at it
 
         pc_data = PCData(
@@ -129,7 +128,7 @@ def forecast_free_disk_space(pc_id: int, days: int):
         df = get_free_disk_space_data(pc_id)
         if df is None:
             return None
-        data_list, final_timestamp = requests.predict_resource_data(df, days)
+        data_list, final_timestamp = requests.forecast_disk_space(df, days)
         forecast_result = ForecastResult(
             pc=pc_id,
             days=days,

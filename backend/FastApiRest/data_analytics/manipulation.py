@@ -4,6 +4,7 @@ import io
 from datetime import datetime, timedelta
 from model.data import AllocationClass
 
+
 def group_by_timestamp(df):
     return df.groupby('timestamp')[
         ['majorFaults', 'contextSwitches', 'threadCount', 'openFiles', 'residentSetSize', 'cpuUsage']].sum(
@@ -37,6 +38,7 @@ def create_df_between(start_timestamp, days, frequency):
 
     return new_df
 
+
 def calc_end_timestamp(timestamp,
                        days):  # helper method to calculate the last timestamp going from a starting timestamp
     # and a time period
@@ -44,7 +46,6 @@ def calc_end_timestamp(timestamp,
     end_date_time = datetime.fromtimestamp(timestamp / 1000) + time_delta
     end_timestamp = int(end_date_time.timestamp() * 1000)
     return end_timestamp
-
 
 
 def convert_to_data_frame(csv_string):

@@ -83,7 +83,8 @@ def get_total_pc_data(pc_id, start, end, type):
     context_switches,
     major_faults,
     open_files,
-    thread_count
+    thread_count,
+    AVG(ram) OVER (ORDER BY measurement_time ROWS BETWEEN 5 PRECEDING AND CURRENT ROW) AS moving_average_ram
 FROM
     pcdata
 WHERE
@@ -98,7 +99,7 @@ WHERE
         columns = [desc[0] for desc in cursor.description]
         df = pd.DataFrame(result, columns=columns)
         data_list = []
-        #TODO: Move into manipulation
+        # TODO: Move into manipulation
         for _, row in df.iterrows():
             # Convert the 'measurement_time' from string to a datetime object
             data_list.append(PCTimeSeriesData(**row.to_dict()))
@@ -145,6 +146,7 @@ def get_pc_data(pc_id, start, end):
         data_list = df.to_dict(orient='records')
         return df, data_list
     return None, None
+
 
 def get_free_disk_space_data(pc_id):
     query = "select measurement_time,free_disk_space from pcdata where pc_id = %s"

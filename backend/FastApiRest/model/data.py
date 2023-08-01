@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Json
 from typing import List
 from datetime import datetime
 
@@ -36,6 +36,7 @@ class ApplicationTimeSeriesData(BaseModel):
     thread_count: int
     uptime: int
     process_count_difference: int
+    rolling_avg_ram: float
 
 
 class ApplicationListObject(BaseModel):
@@ -45,12 +46,20 @@ class ApplicationListObject(BaseModel):
     application_list: List[str]
 
 
-class AnomalyData(BaseModel):
+class AnomalyData(BaseModel):  # anomaly data class returned when analyzing application data
     anomaly_type: int
-    timestamp: int
     change: float
     application: str
     column: str
+
+
+class Alert(BaseModel):  # basically AnomalyData but meant as a overall alert for the user
+    id: int
+    user_id: int
+    type: str
+    severity_level: int
+    message: str
+    condition: Json
 
 
 class ApplicationData(BaseModel):
@@ -110,6 +119,7 @@ class PCData(BaseModel):  # Missing Trends
     mean: float
     time_series_list: List[PCTimeSeriesData]
     allocation_map: List[AllocationClass]
+    # anomaly_list: List[AnomalyData]
 
 
 """

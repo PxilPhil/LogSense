@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException, Body
 from data_analytics import requests
 from db_access.application import get_application, get_application_list
 from model.data import ApplicationData, ApplicationListObject
-
 from model.pc import PCItem
 
 application = APIRouter()
@@ -25,7 +24,7 @@ def fetch_application(pc_id: int, application_name: str, start: str, end: str):
         df, data_list = get_application(pc_id, application_name, start, end)
         if df is None:
             return None
-        df, anomaly_list, trend_list, standard_deviation, mean = requests.fetch_application_data(df, application_name)
+        df, anomaly_list, standard_deviation, mean = requests.analyze_application_data(df, application_name)
 
         application_data = ApplicationData(
             pc=pc_id,

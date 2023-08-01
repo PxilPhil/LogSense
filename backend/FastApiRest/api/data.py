@@ -75,7 +75,7 @@ def ingest_data(files: list[UploadFile], stateId: int):
         pcdata = df_map["resources"]
         application_data = df_map["application"]
 
-        pc_total_df, anomaly_list = requests.ingest_process_data(df_map["application"])
+        pc_total_df, anomaly_list = requests.preprocess_pc_data(df_map["application"])
         print(anomaly_list)
 
         pcdata_id = insert_running_pcdata(stateId, df_map, pc_total_df, anomaly_list)
