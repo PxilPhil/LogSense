@@ -11,8 +11,6 @@ import oshi.software.os.OSProcess;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -26,6 +24,7 @@ public class Agent {
     private int stateId;
     private SessionComputerData sessionComputerData;
     private long measuringCount;
+    private long failedSessionComputerDataPostRequest;
 
     public Agent() {
         this.statService = new StatService();
@@ -34,6 +33,7 @@ public class Agent {
         this.apiClient = new ApiClient();
         this.sessionComputerData = null;
         this.measuringCount = 0;
+        this.failedSessionComputerDataPostRequest = 0;
     }
 
     public void monitor() {
@@ -74,9 +74,15 @@ public class Agent {
             if (stateId > 0) {
                 this.stateId = stateId;
             } else {
-                //TODO: stop agent --> there is no computer in the system with the same hardwareUUID --> user has to register first via the frontend
+                this.failedSessionComputerDataPostRequest += 1;
+                LOGGER.error("Error while sending the session computer data to the server: the hardware UUID of your device is not registered as a client on the server. Please register first in the web application.");
+                try {
+                    TimeUnit.SECONDS.sleep((long) Math.pow(2, this.failedSessionComputerDataPostRequest));
+                } catch (InterruptedException e) {
+                    LOGGER.error("Error while trying to resend the session computer data: " + e);
+                }
+                monitorSessionComputerData();
             }
-
             this.sessionComputerData = sessionComputerData;
         }
     }

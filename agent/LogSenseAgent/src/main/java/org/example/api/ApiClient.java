@@ -6,7 +6,10 @@ import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.*;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.example.model.RunningData;
 import org.example.model.SessionComputerData;
@@ -58,9 +61,14 @@ public class ApiClient {
         Map<String, Object> jsonObject;
         try {
             jsonObject = objectMapper.readValue(responseContent, Map.class);
-            return (int) jsonObject.get("state_id");
         } catch (JsonProcessingException e) {
             LOGGER.error("Error while retrieving the returned state ID from the content of the HTTP request: " + e);
+            return -1;
+        }
+
+        if (jsonObject != null && jsonObject.get("state_id") != null) {
+            return (int) jsonObject.get("state_id");
+        } else {
             return -1;
         }
     }
