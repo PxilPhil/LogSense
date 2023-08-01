@@ -46,6 +46,7 @@ class ApplicationListObject(BaseModel):
     application_list: List[str]
 
 
+# TODO: Deprecated but still needed, AlertData will be used to return data
 class AnomalyData(BaseModel):  # anomaly data class returned when analyzing application data
     anomaly_type: int
     change: float
@@ -53,13 +54,14 @@ class AnomalyData(BaseModel):  # anomaly data class returned when analyzing appl
     column: str
 
 
-class Alert(BaseModel):  # basically AnomalyData but meant as a overall alert for the user
-    id: int
-    user_id: int
+class AlertData(BaseModel):  # basically AnomalyData (EventData) but includes custom alerts and are returned to the user
     type: str
     severity_level: int
     message: str
-    condition: Json
+    change_in_percentage: float
+    data_type: str
+    name: str
+    measurement_time: datetime
 
 
 class ApplicationData(BaseModel):

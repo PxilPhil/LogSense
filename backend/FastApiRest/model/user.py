@@ -1,5 +1,9 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 from typing import List
+
+from model.data import AlertData
 
 
 class CheckLoginRequest(BaseModel):
@@ -13,3 +17,10 @@ class AddUserRequest(BaseModel):
     name: str
     email: str
     password: str
+
+
+class UserAlerts(BaseModel):
+    user_id: int
+    start: datetime
+    end: datetime
+    alert_list: List[AlertData]

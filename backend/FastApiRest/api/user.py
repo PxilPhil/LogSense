@@ -1,12 +1,15 @@
+from typing import List
+
 from fastapi import HTTPException, APIRouter
 
-from db_access.user import get_users, add_user, check_login, IdentifierType
+from db_access.user import get_users, add_user, check_login, IdentifierType, get_all_user_alerts
 from api.helper import gen_salt
+from model.data import AlertData
 
-from model.user import CheckLoginRequest, AddUserRequest
-
+from model.user import CheckLoginRequest, AddUserRequest, UserAlerts
 
 user = APIRouter()
+
 
 @user.get('/', response_model=list, tags=["User"])
 def get_all_users():
@@ -63,3 +66,23 @@ def add_user_api(data: AddUserRequest):
         raise HTTPException(status_code=500, detail='Failed to insert user.')
 
     return {'user_id': user_id}
+
+
+@user.get('/{user_id}', response_model=UserAlerts, status_code=201, tags=["User"])
+def get_user_alerts(user_id: int, start: str, end: str):
+    """
+    Gets User Alerts between a two datetime strings, this includes all Events, Anomalies and Even Custom Alerts
+    """
+    try:
+        alert_list = get_all_user_alerts(user_id, start, end)
+
+        user_alerts = UserAlerts(
+            user_id=user_id,
+            start=start,
+            end=end,
+            alert_list=alert_list
+        )
+
+        return user_alerts
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Exception thrown: \n" + e.__str__())
