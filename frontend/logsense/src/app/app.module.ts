@@ -22,7 +22,7 @@ import { DiskComponent } from './disk/disk.component';
 import { NetworkComponent } from './network/network.component';
 import {MatDialogModule} from "@angular/material/dialog";
 import { PartDialogComponent } from './part-dialog/part-dialog.component';
-
+import { HttpClientModule } from '@angular/common/http'; // Import HttpClientModule
 
 
 
@@ -51,7 +51,8 @@ import { PartDialogComponent } from './part-dialog/part-dialog.component';
     MatFormFieldModule,
     FormsModule,
     MatInputModule,
-    MatDialogModule
+    MatDialogModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]
