@@ -26,6 +26,10 @@ public class Monitor {
         this.hardware = systemInfo.getHardware();
     }
 
+    public String monitorOperatingSystem() {
+        return this.operatingSystem.getFamily();
+    }
+
     public List<OSProcess> monitorProcesses() {
         List<OSProcess> osProcesses = this.operatingSystem.getProcesses();
         if (osProcesses == null) {

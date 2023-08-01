@@ -37,11 +37,23 @@ public class Agent {
     }
 
     public void monitor() {
-        long timestamp = Instant.now().toEpochMilli();
-        monitorSessionComputerData();
+        if (clientHasSupportedOperatingSystem()) {
+            long timestamp = Instant.now().toEpochMilli();
+            monitorSessionComputerData();
 
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(() -> monitorData(timestamp), 0, 10, TimeUnit.SECONDS);
+            ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+            scheduler.scheduleAtFixedRate(() -> monitorData(timestamp), 0, 10, TimeUnit.SECONDS);
+        } else {
+            LOGGER.error("The operating system of this client is not supported! Therefore the agent is not able to start and monitor your client.");
+        }
+    }
+
+    private boolean clientHasSupportedOperatingSystem() {
+        String operatingSystemFamily = this.monitor.monitorOperatingSystem();
+        if (operatingSystemFamily != null && operatingSystemFamily.equals("Windows")) {
+            return true;
+        }
+        return false;
     }
 
     private void monitorData(long timestamp) {
