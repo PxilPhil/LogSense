@@ -233,26 +233,14 @@ class CSVDataConverterTest {
         Client client = new Client(computer, memory, processor);
 
         String expectedResult = "computerHardwareUUID|computerManufacturer|computerModel|memoryTotalSize|memoryPageSize|processorName|processorIdentifier|processorID|processorVendor|processorBitness|physicalPackageCount|physicalProcessorCount|logicalProcessorCount\nTestHardwareUUID|TestManufacturer|TestModel|16000000000|4096000|TestName|TestIdentifier|TestID|TestVendor|64|1|8|16\n";
-        String actualResult = this.converter.convertClientData(Instant.now().toEpochMilli(), client);
+        String actualResult = this.converter.convertClientData(client);
 
         assertEquals(expectedResult, actualResult);
     }
 
     @Test
-    void convertClientDataWithTimestampInTheFutureReturnsNull() {
-        Computer computer = new Computer("TestHardwareUUID", "TestManufacturer", "TestModel");
-        Memory memory = new Memory(16000000000L, 4096000L);
-        Processor processor = new Processor("TestName", "TestIdentifier", "TestID", "TestVendor", 64, 1, 8, 16);
-        Client client = new Client(computer, memory, processor);
-
-        String result = this.converter.convertClientData(Instant.now().toEpochMilli() + 50, client);
-
-        assertNull(result);
-    }
-
-    @Test
     void convertClientDataWithNullClientReturnsNull() {
-        String result = this.converter.convertClientData(Instant.now().toEpochMilli(), null);
+        String result = this.converter.convertClientData(null);
 
         assertNull(result);
     }
@@ -260,8 +248,8 @@ class CSVDataConverterTest {
     @Test
     void convertDiskStoreDataCorrectly() {
         List<DiskStore> diskStores = new ArrayList<>();
-        DiskStore diskStore = new DiskStore("TestModel", "TestName", 1024000000000L);
-        DiskStore diskStore2 = new DiskStore("TestModel2", "TestName2", 128000000000L);
+        DiskStore diskStore = new DiskStore("Test Serial number", "TestModel", "TestName", 1024000000000L);
+        DiskStore diskStore2 = new DiskStore("Test Serial number", "TestModel2", "TestName2", 128000000000L);
         diskStores.add(diskStore);
         diskStores.add(diskStore2);
 

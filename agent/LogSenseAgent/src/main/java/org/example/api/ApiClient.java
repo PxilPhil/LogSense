@@ -1,58 +1,92 @@
 package org.example.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.*;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.example.model.RunningData;
+import org.example.model.SessionComputerData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 public class ApiClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiClient.class);
-    private final HttpClient httpClient;
+    private final CloseableHttpClient httpClient;
 
     public ApiClient() {
-        this.httpClient = HttpClient.newHttpClient();
+        this.httpClient = HttpClients.createDefault();
     }
 
-    public void postSessionComputerData(String sessionComputerDataJSON) {
-        try {
-            URI uri = new URI("http://127.0.0.1:8000/data/initial");
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(uri)
-                    .header("Content-type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(sessionComputerDataJSON))
-                    .build();
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+    public int postSessionComputerData(SessionComputerData sessionComputerData) {
+        MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
+        multipartEntityBuilder.addBinaryBody("files", sessionComputerData.getClient_data().getBytes(), ContentType.TEXT_PLAIN, "client");
+        multipartEntityBuilder.addBinaryBody("files", sessionComputerData.getDisks().getBytes(), ContentType.TEXT_PLAIN, "disk");
+        multipartEntityBuilder.addBinaryBody("files", sessionComputerData.getPartition().getBytes(), ContentType.TEXT_PLAIN, "partition");
 
-            int statusCode = response.statusCode();
-            String responseBody = response.body();
-            System.out.println("Status code: " + statusCode);
-            System.out.println("Response: " + responseBody);
-        } catch (URISyntaxException | IOException | InterruptedException e) {
-            LOGGER.error("Error while sending a POST request with the session computer data to the REST API of the server: " + e);
+        HttpPost httpPost = new HttpPost("http://127.0.0.1:8000/data/initial");
+        httpPost.setEntity(multipartEntityBuilder.build());
+
+        try {
+            ClassicHttpResponse response = this.httpClient.execute(httpPost);
+            int statusCode = response.getCode();
+            HttpEntity responseEntity = response.getEntity();
+            String responseContent = EntityUtils.toString(responseEntity, StandardCharsets.UTF_8);
+
+            System.out.println(statusCode);
+            System.out.println(responseContent);
+
+            return retrieveStateIdFromResponseContent(responseContent);
+        } catch (IOException e) {
+            LOGGER.error("Error while executing the HTTP POST request for the session computer data: " + e);
+            return -1;
+        } catch (ParseException e) {
+            LOGGER.error("Error while getting the response content from the HTTP response: " + e);
+            return -1;
         }
     }
 
-    public void postRunningData(String monitoredDataJSON) {
+    private int retrieveStateIdFromResponseContent(String responseContent) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> jsonObject;
         try {
-            URI uri = new URI("http://127.0.0.1:8000/data");
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(uri)
-                    .header("Content-type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(monitoredDataJSON))
-                    .build();
-            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            jsonObject = objectMapper.readValue(responseContent, Map.class);
+            return (int) jsonObject.get("state_id");
+        } catch (JsonProcessingException e) {
+            LOGGER.error("Error while retrieving the returned state ID from the content of the HTTP request: " + e);
+            return -1;
+        }
+    }
 
-            int statusCode = response.statusCode();
-            String responseBody = response.body();
-            System.out.println("Status code: " + statusCode);
-            System.out.println("Response: " + responseBody);
-        } catch (URISyntaxException | IOException | InterruptedException e) {
-            LOGGER.error("Error while sending a POST request with the monitored data to the REST API of the server: " + e);
+    public void postRunningData(RunningData runningData, long stateId) {
+        MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
+        multipartEntityBuilder.addBinaryBody("files", runningData.getApplication_data().getBytes(), ContentType.TEXT_PLAIN, "application");
+        multipartEntityBuilder.addBinaryBody("files", runningData.getPc_resources().getBytes(), ContentType.TEXT_PLAIN, "resources");
+        multipartEntityBuilder.addBinaryBody("files", runningData.getNetwork_interface().getBytes(), ContentType.TEXT_PLAIN, "network");
+        multipartEntityBuilder.addBinaryBody("files", runningData.getConnection_data().getBytes(), ContentType.TEXT_PLAIN, "connection");
+
+        HttpPost httpPost = new HttpPost("http://127.0.0.1:8000/data?stateId=" + stateId);
+        httpPost.setEntity(multipartEntityBuilder.build());
+
+        try {
+            ClassicHttpResponse response = this.httpClient.execute(httpPost);
+            int statusCode = response.getCode();
+            HttpEntity httpEntity = response.getEntity();
+            String responseContent = EntityUtils.toString(httpEntity, StandardCharsets.UTF_8);
+
+            System.out.println(statusCode);
+            System.out.println(responseContent);
+        } catch (IOException e) {
+            LOGGER.error("Error while executing the HTTP POST request for the running data: " + e);
+        } catch (ParseException e) {
+            LOGGER.error("Error while getting the response content from the HTTP response: " + e);
         }
     }
 }

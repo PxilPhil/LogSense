@@ -1,6 +1,7 @@
 package org.example.model;
 
 public class DiskStore {
+    private String serialNumber;
     private String model;
     private String name;
     private long size;
@@ -8,10 +9,19 @@ public class DiskStore {
     public DiskStore() {
     }
 
-    public DiskStore(String model, String name, long size) {
+    public DiskStore(String serialNumber, String model, String name, long size) {
+        this.serialNumber = serialNumber;
         this.model = model;
         this.name = name;
         this.size = size;
+    }
+
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
     }
 
     public String getModel() {

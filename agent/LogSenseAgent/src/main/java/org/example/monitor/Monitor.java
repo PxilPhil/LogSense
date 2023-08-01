@@ -394,6 +394,7 @@ public class Monitor {
         if (hwDiskStoreList != null) {
             for (HWDiskStore diskStore : hwDiskStoreList) {
                 DiskStore diskStoreData = new DiskStore();
+                diskStoreData.setSerialNumber(diskStore.getSerial());
                 diskStoreData.setModel(diskStore.getModel());
                 diskStoreData.setName(diskStore.getName());
                 diskStoreData.setSize(diskStore.getSize());

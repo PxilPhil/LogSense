@@ -13,7 +13,7 @@ public interface DataConverter {
 
     String convertNetworkInterfacesData(long timestamp, List<NetworkInterface> networkInterfaces);
 
-    String convertClientData(long timestamp, Client client);
+    String convertClientData(Client client);
 
     String convertDiskStoreData(List<DiskStore> diskStores);
 

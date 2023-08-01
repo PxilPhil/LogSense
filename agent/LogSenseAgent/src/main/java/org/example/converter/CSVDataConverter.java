@@ -39,7 +39,7 @@ public class CSVDataConverter implements DataConverter {
                 csv.append(application.getProcessCountDifference()).append("|");
                 csv.append(application.getCpuUsage()).append("\n");
             }
-            return csv.toString().replace("\\", "/").replace("\"", "'").replace("\n", "\\\\n");
+            return csv.toString();
         } else {
             LOGGER.error("Error while converting applications to CSV: either the list of applications is null or the timestamp is not between epoch and now. Therefore the applications can not be converted to CSV.");
             return null;
@@ -138,8 +138,8 @@ public class CSVDataConverter implements DataConverter {
     }
 
     @Override
-    public String convertClientData(long timestamp, Client client) {
-        if (client != null && timestamp <= Instant.now().toEpochMilli()) {
+    public String convertClientData(Client client) {
+        if (client != null) {
             StringBuilder csv = new StringBuilder();
             csv.append("computerHardwareUUID|computerManufacturer|computerModel|memoryTotalSize|memoryPageSize|processorName|processorIdentifier|processorID|processorVendor|processorBitness|physicalPackageCount|physicalProcessorCount|logicalProcessorCount\n");
 
@@ -174,8 +174,9 @@ public class CSVDataConverter implements DataConverter {
     public String convertDiskStoreData(List<DiskStore> diskStores) {
         if (diskStores != null) {
             StringBuilder csv = new StringBuilder();
-            csv.append("model|name|size\n");
+            csv.append("serialNumber|model|name|size\n");
             for (DiskStore diskStore : diskStores) {
+                csv.append(diskStore.getSerialNumber()).append("|");
                 csv.append(diskStore.getModel()).append("|");
                 csv.append(diskStore.getName()).append("|");
                 csv.append(diskStore.getSize()).append("\n");
