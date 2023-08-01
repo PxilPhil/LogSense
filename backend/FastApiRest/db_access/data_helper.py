@@ -26,22 +26,22 @@ def update_pc_description(pc_id, client_df):
         conn_pool.putconn(conn)
 
 
-def get_pc_state_df(client_df):
+def get_pc_state_df(client_df, conn):
     pc_id, state_id = get_pc_state_by_attributes_df(client_df)
 
     if pc_id:
-        update_pc_description(pc_id, client_df)
+        update_pc_description(pc_id, client_df,)
 
     if state_id:
         return state_id
     elif pc_id:
-        state_id = insert_new_state_df(pc_id, client_df)
+        state_id = insert_new_state_df(pc_id, client_df, conn)
         return state_id
     else:
         return None
 
 
-def insert_new_state_df(pc_id, client_df):
+def insert_new_state_df(pc_id, client_df, conn):
     row = client_df.iloc[0]
     return insert_new_state(pc_id,
                             int(row['memoryTotalSize']),
@@ -53,7 +53,8 @@ def insert_new_state_df(pc_id, client_df):
                             int(row['processorBitness']),
                             int(row['physicalPackageCount']),
                             int(row['physicalProcessorCount']),
-                            int(row['logicalProcessorCount']))
+                            int(row['logicalProcessorCount']),
+                            conn)
 
 
 def insert_new_state(pc_id,
@@ -66,8 +67,8 @@ def insert_new_state(pc_id,
                      provided_processor_bitness,
                      provided_package_count,
                      provided_physical_processor_count,
-                     provided_logical_processor_count):
-    conn = conn_pool.getconn()
+                     provided_logical_processor_count,
+                     conn):
     cursor = conn.cursor()
     try:
         pcdata = (
@@ -107,11 +108,8 @@ def insert_new_state(pc_id,
             return state_id
         else:
             return None
-
     except (Exception, psycopg2.Error) as error:
         print("Error inserting data into PostgreSQL:", error)
-    finally:
-        conn_pool.putconn(conn)
 
 
 def get_pc_state_by_attributes_df(client_df):
@@ -207,12 +205,12 @@ def get_dfdict_from_filelist(files: list[UploadFile]):
     return df_map
 
 
-def update_disk_df(state_id, disk_df, partition_df):
+def update_disk_df(state_id, disk_df, partition_df, conn):
     exists = does_last_disk_overlap(state_id, disk_df)
     if exists:
         return True
 
-    return insert_disk_and_partition(state_id, disk_df, partition_df)
+    return insert_disk_and_partition(state_id, disk_df, partition_df, conn)
 
 
 def does_last_disk_overlap(state_id, disk_df):
@@ -265,46 +263,43 @@ def does_last_disk_overlap(state_id, disk_df):
         conn_pool.putconn(conn)
 
 
-def insert_disk_and_partition(state_id, disk_df, partition_df):
-    conn = conn_pool.getconn()
+def insert_disk_and_partition(state_id, disk_df, partition_df, conn):
     cursor = conn.cursor()
-    try:
-        insert_disk = """INSERT INTO disk(state_id, measurement_time, serialnumber, model, name, size)VALUES %s RETURNING id;"""
-        disks = []
-        for i, row in disk_df.iterrows():
-            timestamp = datetime.fromtimestamp(i / 1000)
-            disk = (state_id, timestamp, row['serialNumber'], row['model'], row['name'], row['size'])
-            disks.append(disk)
-        psycopg2.extras.execute_values(cursor, insert_disk, disks)
+    insert_disk = """INSERT INTO disk(state_id, measurement_time, serialnumber, model, name, size)VALUES %s RETURNING id;"""
+    disks = []
+    for i, row in disk_df.iterrows():
+        timestamp = datetime.fromtimestamp(i / 1000)
+        disk = (state_id, timestamp, row['serialNumber'], row['model'], row['name'], row['size'])
+        disks.append(disk)
+    psycopg2.extras.execute_values(cursor, insert_disk, disks)
 
-        selct_disk_id = """ 
-            SELECT d.id
-            FROM disk d
-            WHERE d.name = %s
-              AND d.state_id = %s
-              AND d.measurement_time = (
-                SELECT MAX(measurement_time)
-                FROM disk
-                WHERE name = %s
-                  AND state_id = %s
-              );
-        """
-        insert_partition = """
-            INSERT INTO diskpartition 
-            (disk_id, disk_store_name, identification, name, type, mount_point, size, major_faults, minor_faults)
-            VALUES %s;
-        """
-        partitions = []
-        for i, row in partition_df.iterrows():
-            cursor.execute(selct_disk_id, (row['diskStoreName'], state_id, row['diskStoreName'], state_id))
-            disk_id = cursor.fetchone()
-            partition = (disk_id, row['diskStoreName'], row['identification'], row['name'], row['type'], row['mountPoint'], row['size'], row['majorFaults'] , row['minorFaults'])
-            partitions.append(partition)
-        psycopg2.extras.execute_values(cursor, insert_partition, partitions)
+    selct_disk_id = """ 
+        SELECT d.id
+        FROM disk d
+        WHERE d.name = %s
+          AND d.state_id = %s
+          AND d.measurement_time = (
+            SELECT MAX(measurement_time)
+            FROM disk
+            WHERE name = %s
+              AND state_id = %s
+          );
+    """
+    insert_partition = """
+        INSERT INTO diskpartition 
+        (disk_id, disk_store_name, identification, name, type, mount_point, size, major_faults, minor_faults)
+        VALUES %s;
+    """
+    partitions = []
+    for i, row in partition_df.iterrows():
+        cursor.execute(selct_disk_id, (row['diskStoreName'], state_id, row['diskStoreName'], state_id))
+        disk_id = cursor.fetchone()
+        partition = (disk_id, row['diskStoreName'], row['identification'], row['name'], row['type'], row['mountPoint'], row['size'], row['majorFaults'] , row['minorFaults'])
+        partitions.append(partition)
+    psycopg2.extras.execute_values(cursor, insert_partition, partitions)
 
-        return True
-    finally:
-        conn_pool.putconn(conn)
+    return True
+
 
 """def is_anomaly_subsequent(anomaly_id, pc_id): # TODO: remove Joins
     conn = conn_pool.getconn()

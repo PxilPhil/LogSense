@@ -238,9 +238,9 @@ def insert_inital_pcdata(df_dict):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
-        state_id = get_pc_state_df(df_dict['client'])
+        state_id = get_pc_state_df(df_dict['client'], conn)
 
-        success = update_disk_df(state_id, df_dict['disk'], df_dict['partition'])
+        success = update_disk_df(state_id, df_dict['disk'], df_dict['partition'], conn)
 
         if success:
             conn.commit()
