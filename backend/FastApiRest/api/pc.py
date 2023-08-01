@@ -5,7 +5,8 @@ import db_access.pc
 from db_access.pc import get_pcs, get_pcs_by_userid, add_pc, get_pc_data, get_free_disk_space_data
 from db_access.application import get_latest_application_data
 from data_analytics import requests
-from model.pc import PCItem
+from model.pc import PCItem, ForecastResult, ForecastData
+from model.data import PCData
 
 pc = APIRouter()
 
@@ -57,7 +58,7 @@ def add_pc_api(data: PCItem = Body(...)):
     return {'pc_id': pc_id}
 
 
-@pc.get('/{pc_id}/data/{type}', response_model=dict, tags=["PC"])
+@pc.get('/{pc_id}/data/{type}', response_model=PCData, tags=["PC"])
 def get_pc_data(pc_id: int, type: str, start: str, end: str):
     """
     Get data from PCs by ID and for a defined type like RAM or CPU
@@ -76,15 +77,26 @@ def get_pc_data(pc_id: int, type: str, start: str, end: str):
         df, application_data_list = get_latest_application_data(pc_id)
         if df is None or total_df is None:
             return None
-        pc_total_df, allocation_map, std, mean, trend_list = requests.fetch_pc_data(df, total_df, type)
-        print(pc_total_df, allocation_map, std, mean, trend_list)
-        # TODO: Temporarily removed trend map since it leads to errors TODO: Analyzing cpu data doesnt really make
-        #  sense(atleast like RAM), remove feature or take a closer look at it
-        return {'pc': pc_id, 'type': type, "start": start, "end": end, "total_data_list": total_data_list,
-                "allocation_map": allocation_map, "standard_deviation": int(std),
-                "mean": int(mean)}
+        pc_total_df, allocation_map, standard_deviation, mean, trend_list = requests.fetch_pc_data(df, total_df, type)
+        print(pc_total_df, allocation_map, standard_deviation, mean, trend_list)
+        # TODO: Temporarily removed trend map since it leads to errors
+        # TODO: Analyzing cpu data doesnt really makesense(atleast like RAM), remove feature or take a closer look at it
+
+        pc_data = PCData(
+            pc_id=pc_id,
+            type=type,
+            start=start,
+            end=end,
+            standard_deviation=standard_deviation,
+            mean=mean,
+            time_series_list=total_data_list,
+            allocation_map=allocation_map
+        )
+
+        print(pc_data)
+        return pc_data
     except Exception as e:
-        raise HTTPException(status_code=400, detail="Invalid JSON data")
+        return e
 
 
 @pc.get('/{pc_id}/data/', response_model=dict, tags=["PC"])
@@ -101,7 +113,7 @@ def get_pc_by_user_id(pc_id: int, start: int, end: int):
     return {'pc': pc_id, "start": start, "end": end}
 
 
-@pc.get('/{pc_id}/data/forecast/{days}', response_model=dict, tags=["PC"])
+@pc.get('/{pc_id}/data/forecast/{days}', response_model=ForecastResult, tags=["PC"])
 def forecast_free_disk_space(pc_id: int, days: int):
     """
     Forecasts free disk space data for a certain PC in daily interevals
@@ -117,10 +129,15 @@ def forecast_free_disk_space(pc_id: int, days: int):
         df = get_free_disk_space_data(pc_id)
         if df is None:
             return None
-        data_list, last_timestamp = requests.predict_resource_data(df, days)
-        print(last_timestamp)
-        #TODO: Change format if needed, currently its a map thats returned for data_list (timestamp + value)
-        return {'pc': pc_id, 'days': days, 'last_timestamp': last_timestamp, 'data_list': data_list}
+        data_list, final_timestamp = requests.predict_resource_data(df, days)
+        forecast_result = ForecastResult(
+            pc=pc_id,
+            days=days,
+            final_timestamp=final_timestamp,
+            data_list=data_list
+        )
+        print(forecast_result)
+        return forecast_result
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid JSON data")
 

@@ -1,5 +1,7 @@
 from db_access import conn_pool
 import pandas as pd
+from datetime import datetime
+from model.data import PCTimeSeriesData
 
 
 def add_pc(user_id, hardware_uuid, client_name):
@@ -112,7 +114,11 @@ def get_total_pc_data(pc_id, start, end, type):
         if result:
             columns = [desc[0] for desc in cursor.description]
             df = pd.DataFrame(result, columns=columns)
-            data_list = df.to_dict(orient='records')
+            data_list = []
+            #TODO: Move into manipulation
+            for _, row in df.iterrows():
+                # Convert the 'measurement_time' from string to a datetime object
+                data_list.append(PCTimeSeriesData(**row.to_dict()))
 
             return df, data_list
         return None, None

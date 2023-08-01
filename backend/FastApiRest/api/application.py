@@ -1,13 +1,14 @@
 from fastapi import APIRouter, HTTPException, Body
 from data_analytics import requests
 from db_access.application import get_application, get_application_list
+from model.data import ApplicationData, ApplicationListObject
 
 from model.pc import PCItem
 
 application = APIRouter()
 
 
-@application.get("/{application_name}/", tags=["Application"])
+@application.get("/{application_name}/", response_model=ApplicationData, tags=["Application"])
 def fetch_application(pc_id: int, application_name: str, start: str, end: str):
     """
     Get Data to Application
@@ -24,16 +25,23 @@ def fetch_application(pc_id: int, application_name: str, start: str, end: str):
         df, data_list = get_application(pc_id, application_name, start, end)
         if df is None:
             return None
-        df, anomaly_list, trend_list, std, mean = requests.fetch_application_data(df, application_name)
-        print(df)
-        print(data_list)
-        # TODO: The way all gets should return time series data is in form of arrays
-        return {"pc": pc_id, "application_name": application_name, "time_series_data": data_list, "anomaly_list": anomaly_list, "standard_deviation": std, "mean": mean}
+        df, anomaly_list, trend_list, standard_deviation, mean = requests.fetch_application_data(df, application_name)
+
+        application_data = ApplicationData(
+            pc=pc_id,
+            application_name=application_name,
+            standard_deviation=standard_deviation,
+            mean=mean,
+            time_series_data=data_list,
+            anomaly_list=anomaly_list
+        )
+
+        return application_data
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid JSON data")
 
 
-@application.get("/", tags=["Application"])
+@application.get("/", response_model=ApplicationListObject, tags=["Application"])
 def fetch_application_list(pc_id: int, start: str, end: str):
     """
     Get a list of running applications on the pc
@@ -48,6 +56,13 @@ def fetch_application_list(pc_id: int, start: str, end: str):
     """
     try:
         application_list = get_application_list(pc_id, start, end)
-        return {"pc": pc_id, "start": start, "end": end, "list": application_list}
+        application_list_obj = ApplicationListObject(
+            pc_id=pc_id,
+            start=start,
+            end=end,
+            application_list=application_list
+        )
+        print(application_list_obj)
+        return application_list_obj
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid JSON data")

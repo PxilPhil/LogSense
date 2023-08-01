@@ -7,6 +7,8 @@ from data_analytics.prediction import fit_linear_regression, predict_for_df
 from data_analytics.helper import read_csv
 from db_access.data import get_moving_avg_of_total_ram
 import datetime
+from model.data import AllocationClass
+from model.pc import ForecastData
 
 warnings.filterwarnings("ignore")
 queue_df = pd.DataFrame()  # current data frame
@@ -40,7 +42,10 @@ def predict_resource_data(df, days):  # predict disk space for the next x days
 
     # convert timestamps to datetime
     df['datetime'] = pd.to_datetime(df.index, unit='ms')
-    data_list = df.to_dict(orient='records')
+    data_list = []
+    for _, row in df.iterrows():
+        # Convert the 'measurement_time' from string to a datetime object
+        data_list.append(ForecastData(**row.to_dict()))
 
     last_timestamp = None
     # find out if and when LinearRegression is less than 0 (free disk space running out)
@@ -73,5 +78,8 @@ def fetch_pc_data(df, pc_total_df, column):  # fetch all application data in dat
     # get allocation percentage
     latest_total_value = pc_total_df.at[pc_total_df.index.max(), column]
     allocation_map = stats.calc_allocation(latest_total_value, column, df)
+    allocation_list = [AllocationClass(name=key, allocation=value) for key, value in allocation_map.items()] # convert map into list of our model object to send via json
+
+    print(allocation_list)
     # TODO: compare current value with last
-    return pc_total_df, allocation_map, std, mean, trend_list
+    return pc_total_df, allocation_list, std, mean, trend_list
