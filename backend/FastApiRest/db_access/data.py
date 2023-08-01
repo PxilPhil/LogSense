@@ -2,7 +2,7 @@ from datetime import datetime
 
 import psycopg2
 
-from db_access import cursor, conn
+from db_access import conn_pool
 from psycopg2 import extras
 
 from db_access.data_helper import get_pc_state_df, update_disk_df
@@ -11,6 +11,8 @@ from db_access.helper import get_pcid_by_stateid
 
 def insert_running_pcdata(state_id, running_df_dict, pc_total_df, anomaly_list):
     # TODO: Optionally save moving averages into database if its too slow to calculate it every time
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
     try:
         first_row_pc_total = pc_total_df.iloc[0]
         first_row_pc = running_df_dict['resources'].iloc[0]
@@ -171,32 +173,43 @@ def insert_running_pcdata(state_id, running_df_dict, pc_total_df, anomaly_list):
     except Exception as e:
         conn.rollback()
         raise e
+    finally:
+        conn_pool.putconn(conn)
+
 
 
 def get_moving_avg_of_total_ram(pc_id: int, application): # returns moving avg of the last 5 columns
-    moving_avg_query = """
-    SELECT
-    AVG(app.ram) OVER (ORDER BY app.measurement_time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS rolling_avg_ram
-    FROM
-    applicationdata AS app
-    JOIN
-    pcdata AS pc ON app.pcdata_id = pc.id
-    WHERE
-    pc.pc_id = %s AND app.name = %s
-    ORDER BY
-    app.measurement_time;
-    """
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        moving_avg_query = """
+        SELECT
+        AVG(app.ram) OVER (ORDER BY app.measurement_time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS rolling_avg_ram
+        FROM
+        applicationdata AS app
+        JOIN
+        pcdata AS pc ON app.pcdata_id = pc.id
+        WHERE
+        pc.pc_id = %s AND app.name = %s
+        ORDER BY
+        app.measurement_time;
+        """
 
-    cursor.execute(moving_avg_query, (pc_id, application))
-    result = cursor.fetchone()
+        cursor.execute(moving_avg_query, (pc_id, application))
+        result = cursor.fetchone()
 
-    if result:
-        return result[0]
-    else:
-        return 0
+        if result:
+            return result[0]
+        else:
+            return 0
+    finally:
+        conn_pool.putconn(conn)
+
 
 
 def insert_inital_pcdata(df_dict):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
     try:
         state_id = get_pc_state_df(df_dict['client'])
 
@@ -209,30 +222,37 @@ def insert_inital_pcdata(df_dict):
     except Exception as e:
         conn.rollback()
         raise e
+    finally:
+        conn_pool.putconn(conn)
+
 
 def insert_anomalies(pcdata_id, anomaly_list):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
     try:
-        insert_anomaly_query = """INSERT INTO applicationdata_anomaly (anomaly_id, applicationdata_id, user_id, change_in_percentage, data_type, subsequent_anomaly) VALUES (%s, (SELECT id FROM applicationdata where name=%s and pcdata_id=%s),(SELECT user_id FROM anomaly WHERE id = %s), %s ,%s, FALSE)"""
+        insert_anomaly_query = """
+        INSERT INTO applicationdata_anomaly (anomaly_id, applicationdata_id, user_id, pc_id, change_in_percentage, data_type, subsequent_anomaly) 
+        VALUES 
+        (%s, (SELECT id FROM applicationdata where name=%s and pcdata_id=%s),(SELECT user_id FROM pc WHERE id = (SELECT pc_id FROM applicationdata where name=%s and pcdata_id=%s)), (SELECT pc_id FROM applicationdata where name=%s and pcdata_id=%s), %s ,%s, FALSE)"""
         for anomaly in anomaly_list:
             anomaly_data = (
                 anomaly.anomaly_type,
                 anomaly.application,
                 pcdata_id,
-                anomaly.anomaly_type,
+                anomaly.application,
+                pcdata_id,
+                anomaly.application,
+                pcdata_id,
                 anomaly.change,
                 anomaly.column
             )
             cursor.execute(insert_anomaly_query, anomaly_data)
 
+    except psycopg2.Error as e:
+        conn.rollback()
+        raise e
     except Exception as e:
         conn.rollback()
         raise e
-
-
-class AnomalyData: # Anomaly Type 1 means Anomaly and type 2 means Eveent
-    def __init__(self, anomaly_type, timestamp, change, application, column):
-        self.anomaly_type = anomaly_type
-        self.timestamp = timestamp
-        self.change = change
-        self.application = application
-        self.column = column
+    finally:
+        conn_pool.putconn(conn)

@@ -82,4 +82,4 @@ def ingest_data(files: list[UploadFile], stateId: int):
 
         return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": pcdata_id}, status_code=200)
     except Exception as e:
-        raise HTTPException(status_code=400, detail="Invalid JSON data")
+        raise HTTPException(status_code=400, detail="Exception thrown: \n"+e.__str__())

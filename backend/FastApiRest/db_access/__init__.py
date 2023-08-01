@@ -2,6 +2,7 @@ import configparser
 import logging
 
 import psycopg2
+from psycopg2 import pool
 
 
 def get_database_config(path):
@@ -16,15 +17,8 @@ def get_database_config(path):
 
     return db_host, db_port, db_name, db_user, db_password
 
-
-def generate_tables(db_host, db_port, db_name, db_user, db_password):
-    conn = psycopg2.connect(
-        host=db_host,
-        port=db_port,
-        database=db_name,
-        user=db_user,
-        password=db_password,
-    )
+def create_tables(conn_pool):
+    conn = conn_pool.getconn()
     cursor = conn.cursor()
 
     try:
@@ -33,16 +27,25 @@ def generate_tables(db_host, db_port, db_name, db_user, db_password):
             cursor.execute(sql_statements)
             conn.commit()
         logging.info("Tables generated successfully.")
-        return True, conn, cursor
     except FileNotFoundError:
         logging.error("SQL file not found.")
-        return False
     except Exception as e:
         logging.error(f"Error generating tables: {str(e)}")
-        return False
-
+    finally:
+        conn_pool.putconn(conn)
 
 logging.basicConfig(filename='app.log', level=logging.INFO)
 
 db_host, db_port, db_name, db_user, db_password = get_database_config('config.ini')
-bool, conn, cursor = generate_tables(db_host, db_port, db_name, db_user, db_password)
+
+conn_pool = pool.SimpleConnectionPool(
+    0,
+    8,
+    host=db_host,
+    port=db_port,
+    database=db_name,
+    user=db_user,
+    password=db_password,
+)
+
+create_tables(conn_pool)
