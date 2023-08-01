@@ -43,6 +43,14 @@ public class ApiClient {
             HttpEntity responseEntity = response.getEntity();
             String responseContent = EntityUtils.toString(responseEntity, StandardCharsets.UTF_8);
 
+            String logMessage = "API POST request to /data/initial: " + statusCode + " - " + responseContent;
+            if (statusCode == 200) {
+                LOGGER.info(logMessage);
+            } else {
+                LOGGER.error(logMessage);
+            }
+
+            //TODO: remove prints
             System.out.println(statusCode);
             System.out.println(responseContent);
 
@@ -89,6 +97,14 @@ public class ApiClient {
             HttpEntity httpEntity = response.getEntity();
             String responseContent = EntityUtils.toString(httpEntity, StandardCharsets.UTF_8);
 
+            String logMessage = "API POST request to /data: " + statusCode + " - " + responseContent;
+            if (statusCode == 200) {
+                LOGGER.info(logMessage);
+            } else {
+                LOGGER.error(logMessage);
+            }
+
+            //TODO: remove prints
             System.out.println(statusCode);
             System.out.println(responseContent);
         } catch (IOException e) {
