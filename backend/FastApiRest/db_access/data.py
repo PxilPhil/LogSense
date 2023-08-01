@@ -274,7 +274,7 @@ def insert_anomalies(pcdata_id, anomaly_list):
                 anomaly.column
             )
             cursor.execute(insert_anomaly_query, anomaly_data)
-
+        conn.commit()
     except psycopg2.Error as e:
         conn.rollback()
         raise e
