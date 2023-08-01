@@ -6,7 +6,6 @@ from datetime import datetime
 
 import psycopg2
 
-from db_access import cursor, conn
 from psycopg2 import extras
 from model.data import ApplicationTimeSeriesData
 
