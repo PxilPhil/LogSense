@@ -44,7 +44,7 @@ public class Agent {
             ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
             scheduler.scheduleAtFixedRate(() -> monitorData(timestamp), 0, 10, TimeUnit.SECONDS);
         } else {
-            LOGGER.error("The operating system of this client is not supported! Therefore the agent is not able to start and monitor your client.");
+            LOGGER.error("The operating system of this client is not supported or could not be detected. Therefore the agent is not able to start and monitor your client.");
         }
     }
 

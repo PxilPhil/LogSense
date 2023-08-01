@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ListToStringSpacesConverter<T> implements ListToStringConverter<T> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Monitor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ListToStringSpacesConverter.class);
 
     @Override
     public String convert(List<T> list) {

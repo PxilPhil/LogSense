@@ -302,13 +302,13 @@ public class Monitor {
                 try {
                     connectionData.setLocalAddress(InetAddress.getByAddress(connection.getLocalAddress()));
                 } catch (UnknownHostException e) {
-                    LOGGER.error("Error while monitoring the IP connections: the local address of the IP connection could not be parsed to an InetAddress. Therefore the local address attribute of the IP connection will be null.");
+                    LOGGER.warn("Error while monitoring the IP connections: the local address of the IP connection could not be parsed to an InetAddress. Therefore the local address attribute of the IP connection will be null.");
                 }
 
                 try {
                     connectionData.setForeignAddress(InetAddress.getByAddress(connection.getForeignAddress()));
                 } catch (UnknownHostException e) {
-                    LOGGER.error("Error while monitoring the IP connections: the foreign address of the IP connection could not be parsed to an InetAddress. Therefore the foreign address attribute of the IP connection will be null.");
+                    LOGGER.warn("Error while monitoring the IP connections: the foreign address of the IP connection could not be parsed to an InetAddress. Therefore the foreign address attribute of the IP connection will be null.");
                 }
 
                 connections.add(connectionData);

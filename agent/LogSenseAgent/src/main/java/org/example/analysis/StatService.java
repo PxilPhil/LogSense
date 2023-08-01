@@ -15,7 +15,6 @@ public class StatService {
     private static final Logger LOGGER = LoggerFactory.getLogger(StatService.class);
     private final Map<String, List<Application>> applicationMeasurements = new TreeMap<>();
     private int dataAmount = 0; //saves how many times data was measured
-    private final int analysisInterval = 60;
     private long lastAnalysis;
 
     public StatService() {
@@ -34,10 +33,15 @@ public class StatService {
     }
 
     public List<Application> analyseApplicationMeasurements(long timestamp) {
-        List<Application> evaluatedApplicationData = evaluateApplicationMeasurements(timestamp);
-        this.applicationMeasurements.clear();
-        this.lastAnalysis = timestamp;
-        this.dataAmount = 0;
+        List<Application> evaluatedApplicationData = new ArrayList<>();
+        if (timestamp >= 0 && timestamp <= Instant.now().toEpochMilli()) {
+            evaluatedApplicationData = evaluateApplicationMeasurements(timestamp);
+            this.applicationMeasurements.clear();
+            this.lastAnalysis = timestamp;
+            this.dataAmount = 0;
+        } else {
+            LOGGER.error("Error while analysing the application measurements: the timestamp is not between epoch and now. Therefore the application measurements can not be analysed.");
+        }
         return evaluatedApplicationData;
     }
 
