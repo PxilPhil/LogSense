@@ -68,7 +68,7 @@ def add_user_api(data: AddUserRequest):
     return {'user_id': user_id}
 
 
-@user.get('/{user_id}', response_model=UserAlerts, status_code=201, tags=["User"])
+@user.get('/{user_id}', response_model=UserAlerts, status_code=200, tags=["User"])
 def get_user_alerts(user_id: int, start: str, end: str):
     """
     Gets User Alerts between a two datetime strings, this includes all Events, Anomalies and Even Custom Alerts

@@ -5,12 +5,15 @@ from typing import Optional
 
 
 
+
 class PCItem(BaseModel):
     user_id: str
     hardware_uuid: str
     client_name: str
     manufacturer: str = None
     model: str = None
+
+
 
 
 class ForecastData(BaseModel):

@@ -121,7 +121,7 @@ def get_all_user_alerts(user_id, start, end):  # gets all alerts per user betwee
     cursor = conn.cursor()
     try:
         get_user_anomalies_query = """
-        SELECT a.type, a.severity_level, a.message, aa.change_in_percentage, aa.data_type, ad.name, ad.measurement_time
+        SELECT a.type, a.severity_level, a.message, aa.change_in_percentage, aa.data_type, ad.name, ad.measurement_time, aa.pc_id
         FROM applicationdata_anomaly aa
         INNER JOIN applicationdata ad ON aa.applicationdata_id = ad.id
         INNER JOIN anomaly a ON a.id = aa.anomaly_id
@@ -131,7 +131,7 @@ def get_all_user_alerts(user_id, start, end):  # gets all alerts per user betwee
         cursor.execute(get_user_anomalies_query, (start, end, user_id))
         result = cursor.fetchall()
 
-        alert_list = []  # List to hold the dictionaries
+        alert_list = []
         if result:
             for row in result:
                 alert = AlertData(
@@ -142,8 +142,10 @@ def get_all_user_alerts(user_id, start, end):  # gets all alerts per user betwee
                     data_type=row[4],
                     name=row[5],
                     measurement_time=row[6],
+                    pc_id=row[7],
                 )
                 alert_list.append(alert)
+
         return alert_list
     finally:
         conn_pool.putconn(conn)

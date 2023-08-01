@@ -62,6 +62,7 @@ class AlertData(BaseModel):  # basically AnomalyData (EventData) but includes cu
     data_type: str
     name: str
     measurement_time: datetime
+    pc_id: int
 
 
 class ApplicationData(BaseModel):
