@@ -1,11 +1,12 @@
-from fastapi import FastAPI
-
+from fastapi import FastAPI, HTTPException
+from starlette.middleware.exceptions import ExceptionMiddleware
+import logging
 from api.data import data
 from api.group import group
 from api.pc import pc
 from api.user import user
 from api.application import application
-
+from exceptions.UserNotFoundException import UserNotFoundException, custom_user_not_found_exception_handler
 
 app = FastAPI()
 
@@ -37,6 +38,8 @@ app.include_router(group, tags=["Group"], prefix="/group")
 app.include_router(pc, tags=["PC"], prefix="/pc")
 app.include_router(application, tags=["Application"], prefix="/pc/{pc_id}/application")
 app.include_router(data, tags=["Data"], prefix="/data")
+
+app.add_exception_handler(UserNotFoundException, custom_user_not_found_exception_handler)
 
 if __name__ == "__main__":
     import uvicorn

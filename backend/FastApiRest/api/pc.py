@@ -5,6 +5,7 @@ import db_access.pc
 from db_access.pc import get_pcs, get_pcs_by_userid, add_pc, get_pc_data, get_free_disk_space_data
 from db_access.application import get_latest_application_data
 from data_analytics import requests
+from exceptions.UserNotFoundException import UserNotFoundException
 from model.pc import PCItem, ForecastResult, ForecastData
 from model.data import PCData
 

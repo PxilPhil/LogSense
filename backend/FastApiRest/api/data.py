@@ -1,37 +1,39 @@
-from typing import List
-
-import pandas as pd
-
-from data_analytics import requests
-from fastapi import HTTPException, APIRouter, UploadFile
+from fastapi import UploadFile
 from fastapi.responses import JSONResponse
 
-from db_access.data_helper import get_dfdict_from_filelist, get_pc_state_df
-from model.data import runningPCData, sessionPCData
+from fastapi import APIRouter, HTTPException
+from data_analytics import requests
 
-from db_access.data import insert_running_pcdata, get_moving_avg_of_total_ram, insert_inital_pcdata
+from db_access.data_helper import get_dfdict_from_filelist
+from db_access.data import insert_running_pcdata, insert_inital_pcdata
 
 data = APIRouter()
 
 
-@data.post("/initial", description="Check PC State", tags=["Data"], responses={
+@data.post("/initial", tags=["Data"], responses={
     200: {"description": "Successful response"},
     400: {"description": "Invalid JSON data"},
     500: {"description": "Internal server error"}
 })
 def ingest_initial_data(files: list[UploadFile]):
     """
-    Insert Initial data.
+    **Insert Initial data.**
 
-    Args:
-        files (list[UploadFile]): A list of UploadFile objects representing the Timeseries data files.
-            - File names must include: "client", "disk", "partition"
+        Inserts initial data into the system using a list of data files. (Content-Type: multipart/form-data)
 
-    Returns:
-        dict:
-        A dictionary with a 'result' key indicating the success or failure of the operation,
-        'pcdata_id' the ID of the pcData inserted,
-        and 'Anomalies found' indicating the number of anomalies detected.
+    **Parameters:**
+
+    - **files** (list[UploadFile]): A list of UploadFile objects representing the Timeseries data files.
+
+        File names must include: "client", "disk", "partition"
+
+    **Returns:**
+
+    - **dict**: A dictionary with the following keys:
+        - 'result': A string indicating the success or failure of the operation.
+        - 'state_id': The ID of the pcData inserted.
+        - 'Anomalies found': The number of anomalies detected.
+
     """
     state_id = None
     try:
@@ -49,21 +51,19 @@ def ingest_initial_data(files: list[UploadFile]):
 
 
 
-@data.post("/", description="Insert Timeseries data", tags=["Data"], responses={
+@data.post("/", tags=["Data"], responses={
     200: {"description": "Successful response"},
     400: {"description": "Invalid JSON data"},
     500: {"description": "Internal server error"}
 })
 def ingest_data(files: list[UploadFile], stateId: int):
     """
-    Insert Timeseries data.
-
-    Args:
+    **Insert Timeseries data.**
+    **Args:**
         stateId (int): The ID of the state.
         files (list[UploadFile]): A list of UploadFile objects representing the Timeseries data files.
             - File names must include: "application", "connection", "resources", "network".
-
-    Returns:
+    **Returns:**
         dict:
         A dictionary with a 'result' key indicating the success or failure of the operation,
         'pcdata_id' the ID of the pcData inserted,
