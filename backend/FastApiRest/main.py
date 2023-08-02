@@ -1,6 +1,8 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from fastapi import FastAPI, HTTPException
-from starlette.middleware.exceptions import ExceptionMiddleware
-import logging
+
 from api.data import data
 from api.group import group
 from api.pc import pc
@@ -33,6 +35,19 @@ tags_metadata = [
     }
 ]
 
+# TODO: Add origin of angular application
+origins = [
+    "http://localhost:4200",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(user, tags=["User"], prefix="/user")
 app.include_router(group, tags=["Group"], prefix="/group")
 app.include_router(pc, tags=["PC"], prefix="/pc")
@@ -43,6 +58,7 @@ app.add_exception_handler(UserNotFoundException, custom_user_not_found_exception
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="127.0.0.1", port=8000, log_level="debug")
 
 @app.get("/")

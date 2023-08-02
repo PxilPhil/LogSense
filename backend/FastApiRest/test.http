@@ -117,3 +117,6 @@ GET http://localhost:8000/pc/1/application/?start=2023-07-25 10:20:16&end=2023-0
 
 ### get forecast of available disk space
 GET http://localhost:8000/pc/1/data/forecast/30
+
+### get all user alerts between a timespan
+GET  http://localhost:8000/user/1?start=2023-07-20 10:20:16&end=2024-07-20 10:20:16

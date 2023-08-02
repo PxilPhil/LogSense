@@ -3,6 +3,7 @@ import hashlib
 
 from db_access import conn_pool
 from db_access.helper import is_valid_email, hash_password
+from model.data import AlertData
 
 logging.basicConfig(filename='app.log', level=logging.INFO)
 
@@ -111,5 +112,40 @@ def get_users():
             user = {'name': row[0]}
             users.append(user)
         return users
+    finally:
+        conn_pool.putconn(conn)
+
+
+def get_all_user_alerts(user_id, start, end):  # gets all alerts per user between a start and end date
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        get_user_anomalies_query = """
+        SELECT a.type, a.severity_level, a.message, aa.change_in_percentage, aa.data_type, ad.name, ad.measurement_time, aa.pc_id
+        FROM applicationdata_anomaly aa
+        INNER JOIN applicationdata ad ON aa.applicationdata_id = ad.id
+        INNER JOIN anomaly a ON a.id = aa.anomaly_id
+        WHERE ad.measurement_time BETWEEN %s AND %s
+        AND aa.user_id = %s;
+        """
+        cursor.execute(get_user_anomalies_query, (start, end, user_id))
+        result = cursor.fetchall()
+
+        alert_list = []
+        if result:
+            for row in result:
+                alert = AlertData(
+                    type=row[0],
+                    severity_level=row[1],
+                    message=row[2],
+                    change_in_percentage=row[3],
+                    data_type=row[4],
+                    name=row[5],
+                    measurement_time=row[6],
+                    pc_id=row[7],
+                )
+                alert_list.append(alert)
+
+        return alert_list
     finally:
         conn_pool.putconn(conn)

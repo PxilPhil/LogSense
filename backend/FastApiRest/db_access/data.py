@@ -7,7 +7,6 @@ from psycopg2 import extras
 
 from db_access.data_helper import get_pc_state_df, update_disk_df
 from db_access.helper import get_pcid_by_stateid
-from model.data import Alert
 
 
 def insert_running_pcdata(state_id, running_df_dict, pc_total_df, anomaly_list):
@@ -177,7 +176,6 @@ def insert_running_pcdata(state_id, running_df_dict, pc_total_df, anomaly_list):
         conn_pool.putconn(conn)
 
 
-
 def get_moving_avg_of_application_ram(pc_id: int, application):  # returns moving avg of the last 5 columns
     conn = conn_pool.getconn()
     cursor = conn.cursor()
@@ -205,6 +203,7 @@ def get_moving_avg_of_application_ram(pc_id: int, application):  # returns movin
     finally:
         conn_pool.putconn(conn)
 
+
 def get_moving_avg_of_total_ram(pc_id: int):  # returns moving avg of the last 5 columns
     conn = conn_pool.getconn()
     cursor = conn.cursor()
@@ -231,7 +230,6 @@ def get_moving_avg_of_total_ram(pc_id: int):  # returns moving avg of the last 5
             return 0
     finally:
         conn_pool.putconn(conn)
-
 
 
 def insert_inital_pcdata(df_dict):
@@ -282,33 +280,5 @@ def insert_anomalies(pcdata_id, anomaly_list):
     except Exception as e:
         conn.rollback()
         raise e
-    finally:
-        conn_pool.putconn(conn)
-
-
-def get_all_user_alerts(user_id, start, end):  # gets all alerts per user between a start and end date
-    conn = conn_pool.getconn()
-    cursor = conn.cursor()
-    try:
-        get_user_anomalies_query = """
-        WITH user_pc AS (
-        SELECT id
-        FROM pc
-        WHERE user_id = %s
-        )
-        SELECT ada.*, a.*
-        FROM applicationdata_anomaly ada
-        INNER JOIN applicationdata a ON ada.applicationdata_id = a.id
-        WHERE ada.pc_id = (SELECT id FROM user_pc)
-          AND a.measurement_time BETWEEN %s AND %s;
-        """
-        cursor.execute(get_user_anomalies_query, (user_id, start, end))
-        result = cursor.fetchone()
-
-        anomaly_list = []  # List to hold the dictionaries
-        if result:
-            for row in result:
-                anomaly_list.append(Alert(**row.to_dict()))
-        print(anomaly_list)
     finally:
         conn_pool.putconn(conn)
