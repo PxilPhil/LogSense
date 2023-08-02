@@ -150,7 +150,7 @@ def get_latest_application_data(pc_id: int):
         conn_pool.putconn(conn)
 
 
-def get_grouped_by_interval_application(pc_id: int, application_name: str, start, end, time_bucket_value): # time bucket value is '5 minutes' for instance
+def get_grouped_by_interval_application(pc_id: int, application_name: str, start, end, time_bucket_value, limit): # time bucket value is '5 minutes' for instance
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
@@ -167,10 +167,10 @@ def get_grouped_by_interval_application(pc_id: int, application_name: str, start
             thread_count,
             uptime,
             process_count_difference,
-            AVG(ram) OVER (PARTITION BY 'chrome' ORDER BY date_interval ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS rolling_avg_ram
+            AVG(ram) OVER (PARTITION BY %s ORDER BY date_interval ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS rolling_avg_ram
         FROM (
             SELECT
-                time_bucket('5 minutes', measurement_time) AS date_interval,
+                time_bucket(%s, measurement_time) AS date_interval,
                 AVG(cpu) AS cpu,
                 AVG(ram) AS ram,
                 AVG(context_switches) AS context_switches,
@@ -183,14 +183,18 @@ def get_grouped_by_interval_application(pc_id: int, application_name: str, start
             FROM
                 applicationdata
             WHERE
-                pc_id=1 AND name='chrome' AND measurement_time BETWEEN '2023-07-01' AND '2023-09-01'
+                pc_id=%s AND name=%s AND measurement_time BETWEEN %s AND %s
             GROUP BY
                 date_interval
         ) AS subquery
         ORDER BY
-            date_interval;
+            date_interval
+        LIMIT %s    
         """
-        cursor.execute(query, (time_bucket_value, pc_id, application_name, start, end))
+
+
+
+        cursor.execute(query, (application_name, time_bucket_value, pc_id, application_name, start, end, limit))
         result = cursor.fetchall()
 
         if result:

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import APIRouter, HTTPException, Body
 from data_analytics import requests
 from db_access.application import get_application, get_application_list, get_grouped_by_interval_application
@@ -55,7 +57,7 @@ def fetch_application_buckets(pc_id: int, application_name: str, start: str, end
         :param bucket_value:
     """
     try:
-        df, data_list = get_grouped_by_interval_application(pc_id, application_name, start, end, bucket_value)
+        df, data_list = get_grouped_by_interval_application(pc_id, application_name, start, end, bucket_value, None)
         if df is None:
             return None
 
