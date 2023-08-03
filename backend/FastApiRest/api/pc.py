@@ -77,7 +77,7 @@ def get_pc_data(pc_id: int, type: str, start: str, end: str):
         df, application_data_list = get_latest_application_data(pc_id)
         if df is None or total_df is None:
             return None
-        pc_total_df, allocation_map, standard_deviation, mean = requests.analyze_pc_data(df, total_df, type)
+        pc_total_df, anomaly_list, allocation_map, standard_deviation, mean = requests.analyze_pc_data(df, total_df, type)
 
         # TODO: Analyzing cpu data doesnt really makesense(atleast like RAM), remove feature or take a closer look at it
 
@@ -89,7 +89,8 @@ def get_pc_data(pc_id: int, type: str, start: str, end: str):
             standard_deviation=standard_deviation,
             mean=mean,
             time_series_list=total_data_list,
-            allocation_map=allocation_map
+            allocation_map=allocation_map,
+            anomaly_list=anomaly_list
         )
 
         print(pc_data)

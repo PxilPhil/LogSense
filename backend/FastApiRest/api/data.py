@@ -9,7 +9,8 @@ from fastapi.responses import JSONResponse
 from db_access.data_helper import get_dfdict_from_filelist, get_pc_state_df
 from model.data import runningPCData, sessionPCData
 
-from db_access.data import insert_running_pcdata, get_moving_avg_of_total_ram, insert_inital_pcdata
+from db_access.data import insert_running_pcdata, insert_inital_pcdata
+from db_access.pc import get_latest_moving_avg
 
 data = APIRouter()
 
@@ -75,7 +76,7 @@ def ingest_data(files: list[UploadFile], stateId: int):
         pcdata = df_map["resources"]
         application_data = df_map["application"]
 
-        pc_total_df, anomaly_list = requests.preprocess_pc_data(df_map["application"])
+        pc_total_df, anomaly_list = requests.preprocess_pc_data(df_map["application"], stateId)
         print(anomaly_list)
 
         pcdata_id = insert_running_pcdata(stateId, df_map, pc_total_df, anomaly_list)

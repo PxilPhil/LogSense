@@ -176,19 +176,18 @@ def insert_running_pcdata(state_id, running_df_dict, pc_total_df, anomaly_list):
         conn_pool.putconn(conn)
 
 
-def get_moving_avg_of_application_ram(pc_id: int, application):  # returns moving avg of the last 5 columns
+def get_moving_avg_of_application(pc_id: int, application):  # returns moving avg of the last 5 columns
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
         moving_avg_query = """
         SELECT
-        AVG(app.ram) OVER (ORDER BY app.measurement_time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS rolling_avg_ram
+        AVG(app.ram) OVER (ORDER BY app.measurement_time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS rolling_avg_ram,
+        AVG(app.cpu) OVER (ORDER BY app.measurement_time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS rolling_avg_cpu
         FROM
         applicationdata AS app
-        JOIN
-        pcdata AS pc ON app.pcdata_id = pc.id
         WHERE
-        pc.pc_id = %s AND app.name = %s
+        app.pc_id = %s AND app.name = %s
         ORDER BY
         app.measurement_time;
         """
@@ -197,40 +196,11 @@ def get_moving_avg_of_application_ram(pc_id: int, application):  # returns movin
         result = cursor.fetchone()
 
         if result:
-            return result[0]
+            return result[0], result[1]
         else:
-            return 0
+            return 0, 0
     finally:
         conn_pool.putconn(conn)
-
-
-def get_moving_avg_of_total_ram(pc_id: int):  # returns moving avg of the last 5 columns
-    conn = conn_pool.getconn()
-    cursor = conn.cursor()
-    try:
-        moving_avg_query = """
-        SELECT
-        AVG(app.ram) OVER (ORDER BY app.measurement_time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS rolling_avg_ram
-        FROM
-        applicationdata AS app
-        JOIN
-        pcdata AS pc ON app.pcdata_id = pc.id
-        WHERE
-        pc.pc_id = %s AND app.name = %s
-        ORDER BY
-        app.measurement_time;
-        """
-
-        cursor.execute(moving_avg_query, (pc_id,))
-        result = cursor.fetchone()
-
-        if result:
-            return result[0]
-        else:
-            return 0
-    finally:
-        conn_pool.putconn(conn)
-
 
 def insert_inital_pcdata(df_dict):
     conn = conn_pool.getconn()

@@ -7,7 +7,7 @@ from model.data import AllocationClass
 
 def group_by_timestamp(df):
     return df.groupby('timestamp')[
-        ['majorFaults', 'contextSwitches', 'threadCount', 'openFiles', 'residentSetSize', 'cpuUsage']].sum(
+        ['majorFaults', 'contextSwitches', 'threadCount', 'openFiles', 'residentSetSize', 'cpuUsage', 'processCountDifference']].sum(
         numeric_only=True).sort_values('timestamp', ascending=True)
 
 
