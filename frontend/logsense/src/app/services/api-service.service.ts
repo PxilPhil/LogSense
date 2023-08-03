@@ -24,32 +24,3 @@ export class ApiService {
     }
 
 }
-
-/*
-USE IN COMPONENTS LIKE THIS:
-
-
-import { Component, OnInit } from '@angular/core';
-import { ApiService } from './api.service';
-
-@Component({
-  selector: 'app-my-component',
-  template: '...',
-})
-export class MyComponent implements OnInit {
-  constructor(private apiService: ApiService) { }
-
-  ngOnInit(): void {
-    // Example usage of the GET request
-    this.apiService.getData('https://api.example.com/data').subscribe(
-      (response) => {
-        console.log('Data:', response);
-      },
-      (error) => {
-        console.error('Error:', error);
-      }
-    );
-  }
-}
-
-*/
