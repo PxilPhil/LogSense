@@ -2,6 +2,7 @@ import hashlib
 import re
 
 from db_access import conn_pool
+from exceptions.NotFoundExcepion import NotFoundException
 
 
 def is_valid_email(email: str):
@@ -24,7 +25,7 @@ def get_pcid_by_stateid(state_id: int):
             pc_id = result[0]
             return pc_id
         else:
-            return None
+            raise NotFoundException(detail="PC not found")
     finally:
         conn_pool.putconn(conn)
 

@@ -5,6 +5,8 @@ import db_access.pc
 from db_access.pc import get_pcs, get_pcs_by_userid, add_pc, get_pc_data, get_free_disk_space_data
 from db_access.application import get_latest_application_data
 from data_analytics import requests
+from exceptions.DataBaseInsertExcepion import DataBaseInsertException
+from exceptions.UserNotFoundException import UserNotFoundException
 from model.pc import PCItem, ForecastResult, ForecastData
 from model.data import PCData
 
@@ -53,7 +55,7 @@ def add_pc_api(data: PCItem = Body(...)):
 
     pc_id = add_pc(user_id, hardware_uuid, client_name)
     if pc_id == -1:
-        raise HTTPException(status_code=500, detail="Failed to insert PC.")
+        raise DataBaseInsertException(code=500, detail="Failed to insert PC.")
 
     return {'pc_id': pc_id}
 

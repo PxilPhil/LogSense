@@ -51,6 +51,17 @@ Content-Type: application/json
   "hardware_uuid": "4C4C4544-0052-5210-8050-C8C04F385932",
   "client_name": "Test Client"
 }
+
+### ADD PC with non excistent user ###
+POST http://localhost:8000/pc/add_pc
+Content-Type: application/json
+
+{
+  "user_id": "1000",
+  "hardware_uuid": "4C4C4544-0052-5210-8050-C8C04F3859312",
+  "client_name": "Test Client"
+}
+
 ### GET PCs OF USER 1 ###
 GET http://localhost:8000/pc/user/1
 

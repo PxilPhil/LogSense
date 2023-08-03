@@ -1,6 +1,10 @@
+import psycopg2.errorcodes
+
 from db_access import conn_pool
 import pandas as pd
 from datetime import datetime
+
+from exceptions.UserNotFoundException import UserNotFoundException
 from model.data import PCTimeSeriesData
 
 
@@ -13,16 +17,20 @@ def add_pc(user_id, hardware_uuid, client_name):
         params = (str(user_id), str(hardware_uuid), str(client_name))
 
         pc_id = -1
-        try:
-            cursor.execute(query, params)
-            pc_id = cursor.fetchone()[0]
-            print("Insertion successful. PC ID:", pc_id)
-        except Exception as e:
-            print("Error occurred:", str(e))
+        cursor.execute(query, params)
+        pc_id = cursor.fetchone()[0]
+        print("Insertion successful. PC ID:", pc_id)
 
         conn.commit()
 
         return pc_id
+    except psycopg2.DatabaseError as e:
+        if e.pgcode == psycopg2.errorcodes.FOREIGN_KEY_VIOLATION:
+            raise UserNotFoundException()
+        else:
+            print("Error occurred:", str(e))
+    except Exception as e:
+        print("Error occurred:", str(e))
     finally:
         conn_pool.putconn(conn)
 

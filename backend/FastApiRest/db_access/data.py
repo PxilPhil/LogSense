@@ -1,4 +1,5 @@
 from datetime import datetime
+import psycopg2.errorcodes
 
 import psycopg2
 
@@ -7,6 +8,8 @@ from psycopg2 import extras
 
 from db_access.data_helper import get_pc_state_df, update_disk_df
 from db_access.helper import get_pcid_by_stateid
+from exceptions.DataBaseExcepion import DataBaseException
+from exceptions.DataBaseInsertExcepion import DataBaseInsertException
 
 
 def insert_running_pcdata(state_id, running_df_dict, pc_total_df, anomaly_list):
@@ -169,9 +172,9 @@ def insert_running_pcdata(state_id, running_df_dict, pc_total_df, anomaly_list):
         insert_anomalies(pcdata_id, anomaly_list)
 
         return pcdata_id
-    except Exception as e:
+    except psycopg2.DatabaseError as e:
         conn.rollback()
-        raise e
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
 
@@ -244,8 +247,10 @@ def insert_anomalies(pcdata_id, anomaly_list):
             )
             cursor.execute(insert_anomaly_query, anomaly_data)
         conn.commit()
-    except psycopg2.Error as e:
+    except psycopg2.DatabaseError as e:
         conn.rollback()
+        if e.pgerror == psycopg2.errorcodes.FOREIGN_KEY_VIOLATION:
+            raise DataBaseInsertException(detail=f"Issue inserting into Table {str(e.diag.table_name)}")
         raise e
     except Exception as e:
         conn.rollback()

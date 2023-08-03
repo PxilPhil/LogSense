@@ -4,6 +4,7 @@ from fastapi import HTTPException, APIRouter
 
 from db_access.user import get_users, add_user, check_login, IdentifierType, get_all_user_alerts
 from api.helper import gen_salt
+from exceptions.WrongLoginException import WrongLoginException
 from model.data import AlertData
 
 from model.user import CheckLoginRequest, AddUserRequest, UserAlerts
@@ -43,6 +44,9 @@ def check_login_api(data: CheckLoginRequest):
         valid_login, user_id = check_login(data.name, IdentifierType.NAME, data.password)
     else:
         raise HTTPException(status_code=400, detail='Invalid request')
+
+    if not valid_login or not user_id:
+        raise WrongLoginException()
 
     response_data = {'valid_login': valid_login, 'user_id': user_id}
     return response_data
