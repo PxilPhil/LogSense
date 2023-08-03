@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS logSenseUser (
     ID bigserial PRIMARY KEY,
-    name varchar,
+    name varchar UNIQUE NOT NULL,
     email varchar UNIQUE NOT NULL,
     password_hash varchar NOT NULL,
     salt varchar NOT NULL

@@ -1,8 +1,14 @@
 import logging
 import hashlib
 
+import psycopg2
+from psycopg2 import errorcodes
+
 from db_access import conn_pool
 from db_access.helper import is_valid_email, hash_password
+from exceptions.DataBaseExcepion import DataBaseException
+from exceptions.WrongLoginException import WrongLoginException
+from exceptions.InvalidParametersException import InvalidParametersException
 from model.data import AlertData
 
 logging.basicConfig(filename='app.log', level=logging.INFO)
@@ -51,7 +57,7 @@ def check_login(identifier, identifier_type, password):
         elif identifier_type == IdentifierType.ID:
             query = "SELECT password_hash, ID FROM logSenseUser WHERE ID = %s;"
         else:
-            return False
+            raise InvalidParametersException()
 
         params = (identifier,)
 
@@ -63,14 +69,14 @@ def check_login(identifier, identifier_type, password):
             hashed_password = hash_password(password, get_salt(identifier, identifier_type))
             return hashed_password == stored_password_hash, user_id
         else:
-            return False, None
+            raise WrongLoginException()
     finally:
         conn_pool.putconn(conn)
 
 
 def add_user(name, email, password, salt):
     if not is_valid_email(email):
-        raise ValueError("Invalid email")
+        raise InvalidParametersException(detail="Invalid email")
 
     # Hash the provided password using the salt
     hashed_password = hash_password(password, salt)
@@ -89,8 +95,10 @@ def add_user(name, email, password, salt):
         print("Insertion successful. User ID:", user_id)
 
         conn.commit()
-    except Exception as e:
-        print("Error occurred:", str(e))
+    except psycopg2.DatabaseError as e:
+        if e.pgcode == psycopg2.errorcodes.UNIQUE_VIOLATION:
+            raise InvalidParametersException(detail="Email or Name already exists.")
+        raise DataBaseException(detail="User Could not be inserted")
     finally:
         conn_pool.putconn(conn)
 

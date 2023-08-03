@@ -13,9 +13,6 @@ class PCItem(BaseModel):
     manufacturer: str = None
     model: str = None
 
-
-
-
 class ForecastData(BaseModel):
     LinearRegression: float
     datetime: datetime

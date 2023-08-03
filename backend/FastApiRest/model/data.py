@@ -3,19 +3,6 @@ from typing import List
 from datetime import datetime
 
 
-class sessionPCData(BaseModel):
-    disks: str
-    partition: str
-    client_data: str
-
-
-class runningPCData(BaseModel):
-    pc_resources: str
-    connection_data: str
-    application_data: str
-    network_Interface: str
-
-
 class ApplicationTimeSeriesData(BaseModel):
     id: int
     pcdata_id: int
@@ -123,38 +110,3 @@ class PCData(BaseModel):  # Missing Trends
     time_series_list: List[PCTimeSeriesData]
     allocation_map: List[AllocationClass]
     # anomaly_list: List[AnomalyData]
-
-
-"""
-class NetworkInterface(BaseModel):
-    name: str
-    display_name: str
-    ipv4_address: str
-    ipv6_address: str
-    art: str
-    subnet_mask: str
-    mac_address: str
-    bytes_received: int
-    bytes_sent: int
-    packets_received: int
-    packets_sent: int
-
-class PCData(BaseModel):
-    session_id: int
-    measurement_time: str
-    free_disk_space: int
-    partition_major_faults: int
-    partition_minor_faults: int
-    available_memory: int
-    names_power_source: str
-    discharging_power_sources: bool
-    power_online_power_sources: bool
-    remaining_capacity_percent_power_sources: float
-    context_switches_processor: int
-    interrupts_processor: int
-    applicationdata: List[ApplicationData]
-    networkInterface: List[NetworkInterface]
-
-class TimeseriesData(BaseModel):
-    pcdata: PCData
-"""

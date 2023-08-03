@@ -4,11 +4,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException
 
 from api.data import data
-from api.group import group
+#from api.group import group
 from api.pc import pc
 from api.user import user
 from api.application import application
 from exceptions.UserNotFoundException import UserNotFoundException, custom_user_not_found_exception_handler
+from exceptions.DataBaseExcepion import DataBaseException, custom_database_exception_handler
+from exceptions.NotFoundExcepion import NotFoundException, custom_not_found_exception_handler
+from exceptions.WrongConfigurationException import WrongConfigurationException, custom_wrong_configuration_exception_handler
+from exceptions.WrongLoginException import WrongLoginException, custom_wrong_login_exception_handler
+from exceptions.InvalidParametersException import InvalidParametersException, custom_invalid_parameter_exception_handler
+from exceptions.DataBaseInsertExcepion import DataBaseInsertException, custom_database_insert_exception_handler
 
 app = FastAPI()
 
@@ -49,12 +55,20 @@ app.add_middleware(
 )
 
 app.include_router(user, tags=["User"], prefix="/user")
-app.include_router(group, tags=["Group"], prefix="/group")
+#app.include_router(group, tags=["Group"], prefix="/group")
 app.include_router(pc, tags=["PC"], prefix="/pc")
 app.include_router(application, tags=["Application"], prefix="/pc/{pc_id}/application")
 app.include_router(data, tags=["Data"], prefix="/data")
 
 app.add_exception_handler(UserNotFoundException, custom_user_not_found_exception_handler)
+app.add_exception_handler(NotFoundException, custom_not_found_exception_handler)
+app.add_exception_handler(DataBaseException, custom_database_exception_handler)
+app.add_exception_handler(DataBaseInsertException, custom_database_insert_exception_handler)
+app.add_exception_handler(WrongLoginException, custom_wrong_login_exception_handler)
+app.add_exception_handler(InvalidParametersException, custom_invalid_parameter_exception_handler)
+app.add_exception_handler(WrongConfigurationException, custom_wrong_configuration_exception_handler)
+
+
 
 if __name__ == "__main__":
     import uvicorn

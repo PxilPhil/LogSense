@@ -1,8 +1,11 @@
 import configparser
 import logging
+from time import sleep
 
 import psycopg2
 from psycopg2 import pool
+
+from exceptions.WrongConfigurationException import WrongConfigurationException
 
 
 def get_database_config(path):
@@ -15,22 +18,27 @@ def get_database_config(path):
     db_user = config.get('Database', 'db_user')
     db_password = config.get('Database', 'db_password')
 
+    if not db_user or not db_password or not db_name or not db_port or not db_host:
+        raise WrongConfigurationException()
+
     return db_host, db_port, db_name, db_user, db_password
 
 def create_tables(conn_pool):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
-
     try:
         with open('tables.sql', 'r') as file:
             sql_statements = file.read()
             cursor.execute(sql_statements)
             conn.commit()
         logging.info("Tables generated successfully.")
+        return True
     except FileNotFoundError:
         logging.error("SQL file not found.")
+        return False
     except Exception as e:
         logging.error(f"Error generating tables: {str(e)}")
+        return False
     finally:
         conn_pool.putconn(conn)
 
@@ -44,10 +52,13 @@ def create_standard_anomalie(conn_pool):
             cursor.execute(sql_statements)
             conn.commit()
         logging.info("Anomalie generated successfully.")
+        return True
     except FileNotFoundError:
         logging.error("SQL file not found.")
+        return False
     except Exception as e:
         logging.error(f"Error generating Anomalies: {str(e)}")
+        return False
     finally:
         conn_pool.putconn(conn)
 
@@ -65,5 +76,14 @@ conn_pool = pool.SimpleConnectionPool(
     password=db_password,
 )
 
-create_tables(conn_pool)
-create_standard_anomalie(conn_pool)
+success = False
+while not success:
+    success = create_tables(conn_pool)
+    if not success:
+        sleep(10)
+
+success = False
+while not success:
+    success = create_standard_anomalie(conn_pool)
+    if not success:
+        sleep(10)
