@@ -24,20 +24,15 @@ Like for RAM
 Application Performance Trends: -> doing this rn
 You can analyze the performance trends of applications over time. For example, you can calculate the average RAM or CPU usage of each application per day/week/month and plot it to observe any trends or patterns.
 
-Comparing Applications:
+(Comparing Applications):
 You can compare the performance of different applications based on their RAM or CPU usage. Calculate statistics like mean and standard deviation for each application and compare them to identify which applications are more resource-intensive.
 Resource Usage Over Time:
 
 Explore the correlation between RAM and CPU usage. You can calculate the correlation coefficient between these two metrics to see if there's any relationship between them.
 Outlier Detection:
-
 Data Aggregation and Filtering: -> Done
 Implement functions to aggregate data at different time intervals (e.g., hourly, daily) or filter data based on certain criteria (e.g., applications with high resource usage).
 
-Resource Allocation Optimization:
-You can use optimization techniques to recommend an optimal allocation of resources to different applications based on their historical usage patterns.
-
-Version Comparision for Devs for example
 """
 
 
@@ -58,7 +53,7 @@ def preprocess_pc_data(df):
         anomaly_list: A list of detected anomalies.
     """
     df = df.set_index('timestamp')
-    anomaly_list = []
+    event_list = []
     pc_total_df = manipulation.group_by_timestamp(df)
     relevant_list = involvement.detect_relevancy(pc_total_df, df,
                                                  'residentSetSize')  # hardcoded to work for ram
@@ -68,9 +63,9 @@ def preprocess_pc_data(df):
         moving_avg = get_moving_avg_of_application_ram(1, application)
         if moving_avg > 0:
             last_entry_was_anomaly = False
-            anomaly.detect_anomaly(selected_row, 'residentSetSize', moving_avg, last_entry_was_anomaly, anomaly_list,
+            anomaly.detect_event(selected_row, 'residentSetSize', moving_avg, last_entry_was_anomaly, event_list,
                                    application)
-    return pc_total_df, anomaly_list
+    return pc_total_df, event_list
 
 
 def forecast_disk_space(df, days):
@@ -132,12 +127,14 @@ def analyze_application_data(df, application_name):
         std: Standard deviation from mean, used for calculating "Stability".
         mean: Average of the values.
     """
-    # find anomalies
-    anomaly_list = anomaly.detect_anomalies(df, 'ram', application_name)
+    # find events
+    event_list = anomaly.detect_multiple_events(df, 'ram', application_name)
     # get stats
     std = df['ram'].std()
     mean = df['ram'].mean()
-    return df, anomaly_list, std, mean
+    # find anomalies
+    anomaly_list = anomaly.detect_anomalies(df, 'cpu', 'ram')
+    return df, event_list, anomaly_list, std, mean
 
 
 def analyze_pc_data(df, pc_total_df, column):
