@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {Process} from "../single-processes/single-processes.component";
 import {ProcessModel} from "../cpu/cpu.component";
 import {Chart} from "chart.js";
+import {TimeModel} from "../disk/disk.component";
 
 export class RAMModel {
   totalMemory: Number = 17.02; //GB
@@ -21,7 +22,7 @@ export class RAMModel {
 })
 export class RamComponent implements OnInit {
   ram: RAMModel = new RAMModel();
-  selectedTime: String = "Last 24h";
+  selectedTime: TimeModel = {id: 1, time: "Last 24h"};
   times = [
     {id: 1, time: "Last 24h"},
     {id: 2, time: "Last Week"},

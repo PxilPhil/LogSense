@@ -35,7 +35,7 @@ export class PartitionModel {
   majorFaults: Number = 0;
   minorFaults: Number = 1;
 }
-interface TimeModel {
+export interface TimeModel {
   id: Number;
   time: String;
 }

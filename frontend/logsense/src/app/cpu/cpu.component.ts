@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {Chart} from "chart.js";
 import _default from "chart.js/dist/plugins/plugin.legend";
+import {TimeModel} from "../disk/disk.component";
 
 export class CPUModel {
   cpuName: String = "AMD Ryzen 7 5800H";
@@ -30,7 +31,7 @@ export class ProcessModel {
 export class CpuComponent implements OnInit{
 
   cpu: CPUModel = new CPUModel();
-  selectedTime: String = "Last 24h";
+  selectedTime: TimeModel = {id: 1, time: "Last 24h"};
   notes: String[] = ["CPU Usage dropped 4%", "21 Anomalies detected", "5 Events registered"];
   processes: ProcessModel[] = [{name: "Chrome", allocation: 15}, {name: "Explorer", allocation: 10},{name: "Intellij", allocation: 48}];
   alerts: String[] = ["Some devices are at their workload limit", "Abnormal CPU-Spikes detected (21 Anomalies in the last 24 hours)"];

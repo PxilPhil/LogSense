@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {Chart, Plugin, registerables} from 'chart.js';
 import {CPUModel} from "../cpu/cpu.component";
 import {RAMModel} from "../ram/ram.component";
-import {DiskModel} from "../disk/disk.component";
+import {DiskModel, TimeModel} from "../disk/disk.component";
 Chart.register(...registerables);
 
 export class PowerSourceModel {
@@ -33,7 +33,7 @@ export class OverviewComponent implements OnInit {
   ram: RAMModel = new RAMModel();
   disk: DiskModel = new DiskModel();
   alerts: String[] = ["Abnormal RAM-Spikes detected", "Memory leak possible"];
-  selectedTime: String = "Last 24h";
+  selectedTime: TimeModel = {id: 1, time: "Last 24h"};
 
   times = [
     {id: 1, time: "Last 24h"},
@@ -62,6 +62,12 @@ export class OverviewComponent implements OnInit {
         }]
       },
       options: {
+        plugins: {
+          legend: {
+            display: true,
+            position: "right"
+          }
+        },
         scales: {
           y: {
             beginAtZero: true,
