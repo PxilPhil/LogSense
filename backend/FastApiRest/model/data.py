@@ -2,6 +2,20 @@ from pydantic import BaseModel, Json
 from typing import List
 from datetime import datetime
 
+# TODO: Keep in mind to return AlertData to user instead of respective classes used for saving data
+
+class sessionPCData(BaseModel):
+    disks: str
+    partition: str
+    client_data: str
+
+
+class runningPCData(BaseModel):
+    pc_resources: str
+    connection_data: str
+    application_data: str
+    network_Interface: str
+
 
 class ApplicationTimeSeriesData(BaseModel):
     id: int
@@ -117,4 +131,4 @@ class PCData(BaseModel):  # Missing Trends
     mean: float
     time_series_list: List[PCTimeSeriesData]
     allocation_map: List[AllocationClass]
-    # anomaly_list: List[AnomalyData]
+    anomaly_list: List[AnomalyData]

@@ -2,9 +2,12 @@ import pandas as pd
 import warnings
 from data_analytics import involvement, manipulation, anomaly, trend, stats
 from data_analytics.prediction import fit_linear_regression, predict_for_df
-from db_access.data import get_moving_avg_of_application_ram
+from db_access.data import get_moving_avg_of_application
+from db_access.pc import get_latest_moving_avg
 from model.data import AllocationClass
 from model.pc import ForecastData
+from db_access.helper import get_pcid_by_stateid
+
 
 warnings.filterwarnings("ignore")
 
@@ -16,7 +19,6 @@ Check if applications or pcs are at a certain threshold for some time (like alwa
 
 Anomaly Detection:
 Z-Scale test for certain timeframe
-Moving Avg of a larger window size (timeframe)
 
 CPU Analysis:
 Like for RAM
@@ -36,13 +38,14 @@ Implement functions to aggregate data at different time intervals (e.g., hourly,
 """
 
 
-def preprocess_pc_data(df):
+def preprocess_pc_data(df, state_id):
     """
     Preprocesses data before inserting it into the database.
 
     Features:
         - Grouping the DataFrame by timestamp to create the total pc DataFrame.
-        - Detecting the relevancy of applications to analyze only those with great influence.
+        - Detecting if an event has occured or not
+        - Find relevant applications to find out if events have occured in them
         - Detecting events of relevant applications.
 
     Args:
@@ -50,25 +53,28 @@ def preprocess_pc_data(df):
 
     Returns:
         pc_total_df: The total pc DataFrame grouped by timestamp.
-        anomaly_list: A list of detected anomalies.
+        event_list: A list of detected events.
     """
     df = df.set_index('timestamp')
     event_list = []
     pc_total_df = manipulation.group_by_timestamp(df)
-    relevant_list = involvement.detect_relevancy(pc_total_df, df,
-                                                 'residentSetSize')  # hardcoded to work for ram
-    print(relevant_list)
-    for application in relevant_list:
-        selected_row = manipulation.select_rows_by_application(application, df)
-        moving_avg = get_moving_avg_of_application_ram(1, application)
-        if moving_avg > 0:
-            last_entry_was_anomaly = False
-            anomaly.detect_event(selected_row, 'residentSetSize', moving_avg, last_entry_was_anomaly, event_list,
-                                   application)
+    # find out if event has occured in pc_total_df
+    pc_id = get_pcid_by_stateid(state_id)
+    moving_avg_ram, moving_avg_cpu = get_latest_moving_avg(pc_id)
+    if anomaly.has_event_occurred(pc_total_df, moving_avg_ram, moving_avg_cpu):
+        relevant_list = involvement.detect_relevancy(pc_total_df, df)
+        for application in relevant_list:
+            selected_row = manipulation.select_rows_by_application(application, df)
+            moving_avg_ram, moving_avg_cpu = get_moving_avg_of_application(pc_id, application)
+            if moving_avg_ram > 0 and moving_avg_cpu > 0:
+                anomaly.detect_event(selected_row, 'residentSetSize', moving_avg_ram, event_list,application) # find ram events
+                #anomaly.detect_cpu_event(selected_row, 'cpuUsage', moving_avg_cpu, event_list,application) # find cpu events
+
+    # if an event has been found, look through what application caused it
     return pc_total_df, event_list
 
-
 def forecast_disk_space(df, days):
+
     """
     Forecasts disk space allocation for a certain number of days.
 
@@ -123,6 +129,7 @@ def analyze_application_data(df, application_name):
 
     Returns:
         df: The DataFrame containing application data.
+        event_list: The list of detected events
         anomaly_list: The list of detected anomalies.
         std: Standard deviation from mean, used for calculating "Stability".
         mean: Average of the values.
@@ -152,6 +159,7 @@ def analyze_pc_data(df, pc_total_df, column):
 
     Returns:
         pc_total_df: The DataFrame containing total pc data.
+        anomaly_list: The list of detected anomalies
         allocation_list: The list of allocations (which application makes up how much percent of RAM/CPU usage).
         std: Standard deviation from mean, used for calculating "Stability".
         mean: Average of the values.
@@ -164,14 +172,13 @@ def analyze_pc_data(df, pc_total_df, column):
     allocation_map = stats.calc_allocation(latest_total_value, column, df)
     allocation_list = [AllocationClass(name=key, allocation=value) for key, value in
                        allocation_map.items()]  # convert map into list of our model object to send via json
-    # TODO: compare current value with last
-    return pc_total_df, allocation_list, std, mean
+    anomaly_list = anomaly.detect_anomalies(df, 'cpu', 'ram')
+    # TODO: if we do anomaly detection here we need to insert in the database, if we do it on ingest performance will be worse
+    return pc_total_df, anomaly_list, allocation_list, std, mean
+
 
 def analyze_trends():
     """
     Analyzes application & pc trends, in order for that it groups data sets by date intervals
     :return:
     """
-
-
-

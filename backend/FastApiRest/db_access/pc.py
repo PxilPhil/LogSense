@@ -131,7 +131,7 @@ def get_total_pc_data(pc_id, start, end, type):
             columns = [desc[0] for desc in cursor.description]
             df = pd.DataFrame(result, columns=columns)
             data_list = []
-            #TODO: Move into manipulation
+            # TODO: Move into manipulation
             for _, row in df.iterrows():
                 # Convert the 'measurement_time' from string to a datetime object
                 data_list.append(PCTimeSeriesData(**row.to_dict()))
@@ -204,6 +204,36 @@ def get_free_disk_space_data(pc_id):
             df = pd.DataFrame(result, columns=columns)
             return df
         return None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
+
+
+def get_latest_moving_avg(pc_id: int):  # returns moving avg of the last 5 columns for the total pc
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        moving_avg_query = """
+        SELECT
+        AVG(ram) OVER (ORDER BY measurement_time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS rolling_avg_ram,
+        AVG(cpu) OVER (ORDER BY measurement_time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS rolling_avg_cpu
+        FROM
+        pcdata
+        WHERE
+        pc_id = %s
+        ORDER BY
+        measurement_time desc
+        LIMIT 1;
+        """
+
+        cursor.execute(moving_avg_query, (pc_id,))
+        result = cursor.fetchone()
+
+        if result:
+            return result[0], result[1]
+        else:
+            return 0,0
     except psycopg2.DatabaseError as e:
         raise DataBaseException()
     finally:

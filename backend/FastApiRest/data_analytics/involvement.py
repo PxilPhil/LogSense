@@ -1,16 +1,15 @@
 causation_limit = 0.7  # only check overlap for applications over this causation limit (max is 1)
 causation_percentual_limit = 0.3  # only return data with a percentual influence of this value to the total usage
-relevancy_limit = 0.05
+relevancy_limit = 0.05 # how much percentage a application makes up of ram or cpu
 
 
-def detect_relevancy(pc_total_df, df, column):
+def detect_relevancy(pc_total_df, df):
     application_list = []  # list of applications with high causality to total usage
-    pc_total = pc_total_df.iloc[0][column]
-    application_mean = df.groupby("name").mean(numeric_only=True)
-    for index, row in application_mean.iterrows():
-        mean = row[column]
-        if mean/pc_total > relevancy_limit:
-            application_list.append(index)
+    pc_ram = pc_total_df.iloc[0]['residentSetSize']
+    pc_cpu = pc_total_df.iloc[0]['cpuUsage']
+    for index, row in df.iterrows():
+        if row['residentSetSize']/pc_ram > relevancy_limit or row['cpuUsage']/pc_cpu>relevancy_limit:
+            application_list.append(row['name'])
     return application_list
 
 

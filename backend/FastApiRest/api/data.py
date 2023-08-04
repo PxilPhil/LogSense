@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from fastapi import APIRouter, HTTPException
 from data_analytics import requests
 
+
 from db_access.data_helper import get_dfdict_from_filelist
 from db_access.data import insert_running_pcdata, insert_inital_pcdata
 from exceptions.InvalidParametersException import InvalidParametersException
@@ -75,7 +76,7 @@ def ingest_data(files: list[UploadFile], stateId: int):
         pcdata = df_map["resources"]
         application_data = df_map["application"]
 
-        pc_total_df, anomaly_list = requests.preprocess_pc_data(df_map["application"])
+        pc_total_df, anomaly_list = requests.preprocess_pc_data(df_map["application"], stateId)
         print(anomaly_list)
 
         pcdata_id = insert_running_pcdata(stateId, df_map, pc_total_df, anomaly_list)
