@@ -6,7 +6,7 @@ from db_access.pc import get_pcs, get_pcs_by_userid, add_pc, get_pc_data, get_fr
 from db_access.application import get_latest_application_data
 from data_analytics import requests
 from exceptions.DataBaseInsertExcepion import DataBaseInsertException
-from exceptions.UserNotFoundException import UserNotFoundException
+from exceptions.InvalidParametersException import InvalidParametersException
 from model.pc import PCItem, ForecastResult, ForecastData
 from model.data import PCData
 
@@ -73,31 +73,29 @@ def get_pc_data(pc_id: int, type: str, start: str, end: str):
         :param start:
         :param end:
     """
-    try:
-        type = type.lower()
-        total_df, total_data_list = db_access.pc.get_total_pc_data(pc_id, start, end, type)
-        df, application_data_list = get_latest_application_data(pc_id)
-        if df is None or total_df is None:
-            return None
-        pc_total_df, allocation_map, standard_deviation, mean = requests.analyze_pc_data(df, total_df, type)
+    type = type.lower()
+    total_df, total_data_list = db_access.pc.get_total_pc_data(pc_id, start, end, type)
+    df, application_data_list = get_latest_application_data(pc_id)
+    if df is None or total_df is None:
+        raise InvalidParametersException()
+    pc_total_df, allocation_map, standard_deviation, mean = requests.analyze_pc_data(df, total_df, type)
 
-        # TODO: Analyzing cpu data doesnt really makesense(atleast like RAM), remove feature or take a closer look at it
+    # TODO: Analyzing cpu data doesnt really makesense(atleast like RAM), remove feature or take a closer look at it
 
-        pc_data = PCData(
-            pc_id=pc_id,
-            type=type,
-            start=start,
-            end=end,
-            standard_deviation=standard_deviation,
-            mean=mean,
-            time_series_list=total_data_list,
-            allocation_map=allocation_map
-        )
+    pc_data = PCData(
+        pc_id=pc_id,
+        type=type,
+        start=start,
+        end=end,
+        standard_deviation=standard_deviation,
+        mean=mean,
+        time_series_list=total_data_list,
+        allocation_map=allocation_map
+    )
 
-        print(pc_data)
-        return pc_data
-    except Exception as e:
-        return e
+    print(pc_data)
+    return pc_data
+
 
 
 @pc.get('/{pc_id}/data/', response_model=dict, tags=["PC"])
@@ -129,7 +127,7 @@ def forecast_free_disk_space(pc_id: int, days: int):
     try:
         df = get_free_disk_space_data(pc_id)
         if df is None:
-            return None
+            raise InvalidParametersException()
         data_list, final_timestamp = requests.forecast_disk_space(df, days)
         forecast_result = ForecastResult(
             pc=pc_id,
@@ -140,5 +138,5 @@ def forecast_free_disk_space(pc_id: int, days: int):
         print(forecast_result)
         return forecast_result
     except Exception as e:
-        raise HTTPException(status_code=400, detail="Invalid JSON data")
+        raise InvalidParametersException()
 

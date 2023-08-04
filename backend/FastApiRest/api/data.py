@@ -6,6 +6,8 @@ from data_analytics import requests
 
 from db_access.data_helper import get_dfdict_from_filelist
 from db_access.data import insert_running_pcdata, insert_inital_pcdata
+from exceptions.InvalidParametersException import InvalidParametersException
+from exceptions.NotFoundExcepion import NotFoundException
 
 data = APIRouter()
 
@@ -40,12 +42,10 @@ def ingest_initial_data(files: list[UploadFile]):
         df_dict = get_dfdict_from_filelist(files)
 
         state_id = insert_inital_pcdata(df_dict)
-
-    except Exception as e:
-        raise HTTPException(status_code=400, detail="Invalid JSON data")
-
+    except KeyError as e:
+        raise InvalidParametersException()
     if not state_id:
-        raise HTTPException(status_code=400, detail="Pc does Not Exsist")
+        raise NotFoundException(code=400, detail="Pc does Not Exsist")
 
     return JSONResponse(content={"result": "Data inserted successfully", "state_id": state_id}, status_code=200)
 
@@ -81,5 +81,5 @@ def ingest_data(files: list[UploadFile], stateId: int):
         pcdata_id = insert_running_pcdata(stateId, df_map, pc_total_df, anomaly_list)
 
         return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": pcdata_id}, status_code=200)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail="Exception thrown: \n"+e.__str__())
+    except KeyError as e:
+        raise InvalidParametersException()

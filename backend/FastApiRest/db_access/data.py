@@ -3,6 +3,7 @@ import psycopg2.errorcodes
 
 import psycopg2
 
+from exceptions.InvalidParametersException import InvalidParametersException
 from db_access import conn_pool
 from psycopg2 import extras
 
@@ -174,7 +175,13 @@ def insert_running_pcdata(state_id, running_df_dict, pc_total_df, anomaly_list):
         return pcdata_id
     except psycopg2.DatabaseError as e:
         conn.rollback()
+        if e.pgerror == psycopg2.errorcodes.FOREIGN_KEY_VIOLATION:
+            raise DataBaseInsertException(detail=f"Issue inserting into Table {str(e.diag.table_name)}")
+        if e.pgerror == psycopg2.errorcodes.INVALID_TEXT_REPRESENTATION:
+            raise InvalidParametersException()
         raise DataBaseException()
+    except KeyError as e:
+        raise InvalidParametersException()
     finally:
         conn_pool.putconn(conn)
 
@@ -203,6 +210,10 @@ def get_moving_avg_of_application_ram(pc_id: int, application):  # returns movin
             return result[0]
         else:
             return 0
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    except KeyError as e:
+        raise InvalidParametersException()
     finally:
         conn_pool.putconn(conn)
 
@@ -231,6 +242,8 @@ def get_moving_avg_of_total_ram(pc_id: int):  # returns moving avg of the last 5
             return result[0]
         else:
             return 0
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
 
@@ -248,9 +261,9 @@ def insert_inital_pcdata(df_dict):
             return state_id
         conn.rollback()
         return None
-    except Exception as e:
+    except psycopg2.DatabaseError as e:
         conn.rollback()
-        raise e
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
 
@@ -281,7 +294,7 @@ def insert_anomalies(pcdata_id, anomaly_list):
         conn.rollback()
         if e.pgerror == psycopg2.errorcodes.FOREIGN_KEY_VIOLATION:
             raise DataBaseInsertException(detail=f"Issue inserting into Table {str(e.diag.table_name)}")
-        raise e
+        raise DataBaseException()
     except Exception as e:
         conn.rollback()
         raise e

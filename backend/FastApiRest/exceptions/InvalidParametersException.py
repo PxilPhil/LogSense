@@ -5,6 +5,7 @@ from starlette.responses import JSONResponse
 
 logging.basicConfig(filename='app.log', level=logging.ERROR)
 
+
 class InvalidParametersException(Exception):
     def __init__(self, code: int = 400, detail: str = "Wrong Parameters sent."):
         self.detail = detail

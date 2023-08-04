@@ -1,4 +1,5 @@
 from db_access import conn_pool
+from exceptions.InvalidParametersException import InvalidParametersException
 import pandas as pd
 import logging
 
@@ -7,6 +8,8 @@ from datetime import datetime
 import psycopg2
 
 from psycopg2 import extras
+
+from exceptions.DataBaseExcepion import DataBaseException
 from model.data import ApplicationTimeSeriesData
 
 
@@ -62,9 +65,11 @@ def get_application(pc_id: int, application_name, start, end):
             return df, application_list
         else:
             return None, None
-    except Exception as e:
-        logging.error(f"Error: {str(e)}")
-        print(str(e))
+
+    except psycopg2.DatabaseError as e:
+        if e.pgerror == psycopg2.errorcodes.INVALID_TEXT_REPRESENTATION:
+            raise InvalidParametersException()
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
 
@@ -94,6 +99,10 @@ def get_application_list(pc_id: int, start, end):
             for row in result:
                 application_list.append(row[0])
         return application_list
+    except psycopg2.DatabaseError as e:
+        if e.pgerror == psycopg2.errorcodes.INVALID_TEXT_REPRESENTATION:
+            raise InvalidParametersException()
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
 
@@ -146,6 +155,10 @@ def get_latest_application_data(pc_id: int):
             return df, data_list
         else:
             return None, None
+    except psycopg2.DatabaseError as e:
+        if e.pgerror == psycopg2.errorcodes.INVALID_TEXT_REPRESENTATION:
+            raise InvalidParametersException()
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
 
@@ -205,5 +218,9 @@ def get_grouped_by_interval_application(pc_id: int, application_name: str, start
             return df, data_list
         else:
             return None, None
+    except psycopg2.DatabaseError as e:
+        if e.pgerror == psycopg2.errorcodes.INVALID_TEXT_REPRESENTATION:
+            raise InvalidParametersException()
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)

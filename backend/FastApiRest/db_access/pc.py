@@ -4,7 +4,8 @@ from db_access import conn_pool
 import pandas as pd
 from datetime import datetime
 
-from exceptions.UserNotFoundException import UserNotFoundException
+from exceptions.DataBaseExcepion import DataBaseException
+from exceptions.NotFoundExcepion import NotFoundException
 from model.data import PCTimeSeriesData
 
 
@@ -25,12 +26,14 @@ def add_pc(user_id, hardware_uuid, client_name):
 
         return pc_id
     except psycopg2.DatabaseError as e:
+        conn.rollback()
         if e.pgcode == psycopg2.errorcodes.FOREIGN_KEY_VIOLATION:
-            raise UserNotFoundException()
+            raise NotFoundException(detail="User not found.")
         else:
-            print("Error occurred:", str(e))
+            raise DataBaseException()
     except Exception as e:
-        print("Error occurred:", str(e))
+        conn.rollback()
+        raise e
     finally:
         conn_pool.putconn(conn)
 
@@ -53,6 +56,8 @@ def get_pcs():
                   'manufacturer': row[4], 'model': row[5]}
             pcs.append(pc)
         return pcs
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
 
@@ -75,6 +80,8 @@ def get_pcs_by_userid(user_id):
             pc = {'hardware_uuid': row[0], 'client_name': row[1], 'manufacturer': row[2], 'model': row[3]}
             pcs.append(pc)
         return pcs
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
 
@@ -130,6 +137,8 @@ def get_total_pc_data(pc_id, start, end, type):
                 data_list.append(PCTimeSeriesData(**row.to_dict()))
             return df, data_list
         return None, None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
 
@@ -176,6 +185,8 @@ def get_pc_data(pc_id, start, end):
             data_list = df.to_dict(orient='records')
             return df, data_list
         return None, None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
 
@@ -193,5 +204,7 @@ def get_free_disk_space_data(pc_id):
             df = pd.DataFrame(result, columns=columns)
             return df
         return None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
