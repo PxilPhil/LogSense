@@ -3,6 +3,8 @@ import {Chart, Plugin, registerables} from 'chart.js';
 import {CPUModel} from "../cpu/cpu.component";
 import {RAMModel} from "../ram/ram.component";
 import {DiskModel, TimeModel} from "../disk/disk.component";
+import { ApiService } from '../services/api-service.service';
+import { PCDataResponse } from '../models/PCData';
 Chart.register(...registerables);
 
 export class PowerSourceModel {
@@ -43,10 +45,20 @@ export class OverviewComponent implements OnInit {
     {id: 5, time: "Last 12 Months"},
     {id: 6, time: "All Time"}
   ];
-  constructor() { }
+  constructor(private apiService: ApiService) { }
 
   ngOnInit(): void {
     this.timeChart();
+    console.log('init')
+
+    this.apiService.getPCData(1, 'RAM', '2023-07-25 10:20:16', '2023-08-25 10:20:16').subscribe(
+      (response: PCDataResponse) => {
+        console.log('Data:', response);
+      },
+      (error) => {
+        console.error('Error:', error);
+      }
+    );
   }
 
   timeChart() {
