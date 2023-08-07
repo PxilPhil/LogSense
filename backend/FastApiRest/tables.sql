@@ -124,7 +124,6 @@ CREATE TABLE IF NOT EXISTS applicationdata_anomaly (
   change_in_percentage double precision,
   user_id bigint REFERENCES logsenseuser (id),
   pc_id bigint REFERENCES pc (id),
-  data_type varchar,
   subsequent_anomaly bool, -- if it is of the same type as the anomaly in the preceding application
   PRIMARY KEY (anomaly_id, applicationdata_id)
 );
@@ -146,8 +145,8 @@ CREATE TABLE IF NOT EXISTS networkInterface (
 );
 
 CREATE TABLE IF NOT EXISTS Connection (
-    ID bigserial PRIMARY KEY,
-    pcdata_ID varchar,
+    id bigserial PRIMARY KEY,
+    pcdata_id bigint,
     localAddress varchar,
     localPort int,
     foreignAddress varchar,

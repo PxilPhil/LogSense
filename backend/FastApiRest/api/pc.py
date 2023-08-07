@@ -73,7 +73,11 @@ def get_pc_data(pc_id: int, start: str, end: str):
         :param start:
         :param end:
     """
-    total_df, total_data_list = db_access.pc.get_total_pc_data(pc_id, start, end)
+    total_df, total_data_list = db_access.pc.get_total_pc_application_data(pc_id, start, end)
+    connection_list = db_access.pc.select_connections(pc_id)
+    network_list = db_access.pc.select_network_interfaces(pc_id)
+    disk_list = db_access.pc.select_disks(pc_id)
+
     df, application_data_list = get_latest_application_data(pc_id)
     if df is None or total_df is None:
         raise InvalidParametersException()

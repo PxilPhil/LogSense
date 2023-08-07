@@ -35,3 +35,54 @@ class runningPCData(BaseModel):
     connection_data: str
     application_data: str
     network_Interface: str
+
+
+class NetworkInterface(BaseModel):
+    id: int
+    pcdata_id: int
+    name: str
+    display_name: str
+    ipv4_address: str
+    ipv6_address: str
+    subnet_mask: str
+    mac_address: str
+    bytes_received: int
+    bytes_sent: int
+    packets_received: int
+    packets_sent: int
+
+
+class Connection(BaseModel):
+    id: int
+    pcdata_id: int
+    localaddress: str
+    localport: int
+    foreignaddress: str
+    foreignport: int
+    state: str
+    type: str
+    owningprocessid: int
+
+
+class DiskPartition(BaseModel):
+    id: int
+    disk_id: int
+    disk_store_name: str
+    identification: str
+    name: str
+    type: str
+    mount_point: str
+    size: int
+    major_faults: int
+    minor_faults: int
+
+
+class Disk(BaseModel):
+    id: int
+    state_id: int
+    measurement_time: datetime
+    serialnumber: str
+    model: str
+    name: str
+    size: int
+    disk_partition_list: List[DiskPartition] = []

@@ -139,7 +139,7 @@ def get_all_user_alerts(user_id, start, end):  # gets all alerts per user betwee
     cursor = conn.cursor()
     try:
         get_user_anomalies_query = """
-        SELECT a.type, a.severity_level, a.message, aa.change_in_percentage, aa.data_type, ad.name, ad.measurement_time, aa.pc_id
+        SELECT a.type, a.severity_level, a.message, aa.change_in_percentage, ad.name, ad.measurement_time, aa.pc_id
         FROM applicationdata_anomaly aa
         INNER JOIN applicationdata ad ON aa.applicationdata_id = ad.id
         INNER JOIN anomaly a ON a.id = aa.anomaly_id
@@ -157,10 +157,9 @@ def get_all_user_alerts(user_id, start, end):  # gets all alerts per user betwee
                     severity_level=row[1],
                     message=row[2],
                     change_in_percentage=row[3],
-                    data_type=row[4],
-                    name=row[5],
-                    measurement_time=row[6],
-                    pc_id=row[7],
+                    name=row[4],
+                    measurement_time=row[5],
+                    pc_id=row[6],
                 )
                 alert_list.append(alert)
 

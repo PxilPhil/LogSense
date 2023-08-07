@@ -28,7 +28,6 @@ class AlertData(BaseModel):  # basically AnomalyData (EventData) but includes cu
     severity_level: int  # TODO: Either map in frontend or change severity_level to a string
     message: str
     change_in_percentage: float
-    data_type: str
     name: str
     measurement_time: datetime
     pc_id: int

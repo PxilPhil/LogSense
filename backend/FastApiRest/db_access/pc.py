@@ -7,6 +7,9 @@ from datetime import datetime
 from exceptions.DataBaseExcepion import DataBaseException
 from exceptions.NotFoundExcepion import NotFoundException
 from model.data import PCTimeSeriesData
+from pydantic import BaseModel, create_model
+
+from model.pc import NetworkInterface, Connection, Disk, DiskPartition
 
 
 def add_pc(user_id, hardware_uuid, client_name):
@@ -86,7 +89,7 @@ def get_pcs_by_userid(user_id):
         conn_pool.putconn(conn)
 
 
-def get_total_pc_data(pc_id, start, end):
+def get_total_pc_application_data(pc_id, start, end):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
@@ -234,7 +237,136 @@ def get_latest_moving_avg(pc_id: int):  # returns moving avg of the last 5 colum
         if result:
             return result[0], result[1]
         else:
-            return 0,0
+            return 0, 0
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
+
+
+def select_network_interfaces(pc_id): #works
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+
+    try:
+        query = """
+        SELECT ni.*
+        FROM networkinterface ni
+        JOIN pcdata pd ON ni.pcdata_id = pd.id
+        WHERE pd.pc_id = %s;
+        """
+
+        cursor.execute(query, (pc_id, ))
+        result = cursor.fetchall()
+
+        network_interfaces = [NetworkInterface(
+            id=row[0],
+            pcdata_id=row[1],
+            name=row[2],
+            display_name=row[3],
+            ipv4_address=row[4],
+            ipv6_address=row[5],
+            subnet_mask=row[6],
+            mac_address=row[7],
+            bytes_received=row[8],
+            bytes_sent=row[9],
+            packets_received=row[10],
+            packets_sent=row[11]
+        ) for row in result]
+
+        return network_interfaces
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
+
+
+def select_connections(pc_id): #something something bigint
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+
+    try:
+        query = """
+            SELECT con.*
+            FROM connection con
+            JOIN pcdata pd ON con.pcdata_id = pd.id
+            WHERE pd.pc_id = %s;
+        """
+
+        cursor.execute(query, (pc_id, ))
+        result = cursor.fetchall()
+
+        # Parse the query result into a list of Connection instances
+        connections = [Connection(
+            id=row[0],
+            pcdata_id=row[1],
+            localaddress=row[2],
+            localport=row[3],
+            foreignaddress=row[4],
+            foreignport=row[5],
+            state=row[6],
+            type=row[7],
+            owningprocessid=row[8]
+        ) for row in result]
+
+        return connections
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
+
+
+def select_disks(pc_id):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+
+    try:
+        query = """
+            SELECT dp.id, dp.disk_id, dp.disk_store_name, dp.identification, dp.name, dp.type, dp.mount_point, dp.size, dp.major_faults, dp.minor_faults,
+                   d.id AS disk_id, d.state_id, d.measurement_time, d.serialnumber, d.model, d.name AS disk_name, d.size AS disk_size
+            FROM diskpartition dp
+            JOIN disk d ON dp.disk_id = d.id
+            WHERE d.state_id IN (
+                SELECT id FROM pcstate WHERE pc_id = %s
+            );
+        """
+
+        cursor.execute(query, (pc_id,))
+        result = cursor.fetchall()
+
+        disks = {}
+
+        for row in result:
+            disk_partition = DiskPartition(
+                id=row[0],
+                disk_id=row[1],
+                disk_store_name=row[2],
+                identification=row[3],
+                name=row[4],
+                type=row[5],
+                mount_point=row[6],
+                size=row[7],
+                major_faults=row[8],
+                minor_faults=row[9]
+            )
+            disk = Disk(
+                id=row[10],
+                state_id=row[11],
+                measurement_time=row[12],
+                serialnumber=row[13],
+                model=row[14],
+                name=row[15],
+                size=row[16]
+            )
+
+            # Check if the disk is already in the dictionary, if not, add it
+            if disk.id not in disks:
+                disks[disk.id] = disk
+
+            # Append the disk partition to the corresponding disk
+            disks[disk.id].disk_partition_list.append(disk_partition)
+
+        return list(disks.values())
     except psycopg2.DatabaseError as e:
         raise DataBaseException()
     finally:

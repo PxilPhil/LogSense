@@ -45,11 +45,11 @@ def detect_cpu_event(selected_row, column, moving_avg, event_list, application):
     event_header = selected_row['processCountDifference'].values[0]
     if abs(difference) > event_sensitivity_cpu:
         if (difference > 0 and event_header > 0) or (difference < 0 and event_header < 0):
-            event_data = EventData(timestamp=selected_row.index.values[0], anomaly_type=6, change=difference,
+            event_data = EventData(timestamp=selected_row.index.values[0], anomaly_type=3, change=difference,
                                    application=application, column=column)
             event_list.append(event_data)
         else:
-            event_data = EventData(timestamp=selected_row.index.values[0], anomaly_type=7, change=difference,
+            event_data = EventData(timestamp=selected_row.index.values[0], anomaly_type=4, change=difference,
                                    application=application, column=column)
             event_list.append(event_data)
 
@@ -80,11 +80,11 @@ def detect_multiple_events(selected_row, application_name):
         # check for cpu events
         if cpu_difference > event_sensitivity_cpu:
             if (cpu_difference > 0 and event_header > 0) or (cpu_difference < 0 and event_header < 0):
-                event_data = EventData(timestamp=row['measurement_time'], anomaly_type=6, change=cpu_difference,
+                event_data = EventData(timestamp=row['measurement_time'], anomaly_type=3, change=cpu_difference,
                                        application=application_name, column='cpu')
                 event_list.append(event_data)
             elif not previous_was_flagged:
-                event_data = EventData(timestamp=row['measurement_time'], anomaly_type=7, change=cpu_difference,
+                event_data = EventData(timestamp=row['measurement_time'], anomaly_type=4, change=cpu_difference,
                                        application=application_name, column='cpu')
                 event_list.append(event_data)
             previous_was_flagged = True
@@ -126,16 +126,23 @@ def check_custom_alerts(df, pc_total_df, custom_conditions: List[
     selected_column = ""  # selected column for the current condition (like RAM)
     for condition in custom_conditions:
         # Check if conditions apply for application
-        if condition.application:
-            application_df = manipulation.select_rows_by_application(condition.application, df)
-            if not condition.degree_trigger_value:
-                check_custom_conditions(application_df, pc_total_df, condition)
-            past_application_df = check_past_entries(application_df, condition)
+        if condition.degree_trigger_value:
+            if condition.start_date:
+                print('start_date')
+            elif condition.lookback_time:
+                print('lookback')
+            else:
+                print('invalid')
         else:
-            if not condition.degree_trigger_value:
-                check_past_entries(pc_total_df, condition)
-            past_pc_df = check_past_entries(application_df, condition)
+            if condition.application:
+                application_df = manipulation.select_rows_by_application(condition.application, df)
+                check_custom_conditions(application_df, pc_total_df, condition)
+            else:
+                # get latest pc total row
+                print('get latest pc total row')
+    # compare with previous
     return 0
+
 
 def check_past_entries(df, condition: CustomCondition):
     # checks if and in what way previous entries should be fetched from database
@@ -146,7 +153,6 @@ def check_past_entries(df, condition: CustomCondition):
         print('lookback')
     elif condition.start_date:
         print('go from start date')
-
 
 
 def check_custom_conditions(df, compared_df, condition: CustomCondition):

@@ -71,10 +71,10 @@ def ingest_data(files: list[UploadFile], stateId: int):
         pcdata = df_map["resources"]
         application_data = df_map["application"]
 
-        pc_total_df, anomaly_list = requests.preprocess_pc_data(df_map["application"], stateId)
-        print(anomaly_list)
+        pc_total_df, event_list = requests.preprocess_pc_data(df_map["application"], stateId)
 
-        pcdata_id = insert_running_pcdata(stateId, df_map, pc_total_df, anomaly_list)
+        #error here
+        pcdata_id = insert_running_pcdata(stateId, df_map, pc_total_df, event_list)
 
         return JSONResponse(content={"result": "Data inserted successfully", "pcdata_id": pcdata_id}, status_code=200)
     except KeyError as e:

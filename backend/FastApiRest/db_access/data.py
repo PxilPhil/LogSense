@@ -14,7 +14,7 @@ from exceptions.DataBaseExcepion import DataBaseException
 from exceptions.DataBaseInsertExcepion import DataBaseInsertException
 
 
-def insert_running_pcdata(state_id, running_df_dict, pc_total_df, anomaly_list):
+def insert_running_pcdata(state_id, running_df_dict, pc_total_df, event_list):
     # TODO: Optionally save moving averages into database if its too slow to calculate it every time
     conn = conn_pool.getconn()
     cursor = conn.cursor()
@@ -171,7 +171,7 @@ def insert_running_pcdata(state_id, running_df_dict, pc_total_df, anomaly_list):
 
         conn.commit()
 
-        insert_anomalies(pcdata_id, anomaly_list)
+        insert_anomalies(pcdata_id, event_list)
 
         return pcdata_id
     except psycopg2.DatabaseError as e:
@@ -238,15 +238,16 @@ def insert_inital_pcdata(df_dict):
         conn_pool.putconn(conn)
 
 
-def insert_anomalies(pcdata_id, anomaly_list):
+def insert_anomalies(pcdata_id, event_list):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
+    print(event_list)
     try:
         insert_anomaly_query = """
-        INSERT INTO applicationdata_anomaly (anomaly_id, applicationdata_id, user_id, pc_id, change_in_percentage, data_type, subsequent_anomaly) 
+        INSERT INTO applicationdata_anomaly (anomaly_id, applicationdata_id, user_id, pc_id, change_in_percentage, subsequent_anomaly) 
         VALUES 
-        (%s, (SELECT id FROM applicationdata where name=%s and pcdata_id=%s),(SELECT user_id FROM pc WHERE id = (SELECT pc_id FROM applicationdata where name=%s and pcdata_id=%s)), (SELECT pc_id FROM applicationdata where name=%s and pcdata_id=%s), %s ,%s, FALSE)"""
-        for anomaly in anomaly_list:
+        (%s, (SELECT id FROM applicationdata where name=%s and pcdata_id=%s),(SELECT user_id FROM pc WHERE id = (SELECT pc_id FROM applicationdata where name=%s and pcdata_id=%s)), (SELECT pc_id FROM applicationdata where name=%s and pcdata_id=%s), %s, FALSE)"""
+        for anomaly in event_list:
             anomaly_data = (
                 anomaly.anomaly_type,
                 anomaly.application,
@@ -255,9 +256,9 @@ def insert_anomalies(pcdata_id, anomaly_list):
                 pcdata_id,
                 anomaly.application,
                 pcdata_id,
-                anomaly.change,
-                anomaly.column
+                anomaly.change
             )
+            print(insert_anomaly_query)
             cursor.execute(insert_anomaly_query, anomaly_data)
         conn.commit()
     except psycopg2.DatabaseError as e:
