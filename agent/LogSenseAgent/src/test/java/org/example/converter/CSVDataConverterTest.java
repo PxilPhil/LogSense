@@ -2,7 +2,6 @@ package org.example.converter;
 
 import org.example.common.DataConverter;
 import org.example.model.*;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import oshi.software.os.InternetProtocolStats;
@@ -82,8 +81,10 @@ class CSVDataConverterTest {
 
         Resources resources = new Resources(100000000000L, diskStoresTestData, diskStoresTestData, diskStoresTestData, diskStoresTestData, diskStoresTestData, diskStoresTestData, 12000000000L, powerSourcesNames, powerSourcesTestData, powerSourcesTestData, powerSourcesTestData, powerSourcesRemainingCapacityPercent, 8171, 131);
 
-        String expectedResult = "timestamp|freeDiskSpace|readBytesDiskStores|readsDiskStores|writeBytesDiskStores|writesDiskStores|partitionsMajorFaults|partitionsMinorFaults|availableMemory|namesPowerSources|chargingPowerSources|dischargingPowerSources|powerOnLinePowerSources|remainingCapacityPercentPowerSources|contextSwitchesProcessor|interruptsProcessor\n" +
-                "1689853788|100000000000|241541|241541|241541|241541|241541|241541|12000000000|TestPowerSourceName|true|true|true|82.5|8171|131\n";
+        String expectedResult = """
+                timestamp|freeDiskSpace|readBytesDiskStores|readsDiskStores|writeBytesDiskStores|writesDiskStores|partitionsMajorFaults|partitionsMinorFaults|availableMemory|namesPowerSources|chargingPowerSources|dischargingPowerSources|powerOnLinePowerSources|remainingCapacityPercentPowerSources|contextSwitchesProcessor|interruptsProcessor
+                1689853788|100000000000|241541|241541|241541|241541|241541|241541|12000000000|TestPowerSourceName|true|true|true|82.5|8171|131
+                """;
         String actualResult = this.converter.convertResourceData(1689853788, resources);
 
         assertEquals(expectedResult, actualResult);
@@ -230,7 +231,7 @@ class CSVDataConverterTest {
         Computer computer = new Computer("TestHardwareUUID", "TestManufacturer", "TestModel");
         Memory memory = new Memory(16000000000L, 4096000L);
         Processor processor = new Processor("TestName", "TestIdentifier", "TestID", "TestVendor", 64, 1, 8, 16);
-        Client client = new Client(computer, memory, processor);
+        Client client = new Client(Instant.now().toEpochMilli(), computer, memory, processor);
 
         String expectedResult = "computerHardwareUUID|computerManufacturer|computerModel|memoryTotalSize|memoryPageSize|processorName|processorIdentifier|processorID|processorVendor|processorBitness|physicalPackageCount|physicalProcessorCount|logicalProcessorCount\nTestHardwareUUID|TestManufacturer|TestModel|16000000000|4096000|TestName|TestIdentifier|TestID|TestVendor|64|1|8|16\n";
         String actualResult = this.converter.convertClientData(client);
@@ -248,8 +249,8 @@ class CSVDataConverterTest {
     @Test
     void convertDiskStoreDataCorrectly() {
         List<DiskStore> diskStores = new ArrayList<>();
-        DiskStore diskStore = new DiskStore("Test Serial number", "TestModel", "TestName", 1024000000000L);
-        DiskStore diskStore2 = new DiskStore("Test Serial number", "TestModel2", "TestName2", 128000000000L);
+        DiskStore diskStore = new DiskStore(Instant.now().toEpochMilli(), "Test Serial number", "TestModel", "TestName", 1024000000000L);
+        DiskStore diskStore2 = new DiskStore(Instant.now().toEpochMilli(), "Test Serial number", "TestModel2", "TestName2", 128000000000L);
         diskStores.add(diskStore);
         diskStores.add(diskStore2);
 
@@ -277,8 +278,8 @@ class CSVDataConverterTest {
     @Test
     void convertPartitionDataCorrectly() {
         List<Partition> partitions = new ArrayList<>();
-        Partition partition = new Partition("TestDiskStoreName", "TestIdentifier", "TestName", "TestType", "TestMountPoint", 1024000000000L, 3L, 522L);
-        Partition partition2 = new Partition("TestDiskStoreName2", "TestIdentifier2", "TestName2", "TestType2", "TestMountPoint2", 512000000000L, 0L, 12L);
+        Partition partition = new Partition(Instant.now().toEpochMilli(), "TestDiskStoreName", "TestIdentifier", "TestName", "TestType", "TestMountPoint", 1024000000000L, 3L, 522L);
+        Partition partition2 = new Partition(Instant.now().toEpochMilli(), "TestDiskStoreName2", "TestIdentifier2", "TestName2", "TestType2", "TestMountPoint2", 512000000000L, 0L, 12L);
         partitions.add(partition);
         partitions.add(partition2);
 

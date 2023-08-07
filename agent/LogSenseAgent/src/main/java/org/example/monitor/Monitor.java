@@ -13,6 +13,7 @@ import oshi.software.os.OperatingSystem;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.Instant;
 import java.util.*;
 
 public class Monitor {
@@ -324,6 +325,8 @@ public class Monitor {
         List<String> monitoringErrors = new ArrayList<>();
         Client client = new Client();
 
+        client.setTimestamp(Instant.now().toEpochMilli());
+
         ComputerSystem computerSystem = this.hardware.getComputerSystem();
         if (computerSystem != null) {
             client.setComputer(getComputerData(computerSystem));
@@ -392,12 +395,14 @@ public class Monitor {
     }
 
     public List<DiskStore> monitorDiskStores() {
+        long timestamp = Instant.now().toEpochMilli();
         List<HWDiskStore> hwDiskStoreList = this.hardware.getDiskStores();
         List<DiskStore> diskStores = new ArrayList<>();
 
         if (hwDiskStoreList != null) {
             for (HWDiskStore diskStore : hwDiskStoreList) {
                 DiskStore diskStoreData = new DiskStore();
+                diskStoreData.setTimestamp(timestamp);
                 diskStoreData.setSerialNumber(diskStore.getSerial());
                 diskStoreData.setModel(diskStore.getModel());
                 diskStoreData.setName(diskStore.getName());
@@ -412,6 +417,7 @@ public class Monitor {
     }
 
     public List<Partition> monitorPartitions() {
+        long timestamp = Instant.now().toEpochMilli();
         List<Partition> partitions = new ArrayList<>();
 
         List<HWDiskStore> hwDiskStoreList = this.hardware.getDiskStores();
@@ -421,6 +427,7 @@ public class Monitor {
                 if (hwPartitionList != null) {
                     for (HWPartition partition : hwPartitionList) {
                         Partition partitionData = new Partition();
+                        partitionData.setTimestamp(timestamp);
                         partitionData.setDiskStoreName(diskStore.getName());
                         partitionData.setIdentification(partition.getIdentification());
                         partitionData.setName(partition.getName());

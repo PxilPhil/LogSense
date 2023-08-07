@@ -1,6 +1,9 @@
 package org.example.model;
 
+import java.util.Objects;
+
 public class Partition {
+    private long timestamp;
     private String diskStoreName;
     private String identification;
     private String name;
@@ -13,7 +16,8 @@ public class Partition {
     public Partition() {
     }
 
-    public Partition(String diskStoreName, String identification, String name, String type, String mountPoint, long size, long majorFaults, long minorFaults) {
+    public Partition(long timestamp, String diskStoreName, String identification, String name, String type, String mountPoint, long size, long majorFaults, long minorFaults) {
+        this.timestamp = timestamp;
         this.diskStoreName = diskStoreName;
         this.identification = identification;
         this.name = name;
@@ -22,6 +26,14 @@ public class Partition {
         this.size = size;
         this.majorFaults = majorFaults;
         this.minorFaults = minorFaults;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     public String getDiskStoreName() {
@@ -86,5 +98,13 @@ public class Partition {
 
     public void setMinorFaults(long minorFaults) {
         this.minorFaults = minorFaults;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Partition partition = (Partition) o;
+        return size == partition.size && majorFaults == partition.majorFaults && minorFaults == partition.minorFaults && Objects.equals(diskStoreName, partition.diskStoreName) && Objects.equals(identification, partition.identification) && Objects.equals(name, partition.name) && Objects.equals(type, partition.type) && Objects.equals(mountPoint, partition.mountPoint);
     }
 }

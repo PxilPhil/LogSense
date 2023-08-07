@@ -54,30 +54,24 @@ public class CSVDataConverter implements DataConverter {
             ListToStringConverter<Double> doubleListToStringConverter = new ListToStringSpacesConverter<>();
             ListToStringConverter<String> stringListToStringConvert = new ListToStringSpacesConverter<>();
 
-            StringBuilder csv = new StringBuilder();
-            csv.append("timestamp|freeDiskSpace|readBytesDiskStores|readsDiskStores|writeBytesDiskStores|writesDiskStores|partitionsMajorFaults|partitionsMinorFaults|availableMemory|namesPowerSources|chargingPowerSources|dischargingPowerSources|powerOnLinePowerSources|remainingCapacityPercentPowerSources|contextSwitchesProcessor|interruptsProcessor\n");
-
-            csv.append(timestamp).append("|");
-
-            csv.append(resources.getFreeDiskSpace()).append("|");
-            csv.append(longListToStringConverter.convert(resources.getReadBytesDiskStores())).append("|");
-            csv.append(longListToStringConverter.convert(resources.getReadsDiskStores())).append("|");
-            csv.append(longListToStringConverter.convert(resources.getWriteBytesDiskStores())).append("|");
-            csv.append(longListToStringConverter.convert(resources.getWritesDiskStores())).append("|");
-            csv.append(longListToStringConverter.convert(resources.getPartitionsMajorFaults())).append("|");
-            csv.append(longListToStringConverter.convert(resources.getPartitionsMinorFaults())).append("|");
-
-            csv.append(resources.getAvailableMemory()).append("|");
-
-            csv.append(stringListToStringConvert.convert(resources.getPowerSourcesNames())).append("|");
-            csv.append(booleanListToStringConverter.convert(resources.getPowerSourcesCharging())).append("|");
-            csv.append(booleanListToStringConverter.convert(resources.getPowerSourcesDischarging())).append("|");
-            csv.append(booleanListToStringConverter.convert(resources.getPowerSourcesPowerOnLine())).append("|");
-            csv.append(doubleListToStringConverter.convert(resources.getPowerSourcesRemainingCapacityPercent())).append("|");
-
-            csv.append(resources.getProcessorContextSwitches()).append("|");
-            csv.append(resources.getProcessorInterrupts()).append("\n");
-            return csv.toString();
+            String csv = "timestamp|freeDiskSpace|readBytesDiskStores|readsDiskStores|writeBytesDiskStores|writesDiskStores|partitionsMajorFaults|partitionsMinorFaults|availableMemory|namesPowerSources|chargingPowerSources|dischargingPowerSources|powerOnLinePowerSources|remainingCapacityPercentPowerSources|contextSwitchesProcessor|interruptsProcessor\n" +
+                    timestamp + "|" +
+                    resources.getFreeDiskSpace() + "|" +
+                    longListToStringConverter.convert(resources.getReadBytesDiskStores()) + "|" +
+                    longListToStringConverter.convert(resources.getReadsDiskStores()) + "|" +
+                    longListToStringConverter.convert(resources.getWriteBytesDiskStores()) + "|" +
+                    longListToStringConverter.convert(resources.getWritesDiskStores()) + "|" +
+                    longListToStringConverter.convert(resources.getPartitionsMajorFaults()) + "|" +
+                    longListToStringConverter.convert(resources.getPartitionsMinorFaults()) + "|" +
+                    resources.getAvailableMemory() + "|" +
+                    stringListToStringConvert.convert(resources.getPowerSourcesNames()) + "|" +
+                    booleanListToStringConverter.convert(resources.getPowerSourcesCharging()) + "|" +
+                    booleanListToStringConverter.convert(resources.getPowerSourcesDischarging()) + "|" +
+                    booleanListToStringConverter.convert(resources.getPowerSourcesPowerOnLine()) + "|" +
+                    doubleListToStringConverter.convert(resources.getPowerSourcesRemainingCapacityPercent()) + "|" +
+                    resources.getProcessorContextSwitches() + "|" +
+                    resources.getProcessorInterrupts() + "\n";
+            return csv;
         } else {
             LOGGER.error("Error while converting the resource data to CSV: either the resource data object is null or the timestamp is not between epoch and now. Therefore the resource data can not be converted to CSV.");
             return null;
@@ -141,7 +135,9 @@ public class CSVDataConverter implements DataConverter {
     public String convertClientData(Client client) {
         if (client != null) {
             StringBuilder csv = new StringBuilder();
-            csv.append("computerHardwareUUID|computerManufacturer|computerModel|memoryTotalSize|memoryPageSize|processorName|processorIdentifier|processorID|processorVendor|processorBitness|physicalPackageCount|physicalProcessorCount|logicalProcessorCount\n");
+            csv.append("measurement_time|computerHardwareUUID|computerManufacturer|computerModel|memoryTotalSize|memoryPageSize|processorName|processorIdentifier|processorID|processorVendor|processorBitness|physicalPackageCount|physicalProcessorCount|logicalProcessorCount\n");
+
+            csv.append(client.getTimestamp()).append("|");
 
             Computer computer = client.getComputer();
             Memory memory = client.getMemory();
@@ -174,8 +170,9 @@ public class CSVDataConverter implements DataConverter {
     public String convertDiskStoreData(List<DiskStore> diskStores) {
         if (diskStores != null) {
             StringBuilder csv = new StringBuilder();
-            csv.append("serialNumber|model|name|size\n");
+            csv.append("measurement_time|serialNumber|model|name|size\n");
             for (DiskStore diskStore : diskStores) {
+                csv.append(diskStore.getTimestamp()).append("|");
                 csv.append(diskStore.getSerialNumber()).append("|");
                 csv.append(diskStore.getModel()).append("|");
                 csv.append(diskStore.getName()).append("|");
@@ -192,8 +189,9 @@ public class CSVDataConverter implements DataConverter {
     public String convertPartitionData(List<Partition> partitions) {
         if (partitions != null) {
             StringBuilder csv = new StringBuilder();
-            csv.append("diskStoreName|identification|name|type|mountPoint|size|majorFaults|minorFaults\n");
+            csv.append("measurement_time|diskStoreName|identification|name|type|mountPoint|size|majorFaults|minorFaults\n");
             for (Partition partition : partitions) {
+                csv.append(partition.getTimestamp()).append("|");
                 csv.append(partition.getDiskStoreName()).append("|");
                 csv.append(partition.getIdentification()).append("|");
                 csv.append(partition.getName()).append("|");

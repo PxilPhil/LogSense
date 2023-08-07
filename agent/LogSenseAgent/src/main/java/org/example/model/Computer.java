@@ -1,5 +1,7 @@
 package org.example.model;
 
+import java.util.Objects;
+
 public class Computer {
     private String hardwareUUID;
     private String manufacturer;
@@ -36,5 +38,13 @@ public class Computer {
 
     public void setModel(String model) {
         this.model = model;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Computer computer = (Computer) o;
+        return Objects.equals(hardwareUUID, computer.hardwareUUID) && Objects.equals(manufacturer, computer.manufacturer) && Objects.equals(model, computer.model);
     }
 }

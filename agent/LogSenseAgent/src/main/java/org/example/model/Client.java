@@ -1,6 +1,9 @@
 package org.example.model;
 
+import java.util.Objects;
+
 public class Client {
+    private long timestamp;
     private Computer computer;
     private Memory memory;
     private Processor processor;
@@ -8,10 +11,19 @@ public class Client {
     public Client() {
     }
 
-    public Client(Computer computer, Memory memory, Processor processor) {
+    public Client(long timestamp, Computer computer, Memory memory, Processor processor) {
+        this.timestamp = timestamp;
         this.computer = computer;
         this.memory = memory;
         this.processor = processor;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     public Computer getComputer() {
@@ -37,4 +49,13 @@ public class Client {
     public void setProcessor(Processor processor) {
         this.processor = processor;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Client client = (Client) o;
+        return Objects.equals(computer, client.computer) && Objects.equals(memory, client.memory) && Objects.equals(processor, client.processor);
+    }
+
 }

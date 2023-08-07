@@ -9,6 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oshi.software.os.OSProcess;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -38,11 +41,10 @@ public class Agent {
 
     public void monitor() {
         if (clientHasSupportedOperatingSystem()) {
-            long timestamp = Instant.now().toEpochMilli();
             monitorSessionComputerData();
 
             ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-            scheduler.scheduleAtFixedRate(() -> monitorData(timestamp), 0, 10, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(() -> monitorData(), 0, 10, TimeUnit.SECONDS);
         } else {
             LOGGER.error("The operating system of this client is not supported or could not be detected. Therefore the agent is not able to start and monitor your client.");
         }
@@ -50,17 +52,16 @@ public class Agent {
 
     private boolean clientHasSupportedOperatingSystem() {
         String operatingSystemFamily = this.monitor.monitorOperatingSystem();
-        if (operatingSystemFamily != null && operatingSystemFamily.equals("Windows")) {
-            return true;
-        }
-        return false;
+        return operatingSystemFamily != null && operatingSystemFamily.equals("Windows");
     }
 
-    private void monitorData(long timestamp) {
+    private void monitorData() {
         this.measuringCount++;
+        long timestamp = Instant.now().toEpochMilli();
         getAndIngestOSProcesses(timestamp);
         if (this.measuringCount % 6 == 0) {     // if 60 seconds passed --> get running data + send data to rest api
             List<Application> analysedApplications = this.statService.analyseApplicationMeasurements(timestamp);
+
             monitorRunningData(analysedApplications, timestamp);
             monitorSessionComputerData();
         }
@@ -78,9 +79,9 @@ public class Agent {
 
         if (this.sessionComputerData == null || hasClientDataChanged(client) || haveDiskStoresChanged(diskStores) || havePartitionsChanged(partitions)) {     // session computer data has never been set --> initial data that starts a new "session"
             SessionComputerData sessionComputerData = new SessionComputerData();
-            sessionComputerData.setClient_data(this.csvDataConverter.convertClientData(client));
-            sessionComputerData.setDisks(this.csvDataConverter.convertDiskStoreData(diskStores));
-            sessionComputerData.setPartition(this.csvDataConverter.convertPartitionData(partitions));
+            sessionComputerData.setClient(client);
+            sessionComputerData.setDiskStores(diskStores);
+            sessionComputerData.setPartitions(partitions);
 
             int stateId = this.apiClient.postSessionComputerData(sessionComputerData);
             if (stateId > 0) {
@@ -124,18 +125,15 @@ public class Agent {
     }
 
     private boolean hasClientDataChanged(Client client) {
-        String clientCSV = this.csvDataConverter.convertClientData(client);
-        return !clientCSV.equals(this.sessionComputerData.getClient_data());
+        return !client.equals(this.sessionComputerData.getClient());
     }
 
     private boolean haveDiskStoresChanged(List<DiskStore> diskStores) {
-        String diskStoresCSV = this.csvDataConverter.convertDiskStoreData(diskStores);
-        return !diskStoresCSV.equals(this.sessionComputerData.getDisks());
+        return !diskStores.equals(this.sessionComputerData.getDiskStores());
     }
 
     private boolean havePartitionsChanged(List<Partition> partitions) {
-        String partitionsCSV = this.csvDataConverter.convertPartitionData(partitions);
-        return !partitionsCSV.equals(this.sessionComputerData.getPartition());
+        return !partitions.equals(this.sessionComputerData.getPartitions());
     }
 
     private void monitorRunningData(List<Application> analysedApplications, long timestamp) {
@@ -148,6 +146,14 @@ public class Agent {
         runningData.setPc_resources(this.csvDataConverter.convertResourceData(timestamp, resources));
         runningData.setNetwork_interface(this.csvDataConverter.convertNetworkInterfacesData(timestamp, networkInterfaces));
         runningData.setConnection_data(this.csvDataConverter.convertConnectionData(timestamp, connections));
+
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\test\\application_" + timestamp + ".csv"));
+            writer.write(runningData.getApplication_data());
+            writer.close();
+        } catch (IOException e) {
+            System.out.println(runningData.getApplication_data());
+        }
 
         this.apiClient.postRunningData(runningData, this.stateId);
     }

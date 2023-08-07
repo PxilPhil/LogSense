@@ -1,34 +1,42 @@
 package org.example.model;
 
+import java.util.List;
+
 public class SessionComputerData {
-    private String client_data;
-    private String disks;
-    private String partition;
+    private Client client;
+    private List<DiskStore> diskStores;
+    private List<Partition> partitions;
 
     public SessionComputerData() {
     }
 
-    public String getClient_data() {
-        return client_data;
+    public SessionComputerData(Client client, List<DiskStore> diskStores, List<Partition> partitions) {
+        this.client = client;
+        this.diskStores = diskStores;
+        this.partitions = partitions;
     }
 
-    public void setClient_data(String client_data) {
-        this.client_data = client_data;
+    public Client getClient() {
+        return client;
     }
 
-    public String getDisks() {
-        return disks;
+    public void setClient(Client client) {
+        this.client = client;
     }
 
-    public void setDisks(String disks) {
-        this.disks = disks;
+    public List<DiskStore> getDiskStores() {
+        return diskStores;
     }
 
-    public String getPartition() {
-        return partition;
+    public void setDiskStores(List<DiskStore> diskStores) {
+        this.diskStores = diskStores;
     }
 
-    public void setPartition(String partition) {
-        this.partition = partition;
+    public List<Partition> getPartitions() {
+        return partitions;
+    }
+
+    public void setPartitions(List<Partition> partitions) {
+        this.partitions = partitions;
     }
 }
