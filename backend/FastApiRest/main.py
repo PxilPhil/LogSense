@@ -8,7 +8,6 @@ from api.data import data
 from api.pc import pc
 from api.user import user
 from api.application import application
-from exceptions.UserNotFoundException import UserNotFoundException, custom_user_not_found_exception_handler
 from exceptions.DataBaseExcepion import DataBaseException, custom_database_exception_handler
 from exceptions.NotFoundExcepion import NotFoundException, custom_not_found_exception_handler
 from exceptions.WrongConfigurationException import WrongConfigurationException, custom_wrong_configuration_exception_handler
@@ -60,7 +59,6 @@ app.include_router(pc, tags=["PC"], prefix="/pc")
 app.include_router(application, tags=["Application"], prefix="/pc/{pc_id}/application")
 app.include_router(data, tags=["Data"], prefix="/data")
 
-app.add_exception_handler(UserNotFoundException, custom_user_not_found_exception_handler)
 app.add_exception_handler(NotFoundException, custom_not_found_exception_handler)
 app.add_exception_handler(DataBaseException, custom_database_exception_handler)
 app.add_exception_handler(DataBaseInsertException, custom_database_insert_exception_handler)

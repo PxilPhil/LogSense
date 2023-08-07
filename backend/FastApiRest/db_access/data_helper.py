@@ -5,6 +5,8 @@ import psycopg2
 from fastapi import UploadFile
 
 from db_access import conn_pool
+from exceptions.DataBaseExcepion import DataBaseException
+from exceptions.InvalidParametersException import InvalidParametersException
 
 
 def update_pc_description(pc_id, client_df):
@@ -43,18 +45,21 @@ def get_pc_state_df(client_df, conn):
 
 def insert_new_state_df(pc_id, client_df, conn):
     row = client_df.iloc[0]
-    return insert_new_state(pc_id,
-                            int(row['memoryTotalSize']),
-                            int(row['memoryPageSize']),
-                            row['processorName'],
-                            row['processorIdentifier'],
-                            row['processorID'],
-                            row['processorVendor'],
-                            int(row['processorBitness']),
-                            int(row['physicalPackageCount']),
-                            int(row['physicalProcessorCount']),
-                            int(row['logicalProcessorCount']),
-                            conn)
+    try:
+        return insert_new_state(pc_id,
+                                int(row['memoryTotalSize']),
+                                int(row['memoryPageSize']),
+                                row['processorName'],
+                                row['processorIdentifier'],
+                                row['processorID'],
+                                row['processorVendor'],
+                                int(row['processorBitness']),
+                                int(row['physicalPackageCount']),
+                                int(row['physicalProcessorCount']),
+                                int(row['logicalProcessorCount']),
+                                conn)
+    except KeyError as e:
+        raise InvalidParametersException()
 
 
 def insert_new_state(pc_id,
@@ -108,22 +113,25 @@ def insert_new_state(pc_id,
             return state_id
         else:
             return None
-    except (Exception, psycopg2.Error) as error:
-        print("Error inserting data into PostgreSQL:", error)
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
 
 
 def get_pc_state_by_attributes_df(client_df):
     row = client_df.iloc[0]
-    return get_pc_state_by_attributes(row['computerHardwareUUID'],
-                                      int(row['memoryTotalSize']),
-                                      int(row['memoryPageSize']),
-                                      row['processorName'],
-                                      row['processorIdentifier'],
-                                      row['processorID'],
-                                      row['processorVendor'],
-                                      int(row['processorBitness']),
-                                      int(row['physicalProcessorCount']),
-                                      int(row['logicalProcessorCount']))
+    try:
+        return get_pc_state_by_attributes(row['computerHardwareUUID'],
+                                          int(row['memoryTotalSize']),
+                                          int(row['memoryPageSize']),
+                                          row['processorName'],
+                                          row['processorIdentifier'],
+                                          row['processorID'],
+                                          row['processorVendor'],
+                                          int(row['processorBitness']),
+                                          int(row['physicalProcessorCount']),
+                                          int(row['logicalProcessorCount']))
+    except KeyError as e:
+        raise InvalidParametersException()
 
 
 def get_pc_state_by_attributes(provided_uuid,
@@ -191,9 +199,8 @@ def get_pc_state_by_attributes(provided_uuid,
             return pc_id, state_id
         else:
             return pc_id, None
-
-    except (Exception, psycopg2.Error) as error:
-        print("Error fetching data from PostgreSQL:", error)
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
 
@@ -259,46 +266,55 @@ def does_last_disk_overlap(state_id, disk_df):
         if disk_amount:
             return disk_amount[0] == len(disk_df.index)
         return None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    except KeyError as e:
+        raise InvalidParametersException()
     finally:
         conn_pool.putconn(conn)
 
 
 def insert_disk_and_partition(state_id, disk_df, partition_df, conn):
     cursor = conn.cursor()
-    insert_disk = """INSERT INTO disk(state_id, measurement_time, serialnumber, model, name, size)VALUES %s RETURNING id;"""
-    disks = []
-    for i, row in disk_df.iterrows():
-        timestamp = datetime.fromtimestamp(i / 1000)
-        disk = (state_id, timestamp, row['serialNumber'], row['model'], row['name'], row['size'])
-        disks.append(disk)
-    psycopg2.extras.execute_values(cursor, insert_disk, disks)
+    try:
+        insert_disk = """INSERT INTO disk(state_id, measurement_time, serialnumber, model, name, size)VALUES %s RETURNING id;"""
+        disks = []
+        for i, row in disk_df.iterrows():
+            timestamp = datetime.fromtimestamp(i / 1000)
+            disk = (state_id, timestamp, row['serialNumber'], row['model'], row['name'], row['size'])
+            disks.append(disk)
+        psycopg2.extras.execute_values(cursor, insert_disk, disks)
 
-    selct_disk_id = """ 
-        SELECT d.id
-        FROM disk d
-        WHERE d.name = %s
-          AND d.state_id = %s
-          AND d.measurement_time = (
-            SELECT MAX(measurement_time)
-            FROM disk
-            WHERE name = %s
-              AND state_id = %s
-          );
-    """
-    insert_partition = """
-        INSERT INTO diskpartition 
-        (disk_id, disk_store_name, identification, name, type, mount_point, size, major_faults, minor_faults)
-        VALUES %s;
-    """
-    partitions = []
-    for i, row in partition_df.iterrows():
-        cursor.execute(selct_disk_id, (row['diskStoreName'], state_id, row['diskStoreName'], state_id))
-        disk_id = cursor.fetchone()
-        partition = (disk_id, row['diskStoreName'], row['identification'], row['name'], row['type'], row['mountPoint'], row['size'], row['majorFaults'] , row['minorFaults'])
-        partitions.append(partition)
-    psycopg2.extras.execute_values(cursor, insert_partition, partitions)
+        selct_disk_id = """ 
+            SELECT d.id
+            FROM disk d
+            WHERE d.name = %s
+              AND d.state_id = %s
+              AND d.measurement_time = (
+                SELECT MAX(measurement_time)
+                FROM disk
+                WHERE name = %s
+                  AND state_id = %s
+              );
+        """
+        insert_partition = """
+            INSERT INTO diskpartition 
+            (disk_id, disk_store_name, identification, name, type, mount_point, size, major_faults, minor_faults)
+            VALUES %s;
+        """
+        partitions = []
+        for i, row in partition_df.iterrows():
+            cursor.execute(selct_disk_id, (row['diskStoreName'], state_id, row['diskStoreName'], state_id))
+            disk_id = cursor.fetchone()
+            partition = (disk_id, row['diskStoreName'], row['identification'], row['name'], row['type'], row['mountPoint'], row['size'], row['majorFaults'] , row['minorFaults'])
+            partitions.append(partition)
+        psycopg2.extras.execute_values(cursor, insert_partition, partitions)
 
-    return True
+        return True
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    except KeyError as e:
+        raise InvalidParametersException()
 
 
 """def is_anomaly_subsequent(anomaly_id, pc_id): # TODO: remove Joins

@@ -1,8 +1,11 @@
 import hashlib
 import re
 
+import psycopg2
+
 from db_access import conn_pool
 from exceptions.NotFoundExcepion import NotFoundException
+from exceptions.DataBaseExcepion import DataBaseException
 
 
 def is_valid_email(email: str):
@@ -26,6 +29,8 @@ def get_pcid_by_stateid(state_id: int):
             return pc_id
         else:
             raise NotFoundException(detail="PC not found")
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
 
@@ -35,12 +40,14 @@ def get_stateid_and_pcid_by_uuid(uuid: str):
     try:
         cursor.execute("SELECT id, pc_id FROM PCState WHERE pc_id = (SELECT id FROM PC WHERE hardware_UUID = %s)",
                            (uuid,))
-        pcstate_id = cursor.fetchone()
+        ids = cursor.fetchone()
 
-        if pcstate_id:
+        if ids:
             #       state_id    , pc_id
-            return pcstate_id[0], pcstate_id[1]
+            return ids[0], ids[1]
         else:
             return None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)

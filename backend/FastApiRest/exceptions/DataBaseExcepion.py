@@ -5,8 +5,10 @@ from starlette.responses import JSONResponse
 
 logging.basicConfig(filename='app.log', level=logging.ERROR)
 
+#TODO: handle general exeptions by logging
+
 class DataBaseException(Exception):
-    def __init__(self, code: int = 500, detail: str = "Issue with DataBase."):
+    def __init__(self, code: int = 500, detail: str = "There was an issue with the database."):
         self.detail = detail
         self.code = code
 

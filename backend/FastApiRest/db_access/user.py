@@ -96,9 +96,13 @@ def add_user(name, email, password, salt):
 
         conn.commit()
     except psycopg2.DatabaseError as e:
+        conn.rollback()
         if e.pgcode == psycopg2.errorcodes.UNIQUE_VIOLATION:
             raise InvalidParametersException(detail="Email or Name already exists.")
         raise DataBaseException(detail="User Could not be inserted")
+    except Exception as e:
+        conn.rollback()
+        raise e
     finally:
         conn_pool.putconn(conn)
 
