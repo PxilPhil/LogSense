@@ -3,11 +3,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi import FastAPI, HTTPException
 
+from api.alerts import alerts
 from api.data import data
 #from api.group import group
 from api.pc import pc
 from api.user import user
 from api.application import application
+
 from exceptions.DataBaseExcepion import DataBaseException, custom_database_exception_handler
 from exceptions.NotFoundExcepion import NotFoundException, custom_not_found_exception_handler
 from exceptions.WrongConfigurationException import WrongConfigurationException, custom_wrong_configuration_exception_handler
@@ -37,6 +39,10 @@ tags_metadata = [
     {
         "name": "Group",
         "description": "Operations related to Groups",
+    },
+    {
+        "name": "Alerts",
+        "description": "Operations to controll alerts",
     }
 ]
 
@@ -55,6 +61,7 @@ app.add_middleware(
 
 app.include_router(user, tags=["User"], prefix="/user")
 #app.include_router(group, tags=["Group"], prefix="/group")
+app.include_router(alerts, tags=["Alerts"], prefix="/alerts")
 app.include_router(pc, tags=["PC"], prefix="/pc")
 app.include_router(application, tags=["Application"], prefix="/pc/{pc_id}/application")
 app.include_router(data, tags=["Data"], prefix="/data")

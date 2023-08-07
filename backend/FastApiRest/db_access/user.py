@@ -42,6 +42,8 @@ def get_salt(identifier, identifier_type):
             return salt[0]  # Assuming salt is the first column in the query result
         else:
             return None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
 
@@ -70,6 +72,8 @@ def check_login(identifier, identifier_type, password):
             return hashed_password == stored_password_hash, user_id
         else:
             raise WrongLoginException()
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
 
@@ -124,6 +128,8 @@ def get_users():
             user = {'name': row[0]}
             users.append(user)
         return users
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
 
@@ -159,5 +165,7 @@ def get_all_user_alerts(user_id, start, end):  # gets all alerts per user betwee
                 alert_list.append(alert)
 
         return alert_list
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)

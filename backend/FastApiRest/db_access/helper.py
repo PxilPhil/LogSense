@@ -28,7 +28,7 @@ def get_pcid_by_stateid(state_id: int):
             pc_id = result[0]
             return pc_id
         else:
-            raise NotFoundException(detail="PC not found")
+            raise NotFoundException(detail=f"PC not found with StateID {str(state_id)}")
     except psycopg2.DatabaseError as e:
         raise DataBaseException()
     finally:

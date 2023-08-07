@@ -1,9 +1,11 @@
 from typing import List
 
+import psycopg2
 from fastapi import HTTPException, APIRouter
 
 from db_access.user import get_users, add_user, check_login, IdentifierType, get_all_user_alerts
 from api.helper import gen_salt
+from exceptions.DataBaseExcepion import DataBaseException
 from exceptions.WrongLoginException import WrongLoginException
 from model.data import AlertData
 
@@ -88,5 +90,5 @@ def get_user_alerts(user_id: int, start: str, end: str):
         )
 
         return user_alerts
-    except Exception as e:
-        raise HTTPException(status_code=400, detail="Exception thrown: \n" + e.__str__())
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
