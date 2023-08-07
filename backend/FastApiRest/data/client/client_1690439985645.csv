@@ -1,2 +1,2 @@
-computerHardwareUUID|computerManufacturer|computerModel|memoryTotalSize|memoryPageSize|processorName|processorIdentifier|processorID|processorVendor|processorBitness|physicalPackageCount|physicalProcessorCount|logicalProcessorCount
-4C4C4544-0052-5210-8050-C8C04F385932|Dell Inc.|Precision 5540|34049916928|4096|Intel(R) Core(TM) i9-9980HK CPU @ 2.40GHz|Intel64 Family 6 Model 158 Stepping 13|BFEBFBFF000906ED|GenuineIntel|64|1|8|16
+measurement_time|computerHardwareUUID|computerManufacturer|computerModel|memoryTotalSize|memoryPageSize|processorName|processorIdentifier|processorID|processorVendor|processorBitness|physicalPackageCount|physicalProcessorCount|logicalProcessorCount
+1234567|4C4C4544-0052-5210-8050-C8C04F385932|Dell Inc.|Precision 5540|34049916928|4096|Intel(R) Core(TM) i9-9980HK CPU @ 2.40GHz|Intel64 Family 6 Model 158 Stepping 13|BFEBFBFF000906ED|GenuineIntel|64|1|8|16

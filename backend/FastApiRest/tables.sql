@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS PC(
 
 CREATE TABLE IF NOT EXISTS PCState(
   id bigserial PRIMARY KEY,
+  measurement_time timestamp NOT NULL,
   pc_id bigint,
   total_memory_size bigint,
   memory_page_size int,

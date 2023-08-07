@@ -1,13 +1,14 @@
 import pandas as pd
 from fastapi import APIRouter, HTTPException, Body
+from starlette.responses import JSONResponse
 
 import db_access.pc
-from db_access.pc import get_pcs, get_pcs_by_userid, add_pc, get_pc_data, get_free_disk_space_data
+from db_access.pc import get_pcs, get_pcs_by_userid, add_pc, get_pc_data, get_free_disk_space_data, get_recent_disk_and_partition
 from db_access.application import get_latest_application_data
 from data_analytics import requests
 from exceptions.DataBaseInsertExcepion import DataBaseInsertException
 from exceptions.InvalidParametersException import InvalidParametersException
-from model.pc import PCItem, ForecastResult, ForecastData
+from model.pc import PCItem, ForecastResult, ForecastData, DISKS
 from model.data import PCData
 
 pc = APIRouter()
@@ -83,7 +84,7 @@ def get_pc_data(pc_id: int, start: str, end: str):
         raise InvalidParametersException()
     pc_total_df, anomaly_list, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu = requests.analyze_pc_data(df, total_df)
 
-        # TODO: Analyzing cpu data doesnt really makesense(atleast like RAM), remove feature or take a closer look at it
+    # TODO: Analyzing cpu data doesnt really makesense(atleast like RAM), remove feature or take a closer look at it
 
     pc_data = PCData(
         pc_id=pc_id,
@@ -102,6 +103,23 @@ def get_pc_data(pc_id: int, start: str, end: str):
     print(pc_data)
     return pc_data
 
+
+@pc.get('/{pc_id}/disk', response_model=DISKS, tags=["PC"])
+def get_pc_data(pc_id: int):
+    """
+    Get data from PCs by ID and for a defined type like RAM or CPU
+
+    Args:
+        pc_id (int): The user ID to filter PCs.
+
+    Returns:
+        dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
+        :param start:
+        :param end:
+    """
+    DISKS = get_recent_disk_and_partition(int(pc_id))
+
+    return DISKS
 
 
 @pc.get('/{pc_id}/data/', response_model=dict, tags=["PC"])

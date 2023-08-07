@@ -10,10 +10,11 @@ from model.data import PCTimeSeriesData
 from pydantic import BaseModel, create_model
 
 from model.pc import NetworkInterface, Connection, Disk, DiskPartition
+from model.pc import DISK, PARTITION, DISKS
 
 
 def add_pc(user_id, hardware_uuid, client_name):
-    # TODO: check if user exists
+    # TODO: check if user exsists
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
@@ -371,3 +372,59 @@ def select_disks(pc_id):
         raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
+
+
+def get_recent_disk_and_partition(pcid):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        query_state = f"SELECT id FROM PCState WHERE pc_id = {pcid} ORDER BY measurement_time DESC LIMIT 1;"
+        cursor.execute(query_state)
+        state_row = cursor.fetchall()
+
+        if state_row:
+            state_id = state_row[0]
+
+            query_disk = """
+                SELECT id, state_id, measurement_time, serialnumber, model, name, size FROM disk
+                WHERE state_id = %s
+                AND measurement_time = (
+                    SELECT MAX(measurement_time) FROM disk WHERE state_id = %s
+                )
+            """
+            cursor.execute(query_disk, (state_id, state_id))
+            disk_row = cursor.fetchall()
+
+            i = 1
+            disks = []
+            for row in disk_row:
+                query_partition = """
+                    SELECT id, disk_id, disk_store_name, identification, name, type, mount_point, size, major_faults,
+                 minor_faults FROM diskpartition
+                    WHERE disk_id = %s
+                """
+                cursor.execute(query_partition, (row[0],))
+                partition = cursor.fetchall()
+
+                partitions = []
+                for partition_row in partition:
+                    partition = PARTITION(id=partition_row[0],
+                                          disk_id=partition_row[1],
+                                          disk_store_name=partition_row[2],
+                                          identification=partition_row[3],
+                                          name=partition_row[4],
+                                          type=partition_row[5],
+                                          mount_point=partition_row[6],
+                                          size=partition_row[7],
+                                          major_faults=partition_row[8],
+                                            minor_faults=partition_row[9])
+                    partitions.append(partition)
+                disk = DISK(id=row[0], state_id=row[1], measurement_time=row[2], serialnumber= row[3], model= row[4], name= row[5], size= row[6], partitions=partitions)
+                disks.append(disk)
+                i = i+1
+            return DISKS(disks=disks)
+    except Exception as e:
+        print(e)
+    finally:
+        conn_pool.putconn(conn)
+    return None

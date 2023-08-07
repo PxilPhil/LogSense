@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 import pandas as pd
@@ -46,7 +47,9 @@ def get_pc_state_df(client_df, conn):
 def insert_new_state_df(pc_id, client_df, conn):
     row = client_df.iloc[0]
     try:
+        measurement_time = datetime.fromtimestamp(int(int(row['measurement_time']) / 1000))
         return insert_new_state(pc_id,
+                                measurement_time,
                                 int(row['memoryTotalSize']),
                                 int(row['memoryPageSize']),
                                 row['processorName'],
@@ -63,6 +66,7 @@ def insert_new_state_df(pc_id, client_df, conn):
 
 
 def insert_new_state(pc_id,
+                     measurement_time,
                      provided_total_memory_size,
                      provided_memory_page_size,
                      provided_processor_name,
@@ -78,6 +82,7 @@ def insert_new_state(pc_id,
     try:
         pcdata = (
             pc_id,
+            measurement_time,
             provided_total_memory_size,
             provided_memory_page_size,
             provided_processor_name,
@@ -92,6 +97,7 @@ def insert_new_state(pc_id,
         sql_query = """
             INSERT INTO PCState (
             pc_id, 
+            measurement_time,
             total_memory_size, 
             memory_page_size, 
             processor_name, 
@@ -102,7 +108,7 @@ def insert_new_state(pc_id,
             physical_package_count, 
             physical_processor_count, 
             logical_processor_count
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;
         """
 
         cursor.execute(sql_query, pcdata)
@@ -114,6 +120,7 @@ def insert_new_state(pc_id,
         else:
             return None
     except psycopg2.DatabaseError as e:
+        logging.ERROR(str(e))
         raise DataBaseException()
 
 
@@ -280,7 +287,7 @@ def insert_disk_and_partition(state_id, disk_df, partition_df, conn):
         insert_disk = """INSERT INTO disk(state_id, measurement_time, serialnumber, model, name, size)VALUES %s RETURNING id;"""
         disks = []
         for i, row in disk_df.iterrows():
-            timestamp = datetime.fromtimestamp(i / 1000)
+            timestamp = datetime.fromtimestamp(int(int(row['measurement_time']) / 1000))
             disk = (state_id, timestamp, row['serialNumber'], row['model'], row['name'], row['size'])
             disks.append(disk)
         psycopg2.extras.execute_values(cursor, insert_disk, disks)

@@ -37,6 +37,33 @@ class runningPCData(BaseModel):
     network_Interface: str
 
 
+class PARTITION(BaseModel):
+    id: int
+    disk_id: int
+    disk_store_name: str
+    identification: str
+    name: str
+    type: str
+    mount_point: str
+    size: int
+    major_faults: int
+    minor_faults: int
+
+
+class DISK(BaseModel):
+    id: int
+    state_id: int
+    measurement_time: datetime
+    serialnumber: str
+    model: str
+    name: str
+    size: int
+    partitions: List[PARTITION]
+
+class DISKS(BaseModel):
+    disks: List[DISK]
+
+
 class NetworkInterface(BaseModel):
     id: int
     pcdata_id: int

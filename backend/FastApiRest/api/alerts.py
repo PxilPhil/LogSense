@@ -8,7 +8,8 @@ alerts = APIRouter()
     400: {"description": "Invalid parameters or missing required fields"},
     500: {"description": "Internal server error"}
 })
-def get_all_alerts():
+def get_all_alerts(user_id: int):
+
     raise NotImplemented
 
 

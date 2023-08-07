@@ -17,8 +17,8 @@ if __name__ == "__main__":
     response = requests.post(url, files=files)
     print(response.status_code)
     print(response.text)
-"""
 
+"""
 if __name__ == "__main__":
     url = "http://localhost:8000/data/?stateId=1"
     file_names = os.listdir("data/application")
