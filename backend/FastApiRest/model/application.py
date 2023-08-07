@@ -35,11 +35,14 @@ class ApplicationTimeSeriesData(BaseModel):
 class ApplicationData(BaseModel):
     pc: int
     application_name: str
-    standard_deviation: float
-    mean: float
+    standard_deviation_ram: float
+    standard_deviation_cpu: float
+    mean_ram: float
+    mean_cpu: float
     time_series_data: List[ApplicationTimeSeriesData]
     event_list: List[EventData]
     anomaly_list: List[AnomalyData]
+
 
 class ApplicationListObject(BaseModel):
     pc_id: int

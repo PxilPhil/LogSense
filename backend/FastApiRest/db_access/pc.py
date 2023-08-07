@@ -10,7 +10,7 @@ from model.data import PCTimeSeriesData
 
 
 def add_pc(user_id, hardware_uuid, client_name):
-    # TODO: check if user exsists
+    # TODO: check if user exists
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
@@ -86,11 +86,11 @@ def get_pcs_by_userid(user_id):
         conn_pool.putconn(conn)
 
 
-def get_total_pc_data(pc_id, start, end, type):
+def get_total_pc_data(pc_id, start, end):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
-        query = f"""
+        query = """
         SELECT
         id,
         state_id,
@@ -111,7 +111,8 @@ def get_total_pc_data(pc_id, start, end, type):
         remaining_capacity_percent_power_sources,
         context_switches_processor,
         interrupts_processor,
-        {type}, 
+        ram,
+        cpu,
         context_switches,
         major_faults,
         open_files,

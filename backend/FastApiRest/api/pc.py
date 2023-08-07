@@ -60,8 +60,8 @@ def add_pc_api(data: PCItem = Body(...)):
     return {'pc_id': pc_id}
 
 
-@pc.get('/{pc_id}/data/{type}', response_model=PCData, tags=["PC"])
-def get_pc_data(pc_id: int, type: str, start: str, end: str):
+@pc.get('/{pc_id}/data', response_model=PCData, tags=["PC"])
+def get_pc_data(pc_id: int, start: str, end: str):
     """
     Get data from PCs by ID and for a defined type like RAM or CPU
 
@@ -73,24 +73,25 @@ def get_pc_data(pc_id: int, type: str, start: str, end: str):
         :param start:
         :param end:
     """
-    type = type.lower()
-    total_df, total_data_list = db_access.pc.get_total_pc_data(pc_id, start, end, type)
+    total_df, total_data_list = db_access.pc.get_total_pc_data(pc_id, start, end)
     df, application_data_list = get_latest_application_data(pc_id)
     if df is None or total_df is None:
         raise InvalidParametersException()
-    pc_total_df, anomaly_list, allocation_map, standard_deviation, mean = requests.analyze_pc_data(df, total_df, type)
+    pc_total_df, anomaly_list, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu = requests.analyze_pc_data(df, total_df)
 
         # TODO: Analyzing cpu data doesnt really makesense(atleast like RAM), remove feature or take a closer look at it
 
     pc_data = PCData(
         pc_id=pc_id,
-        type=type,
         start=start,
         end=end,
-        standard_deviation=standard_deviation,
-        mean=mean,
+        standard_deviation_ram=std_ram,
+        mean_ram=mean_ram,
+        standard_deviation_cpu=std_cpu,
+        mean_cpu=mean_cpu,
         time_series_list=total_data_list,
-        allocation_map=allocation_map,
+        allocation_list_ram=allocation_list_ram,
+        allocation_list_cpu=allocation_list_cpu,
         anomaly_list=anomaly_list
     )
 

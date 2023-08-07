@@ -3,9 +3,11 @@ import numpy as np
 import io
 from datetime import datetime, timedelta
 
+
 def group_by_timestamp(df):
     return df.groupby('timestamp')[
-        ['majorFaults', 'contextSwitches', 'threadCount', 'openFiles', 'residentSetSize', 'cpuUsage', 'processCountDifference']].sum(
+        ['majorFaults', 'contextSwitches', 'threadCount', 'openFiles', 'residentSetSize', 'cpuUsage',
+         'processCountDifference']].sum(
         numeric_only=True).sort_values('timestamp', ascending=True)
 
 

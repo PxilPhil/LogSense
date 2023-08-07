@@ -1,7 +1,9 @@
-from model.data import EventData
+from typing import List
+
+from model.data import EventData, CustomCondition
 from model.data import AnomalyData
 from scipy import stats
-from datetime import datetime
+from data_analytics import manipulation
 
 z_limit = 2
 event_sensitivity_ram = 0.1
@@ -77,7 +79,7 @@ def detect_multiple_events(selected_row, application_name):
             previous_was_flagged = False
         # check for cpu events
         if cpu_difference > event_sensitivity_cpu:
-            if (cpu_difference> 0 and event_header > 0) or (cpu_difference < 0 and event_header < 0):
+            if (cpu_difference > 0 and event_header > 0) or (cpu_difference < 0 and event_header < 0):
                 event_data = EventData(timestamp=row['measurement_time'], anomaly_type=6, change=cpu_difference,
                                        application=application_name, column='cpu')
                 event_list.append(event_data)
@@ -115,6 +117,63 @@ def detect_anomalies(df, first_column, second_column):
     return anomaly_list
 
 
-# TODO: Implement
-def detect_custom_anomaly(df, custom_anomaly_list):  # checks current dataframe if custom anomalies have occured
+def check_custom_alerts(df, pc_total_df, custom_conditions: List[
+    CustomCondition]):  # checks current dataframe if custom alerts have occurred
+    # TODO: get custom alerts from database for user
+    # TODO: Keep track of non-consistent format
+    # Lookback and StartDate are only allowed for degree
+    # TODO: Should compared_df always be possible maximum values (like total amount of RAM available)?
+    selected_column = ""  # selected column for the current condition (like RAM)
+    for condition in custom_conditions:
+        # Check if conditions apply for application
+        if condition.application:
+            application_df = manipulation.select_rows_by_application(condition.application, df)
+            if not condition.degree_trigger_value:
+                check_custom_conditions(application_df, pc_total_df, condition)
+            past_application_df = check_past_entries(application_df, condition)
+        else:
+            if not condition.degree_trigger_value:
+                check_past_entries(pc_total_df, condition)
+            past_pc_df = check_past_entries(application_df, condition)
     return 0
+
+def check_past_entries(df, condition: CustomCondition):
+    # checks if and in what way previous entries should be fetched from database
+    # TODO: We can remove this method if we get data from database beforehand
+    if not condition.degree_trigger_value:
+        check_custom_conditions
+    elif condition.lookback_time:
+        print('lookback')
+    elif condition.start_date:
+        print('go from start date')
+
+
+
+def check_custom_conditions(df, compared_df, condition: CustomCondition):
+    # Check if any conditions apply for a custom alert
+
+    detected_rows = []
+    # Case 1: df is current application and compared_df is previous values
+    # Case 2: df is current pc dataframe and compared_df are previous pc dataframes
+
+    # Return early if the condition object is empty
+    if not any([condition.percentage_trigger_value, condition.absolute_trigger_value, condition.degree_trigger_value]):
+        return detected_rows
+
+    for index, (row, compared_row) in enumerate(zip(df.iterrows(), compared_df.iterrows())):
+        _, row_data = row
+        _, compared_row_data = compared_row
+
+        if condition.percentage_trigger_value:
+            if row_data[condition.column] / compared_row_data[condition.column] > condition.percentage_trigger_value:
+                detected_rows.append(row_data)
+        elif condition.absolute_trigger_value:
+            if row_data[condition.column] > condition.absolute_trigger_value:
+                detected_rows.append(row_data)
+        elif condition.degree_trigger_value:
+            # TODO: Implement degree
+            pass
+        else:
+            raise ValueError("Invalid condition object")
+
+    return detected_rows

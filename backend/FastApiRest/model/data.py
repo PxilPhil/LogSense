@@ -55,6 +55,7 @@ class PCTimeSeriesData(BaseModel):
     context_switches_processor: int
     interrupts_processor: int
     ram: float
+    cpu: float
     context_switches: int
     major_faults: int
     open_files: int
@@ -75,13 +76,13 @@ class AllocationClass(BaseModel):
 
 class PCData(BaseModel):  # Missing Trends
     pc_id: int
-    type: str
     start: str
     end: str
-    standard_deviation: float
-    mean: float
+    standard_deviation_ram: float
+    mean_ram: float
     time_series_list: List[PCTimeSeriesData]
-    allocation_map: List[AllocationClass]
+    allocation_list_ram: List[AllocationClass]
+    allocation_list_cpu: List[AllocationClass]
     anomaly_list: List[AnomalyData]
 
 

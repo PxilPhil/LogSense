@@ -29,13 +29,15 @@ def fetch_application(pc_id: int, application_name: str, start: str, end: str):
         df, data_list = get_application(pc_id, application_name, start, end)
         if df is None:
             raise NotFoundException(code=500, detail="Application was not found.")
-        df, event_list, anomaly_list, standard_deviation, mean = requests.analyze_application_data(df, application_name)
+        df, event_list, anomaly_list, standard_deviation_ram, standard_deviation_cpu, mean_ram, mean_cpu = requests.analyze_application_data(df, application_name)
         print(anomaly_list)
         application_data = ApplicationData(
             pc=pc_id,
             application_name=application_name,
-            standard_deviation=standard_deviation,
-            mean=mean,
+            standard_deviation_ram=standard_deviation_ram,
+            standard_deviation_cpu=standard_deviation_cpu,
+            mean_ram=mean_ram,
+            mean_cpu=mean_cpu,
             time_series_data=data_list,
             event_list=event_list,
             anomaly_list=anomaly_list
