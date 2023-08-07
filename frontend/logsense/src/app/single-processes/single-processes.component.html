@@ -8,21 +8,21 @@
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
       </form>
-      <div *ngFor="let process of tmpProcesses" class="process-box">
-        <div class="txt-22">
-          {{process.name}}
+      <div *ngFor="let applicationName of applicationNameList.application_list" (click)="loadApplicationDataOnApplicationNameClick(applicationName)" class="process-box">
+        <div class="txt-16">
+          {{applicationName}}
         </div>
       </div>
     </div>
     <div class="mar-left-64 w-100">
-      <div>
+      <div *ngIf="isApplicationSelected">
         <select class="dropdown-btn mar-bot-24" [(ngModel)]="selectedTime">
           <option *ngFor="let elem of times" [ngValue]="elem">{{elem.time}}</option>
         </select>
       </div>
-      <div class="space-base mar-top-16">
+      <div *ngIf="isApplicationSelected" class="space-base mar-top-16">
         <div class="flex-center">
-          <h2>{{selectedProcess.name}}</h2>
+          <h2>{{selectedApplication.application_name}}</h2>
           <div class="flex-center">
             <mat-icon class="info-icon mar-left-12 icon-hov">info_outline</mat-icon>
             <div class="white-box hidden">
@@ -38,30 +38,31 @@
                   <span class="txt-16">Bitness</span>
                 </div>
                 <div class="align-txt mar-left-24">
-                  <span class="txt-16">{{selectedProcess.processID}}</span>
-                  <span class="txt-16">{{selectedProcess.path}}</span>
-                  <span class="txt-16">{{selectedProcess.workingDirectory}}</span>
-                  <span class="txt-16">{{selectedProcess.cmdLn}}</span>
-                  <span class="txt-16">{{selectedProcess.parentProcessID}}</span>
-                  <span class="txt-16">{{selectedProcess.user}}</span>
-                  <span class="txt-16">{{selectedProcess.bitness}}</span>
+                  <span class="txt-16">{{latestApplicationMeasurement.id}}</span>
+                  <span class="txt-16">{{latestApplicationMeasurement.path}}</span>
+                  <span class="txt-16">{{latestApplicationMeasurement.current_Working_Directory}}</span>
+                  <span class="txt-16">{{latestApplicationMeasurement.commandLine}}</span>
+                  <span class="txt-16">{{latestApplicationMeasurement.parent_process_id}}</span>
+                  <span class="txt-16">{{latestApplicationMeasurement.user}}</span>
+                  <span class="txt-16">{{latestApplicationMeasurement.bitness}}</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
         <div>
-          <span class="txt-16">running for: {{selectedProcess.runtime}}</span>
+          <span class="txt-16">running for: {{formatUpTime(latestApplicationMeasurement.uptime)}}</span>
         </div>
       </div>
-      <div class="grey-box flex-row w-100 mar-top-24">
+      <div *ngIf="isApplicationSelected" class="grey-box flex-row w-100 mar-top-24">
         <div class="w-100 pad-right-32">
           <div class="space-base">
             <div>
               <span class="txt-22">CPU</span>
             </div>
             <div>
-              <span class="txt-22">{{selectedProcess.cpuAverage}}%</span>
+              <span class="txt-22">{{selectedApplication.mean}}%</span>
+              <!-- mean = average ram value TODO: change when api endpoint is ready -->
             </div>
           </div>
           <div class="mar-top-16">
@@ -74,7 +75,8 @@
               <span class="txt-22">RAM</span>
             </div>
             <div>
-              <span class="txt-22">{{selectedProcess.cpuAverage}}%</span>
+              <span class="txt-22">{{selectedApplication.mean}}%</span>
+              <!-- mean = average ram value TODO: change when api endpoint is ready -->
             </div>
           </div>
           <div class="mar-top-16">
@@ -82,7 +84,7 @@
           </div>
         </div>
       </div>
-      <div class="align-general mar-top-32 w-100">
+      <div *ngIf="isApplicationSelected" class="align-general mar-top-32 w-100">
         <div>
           <h2 class="mar-bot-24">General</h2>
           <div class="grey-box mar-right-96">
@@ -90,35 +92,35 @@
               <div class="align-txt">
                 <span class="txt-16">State</span>
                 <span class="txt-16">Major Faults</span>
-                <span class="txt-16">Minor Faults</span>
                 <span class="txt-16">Context Switches</span>
                 <span class="txt-16">Threads</span>
                 <span class="txt-16">Open Files</span>
               </div>
               <div class="align-txt mar-left-24">
-                <span class="txt-16">{{selectedProcess.name}}</span>
-                <span class="txt-16">{{selectedProcess.majorFaults}}</span>
-                <span class="txt-16">{{selectedProcess.minorFaults}}</span>
-                <span class="txt-16">{{selectedProcess.contextSwitches}}</span>
-                <span class="txt-16">{{selectedProcess.threads}}</span>
-                <span class="txt-16">{{selectedProcess.openFiles}}</span>
+                <span class="txt-16">{{latestApplicationMeasurement.name}}</span>
+                <span class="txt-16">{{latestApplicationMeasurement.major_faults}}</span>
+                <span class="txt-16">{{latestApplicationMeasurement.context_switches}}</span>
+                <span class="txt-16">{{latestApplicationMeasurement.thread_count}}</span>
+                <span class="txt-16">{{latestApplicationMeasurement.open_files}}</span>
               </div>
             </div>
           </div>
         </div>
         <div class="">
-          <h2 class="mar-bot-24">Processes</h2>
+          <h2 class="mar-bot-24">Statistics</h2>
           <div class="grey-box align-general">
             <div class="align-txt">
-              <span class="txt-16" *ngFor="let stat of selectedProcess.statistics; let last = last">{{stat}}</span>
+              <span class="txt-16"
+                    *ngFor="let stat of statistics; let last = last">{{stat}}</span>
             </div>
           </div>
         </div>
       </div>
-      <div class="mar-top-32 w-100">
+      <div [ngClass]="{'mar-left-64 w-100': !isApplicationSelected, 'mar-top-32 w-100': isApplicationSelected}">
         <h2 class="mar-bot-24 mar-bot">Alerts</h2>
         <div class="grey-box w-100">
-          <div class="alert-box flex-center" *ngFor="let alert of selectedProcess.alerts; let last = last" [ngClass]="{'mar-bot-12': !last}">
+          <div class="alert-box flex-center" *ngFor="let alert of alerts; let last = last"
+               [ngClass]="{'mar-bot-12': !last}">
             <mat-icon class="icon-32 icon">warning</mat-icon>
             <span class="mar-left-32 txt-16">{{alert}}</span>
           </div>

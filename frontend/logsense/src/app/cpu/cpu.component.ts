@@ -31,7 +31,7 @@ export class ProcessModel {
 export class CpuComponent implements OnInit{
 
   cpu: CPUModel = new CPUModel();
-  selectedTime: TimeModel = {id: 1, time: "Last 24h"};
+  selectedTime: TimeModel = {id: 1, time: "Last 24h", valueInMilliseconds: 86400000};
   notes: String[] = ["CPU Usage dropped 4%", "21 Anomalies detected", "5 Events registered"];
   processes: ProcessModel[] = [{name: "Chrome", allocation: 15}, {name: "Explorer", allocation: 10},{name: "Intellij", allocation: 48}];
   alerts: String[] = ["Some devices are at their workload limit", "Abnormal CPU-Spikes detected (21 Anomalies in the last 24 hours)"];

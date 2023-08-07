@@ -4,7 +4,7 @@ import {CPUModel} from "../cpu/cpu.component";
 import {RAMModel} from "../ram/ram.component";
 import {DiskModel, TimeModel} from "../disk/disk.component";
 import { ApiService } from '../services/api-service.service';
-import { PCDataResponse } from '../models/PCData';
+import { PCDataResponse } from '../model/PCData';
 Chart.register(...registerables);
 
 export class PowerSourceModel {
@@ -35,7 +35,7 @@ export class OverviewComponent implements OnInit {
   ram: RAMModel = new RAMModel();
   disk: DiskModel = new DiskModel();
   alerts: String[] = ["Abnormal RAM-Spikes detected", "Memory leak possible"];
-  selectedTime: TimeModel = {id: 1, time: "Last 24h"};
+  selectedTime: TimeModel = {id: 1, time: "Last 24h", valueInMilliseconds: 86400000};
 
   times = [
     {id: 1, time: "Last 24h"},

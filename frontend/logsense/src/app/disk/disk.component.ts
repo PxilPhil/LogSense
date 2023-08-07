@@ -38,6 +38,7 @@ export class PartitionModel {
 export interface TimeModel {
   id: Number;
   time: String;
+  valueInMilliseconds: number;
 }
 @Component({
   selector: 'app-disk',
@@ -45,7 +46,7 @@ export interface TimeModel {
   styleUrls: ['./disk.component.scss']
 })
 export class DiskComponent implements OnInit{
-  selectedTime: TimeModel = {id: 1, time: "Last 24h"};
+  selectedTime: TimeModel = {id: 1, time: "Last 24h", valueInMilliseconds: 86400000};
   disk: DiskModel = new DiskModel();
   times = [
     {id: 1, time: "Last 24h"},

@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import {Process} from "../single-processes/single-processes.component";
+import {Component, OnInit} from '@angular/core';
 import {ProcessModel} from "../cpu/cpu.component";
 import {Chart} from "chart.js";
 import {TimeModel} from "../disk/disk.component";
@@ -22,7 +21,7 @@ export class RAMModel {
 })
 export class RamComponent implements OnInit {
   ram: RAMModel = new RAMModel();
-  selectedTime: TimeModel = {id: 1, time: "Last 24h"};
+  selectedTime: TimeModel = {id: 1, time: "Last 24h", valueInMilliseconds: 86400000};
   times = [
     {id: 1, time: "Last 24h"},
     {id: 2, time: "Last Week"},

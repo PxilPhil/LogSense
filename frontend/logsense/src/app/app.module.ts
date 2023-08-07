@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import {CommonModule} from "@angular/common";
+import {CommonModule, DatePipe} from "@angular/common";
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -23,8 +23,6 @@ import { NetworkComponent } from './network/network.component';
 import {MatDialogModule} from "@angular/material/dialog";
 import { PartDialogComponent } from './part-dialog/part-dialog.component';
 import { HttpClientModule } from '@angular/common/http'; // Import HttpClientModule
-
-
 
 @NgModule({
   declarations: [
@@ -54,7 +52,7 @@ import { HttpClientModule } from '@angular/common/http'; // Import HttpClientMod
     MatDialogModule,
     HttpClientModule
   ],
-  providers: [],
+  providers: [DatePipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

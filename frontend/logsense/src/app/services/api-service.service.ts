@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { PCDataResponse } from '../models/PCData';
+import { PCDataResponse } from '../model/PCData';
 
 
 
@@ -13,7 +13,7 @@ import { PCDataResponse } from '../models/PCData';
 
 
 export class ApiService {
-  constructor(private http: HttpClient) { 
+  constructor(private http: HttpClient) {
     console.log('ApiService constructor called');
   }
 
