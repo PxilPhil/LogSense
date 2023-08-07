@@ -1,51 +1,12 @@
+from __future__ import annotations
 from pydantic import BaseModel, Json
 from typing import List
 from datetime import datetime
+from typing import List, Optional
+from pydantic import BaseModel, Field
+
 
 # TODO: Keep in mind to return AlertData to user instead of respective classes used for saving data
-
-class sessionPCData(BaseModel):
-    disks: str
-    partition: str
-    client_data: str
-
-
-class runningPCData(BaseModel):
-    pc_resources: str
-    connection_data: str
-    application_data: str
-    network_Interface: str
-
-
-class ApplicationTimeSeriesData(BaseModel):
-    id: int
-    pcdata_id: int
-    measurement_time: datetime
-    name: str
-    path: str
-    cpu: float
-    ram: int
-    state: str
-    user: str
-    context_switches: int
-    major_faults: int
-    bitness: int
-    commandline: str
-    current_Working_Directory: str
-    open_files: int
-    parent_process_id: int
-    thread_count: int
-    uptime: int
-    process_count_difference: int
-    rolling_avg_ram: float
-
-
-class ApplicationListObject(BaseModel):
-    pc_id: int
-    start: datetime
-    end: datetime
-    application_list: List[str]
-
 
 class EventData(BaseModel):  # anomaly data class returned when analyzing application data
     timestamp: datetime
@@ -64,23 +25,13 @@ class AnomalyData(BaseModel):  # anomaly data class returned when analyzing appl
 
 class AlertData(BaseModel):  # basically AnomalyData (EventData) but includes custom alerts and are returned to the user
     type: str
-    severity_level: int  #TODO: Either map in frontend or change severity_level to a string
+    severity_level: int  # TODO: Either map in frontend or change severity_level to a string
     message: str
     change_in_percentage: float
     data_type: str
     name: str
     measurement_time: datetime
     pc_id: int
-
-
-class ApplicationData(BaseModel):
-    pc: int
-    application_name: str
-    standard_deviation: float
-    mean: float
-    time_series_data: List[ApplicationTimeSeriesData]
-    event_list: List[EventData]
-    anomaly_list: List[AnomalyData]
 
 
 class PCTimeSeriesData(BaseModel):
@@ -132,3 +83,29 @@ class PCData(BaseModel):  # Missing Trends
     time_series_list: List[PCTimeSeriesData]
     allocation_map: List[AllocationClass]
     anomaly_list: List[AnomalyData]
+
+
+class CustomCondition(BaseModel):
+    percentage_trigger_value: Optional[float] = None
+    degree_trigger_value: Optional[int] = None
+    absolute_trigger_value: Optional[int] = None
+    operator: str
+    column: str
+    application: Optional[str] = None
+    lookback_time: Optional[int] = None
+    start_date: Optional[str] = None
+    order: Optional[int] = None
+    logical_condition: Optional[str] = None
+    conditions: Optional[List[CustomCondition]] = None  # maybe replace with CustomCondition
+
+
+class CustomAlertObject(BaseModel):
+    user_id: int
+    type: str
+    message: str
+    severity_level: int
+    conditions: List[CustomCondition]
+
+
+class CustomAlerts(BaseModel):
+    custom_alert_list: List[CustomAlertObject]

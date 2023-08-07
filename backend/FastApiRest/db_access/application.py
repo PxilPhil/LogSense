@@ -7,7 +7,7 @@ from datetime import datetime
 import psycopg2
 
 from psycopg2 import extras
-from model.data import ApplicationTimeSeriesData
+from model.application import ApplicationTimeSeriesData
 
 
 def get_application(pc_id: int, application_name, start, end):
@@ -35,7 +35,8 @@ def get_application(pc_id: int, application_name, start, end):
             thread_count,
             uptime,
             process_count_difference,
-            AVG(ram) OVER (PARTITION BY name ORDER BY measurement_time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS rolling_avg_ram
+            AVG(ram) OVER (PARTITION BY name ORDER BY measurement_time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS rolling_avg_ram,
+            AVG(cpu) OVER (PARTITION BY name ORDER BY measurement_time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS rolling_avg_cpu
         FROM
             applicationdata
         WHERE

@@ -4,39 +4,11 @@ from data_analytics import involvement, manipulation, anomaly, trend, stats
 from data_analytics.prediction import fit_linear_regression, predict_for_df
 from db_access.data import get_moving_avg_of_application
 from db_access.pc import get_latest_moving_avg
+from db_access.helper import get_pcid_by_stateid
 from model.data import AllocationClass
 from model.pc import ForecastData
-from db_access.helper import get_pcid_by_stateid
-
 
 warnings.filterwarnings("ignore")
-
-"""
-Some more ideas:
-
-Threshold Analysis:
-Check if applications or pcs are at a certain threshold for some time (like always using a large amount of RAM and CPU)
-
-Anomaly Detection:
-Z-Scale test for certain timeframe
-
-CPU Analysis:
-Like for RAM
-
-Application Performance Trends: -> doing this rn
-You can analyze the performance trends of applications over time. For example, you can calculate the average RAM or CPU usage of each application per day/week/month and plot it to observe any trends or patterns.
-
-(Comparing Applications):
-You can compare the performance of different applications based on their RAM or CPU usage. Calculate statistics like mean and standard deviation for each application and compare them to identify which applications are more resource-intensive.
-Resource Usage Over Time:
-
-Explore the correlation between RAM and CPU usage. You can calculate the correlation coefficient between these two metrics to see if there's any relationship between them.
-Outlier Detection:
-Data Aggregation and Filtering: -> Done
-Implement functions to aggregate data at different time intervals (e.g., hourly, daily) or filter data based on certain criteria (e.g., applications with high resource usage).
-
-"""
-
 
 def preprocess_pc_data(df, state_id):
     """
@@ -68,7 +40,7 @@ def preprocess_pc_data(df, state_id):
             moving_avg_ram, moving_avg_cpu = get_moving_avg_of_application(pc_id, application)
             if moving_avg_ram > 0 and moving_avg_cpu > 0:
                 anomaly.detect_event(selected_row, 'residentSetSize', moving_avg_ram, event_list,application) # find ram events
-                #anomaly.detect_cpu_event(selected_row, 'cpuUsage', moving_avg_cpu, event_list,application) # find cpu events
+                anomaly.detect_cpu_event(selected_row, 'cpuUsage', moving_avg_cpu, event_list,application) # find cpu events
 
     # if an event has been found, look through what application caused it
     return pc_total_df, event_list
@@ -135,7 +107,7 @@ def analyze_application_data(df, application_name):
         mean: Average of the values.
     """
     # find events
-    event_list = anomaly.detect_multiple_events(df, 'ram', application_name)
+    event_list = anomaly.detect_multiple_events(df, application_name)
     # get stats
     std = df['ram'].std()
     mean = df['ram'].mean()
@@ -173,7 +145,6 @@ def analyze_pc_data(df, pc_total_df, column):
     allocation_list = [AllocationClass(name=key, allocation=value) for key, value in
                        allocation_map.items()]  # convert map into list of our model object to send via json
     anomaly_list = anomaly.detect_anomalies(df, 'cpu', 'ram')
-    # TODO: if we do anomaly detection here we need to insert in the database, if we do it on ingest performance will be worse
     return pc_total_df, anomaly_list, allocation_list, std, mean
 
 

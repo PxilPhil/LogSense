@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Body
 from data_analytics import requests
 from db_access.application import get_application, get_application_list, get_grouped_by_interval_application
-from model.data import ApplicationData, ApplicationListObject
+from model.application import ApplicationData, ApplicationListObject
 from model.pc import PCItem
 
 application = APIRouter()
