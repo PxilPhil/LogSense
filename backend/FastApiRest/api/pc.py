@@ -3,12 +3,13 @@ from fastapi import APIRouter, HTTPException, Body
 from starlette.responses import JSONResponse
 
 import db_access.pc
-from db_access.pc import get_pcs, get_pcs_by_userid, add_pc, get_pc_data, get_free_disk_space_data, get_recent_disk_and_partition
+from db_access.pc import get_pcs, get_pcs_by_userid, add_pc, get_pc_data, get_free_disk_space_data, \
+    get_recent_disk_and_partition
 from db_access.application import get_latest_application_data
 from data_analytics import requests
 from exceptions.DataBaseInsertExcepion import DataBaseInsertException
 from exceptions.InvalidParametersException import InvalidParametersException
-from model.pc import PCItem, ForecastResult, ForecastData, DISKS
+from model.pc import PCItem, ForecastResult, ForecastData, DISKS, Network
 from model.data import PCData
 
 pc = APIRouter()
@@ -75,14 +76,12 @@ def get_pc_data(pc_id: int, start: str, end: str):
         :param end:
     """
     total_df, total_data_list = db_access.pc.get_total_pc_application_data(pc_id, start, end)
-    connection_list = db_access.pc.select_connections(pc_id)
-    network_list = db_access.pc.select_network_interfaces(pc_id)
-    disk_list = db_access.pc.select_disks(pc_id)
 
     df, application_data_list = get_latest_application_data(pc_id)
     if df is None or total_df is None:
         raise InvalidParametersException()
-    pc_total_df, anomaly_list, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu = requests.analyze_pc_data(df, total_df)
+    pc_total_df, anomaly_list, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu = requests.analyze_pc_data(
+        df, total_df)
 
     # TODO: Analyzing cpu data doesnt really makesense(atleast like RAM), remove feature or take a closer look at it
 
@@ -97,7 +96,7 @@ def get_pc_data(pc_id: int, start: str, end: str):
         time_series_list=total_data_list,
         allocation_list_ram=allocation_list_ram,
         allocation_list_cpu=allocation_list_cpu,
-        anomaly_list=anomaly_list
+        anomaly_list=anomaly_list,
     )
 
     print(pc_data)
@@ -105,7 +104,7 @@ def get_pc_data(pc_id: int, start: str, end: str):
 
 
 @pc.get('/{pc_id}/disk', response_model=DISKS, tags=["PC"])
-def get_pc_data(pc_id: int):
+def get_pc_disks(pc_id: int):
     """
     Get data from PCs by ID and for a defined type like RAM or CPU
 
@@ -120,6 +119,30 @@ def get_pc_data(pc_id: int):
     DISKS = get_recent_disk_and_partition(int(pc_id))
 
     return DISKS
+
+
+@pc.get('/{pc_id}/network', response_model=Network, tags=["PC"])
+def geet_pc_network(pc_id: int):
+    """
+    Get data from PCs by ID and for a defined type like RAM or CPU
+
+    Args:
+        pc_id (int): The user ID to filter PCs.
+
+    Returns:
+        dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
+        :param start:
+        :param end:
+    """
+    connection_list = db_access.pc.select_connections(pc_id)
+    network_interface_list = db_access.pc.select_network_interfaces(pc_id)
+
+    network = Network(
+        network_list=network_interface_list,
+        connection_list=connection_list
+    )
+
+    return network
 
 
 @pc.get('/{pc_id}/data/', response_model=dict, tags=["PC"])
@@ -163,4 +186,3 @@ def forecast_free_disk_space(pc_id: int, days: int):
         return forecast_result
     except Exception as e:
         raise InvalidParametersException()
-

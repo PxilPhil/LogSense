@@ -5,6 +5,8 @@ from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
+from model.pc import Connection, NetworkInterface, Disk
+
 
 # TODO: Keep in mind to return AlertData to user instead of respective classes used for saving data
 
@@ -83,6 +85,9 @@ class PCData(BaseModel):  # Missing Trends
     allocation_list_ram: List[AllocationClass]
     allocation_list_cpu: List[AllocationClass]
     anomaly_list: List[AnomalyData]
+    connection_list: List[Connection]
+    network_list: List[NetworkInterface]
+    disk_list: List[Disk]
 
 
 class CustomCondition(BaseModel):

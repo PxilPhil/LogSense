@@ -63,7 +63,6 @@ class DISK(BaseModel):
 class DISKS(BaseModel):
     disks: List[DISK]
 
-
 class NetworkInterface(BaseModel):
     id: int
     pcdata_id: int
@@ -89,6 +88,11 @@ class Connection(BaseModel):
     state: str
     type: str
     owningprocessid: int
+
+
+class Network(BaseModel):
+    network_list: List[NetworkInterface]
+    connection_list: List[Connection]
 
 
 class DiskPartition(BaseModel):
