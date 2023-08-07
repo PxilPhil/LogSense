@@ -15,28 +15,23 @@ data = APIRouter()
 
 @data.post("/initial", tags=["Data"], responses={
     200: {"description": "Successful response"},
-    400: {"description": "Invalid JSON data"},
+    400: {"description": "Invalid parameters or missing required fields"},
     500: {"description": "Internal server error"}
 })
 def ingest_initial_data(files: list[UploadFile]):
     """
-    **Insert Initial data.**
+    Insert Initial Data
 
-        Inserts initial data into the system using a list of data files. (Content-Type: multipart/form-data)
+    Inserts initial data into the system using a list of data files. (Content-Type: multipart/form-data)
 
-    **Parameters:**
+    Parameters:
+    - files (List[UploadFile]): A list of UploadFile objects representing the Timeseries data files.
+        - File names must include: "client", "disk", "partition"
 
-    - **files** (list[UploadFile]): A list of UploadFile objects representing the Timeseries data files.
-
-        File names must include: "client", "disk", "partition"
-
-    **Returns:**
-
-    - **dict**: A dictionary with the following keys:
+    Returns:
+    - dict: A dictionary with the following keys:
         - 'result': A string indicating the success or failure of the operation.
         - 'state_id': The ID of the pcData inserted.
-        - 'Anomalies found': The number of anomalies detected.
-
     """
     state_id = None
     try:
@@ -54,21 +49,21 @@ def ingest_initial_data(files: list[UploadFile]):
 
 @data.post("/", tags=["Data"], responses={
     200: {"description": "Successful response"},
-    400: {"description": "Invalid JSON data"},
+    400: {"description": "Invalid parameters or missing required fields."},
     500: {"description": "Internal server error"}
 })
 def ingest_data(files: list[UploadFile], stateId: int):
     """
-    **Insert Timeseries data.**
-    **Args:**
-        stateId (int): The ID of the state.
-        files (list[UploadFile]): A list of UploadFile objects representing the Timeseries data files.
-            - File names must include: "application", "connection", "resources", "network".
-    **Returns:**
-        dict:
-        A dictionary with a 'result' key indicating the success or failure of the operation,
-        'pcdata_id' the ID of the pcData inserted,
-        and 'Anomalies found' indicating the number of anomalies detected.
+    Insert Timeseries Data
+
+    Args:
+    - stateId (int): The ID of the state.
+    - files (List[UploadFile]): A list of UploadFile objects representing the Timeseries data files.
+        - File names must include: "application", "connection", "resources", "network".
+
+    Returns:
+    - dict: A dictionary with a 'result' key indicating the success or failure of the operation,
+      'pcdata_id' the ID of the pcData inserted, and 'Anomalies found' indicating the number of anomalies detected.
     """
     try:
         df_map = get_dfdict_from_filelist(files)
