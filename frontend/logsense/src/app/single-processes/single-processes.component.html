@@ -1,5 +1,5 @@
 <div class="anti-th">
-  <h1 class="mar-left-64 mar-top-48">Processes</h1>
+  <h1 class="mar-left-64 mar-top-48">Applications</h1>
   <div class="pad-left-64 mar-top-48 flex-start w-100 pad-right-128 pad-bot-64">
     <div class="white-box pad-top-bot-16 h-100">
       <form class="example-form pad-left-right-16">
@@ -61,8 +61,7 @@
               <span class="txt-22">CPU</span>
             </div>
             <div>
-              <span class="txt-22">{{selectedApplication.mean}}%</span>
-              <!-- mean = average ram value TODO: change when api endpoint is ready -->
+              <span class="txt-22">{{roundDecimalNumber(selectedApplication.mean_cpu, 2)}}%</span>
             </div>
           </div>
           <div class="mar-top-16">
@@ -75,8 +74,7 @@
               <span class="txt-22">RAM</span>
             </div>
             <div>
-              <span class="txt-22">{{selectedApplication.mean}}%</span>
-              <!-- mean = average ram value TODO: change when api endpoint is ready -->
+              <span class="txt-22">{{roundDecimalNumber((selectedApplication.mean_ram / 1024 / 1024), 2)}} MB</span>
             </div>
           </div>
           <div class="mar-top-16">
@@ -97,7 +95,7 @@
                 <span class="txt-16">Open Files</span>
               </div>
               <div class="align-txt mar-left-24">
-                <span class="txt-16">{{latestApplicationMeasurement.name}}</span>
+                <span class="txt-16">{{latestApplicationMeasurement.state}}</span>
                 <span class="txt-16">{{latestApplicationMeasurement.major_faults}}</span>
                 <span class="txt-16">{{latestApplicationMeasurement.context_switches}}</span>
                 <span class="txt-16">{{latestApplicationMeasurement.thread_count}}</span>

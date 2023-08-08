@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import {Chart, Plugin, registerables} from 'chart.js';
+import {Component, OnInit} from '@angular/core';
+import {Chart, registerables} from 'chart.js';
 import {CPUModel} from "../cpu/cpu.component";
 import {RAMModel} from "../ram/ram.component";
-import {DiskModel, TimeModel} from "../disk/disk.component";
-import { ApiService } from '../services/api-service.service';
-import { PCDataResponse } from '../model/PCData';
+import {TimeModel} from "../disk/disk.component";
+import {ApiService} from '../services/api-service.service';
+import {PCDataResponse} from '../model/PCData';
+import {DiskData} from "../model/DiskData";
+
 Chart.register(...registerables);
 
 export class PowerSourceModel {
@@ -33,7 +35,7 @@ export class OverviewComponent implements OnInit {
   runtime: String = "2h 30min";
   cpu: CPUModel = new CPUModel();
   ram: RAMModel = new RAMModel();
-  disk: DiskModel = new DiskModel();
+  disk: DiskData = new DiskData();
   alerts: String[] = ["Abnormal RAM-Spikes detected", "Memory leak possible"];
   selectedTime: TimeModel = {id: 1, time: "Last 24h", valueInMilliseconds: 86400000};
 
@@ -45,7 +47,9 @@ export class OverviewComponent implements OnInit {
     {id: 5, time: "Last 12 Months"},
     {id: 6, time: "All Time"}
   ];
-  constructor(private apiService: ApiService) { }
+
+  constructor(private apiService: ApiService) {
+  }
 
   ngOnInit(): void {
     this.timeChart();
@@ -63,7 +67,7 @@ export class OverviewComponent implements OnInit {
 
   timeChart() {
     const data = this.getData();
-    const config = new Chart("timeChart",  {
+    const config = new Chart("timeChart", {
       type: 'bar',
       data: {
         labels: data.labels,
@@ -90,9 +94,9 @@ export class OverviewComponent implements OnInit {
   }
 
   getData(): { labels: string[], values: number[] } {
-      const labels = ['Zeitpunkt 1', 'Zeitpunkt 2', 'Zeitpunkt 3']; // Beispiellabels
-      const values = [75, 90, 60]; // Beispielauslastung
-      return { labels, values };
+    const labels = ['Zeitpunkt 1', 'Zeitpunkt 2', 'Zeitpunkt 3']; // Beispiellabels
+    const values = [75, 90, 60]; // Beispielauslastung
+    return {labels, values};
   }
 
 }

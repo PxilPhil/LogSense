@@ -1,6 +1,6 @@
 import {Component, Inject} from '@angular/core';
 import {MAT_DIALOG_DATA} from "@angular/material/dialog";
-import {PartitionModel} from "../disk/disk.component";
+import {Partition} from "../model/DiskData";
 
 @Component({
   selector: 'app-part-dialog',
@@ -8,6 +8,6 @@ import {PartitionModel} from "../disk/disk.component";
   styleUrls: ['./part-dialog.component.scss']
 })
 export class PartDialogComponent {
-  constructor(@Inject(MAT_DIALOG_DATA) public data: PartitionModel[]) {}
-
+  constructor(@Inject(MAT_DIALOG_DATA) public data: Partition[]) {
+  }
 }

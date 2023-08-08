@@ -49,7 +49,7 @@ export class SingleProcessesComponent implements OnInit {
   loadAlerts(): void {
     this.alertService.getAlerts().subscribe((data: Alert[]) => {
       this.alerts = data;
-    })
+    });
   }
 
   loadApplicationDataOnApplicationNameClick(applicationName: string): void {
@@ -136,6 +136,10 @@ export class SingleProcessesComponent implements OnInit {
     const minutes = date.getMinutes().toString().padStart(2, '0');
     const seconds = date.getSeconds().toString().padStart(2, '0');
     return `${hours} hours, ${minutes} minutes and ${seconds} seconds`;
+  }
+
+  roundDecimalNumber(decimalNumber: number, places: number): number {
+    return Math.round((decimalNumber + Number.EPSILON) * 1000) / 1000;
   }
 }
 

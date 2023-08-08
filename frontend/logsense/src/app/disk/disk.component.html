@@ -35,31 +35,31 @@
               <span class="txt-16">Free Disk Space</span>
             </div>
             <div class="align-txt mar-left-32">
-              <span class="txt-16">{{disk.totalMemory}}</span>
-              <span class="txt-16">{{disk.free}}</span>
+              <span class="txt-16"> <!--{{disk.totalMemory}}--> 1024 GB</span>
+              <span class="txt-16"> <!--{{disk.free}}--> 312.5 GB</span>
             </div>
           </div>
 
           <div class="boxes mar-top-12">
             <div class="white-box txt-16">Current
               <div class="value">
-                {{disk.current}}%
+                <!--{{disk.current}}--> 25%
               </div>
             </div>
             <div class="white-box txt-16 mar-left-12">
               Average
               <div class="value">
-                {{disk.average}}%
+                <!--{{disk.average}}--> 20.03%
               </div>
             </div>
             <div class="white-box txt-16 mar-left-12">Stability
               <div class="value">
-                {{disk.stability}}
+                <!--{{disk.stability}}--> High
               </div>
             </div>
           </div>
           <div class="align-notes mar-top-16">
-            <span class="txt-16 mar-bot-5" *ngFor="let stat of disk.stats">{{stat}}</span>
+            <span class="txt-16 mar-bot-5" *ngFor="let stat of statistics">{{stat}}</span>
           </div>
         </div>
       </div>
@@ -69,7 +69,7 @@
     <div class="w-100">
       <h2 class="mar-bot-24">Alerts</h2>
       <div class="grey-box w-100">
-        <div class="alert-box flex-center" *ngFor="let alert of disk.alerts; let last = last" [ngClass]="{'mar-bot-12': !last}">
+        <div class="alert-box flex-center" *ngFor="let alert of alerts; let last = last" [ngClass]="{'mar-bot-12': !last}">
           <mat-icon class="icon-32 icon">warning</mat-icon>
           <span class="mar-left-32 txt-16">{{alert}}</span>
         </div>
@@ -82,26 +82,20 @@
       <table class="table">
         <thead class="bold">
           <tr>
+            <td class="cell txt-16">Serial Number</td>
             <td class="cell txt-16">Name</td>
             <td class="cell txt-16">Model</td>
             <td class="cell txt-16">Size</td>
-            <td class="cell txt-16">Read Bytes</td>
-            <td class="cell txt-16">Reads</td>
-            <td class="cell txt-16">Write Bytes</td>
-            <td class="cell txt-16">Writes</td>
             <td class="cell txt-16">Partitions</td>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td class="cell txt-16">{{disk.name}}</td>
-            <td class="cell txt-16">{{disk.model}}</td>
-            <td class="cell txt-16">{{disk.size}}</td>
-            <td class="cell txt-16">{{disk.readBytes}}</td>
-            <td class="cell txt-16">{{disk.read}}</td>
-            <td class="cell txt-16">{{disk.writeBytes}}</td>
-            <td class="cell txt-16">{{disk.writes}}</td>
-            <td class="cell txt-16 part-link" (click)="openDialog()">See Partitions</td>
+          <tr *ngFor="let diskStore of diskData.disks; let i = index">
+            <td class="cell txt-16">{{diskStore.serialnumber}}</td>
+            <td class="cell txt-16">{{diskStore.name}}</td>
+            <td class="cell txt-16">{{diskStore.model}}</td>
+            <td class="cell txt-16">{{diskStore.size}}</td>
+            <td class="cell txt-16 part-link" (click)="openDialog(i)">See Partitions</td>
           </tr>
         </tbody>
       </table>

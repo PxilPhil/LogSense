@@ -14,14 +14,14 @@
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let part of data">
-        <td class="cell txt-16">Datenträgernr. {{part.diskNr}}, Partitionsnr. {{part.partNr}}</td>
-        <td class="cell txt-16">{{part.name}}</td>
-        <td class="cell txt-16">{{part.type}}</td>
-        <td class="cell txt-16">{{part.mount}}</td>
-        <td class="cell txt-16">{{part.size}}</td>
-        <td class="cell txt-16">{{part.majorFaults}}</td>
-        <td class="cell txt-16">{{part.minorFaults}}</td>
+      <tr *ngFor="let partition of data">
+        <td class="cell txt-16">{{partition.identification}}</td>
+        <td class="cell txt-16">{{partition.name}}</td>
+        <td class="cell txt-16">{{partition.type}}</td>
+        <td class="cell txt-16">{{partition.mount_point}}</td>
+        <td class="cell txt-16">{{partition.size}}</td>
+        <td class="cell txt-16">{{partition.major_faults}}</td>
+        <td class="cell txt-16">{{partition.minor_faults}}</td>
       </tr>
       </tbody>
     </table>

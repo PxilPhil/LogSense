@@ -19,17 +19,17 @@
           </tr>
           </thead>
           <tbody>
-          <tr *ngFor="let interface of network.networkInterfaces">
-            <td class="cell">{{interface.displayName}}</td>
-            <td class="cell">{{interface.name}}</td>
-            <td class="cell">{{interface.ip4}}</td>
-            <td class="cell">{{interface.ip6}}</td>
-            <td class="cell">{{interface.mac}}</td>
-            <td class="cell">{{interface.subnetMask}}</td>
-            <td class="cell">{{interface.bytesReceived}}</td>
-            <td class="cell">{{interface.bytesSent}}</td>
-            <td class="cell">{{interface.packetsReceived}}</td>
-            <td class="cell">{{interface.packetsSent}}</td>
+          <tr *ngFor="let networkInterface of networkData.network_list">
+            <td class="cell">{{networkInterface.display_name}}</td>
+            <td class="cell">{{networkInterface.name}}</td>
+            <td class="cell">{{networkInterface.ipv4_address}}</td>
+            <td class="cell">{{networkInterface.ipv6_address}}</td>
+            <td class="cell">{{networkInterface.mac_address}}</td>
+            <td class="cell">{{networkInterface.subnet_mask}}</td>
+            <td class="cell">{{networkInterface.bytes_received}}</td>
+            <td class="cell">{{networkInterface.bytes_sent}}</td>
+            <td class="cell">{{networkInterface.packets_received}}</td>
+            <td class="cell">{{networkInterface.packets_sent}}</td>
           </tr>
           </tbody>
         </table>
@@ -41,22 +41,24 @@
         <table class="table txt-16">
           <thead class="bold">
           <tr>
-            <td class="cell">Timestamp</td>
+            <td class="cell">Local Address</td>
             <td class="cell">Local Port</td>
             <td class="cell">Foreign Address</td>
             <td class="cell">Foreign Port</td>
             <td class="cell">State</td>
             <td class="cell">Type</td>
+            <td class="cell">Owning Process ID</td>
           </tr>
           </thead>
           <tbody>
-          <tr *ngFor="let conn of network.connections">
-            <td class="cell">{{conn.timestamp}}</td>
-            <td class="cell">{{conn.localPort}}</td>
-            <td class="cell">{{conn.foreignAddress}}</td>
-            <td class="cell">{{conn.foreignPort}}</td>
-            <td class="cell">{{conn.state}}</td>
-            <td class="cell">{{conn.type}}</td>
+          <tr *ngFor="let ipConnection of networkData.connection_list">
+            <td class="cell">{{ipConnection.localaddress}}</td>
+            <td class="cell">{{ipConnection.localport}}</td>
+            <td class="cell">{{ipConnection.foreignaddress}}</td>
+            <td class="cell">{{ipConnection.foreignport}}</td>
+            <td class="cell">{{ipConnection.state}}</td>
+            <td class="cell">{{ipConnection.type}}</td>
+            <td class="cell">{{ipConnection.owningprocessid}}</td>
           </tr>
           </tbody>
         </table>
@@ -66,7 +68,7 @@
     <div class="w-100">
       <h2 class="mar-bot-24">Alerts</h2>
       <div class="grey-box w-100">
-        <div class="alert-box flex-center" *ngFor="let alert of network.alerts; let last = last" [ngClass]="{'mar-bot-12': !last}">
+        <div class="alert-box flex-center" *ngFor="let alert of alerts; let last = last" [ngClass]="{'mar-bot-12': !last}">
           <mat-icon class="icon-32 icon">warning</mat-icon>
           <span class="mar-left-32 txt-16">{{alert}}</span>
         </div>

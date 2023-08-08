@@ -1,8 +1,10 @@
 export class Application {
   pc: number = 0;
   application_name: string = "";
-  standard_deviation: number = 0;
-  mean: number = 0;
+  standard_deviation_ram: number = 0;
+  standard_deviation_cpu: number = 0;
+  mean_ram: number = 0;
+  mean_cpu: number = 0;
   time_series_data: ApplicationTimeSeriesData[] = [];
   event_list: [
     {
@@ -52,4 +54,5 @@ export class ApplicationTimeSeriesData {
   uptime: number = 0;
   process_count_difference: number = 0;
   rolling_avg_ram: number = 0;
+  rolling_avg_cpu: number = 0;
 }
