@@ -12,6 +12,22 @@ class PCItem(BaseModel):
     model: str = None
 
 
+class PCState(BaseModel):
+    id: int
+    measurement_time: str
+    pc_id: int
+    total_memory_size: int
+    memory_page_size: int
+    processor_name: str
+    processor_identifier: str
+    processor_id: str
+    processor_vendor: str
+    processor_bitness: int
+    physical_package_count: int
+    physical_processor_count: int
+    logical_processor_count: int
+
+
 class ForecastData(BaseModel):
     LinearRegression: float
     datetime: datetime
@@ -60,8 +76,10 @@ class DISK(BaseModel):
     size: int
     partitions: List[PARTITION]
 
+
 class DISKS(BaseModel):
     disks: List[DISK]
+
 
 class NetworkInterface(BaseModel):
     id: int

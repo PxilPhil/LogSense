@@ -9,7 +9,7 @@ from exceptions.NotFoundExcepion import NotFoundException
 from model.data import PCTimeSeriesData
 from pydantic import BaseModel, create_model
 
-from model.pc import NetworkInterface, Connection, Disk, DiskPartition
+from model.pc import NetworkInterface, Connection, Disk, DiskPartition, PCState
 from model.pc import DISK, PARTITION, DISKS
 
 
@@ -90,7 +90,7 @@ def get_pcs_by_userid(user_id):
         conn_pool.putconn(conn)
 
 
-def get_total_pc_application_data(pc_id, start, end):
+def get_total_pc_application_data_between(pc_id, start, end):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
@@ -136,58 +136,8 @@ def get_total_pc_application_data(pc_id, start, end):
             columns = [desc[0] for desc in cursor.description]
             df = pd.DataFrame(result, columns=columns)
             data_list = []
-            # TODO: Move into manipulation
             for _, row in df.iterrows():
-                # Convert the 'measurement_time' from string to a datetime object
                 data_list.append(PCTimeSeriesData(**row.to_dict()))
-            return df, data_list
-        return None, None
-    except psycopg2.DatabaseError as e:
-        raise DataBaseException()
-    finally:
-        conn_pool.putconn(conn)
-
-
-def get_pc_data(pc_id, start, end):
-    conn = conn_pool.getconn()
-    cursor = conn.cursor()
-    try:
-        query = """
-        SELECT
-        app.id,
-        app.pcdata_id,
-        app.measurement_time,
-        app.name,
-        app.path,
-        app.ram,
-        app.state,
-        app."user",
-        app.context_switches,
-        app.major_faults,
-        app.bitness,
-        app.commandline,
-        app."current_Working_Directory",
-        app.open_files,
-        app.parent_process_id,
-        app.thread_count,
-        app.uptime,
-        app.process_count_difference
-        FROM
-        applicationdata AS app
-        JOIN
-        pcdata AS pc ON app.pcdata_id = pc.id
-        WHERE
-        pc.pc_id = %s AND
-        app.measurement_time BETWEEN %s AND %s;
-        """
-
-        cursor.execute(query, (pc_id, start, end))
-        result = cursor.fetchall()
-
-        if result:
-            columns = [desc[0] for desc in cursor.description]
-            df = pd.DataFrame(result, columns=columns)
-            data_list = df.to_dict(orient='records')
             return df, data_list
         return None, None
     except psycopg2.DatabaseError as e:
@@ -245,7 +195,7 @@ def get_latest_moving_avg(pc_id: int):  # returns moving avg of the last 5 colum
         conn_pool.putconn(conn)
 
 
-def select_network_interfaces(pc_id): #works
+def select_network_interfaces(pc_id):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
 
@@ -282,7 +232,7 @@ def select_network_interfaces(pc_id): #works
         conn_pool.putconn(conn)
 
 
-def select_connections(pc_id): #something something bigint
+def select_connections(pc_id):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
 
@@ -417,14 +367,103 @@ def get_recent_disk_and_partition(pcid):
                                           mount_point=partition_row[6],
                                           size=partition_row[7],
                                           major_faults=partition_row[8],
-                                            minor_faults=partition_row[9])
+                                          minor_faults=partition_row[9])
                     partitions.append(partition)
-                disk = DISK(id=row[0], state_id=row[1], measurement_time=row[2], serialnumber= row[3], model= row[4], name= row[5], size= row[6], partitions=partitions)
+                disk = DISK(id=row[0], state_id=row[1], measurement_time=row[2], serialnumber=row[3], model=row[4],
+                            name=row[5], size=row[6], partitions=partitions)
                 disks.append(disk)
-                i = i+1
+                i = i + 1
             return DISKS(disks=disks)
     except Exception as e:
         print(e)
     finally:
         conn_pool.putconn(conn)
     return None
+
+
+def select_recent_state():
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        query = "select * from pcstate where measurement_time=(select MAX(measurement_time) from pcstate)"
+
+        cursor.execute(query)
+        result = cursor.fetchone()
+        if result:
+            state_dict = {
+                "id": result[0],
+                "measurement_time": result[1].isoformat(),
+                "pc_id": result[2],
+                "ram": result[3],
+                "memory_page_size": result[4],
+                "processor_name": result[5],
+                "processor_identifier": result[6],
+                "processor_id": result[7],
+                "processor_vendor": result[8],
+                "processor_bitness": result[9],
+                "physical_package_count": result[10],
+                "physical_processor_count": result[11],
+                "logical_processor_count": result[12],
+            }
+            return state_dict
+        return None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
+
+
+def get_recent_pc_total_data(pc_id, limit):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        query = """
+        SELECT
+        id,
+        state_id,
+        pc_id,
+        measurement_time,
+        free_disk_space,
+        read_bytes_disks,
+        reads_disks,
+        write_bytes_disks,
+        writes_disks,
+        partition_major_faults,
+        partition_minor_faults,
+        available_memory,
+        names_power_source,
+        charging_power_sources,
+        discharging_power_sources,
+        power_online_power_sources,
+        remaining_capacity_percent_power_sources,
+        context_switches_processor,
+        interrupts_processor,
+        ram,
+        cpu,
+        context_switches,
+        major_faults,
+        open_files,
+        thread_count
+    FROM
+        pcdata
+    WHERE
+        pc_id = %s AND
+        measurement_time IN 
+        (SELECT measurement_time from pcdata group by measurement_time order by measurement_time desc limit %s)
+        """
+
+        cursor.execute(query, (pc_id, limit))
+        result = cursor.fetchall()
+
+        if result:
+            columns = [desc[0] for desc in cursor.description]
+            df = pd.DataFrame(result, columns=columns)
+            data_list = []
+            for _, row in df.iterrows():
+                data_list.append(PCTimeSeriesData(**row.to_dict()))
+            return df, data_list
+        return None, None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)

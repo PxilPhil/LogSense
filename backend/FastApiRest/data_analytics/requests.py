@@ -10,6 +10,7 @@ from model.pc import ForecastData
 
 warnings.filterwarnings("ignore")
 
+
 def preprocess_pc_data(df, state_id):
     """
     Preprocesses and analyzes data before inserting it into the database.
@@ -31,8 +32,8 @@ def preprocess_pc_data(df, state_id):
     event_list = []
     pc_total_df = manipulation.group_by_timestamp(df)
     # check for custom alerts
-    #TODO: Get custom alerts here or before
-    custom_conditions = [] # list of conditions of a custom alerts
+    # TODO: Get custom alerts here or before
+    custom_conditions = []  # list of conditions of a custom alerts
     alerts.check_custom_alerts(df, pc_total_df, custom_conditions)
     # find out if event has occured in pc_total_df
     pc_id = get_pcid_by_stateid(state_id)
@@ -40,17 +41,20 @@ def preprocess_pc_data(df, state_id):
     if alerts.has_event_occurred(pc_total_df, moving_avg_ram, moving_avg_cpu):
         relevant_list = involvement.detect_relevancy(pc_total_df, df)
         for application in relevant_list:
+            # TODO: We are working with percentual changes with moving averages, should we change that?
             selected_row = manipulation.select_rows_by_application(application, df)
             moving_avg_ram, moving_avg_cpu = get_moving_avg_of_application(pc_id, application)
             if moving_avg_ram > 0 and moving_avg_cpu > 0:
-                alerts.detect_event(selected_row, 'residentSetSize', moving_avg_ram, event_list,application) # find ram events
-                alerts.detect_cpu_event(selected_row, 'cpuUsage', moving_avg_cpu, event_list,application) # find cpu events
+                alerts.detect_ram_event(selected_row, 'residentSetSize', moving_avg_ram, event_list,
+                                        application)  # find ram events
+                alerts.detect_cpu_event(selected_row, 'cpuUsage', moving_avg_cpu, event_list,
+                                        application)  # find cpu events
 
     # if an event has been found, look through what application caused it
     return pc_total_df, event_list
 
-def forecast_disk_space(df, days):
 
+def forecast_disk_space(df, days):
     """
     Forecasts disk space allocation for a certain number of days.
 
@@ -151,13 +155,13 @@ def analyze_pc_data(df, pc_total_df):
     latest_total_value = pc_total_df.at[pc_total_df.index.max(), 'ram']
     allocation_map_ram = stats.calc_allocation(latest_total_value, 'ram', df)
     allocation_list_ram = [AllocationClass(name=key, allocation=value) for key, value in
-                       allocation_map_ram.items()]  # convert map into list of our model object to send via json
+                           allocation_map_ram.items()]  # convert map into list of our model object to send via json
 
-    # get allocation percentage for cpu
-    latest_total_value = pc_total_df.at[pc_total_df.index.max(), 'cpu']
-    allocation_map_cpu = stats.calc_allocation(latest_total_value, 'cpu', df)
-    allocation_list_cpu= [AllocationClass(name=key, allocation=value) for key, value in
-                       allocation_map_cpu.items()]  # convert map into list of our model object to send via json
+    # get allocation percentage for cpu, no calculation needed
+    allocation_list_cpu = []
+    for index, row in df.iterrows():
+        allocation_instance = AllocationClass(name=row['name'], allocation=row['cpu'])
+        allocation_list_cpu.append(allocation_instance)
 
     anomaly_list = alerts.detect_anomalies(df, 'cpu', 'ram')
     return pc_total_df, anomaly_list, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu

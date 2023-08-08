@@ -14,7 +14,7 @@ from exceptions.DataBaseExcepion import DataBaseException
 from exceptions.DataBaseInsertExcepion import DataBaseInsertException
 
 
-def insert_running_pcdata(state_id, running_df_dict, pc_total_df, event_list):
+def insert_running_pcdata (state_id, running_df_dict, pc_total_df, event_list):
     # TODO: Optionally save moving averages into database if its too slow to calculate it every time
     conn = conn_pool.getconn()
     cursor = conn.cursor()

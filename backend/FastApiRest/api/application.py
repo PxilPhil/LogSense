@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, Body
 
 from data_analytics import requests
 from exceptions.InvalidParametersException import InvalidParametersException
-from db_access.application import get_application, get_application_list, get_grouped_by_interval_application
+from db_access.application import get_application_between, get_application_list, get_grouped_by_interval_application
 from exceptions.NotFoundExcepion import NotFoundException
 from model.application import ApplicationData, ApplicationListObject
 from model.pc import PCItem
@@ -26,7 +26,7 @@ def fetch_application(pc_id: int, application_name: str, start: str, end: str):
         dict: A dictionary with PC ID, Application Name, Start, and End values
     """
     try:
-        df, data_list = get_application(pc_id, application_name, start, end)
+        df, data_list = get_application_between(pc_id, application_name, start, end)
         if df is None:
             raise NotFoundException(code=500, detail="Application was not found.")
         df, event_list, anomaly_list, standard_deviation_ram, standard_deviation_cpu, mean_ram, mean_cpu = requests.analyze_application_data(df, application_name)

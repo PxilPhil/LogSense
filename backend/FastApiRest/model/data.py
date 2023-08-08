@@ -81,14 +81,12 @@ class PCData(BaseModel):  # Missing Trends
     end: str
     standard_deviation_ram: float
     mean_ram: float
+    standard_deviation_cpu: float
+    mean_cpu: float
     time_series_list: List[PCTimeSeriesData]
     allocation_list_ram: List[AllocationClass]
     allocation_list_cpu: List[AllocationClass]
     anomaly_list: List[AnomalyData]
-    connection_list: List[Connection]
-    network_list: List[NetworkInterface]
-    disk_list: List[Disk]
-
 
 class CustomCondition(BaseModel):
     percentage_trigger_value: Optional[float] = None
