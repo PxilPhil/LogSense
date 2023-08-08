@@ -1,7 +1,8 @@
 from typing import List
 
-from model.data import EventData, CustomCondition
+from model.data import EventData
 from model.data import AnomalyData
+from model.alerts import CustomAlerts, CustomAlertObject, CustomCondition
 from scipy import stats
 from data_analytics import manipulation
 
@@ -117,8 +118,7 @@ def detect_anomalies(df, first_column, second_column):
     return anomaly_list
 
 
-def check_custom_alerts(df, pc_total_df, custom_conditions: List[
-    CustomCondition]):  # checks current dataframe if custom alerts have occurred
+def check_custom_alerts(df, pc_total_df, custom_conditions: List[CustomCondition]):  # checks current dataframe if custom alerts have occurred
     # TODO: get custom alerts from database for user
     # TODO: Keep track of non-consistent format
     # Lookback and StartDate are only allowed for degree
