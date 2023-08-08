@@ -87,28 +87,3 @@ class PCData(BaseModel):  # Missing Trends
     allocation_list_ram: List[AllocationClass]
     allocation_list_cpu: List[AllocationClass]
     anomaly_list: List[AnomalyData]
-
-class CustomCondition(BaseModel):
-    percentage_trigger_value: Optional[float] = None
-    degree_trigger_value: Optional[int] = None
-    absolute_trigger_value: Optional[int] = None
-    operator: str
-    column: str
-    application: Optional[str] = None
-    lookback_time: Optional[int] = None
-    start_date: Optional[str] = None
-    order: Optional[int] = None
-    logical_condition: Optional[str] = None
-    conditions: Optional[List[CustomCondition]] = None  # maybe replace with CustomCondition
-
-
-class CustomAlertObject(BaseModel):
-    user_id: int
-    type: str
-    message: str
-    severity_level: int
-    conditions: List[CustomCondition]
-
-
-class CustomAlerts(BaseModel):
-    custom_alert_list: List[CustomAlertObject]
