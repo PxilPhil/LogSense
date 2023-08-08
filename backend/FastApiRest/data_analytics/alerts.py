@@ -1,5 +1,8 @@
 from typing import List
 
+from db_access.application import get_latest_application_data, get_application_between
+from db_access.pc import select_recent_state, get_recent_pc_total_data, get_total_pc_application_data_between
+from model.data import EventData, CustomCondition, CustomAlertObject
 from model.data import EventData
 from model.data import AnomalyData
 from model.alerts import CustomAlerts, CustomAlertObject, CustomCondition
@@ -27,7 +30,7 @@ def has_event_occurred(df, moving_avg_ram, moving_avg_cpu):
 
 
 # TODO: Merge the event detection methods
-def detect_event(selected_row, column, moving_avg, event_list, application):
+def detect_ram_event(selected_row, column, moving_avg, event_list, application):
     percentual_change = selected_row[column].values[0] / moving_avg
     event_header = selected_row['processCountDifference'].values[0]
     if abs(percentual_change - 1) > event_sensitivity_ram:
@@ -99,87 +102,114 @@ def detect_anomalies(df, first_column, second_column):
     # Calculate Z-Score for first column
     df['zscore'] = stats.zscore(df[first_column])
     anomaly_df = df.loc[stats.zscore(df[first_column]) > z_limit]
-
-    for index, row in anomaly_df.iterrows():
-        anomaly_data = AnomalyData(timestamp=row['measurement_time'], severity=int(row['zscore']),
-                                   application=row['name'],
-                                   column=first_column)
-        anomaly_list.append(anomaly_data)
+    detect_anomalies_via_score(anomaly_list, anomaly_df, first_column)
 
     # Calculate Z-Score for second column
     df['zscore'] = stats.zscore(df[second_column])
     anomaly_df = df.loc[stats.zscore(df[second_column]) > z_limit]
+    detect_anomalies_via_score(anomaly_list, anomaly_df, second_column)
 
-    for index, row in anomaly_df.iterrows():
-        anomaly_data = AnomalyData(timestamp=row['measurement_time'], severity=int(row['zscore']),
-                                   application=row['name'],
-                                   column=second_column)
-        anomaly_list.append(anomaly_data)
     return anomaly_list
 
 
-def check_custom_alerts(df, pc_total_df, custom_conditions: List[CustomCondition]):  # checks current dataframe if custom alerts have occurred
-    # TODO: get custom alerts from database for user
-    # TODO: Keep track of non-consistent format
-    # Lookback and StartDate are only allowed for degree
-    # TODO: Should compared_df always be possible maximum values (like total amount of RAM available)?
-    selected_column = ""  # selected column for the current condition (like RAM)
-    for condition in custom_conditions:
-        # Check if conditions apply for application
-        if condition.degree_trigger_value:
-            if condition.start_date:
-                print('start_date')
-            elif condition.lookback_time:
-                print('lookback')
-            else:
-                print('invalid')
+def detect_anomalies_via_score(anomaly_list, anomaly_df, column):
+    for index, row in anomaly_df.iterrows():
+        anomaly_data = AnomalyData(timestamp=row['measurement_time'], severity=int(row['zscore']),
+                                   application=row['name'],
+                                   column=column)
+        anomaly_list.append(anomaly_data)
+
+
+def check_custom_alerts(pc_id, df, pc_total_df, custom_alerts: List[
+    CustomAlertObject]):
+    """
+    Checks data that was requested if any custom alerts have occurred
+    :param df:
+    :param pc_total_df:
+    :param custom_alerts:
+
+    Documentation for Custom Alerts:
+        - degree_trigger_value is used whenever a change should be a measured, when a condition uses it is also requires the property "lookback_time" on how many rows should be looked back upon or the property start_date from when data should be analyzed
+        - percentage_trigger_value is used whenever a percentual trigger value should be set, in applications the formula is usage divided by maximum possible usage
+        - absolute_trigger_value works with raw values like 5GB
+    :return:
+    """
+    # TODO: If things doesnt work with iloc append with .values[0]
+    for alert in custom_alerts:
+        for condition in alert.conditions:
+            if condition.degree_trigger_value:
+                process_degree_trigger(condition, pc_id, df)
+            elif condition.percentage_trigger_value:
+                process_percentage_trigger(condition, df)
+            elif condition.absolute_trigger_value:
+                process_absolute_trigger(condition, pc_total_df, df)
+
+
+def process_degree_trigger(condition, pc_id, df):
+    if condition.start_date:
+        # TODO: below this the df arent sorted by descending
+        if condition.application:
+            recent_app_df, recent_app_list = get_application_between(pc_id, condition.application, condition.start_date,
+                                                                     df.index[-1])
+            print(recent_app_df)
         else:
-            if condition.application:
-                application_df = manipulation.select_rows_by_application(condition.application, df)
-                check_custom_conditions(application_df, pc_total_df, condition)
-            else:
-                # get latest pc total row
-                print('get latest pc total row')
-    # compare with previous
-    return 0
-
-
-def check_past_entries(df, condition: CustomCondition):
-    # checks if and in what way previous entries should be fetched from database
-    # TODO: We can remove this method if we get data from database beforehand
-    if not condition.degree_trigger_value:
-        check_custom_conditions
+            recent_pc_df, recent_pc_list = get_total_pc_application_data_between(pc_id, condition.start_date,
+                                                                                 df.index[-1])
+            print(recent_pc_df)
     elif condition.lookback_time:
-        print('lookback')
-    elif condition.start_date:
-        print('go from start date')
-
-
-def check_custom_conditions(df, compared_df, condition: CustomCondition):
-    # Check if any conditions apply for a custom alert
-
-    detected_rows = []
-    # Case 1: df is current application and compared_df is previous values
-    # Case 2: df is current pc dataframe and compared_df are previous pc dataframes
-
-    # Return early if the condition object is empty
-    if not any([condition.percentage_trigger_value, condition.absolute_trigger_value, condition.degree_trigger_value]):
-        return detected_rows
-
-    for index, (row, compared_row) in enumerate(zip(df.iterrows(), compared_df.iterrows())):
-        _, row_data = row
-        _, compared_row_data = compared_row
-
-        if condition.percentage_trigger_value:
-            if row_data[condition.column] / compared_row_data[condition.column] > condition.percentage_trigger_value:
-                detected_rows.append(row_data)
-        elif condition.absolute_trigger_value:
-            if row_data[condition.column] > condition.absolute_trigger_value:
-                detected_rows.append(row_data)
-        elif condition.degree_trigger_value:
-            # TODO: Implement degree
-            pass
+        # slope calculated via delta-y divided by delta-x
+        # delta-y is calculated by last value divided by first value
+        # delta-x is lookback_time
+        if condition.application:
+            recent_app_df, recent_app_list = get_latest_application_data(pc_id, condition.lookback_time,
+                                                                         condition.application)
+            print(recent_app_df)
         else:
-            raise ValueError("Invalid condition object")
+            recent_pc_df, recent_pc_list = get_recent_pc_total_data(pc_id, condition.lookback_time)
+            print(recent_pc_df)
 
-    return detected_rows
+
+def process_percentage_trigger(condition, df):
+    if condition.application:
+        application_df = manipulation.select_rows_by_application(condition.application, df)
+        check_relative_condition(application_df, condition)
+    else:
+        check_relative_condition(df, condition)
+
+
+def process_absolute_trigger(condition, pc_total_df, df):
+    if condition.application:
+        application_df = manipulation.select_rows_by_application(condition.application, df)
+        check_absolute_condition(application_df, condition)
+    else:
+        check_absolute_condition(pc_total_df, condition)
+
+
+def check_absolute_condition(df, condition):
+    if df[condition.column].values[0] >= condition.absolute_trigger_value:
+        return True
+    return False
+
+
+def check_relative_condition(df, condition):
+    # TODO: Make this more universal for everything later on
+    if str.lower(condition.column) == "ram":
+        state_dict = select_recent_state()
+        if df.iloc[0][condition.column] / state_dict[condition.column]:
+            return True
+        return False
+    if str.lower(condition.column) == "cpu":
+        if df[condition.column].values[0] >= condition.relative_trigger_value:
+            return True
+        return False
+    print('not implemented yet')
+    return False
+
+def check_degree_condition(current_df, prev_df, condition):
+    # Divide current column by last (oldest) row of the previous rows
+    # delta_y_value = current_df.iloc[0][condition.column]-prev_df.iloc[-1][condition.column]
+    delta_y_value = current_df.iloc[0][condition.column] - prev_df[prev_df.index.min()][condition.column]
+    degree_value = delta_y_value / (len(prev_df) + len(current_df))
+    if degree_value > condition.degree_trigger_value:
+        return True
+    return False

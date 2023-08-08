@@ -1,19 +1,13 @@
 from db_access import conn_pool
 from exceptions.InvalidParametersException import InvalidParametersException
 import pandas as pd
-import logging
-
-from datetime import datetime
-
 import psycopg2
-
-from psycopg2 import extras
 
 from exceptions.DataBaseExcepion import DataBaseException
 from model.application import ApplicationTimeSeriesData
 
 
-def get_application(pc_id: int, application_name, start, end):
+def get_application_between(pc_id: int, application_name, start, end):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
@@ -56,8 +50,6 @@ def get_application(pc_id: int, application_name, start, end):
         if result:
             columns = [desc[0] for desc in cursor.description]
             df = pd.DataFrame(result, columns=columns)
-            #data_list = df.to_dict(orient='records')
-            #TODO: Move into manipulation
             application_list = []
             for _, row in df.iterrows():
                 # Convert the 'measurement_time' from string to a datetime object
@@ -107,7 +99,7 @@ def get_application_list(pc_id: int, start, end):
         conn_pool.putconn(conn)
 
 
-def get_latest_application_data(pc_id: int):
+def get_latest_application_data(pc_id: int, limit, application_name):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
@@ -134,17 +126,18 @@ def get_latest_application_data(pc_id: int):
         app.process_count_difference
         FROM
         applicationdata AS app
-        JOIN
-        pcdata AS pc ON app.pcdata_id = pc.id
         WHERE
-        pc.pc_id = %s AND
-        app.measurement_time = (SELECT
-        MAX(measurement_time) AS latest_measurement_time
-        FROM
-        applicationdata);
+        app.pc_id = %s AND
+        app.measurement_time IN 
+        (SELECT measurement_time from applicationdata group by measurement_time order by measurement_time desc limit %s)
         """
 
-        cursor.execute(query, (pc_id,))
+        if application_name:
+            query += "AND app.name = %s"
+            cursor.execute(query, (pc_id, limit, application_name))
+        else:
+            cursor.execute(query, (pc_id, limit))
+
         result = cursor.fetchall()
 
         if result:
@@ -163,11 +156,12 @@ def get_latest_application_data(pc_id: int):
         conn_pool.putconn(conn)
 
 
-def get_grouped_by_interval_application(pc_id: int, application_name: str, start, end, time_bucket_value, limit): # time bucket value is '5 minutes' for instance
+def get_grouped_by_interval_application(pc_id: int, application_name: str, start, end, time_bucket_value,
+                                        limit):  # time bucket value can be '5 minutes' for instance
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
-        #TODO: If we dont want moving avg we can drop the first part of the query and only keep the subquery
+        # If we don't want moving avg we can drop the first part of the query and only keep the subquery
         query = """
         SELECT
             date_interval,
@@ -204,8 +198,6 @@ def get_grouped_by_interval_application(pc_id: int, application_name: str, start
             date_interval
         LIMIT %s    
         """
-
-
 
         cursor.execute(query, (application_name, time_bucket_value, pc_id, application_name, start, end, limit))
         result = cursor.fetchall()
