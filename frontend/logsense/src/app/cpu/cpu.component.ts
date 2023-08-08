@@ -29,20 +29,20 @@ export class ProcessModel {
   styleUrls: ['./cpu.component.scss']
 })
 export class CpuComponent implements OnInit{
-
   cpu: CPUModel = new CPUModel();
-  selectedTime: TimeModel = {id: 1, time: "Last 24h", valueInMilliseconds: 86400000};
   notes: String[] = ["CPU Usage dropped 4%", "21 Anomalies detected", "5 Events registered"];
   processes: ProcessModel[] = [{name: "Chrome", allocation: 15}, {name: "Explorer", allocation: 10},{name: "Intellij", allocation: 48}];
   alerts: String[] = ["Some devices are at their workload limit", "Abnormal CPU-Spikes detected (21 Anomalies in the last 24 hours)"];
   times = [
-    {id: 1, time: "Last 24h"},
-    {id: 2, time: "Last Week"},
-    {id: 3, time: "Last Month"},
-    {id: 4, time: "Last 6 Months"},
-    {id: 5, time: "Last 12 Months"},
-    {id: 6, time: "All Time"}
+    {id: 1, time: "Last 24h", valueInMilliseconds: 86400000},
+    {id: 2, time: "Last Week", valueInMilliseconds: 604800000},
+    {id: 3, time: "Last Month", valueInMilliseconds: 2629746000},
+    {id: 4, time: "Last 6 Months", valueInMilliseconds: 15778476000},
+    {id: 5, time: "Last 12 Months", valueInMilliseconds: 31556952000},
+    {id: 6, time: "All Time", valueInMilliseconds: 0}
   ];
+  selectedTime = this.times[0];
+
   constructor() {
   }
   ngOnInit() {

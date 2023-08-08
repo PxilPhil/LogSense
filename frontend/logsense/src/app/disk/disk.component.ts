@@ -92,4 +92,12 @@ export class DiskComponent implements OnInit{
       data: this.diskData.disks.at(diskListIndex)!.partitions
     });
   }
+
+  convertBytesToGigaBytes(valueInBytes: number): number {
+    return (valueInBytes / 1000 / 1000 / 1000);
+  }
+
+  roundDecimalNumber(decimalNumber: number, places: number): number {
+    return Math.round((decimalNumber + Number.EPSILON) * Math.pow(10, places)) / Math.pow(10, places);
+  }
 }
