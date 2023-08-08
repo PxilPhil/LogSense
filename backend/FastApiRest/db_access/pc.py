@@ -254,10 +254,10 @@ def select_network_interfaces(pc_id): #works
         SELECT ni.*
         FROM networkinterface ni
         JOIN pcdata pd ON ni.pcdata_id = pd.id
-        WHERE pd.pc_id = %s;
+        WHERE pd.pc_id = %s AND pd.measurement_time = (SELECT MAX(measurement_time) from pcdata p where p.pc_id = %s);
         """
 
-        cursor.execute(query, (pc_id, ))
+        cursor.execute(query, (pc_id, pc_id))
         result = cursor.fetchall()
 
         network_interfaces = [NetworkInterface(
@@ -291,10 +291,10 @@ def select_connections(pc_id): #something something bigint
             SELECT con.*
             FROM connection con
             JOIN pcdata pd ON con.pcdata_id = pd.id
-            WHERE pd.pc_id = %s;
+            WHERE pd.pc_id = %s AND pd.measurement_time = (SELECT MAX(measurement_time) from pcdata p where p.pc_id = %s);
         """
 
-        cursor.execute(query, (pc_id, ))
+        cursor.execute(query, (pc_id, pc_id))
         result = cursor.fetchall()
 
         # Parse the query result into a list of Connection instances
