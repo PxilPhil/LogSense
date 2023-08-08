@@ -5,7 +5,7 @@ from starlette.responses import JSONResponse
 import db_access.pc
 from db_access.pc import get_pcs, get_pcs_by_userid, add_pc, get_free_disk_space_data, \
     get_recent_disk_and_partition
-from db_access.application import get_latest_application_data
+from db_access.application import get_latest_application_data, get_application_by_name, get_applications_between
 from data_analytics import requests
 from exceptions.DataBaseInsertExcepion import DataBaseInsertException
 from exceptions.InvalidParametersException import InvalidParametersException
@@ -77,13 +77,11 @@ def get_pc_data(pc_id: int, start: str, end: str):
     """
     total_df, total_data_list = db_access.pc.get_total_pc_application_data_between(pc_id, start, end)
 
-    df, application_data_list = get_latest_application_data(pc_id, 1, None)
+    df, application_data_list = get_applications_between(pc_id, start, end)
     if df is None or total_df is None:
         raise InvalidParametersException()
     pc_total_df, anomaly_list, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu = requests.analyze_pc_data(
         df, total_df)
-
-    # TODO: Analyzing cpu data doesnt really makesense(atleast like RAM), remove feature or take a closer look at it
 
     pc_data = PCData(
         pc_id=pc_id,

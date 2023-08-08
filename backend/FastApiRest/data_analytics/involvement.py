@@ -5,10 +5,10 @@ relevancy_limit = 0.05 # how much percentage a application makes up of ram or cp
 
 def detect_relevancy(pc_total_df, df):
     application_list = []  # list of applications with high causality to total usage
-    pc_ram = pc_total_df.iloc[0]['residentSetSize']
-    pc_cpu = pc_total_df.iloc[0]['cpuUsage']
+    pc_ram = pc_total_df.iloc[0]['ram']
+    pc_cpu = pc_total_df.iloc[0]['cpu']
     for index, row in df.iterrows():
-        if row['residentSetSize']/pc_ram > relevancy_limit or row['cpuUsage']/pc_cpu>relevancy_limit:
+        if row['ram']/pc_ram > relevancy_limit or row['cpu']/pc_cpu>relevancy_limit:
             application_list.append(row['name'])
     return application_list
 
