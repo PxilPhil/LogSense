@@ -17,7 +17,9 @@ import java.time.Instant;
 import java.util.*;
 
 public class Monitor {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Monitor.class);
+
     private final OperatingSystem operatingSystem;
     private final HardwareAbstractionLayer hardware;
 

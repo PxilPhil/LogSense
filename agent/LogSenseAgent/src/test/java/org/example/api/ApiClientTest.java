@@ -10,7 +10,7 @@ class ApiClientTest {
 
     @BeforeEach
     void setUp() {
-        this.apiClient = new ApiClient();
+        this.apiClient = new ApiClient("http://localhost:8000");
     }
 
     @Test

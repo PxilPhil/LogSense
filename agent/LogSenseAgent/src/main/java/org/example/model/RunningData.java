@@ -1,11 +1,13 @@
 package org.example.model;
 
 public class RunningData {
+    
     private String pc_resources;
     private String connection_data;
     private String application_data;
     private String network_interface;
 
+    // JR: again: would delete this constructor and make the properties final
     public RunningData() {
     }
 
@@ -16,6 +18,7 @@ public class RunningData {
         this.network_interface = network_interface;
     }
 
+    // JR: use camelCase instead of snake_case ?
     public String getPc_resources() {
         return pc_resources;
     }

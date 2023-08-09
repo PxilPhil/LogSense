@@ -10,6 +10,7 @@ import java.net.InetAddress;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class CSVDataConverter implements DataConverter {
     private static final Logger LOGGER = LoggerFactory.getLogger(CSVDataConverter.class);
@@ -18,6 +19,7 @@ public class CSVDataConverter implements DataConverter {
     public String convertApplicationData(long timestamp, List<Application> applications) {
         if (applications != null && timestamp >= 0 && timestamp <= Instant.now().toEpochMilli()) {
             StringBuilder csv = new StringBuilder();
+            // JR: could be made more intelligent / configurable
             csv.append("timestamp|contextSwitches|majorFaults|bitness|commandLine|currentWorkingDirectory|name|openFiles|parentProcessID|path|residentSetSize|state|threadCount|upTime|user|processCountDifference|cpuUsage\n");
 
             for (Application application : applications) {
@@ -48,13 +50,17 @@ public class CSVDataConverter implements DataConverter {
 
     @Override
     public String convertResourceData(long timestamp, Resources resources) {
+
+        // JR: could check nullability of parameters with
+        Objects.requireNonNull(resources);
+
         if (resources != null && timestamp >= 0 && timestamp <= Instant.now().toEpochMilli()) {
             ListToStringConverter<Long> longListToStringConverter = new ListToStringSpacesConverter<>();
             ListToStringConverter<Boolean> booleanListToStringConverter = new ListToStringSpacesConverter<>();
             ListToStringConverter<Double> doubleListToStringConverter = new ListToStringSpacesConverter<>();
             ListToStringConverter<String> stringListToStringConvert = new ListToStringSpacesConverter<>();
 
-            String csv = "timestamp|freeDiskSpace|readBytesDiskStores|readsDiskStores|writeBytesDiskStores|writesDiskStores|partitionsMajorFaults|partitionsMinorFaults|availableMemory|namesPowerSources|chargingPowerSources|dischargingPowerSources|powerOnLinePowerSources|remainingCapacityPercentPowerSources|contextSwitchesProcessor|interruptsProcessor\n" +
+            return "timestamp|freeDiskSpace|readBytesDiskStores|readsDiskStores|writeBytesDiskStores|writesDiskStores|partitionsMajorFaults|partitionsMinorFaults|availableMemory|namesPowerSources|chargingPowerSources|dischargingPowerSources|powerOnLinePowerSources|remainingCapacityPercentPowerSources|contextSwitchesProcessor|interruptsProcessor\n" +
                     timestamp + "|" +
                     resources.getFreeDiskSpace() + "|" +
                     longListToStringConverter.convert(resources.getReadBytesDiskStores()) + "|" +
@@ -71,7 +77,6 @@ public class CSVDataConverter implements DataConverter {
                     doubleListToStringConverter.convert(resources.getPowerSourcesRemainingCapacityPercent()) + "|" +
                     resources.getProcessorContextSwitches() + "|" +
                     resources.getProcessorInterrupts() + "\n";
-            return csv;
         } else {
             LOGGER.error("Error while converting the resource data to CSV: either the resource data object is null or the timestamp is not between epoch and now. Therefore the resource data can not be converted to CSV.");
             return null;

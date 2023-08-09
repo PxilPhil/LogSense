@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+import static java.util.Objects.requireNonNull;
+
 public class ApiClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiClient.class);
     private final CloseableHttpClient httpClient;
@@ -22,21 +24,28 @@ public class ApiClient {
     private final HttpClientResponseHandler<Integer> runningDataResponseHandler;
     private final DataConverter csvDataConverter;
 
-    public ApiClient() {
+    private final String clientBaseUrl;
+
+    public ApiClient(String clientBaseUrl) {
         this.httpClient = HttpClients.createDefault();
         this.sessionComputerDataResponseHandler = new SessionComputerDataResponseHandler();
         this.runningDataResponseHandler = new RunningDataResponseHandler();
         this.csvDataConverter = new CSVDataConverter();
+
+        this.clientBaseUrl = requireNonNull(clientBaseUrl);
     }
 
     public int postSessionComputerData(SessionComputerData sessionComputerData) {
         if (sessionComputerData != null) {
             MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
-            multipartEntityBuilder.addBinaryBody("files", this.csvDataConverter.convertClientData(sessionComputerData.getClient()).getBytes(), ContentType.TEXT_PLAIN, "client");
+            multipartEntityBuilder.addBinaryBody("files",
+                    this.csvDataConverter.convertClientData(sessionComputerData.getClient()).getBytes(),
+                    ContentType.TEXT_PLAIN, "client");
             multipartEntityBuilder.addBinaryBody("files", this.csvDataConverter.convertDiskStoreData(sessionComputerData.getDiskStores()).getBytes(), ContentType.TEXT_PLAIN, "disk");
             multipartEntityBuilder.addBinaryBody("files", this.csvDataConverter.convertPartitionData(sessionComputerData.getPartitions()).getBytes(), ContentType.TEXT_PLAIN, "partition");
 
-            HttpPost httpPost = new HttpPost("http://127.0.0.1:8000/data/initial");
+            // JR: would make this configurable
+            HttpPost httpPost = new HttpPost(clientBaseUrl + "/data/initial");
             httpPost.setEntity(multipartEntityBuilder.build());
 
             try {
@@ -46,6 +55,7 @@ public class ApiClient {
                 return -1;
             }
         } else {
+            // JR: would throw exception instead of integer status code
             return -1;
         }
     }

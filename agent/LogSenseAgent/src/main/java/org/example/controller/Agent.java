@@ -19,7 +19,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Agent {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(Agent.class);
+
     private final Monitor monitor;
     private final StatService statService;
     private final CSVDataConverter csvDataConverter;
@@ -29,14 +31,17 @@ public class Agent {
     private long measuringCount;
     private long failedSessionComputerDataPostRequest;
 
-    public Agent() {
+    private final String clientBaseUrl;
+
+    public Agent(String clientBaseUrl) {
         this.statService = new StatService();
         this.monitor = new Monitor();
         this.csvDataConverter = new CSVDataConverter();
-        this.apiClient = new ApiClient();
+        this.apiClient = new ApiClient(clientBaseUrl);
         this.sessionComputerData = null;
         this.measuringCount = 0;
         this.failedSessionComputerDataPostRequest = 0;
+        this.clientBaseUrl = clientBaseUrl;
     }
 
     public void monitor() {
@@ -78,10 +83,7 @@ public class Agent {
         List<Partition> partitions = getPartitions();
 
         if (this.sessionComputerData == null || hasClientDataChanged(client) || haveDiskStoresChanged(diskStores) || havePartitionsChanged(partitions)) {     // session computer data has never been set --> initial data that starts a new "session"
-            SessionComputerData sessionComputerData = new SessionComputerData();
-            sessionComputerData.setClient(client);
-            sessionComputerData.setDiskStores(diskStores);
-            sessionComputerData.setPartitions(partitions);
+            SessionComputerData sessionComputerData = new SessionComputerData(client, diskStores, partitions);
 
             int stateId = this.apiClient.postSessionComputerData(sessionComputerData);
             if (stateId > 0) {

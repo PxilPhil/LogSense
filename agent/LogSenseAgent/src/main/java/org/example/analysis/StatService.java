@@ -6,23 +6,27 @@ import org.slf4j.LoggerFactory;
 import oshi.software.os.OSProcess;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class StatService {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(StatService.class);
+
+    // JR: why tree map?
     private final Map<String, List<Application>> applicationMeasurements = new TreeMap<>();
     private int dataAmount = 0; //saves how many times data was measured
-    private long lastAnalysis;
+    private long lastAnalysis; // JR: unused
 
-    public StatService() {
+    public StatService() { // JR: default
 
     }
 
     public void ingestData(long timestamp, List<OSProcess> osProcesses) {
-        if (osProcesses != null && osProcesses.size() > 0 && timestamp >= 0 && timestamp <= Instant.now().toEpochMilli()) {
+        // JR: nullability could be enforced with requireNonNull
+        // JR: long line
+        Objects.requireNonNull(osProcesses);
+        if (osProcesses != null && osProcesses.size() > 0 && timestamp >= 0
+                && timestamp <= Instant.now().toEpochMilli()) {
             this.dataAmount++;
             List<OSProcess> filteredOsProcesses = filterSystemProcesses(osProcesses);
             Map<String, Application> mergedApplications = mergeProcessesIntoApplications(timestamp, filteredOsProcesses);
