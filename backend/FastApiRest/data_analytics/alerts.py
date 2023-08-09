@@ -23,10 +23,10 @@ def detect_pc_events(pc_total_df, df):
     for index, row in pc_total_df.iterrows():
         # check for events
         if row['ram'] / row['moving_average_ram'] > event_sensitivity_ram or (row['cpu'] - row['moving_average_cpu']) > event_sensitivity_cpu:
-            relevant_list = involvement.detect_relevancy(pc_total_df, df)
             # get list of relevant applications
-            for application in relevant_list:
-                print(application)
+            relevant_list = involvement.detect_relevancy(pc_total_df, df.loc[df['measurement_time'] == row['measurement_time']])
+            # check for events in our relevant applications
+
 
 def detect_multiple_events(selected_row, application_name):
     event_list = []
