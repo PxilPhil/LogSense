@@ -116,7 +116,8 @@ CREATE TABLE IF NOT EXISTS anomaly (
   type varchar,
   severity_level int,
   message varchar,
-  condition json                                --NULL
+  condition json,                                --NULL
+  boolean deprecated
 );
 
 CREATE TABLE IF NOT EXISTS applicationdata_anomaly (
