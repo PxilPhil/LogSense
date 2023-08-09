@@ -36,8 +36,13 @@ def injestCustomAlerts(alerts: CustomAlerts):
 
         conn.commit()
         return anomaly_id
-    except Exception as e:
-        print(str(e))
+    except psycopg2.DatabaseError as e:
+        conn.rollback()
+        if e.pgerror == psycopg2.errorcodes.FOREIGN_KEY_VIOLATION:
+            raise DataBaseInsertException(detail=f"Issue inserting into Table {str(e.diag.table_name)}")
+        if e.pgerror == psycopg2.errorcodes.INVALID_TEXT_REPRESENTATION:
+            raise InvalidParametersException()
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
 
@@ -71,10 +76,11 @@ def getCustomAlerts(user_id: int):
         )
 
         return custom_alerts
-    except Exception as e:
-        print(str(e))
-        #if e.pgerror == psycopg2.errorcodes.INVALID_TEXT_REPRESENTATION:
-        #    raise InvalidParametersException()
-        raise e#DataBaseException()
+    except psycopg2.DatabaseError as e:
+        if e.pgerror == psycopg2.errorcodes.FOREIGN_KEY_VIOLATION:
+            raise DataBaseInsertException(detail=f"Issue inserting into Table {str(e.diag.table_name)}")
+        if e.pgerror == psycopg2.errorcodes.INVALID_TEXT_REPRESENTATION:
+            raise InvalidParametersException()
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
