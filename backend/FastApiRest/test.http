@@ -1,0 +1,235 @@
+### Add User ###
+
+POST http://localhost:8000/user/add_user
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "johndoe@example.com",
+  "password": "password123"
+}
+
+### CHECK FOR CORRECT LOGIN ###
+POST http://localhost:8000/user/check_login
+Content-Type: application/json
+
+{
+  "email": "johndoe@example.com",
+  "password": "password123"
+}
+
+### CHECK FOR INCORRECT LOGIN ###
+POST http://localhost:8000/user/check_login
+Content-Type: application/json
+
+{
+  "email": "johndoe@example.com",
+  "password": "password1234"
+}
+
+### CHECK FOR INCORRECT LOGIN ###
+POST http://localhost:8000/user/check_login
+Content-Type: application/json
+
+{
+  "email": "johndoe1@example.com",
+  "password": "password123"
+}
+
+### GET ALL USERS ###
+GET http://localhost:8000/user
+
+### GET ALL PCS ###
+GET http://localhost:8000/pc/
+
+### ADD PC ###
+POST http://localhost:8000/pc/add_pc
+Content-Type: application/json
+
+{
+  "user_id": "1",
+  "hardware_uuid": "4C4C4544-0052-5210-8050-C8C04F385932",
+  "client_name": "Test Client"
+}
+
+### ADD PC with non excistent user ###
+POST http://localhost:8000/pc/add_pc
+Content-Type: application/json
+
+{
+  "user_id": "1000",
+  "hardware_uuid": "4C4C4544-0052-5210-8050-C8C04F3859312",
+  "client_name": "Test Client"
+}
+
+### GET PCs OF USER 1 ###
+GET http://localhost:8000/pc/user/1
+
+
+### POST Request to Insert Timeseries Data###
+POST http://localhost:8000/data/
+Content-Type: application/json
+
+{
+    "pc_resources": "relevant_list",
+    "connection_data": "Ethernet",
+    "application_data": "Running",
+    "network_Interface": "Wi-Fi"
+}
+
+
+### POST Request to Insert wrong Timeseries Data###
+POST http://localhost:8000/data/
+Content-Type: application/json
+
+{
+    "session_id": 1,
+    "pc_recources": "High",
+    "connection_data": "1",
+    "application_data": "Running",
+    "network_Interface": "Wi-Fi"
+}
+
+### Upload multiple files ###
+POST http://localhost:8000/data/
+Content-Type: multipart/form-data; boundary=--boundary
+
+--boundary
+Content-Disposition: form-data; name="files[]"; filename="file1.txt"
+
+timestamp|displayName
+1690273532611|Bluetooth Device
+
+--boundary
+Content-Disposition: form-data; name="files[]"; filename="file2.txt"
+
+### get pc data ###
+GET http://localhost:8000/pc/1/data?start=2023-07-25 10:20:16&end=2023-07-25 10:33:01
+
+### get pc invalid data ###
+GET http://localhost:8000/pc/1/data/GPU?start=2023-07-25 10:20:16&end=2023-07-25 10:33:01
+
+### get application data ###
+GET http://localhost:8000/pc/1/application/chrome?start=2023-07-25 10:20:16&end=2023-07-25 10:33:01
+
+### get list of applications
+GET http://localhost:8000/pc/1/application/?start=2023-07-25 10:20:16&end=2023-07-25 10:33:01
+
+### get forecast of available disk space
+GET http://localhost:8000/pc/1/data/forecast/30
+
+### get all user alerts between a timespan
+GET http://localhost:8000/user/1?start=2023-07-20 10:20:16&end=2024-07-20 10:20:16
+
+### get application data bucketed ###
+GET http://localhost:8000/pc/1/application/chrome/bucket/?start=2023-07-25 10:20:16&end=2023-07-25 10:33:01&bucket_value=5 minutes
+
+### get disks
+GET http://localhost:8000/pc/1/disk
+
+### get network interfaces and connections
+GET http://localhost:8000/pc/1/network
+###
+GET http://localhost:8000/alerts?user_id=1
+###
+POST http://localhost:8000/alerts
+Content-Type: application/json
+
+{
+  "custom_alert_list":
+[
+    {
+        "user_id": 1,
+        "type": "Breaking threshold alert for chrome",
+        "message": "Chrome has broken a defined threshold (90% RAM usage per pc or went over 5GB absolute usage)",
+        "severity_level": 5,
+        "conditions": [
+            {
+                "percentage_trigger_value": 0.9,
+                "operator": ">=",
+                "column": "ram",
+                "application": "chrome"
+            }
+        ]
+    },
+    {
+        "user_id": 1,
+        "type": "RAM leak detected",
+        "message": "A RAM leak has been detected on this pc",
+        "severity_level": 5,
+        "conditions": [
+            {
+                "degree_trigger_value": 45,
+                "operator": ">=",
+                "column": "ram",
+                "lookback_time": 10
+            }
+        ]
+    },
+    {
+        "user_id": 1,
+        "type": "Rapid increase in disk space usage",
+        "message": "A rapid increase in disk space usage has been detected",
+        "severity_level": 4,
+        "conditions": [
+            {
+                "degree_trigger_value": 10,
+                "operator": ">=",
+                "column": "free_disk_space",
+                "application": "pc",
+                "start_date": "2023-07-25T00:00:00Z"
+            }
+        ]
+    },
+    {
+        "user_id": 1,
+        "type": "Breaking absolute threshold alert for chrome",
+        "message": "Chrome has broken a defined threshold of 5GB",
+        "severity_level": 5,
+        "conditions": [
+            {
+                "absolute_trigger_value": 5000000000,
+                "operator": ">=",
+                "column": "ram",
+                "application": "chrome"
+            }
+        ]
+    },
+    {
+        "user_id": 1,
+        "type": "Combined threshold alert for chrome",
+        "message": "Chrome has broken a defined threshold (90% RAM usage per pc combined with 50% CPU usage or went over 5GB absolute usage)",
+        "severity_level": 5,
+        "conditions": [
+            {
+                "order": 1,
+                "logical_condition": "OR",
+                "conditions": [
+                    {
+                        "order": 1,
+                        "percentage_trigger_value": 0.9,
+                        "operator": ">=",
+                        "column": "ram",
+                        "application": "chrome",
+                        "logical_condition": "AND"
+                    },
+                    {
+                        "order": 2,
+                        "percentage_trigger_value": 0.5,
+                        "operator": ">=",
+                        "column": "cpu",
+                        "application": "chrome"
+                    }
+                ]
+            },
+            {
+                "order": 2,
+                "absolute_trigger_value": 5000000000,
+                "operator": ">=",
+                "column": "ram",
+                "application": "chrome"
+            }
+        ]
+    }
+]
+}

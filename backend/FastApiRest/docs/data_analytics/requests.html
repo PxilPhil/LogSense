@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>data_analytics.requests API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>data_analytics.requests</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import pandas as pd
+import warnings
+from data_analytics import involvement, manipulation, anomaly, trend, stats
+from data_analytics.prediction import fit_linear_regression, predict_for_df
+from db_access.data import get_moving_avg_of_application_ram
+from model.data import AllocationClass
+from model.pc import ForecastData
+
+warnings.filterwarnings(&#34;ignore&#34;)
+
+
+def preprocess_pc_data(df):
+    &#34;&#34;&#34;
+    Preprocesses data before inserting it into the database.
+
+    Features:
+        - Grouping the DataFrame by timestamp to create the total pc DataFrame.
+        - Detecting the relevancy of applications to analyze only those with great influence.
+        - Detecting events of relevant applications.
+
+    Args:
+        df (DataFrame): The DataFrame containing pc data to be inserted.
+
+    Returns:
+        pc_total_df: The total pc DataFrame grouped by timestamp.
+        anomaly_list: A list of detected anomalies.
+    &#34;&#34;&#34;
+    df = df.set_index(&#39;timestamp&#39;)
+    anomaly_list = []
+    pc_total_df = manipulation.group_by_timestamp(df)
+    relevant_list = involvement.detect_relevancy(pc_total_df, df,
+                                                 &#39;residentSetSize&#39;)  # hardcoded to work for ram
+    print(relevant_list)
+    for application in relevant_list:
+        selected_row = manipulation.select_rows_by_application(application, df)
+        moving_avg = get_moving_avg_of_application_ram(1, application)
+        if moving_avg &gt; 0:
+            last_entry_was_anomaly = False
+            anomaly.detect_anomaly(selected_row, &#39;residentSetSize&#39;, moving_avg, last_entry_was_anomaly, anomaly_list,
+                                   application)
+    return pc_total_df, anomaly_list
+
+
+def forecast_disk_space(df, days):
+    &#34;&#34;&#34;
+    Forecasts disk space allocation for a certain number of days.
+
+    Features:
+    - Training a linear regression model by existing disk space data.
+    - Building a new DataFrame to be filled with data by the linear regression model later on.
+    - Filling the DataFrame with prediction values.
+    - Finding out when free disk space will run out and save the timestamp into &#34;last_timestamp&#34;.
+
+    Args:
+        df (DataFrame): The DataFrame containing free disk space values.
+        days (int): The number of days data should be forecasted for.
+
+    Returns:
+        data_list: A list of forecasted free disk space values with a timestamp.
+        last_timestamp: The timestamp where free disk space reaches 0 or less.
+    &#34;&#34;&#34;
+    # read dataframe, elect only needed columns
+    df = df.filter([&#39;measurement_time&#39;, &#39;free_disk_space&#39;])
+    df = df.set_index(pd.to_datetime(df[&#39;measurement_time&#39;]).astype(&#39;int64&#39;) // 10 ** 6)
+    # get latest timestamp, fit to model, extend dataframe by time input and predict values for it
+    timestamp = df.index[-1]
+    LR = fit_linear_regression(df, &#39;free_disk_space&#39;)
+    df = manipulation.create_df_between(timestamp, days, &#39;D&#39;)
+    df = predict_for_df(LR, df)
+
+    # convert timestamps to datetime
+    df[&#39;datetime&#39;] = pd.to_datetime(df.index, unit=&#39;ms&#39;)
+    data_list = []
+    for _, row in df.iterrows():
+        data_list.append(ForecastData(**row.to_dict()))
+    last_timestamp = None  # timestamp when free disk space reaches zero or below
+    # find out if and when LinearRegression is less than 0 (free disk space running out)
+    no_disk_space_rows = df[df[&#39;LinearRegression&#39;] &lt;= 0]
+    if not no_disk_space_rows.empty:
+        last_timestamp = no_disk_space_rows[&#39;datetime&#39;].iloc[0]
+
+    return data_list, last_timestamp
+
+
+def analyze_application_data(df, application_name):
+    &#34;&#34;&#34;
+    Analyzes application data fetched by a client.
+
+    Features:
+        - Anomaly detection.
+        - Simple statistical math (standard deviation, mean).
+
+    Args:
+        df (DataFrame): The DataFrame containing application data.
+        application_name (str): The name of the application.
+
+    Returns:
+        df: The DataFrame containing application data.
+        anomaly_list: The list of detected anomalies.
+        std: Standard deviation from mean, used for calculating &#34;Stability&#34;.
+        mean: Average of the values.
+    &#34;&#34;&#34;
+    # find anomalies
+    anomaly_list = anomaly.detect_anomalies(df, &#39;ram&#39;, application_name)
+    # get stats
+    std = df[&#39;ram&#39;].std()
+    mean = df[&#39;ram&#39;].mean()
+    return df, anomaly_list, std, mean
+
+
+def analyze_pc_data(df, pc_total_df, column):
+    &#34;&#34;&#34;
+    Analyzes pc data, called by the client when fetching pc data of a certain category (like RAM).
+
+    Features:
+        - Calculating allocation of applications.
+        - Simple statistical math (standard deviation, mean).
+
+    Args:
+        df (DataFrame): The DataFrame containing application data.
+        pc_total_df (DataFrame): The DataFrame containing total pc data.
+        column (str): Column which should be analyzed like RAM (deprecated).
+
+    Returns:
+        pc_total_df: The DataFrame containing total pc data.
+        allocation_list: The list of allocations (which application makes up how much percent of RAM/CPU usage).
+        std: Standard deviation from mean, used for calculating &#34;Stability&#34;.
+        mean: Average of the values.
+    &#34;&#34;&#34;
+    # get stats
+    std = pc_total_df[column].std()
+    mean = pc_total_df[column].mean()
+    # get allocation percentage
+    latest_total_value = pc_total_df.at[pc_total_df.index.max(), column]
+    allocation_map = stats.calc_allocation(latest_total_value, column, df)
+    allocation_list = [AllocationClass(name=key, allocation=value) for key, value in
+                       allocation_map.items()]  # convert map into list of our model object to send via json
+    # TODO: compare current value with last
+    return pc_total_df, allocation_list, std, mean</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="data_analytics.requests.analyze_application_data"><code class="name flex">
+<span>def <span class="ident">analyze_application_data</span></span>(<span>df, application_name)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Analyzes application data fetched by a client.</p>
+<h2 id="features">Features</h2>
+<ul>
+<li>Anomaly detection.</li>
+<li>Simple statistical math (standard deviation, mean).</li>
+</ul>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>DataFrame</code></dt>
+<dd>The DataFrame containing application data.</dd>
+<dt><strong><code>application_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>The name of the application.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>df</code></dt>
+<dd>The DataFrame containing application data.</dd>
+<dt><code>anomaly_list</code></dt>
+<dd>The list of detected anomalies.</dd>
+<dt><code>std</code></dt>
+<dd>Standard deviation from mean, used for calculating "Stability".</dd>
+<dt><code>mean</code></dt>
+<dd>Average of the values.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def analyze_application_data(df, application_name):
+    &#34;&#34;&#34;
+    Analyzes application data fetched by a client.
+
+    Features:
+        - Anomaly detection.
+        - Simple statistical math (standard deviation, mean).
+
+    Args:
+        df (DataFrame): The DataFrame containing application data.
+        application_name (str): The name of the application.
+
+    Returns:
+        df: The DataFrame containing application data.
+        anomaly_list: The list of detected anomalies.
+        std: Standard deviation from mean, used for calculating &#34;Stability&#34;.
+        mean: Average of the values.
+    &#34;&#34;&#34;
+    # find anomalies
+    anomaly_list = anomaly.detect_anomalies(df, &#39;ram&#39;, application_name)
+    # get stats
+    std = df[&#39;ram&#39;].std()
+    mean = df[&#39;ram&#39;].mean()
+    return df, anomaly_list, std, mean</code></pre>
+</details>
+</dd>
+<dt id="data_analytics.requests.analyze_pc_data"><code class="name flex">
+<span>def <span class="ident">analyze_pc_data</span></span>(<span>df, pc_total_df, column)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Analyzes pc data, called by the client when fetching pc data of a certain category (like RAM).</p>
+<h2 id="features">Features</h2>
+<ul>
+<li>Calculating allocation of applications.</li>
+<li>Simple statistical math (standard deviation, mean).</li>
+</ul>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>DataFrame</code></dt>
+<dd>The DataFrame containing application data.</dd>
+<dt><strong><code>pc_total_df</code></strong> :&ensp;<code>DataFrame</code></dt>
+<dd>The DataFrame containing total pc data.</dd>
+<dt><strong><code>column</code></strong> :&ensp;<code>str</code></dt>
+<dd>Column which should be analyzed like RAM (deprecated).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pc_total_df</code></dt>
+<dd>The DataFrame containing total pc data.</dd>
+<dt><code>allocation_list</code></dt>
+<dd>The list of allocations (which application makes up how much percent of RAM/CPU usage).</dd>
+<dt><code>std</code></dt>
+<dd>Standard deviation from mean, used for calculating "Stability".</dd>
+<dt><code>mean</code></dt>
+<dd>Average of the values.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def analyze_pc_data(df, pc_total_df, column):
+    &#34;&#34;&#34;
+    Analyzes pc data, called by the client when fetching pc data of a certain category (like RAM).
+
+    Features:
+        - Calculating allocation of applications.
+        - Simple statistical math (standard deviation, mean).
+
+    Args:
+        df (DataFrame): The DataFrame containing application data.
+        pc_total_df (DataFrame): The DataFrame containing total pc data.
+        column (str): Column which should be analyzed like RAM (deprecated).
+
+    Returns:
+        pc_total_df: The DataFrame containing total pc data.
+        allocation_list: The list of allocations (which application makes up how much percent of RAM/CPU usage).
+        std: Standard deviation from mean, used for calculating &#34;Stability&#34;.
+        mean: Average of the values.
+    &#34;&#34;&#34;
+    # get stats
+    std = pc_total_df[column].std()
+    mean = pc_total_df[column].mean()
+    # get allocation percentage
+    latest_total_value = pc_total_df.at[pc_total_df.index.max(), column]
+    allocation_map = stats.calc_allocation(latest_total_value, column, df)
+    allocation_list = [AllocationClass(name=key, allocation=value) for key, value in
+                       allocation_map.items()]  # convert map into list of our model object to send via json
+    # TODO: compare current value with last
+    return pc_total_df, allocation_list, std, mean</code></pre>
+</details>
+</dd>
+<dt id="data_analytics.requests.forecast_disk_space"><code class="name flex">
+<span>def <span class="ident">forecast_disk_space</span></span>(<span>df, days)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Forecasts disk space allocation for a certain number of days.</p>
+<p>Features:
+- Training a linear regression model by existing disk space data.
+- Building a new DataFrame to be filled with data by the linear regression model later on.
+- Filling the DataFrame with prediction values.
+- Finding out when free disk space will run out and save the timestamp into "last_timestamp".</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>DataFrame</code></dt>
+<dd>The DataFrame containing free disk space values.</dd>
+<dt><strong><code>days</code></strong> :&ensp;<code>int</code></dt>
+<dd>The number of days data should be forecasted for.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>data_list</code></dt>
+<dd>A list of forecasted free disk space values with a timestamp.</dd>
+<dt><code>last_timestamp</code></dt>
+<dd>The timestamp where free disk space reaches 0 or less.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forecast_disk_space(df, days):
+    &#34;&#34;&#34;
+    Forecasts disk space allocation for a certain number of days.
+
+    Features:
+    - Training a linear regression model by existing disk space data.
+    - Building a new DataFrame to be filled with data by the linear regression model later on.
+    - Filling the DataFrame with prediction values.
+    - Finding out when free disk space will run out and save the timestamp into &#34;last_timestamp&#34;.
+
+    Args:
+        df (DataFrame): The DataFrame containing free disk space values.
+        days (int): The number of days data should be forecasted for.
+
+    Returns:
+        data_list: A list of forecasted free disk space values with a timestamp.
+        last_timestamp: The timestamp where free disk space reaches 0 or less.
+    &#34;&#34;&#34;
+    # read dataframe, elect only needed columns
+    df = df.filter([&#39;measurement_time&#39;, &#39;free_disk_space&#39;])
+    df = df.set_index(pd.to_datetime(df[&#39;measurement_time&#39;]).astype(&#39;int64&#39;) // 10 ** 6)
+    # get latest timestamp, fit to model, extend dataframe by time input and predict values for it
+    timestamp = df.index[-1]
+    LR = fit_linear_regression(df, &#39;free_disk_space&#39;)
+    df = manipulation.create_df_between(timestamp, days, &#39;D&#39;)
+    df = predict_for_df(LR, df)
+
+    # convert timestamps to datetime
+    df[&#39;datetime&#39;] = pd.to_datetime(df.index, unit=&#39;ms&#39;)
+    data_list = []
+    for _, row in df.iterrows():
+        data_list.append(ForecastData(**row.to_dict()))
+    last_timestamp = None  # timestamp when free disk space reaches zero or below
+    # find out if and when LinearRegression is less than 0 (free disk space running out)
+    no_disk_space_rows = df[df[&#39;LinearRegression&#39;] &lt;= 0]
+    if not no_disk_space_rows.empty:
+        last_timestamp = no_disk_space_rows[&#39;datetime&#39;].iloc[0]
+
+    return data_list, last_timestamp</code></pre>
+</details>
+</dd>
+<dt id="data_analytics.requests.preprocess_pc_data"><code class="name flex">
+<span>def <span class="ident">preprocess_pc_data</span></span>(<span>df)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Preprocesses data before inserting it into the database.</p>
+<h2 id="features">Features</h2>
+<ul>
+<li>Grouping the DataFrame by timestamp to create the total pc DataFrame.</li>
+<li>Detecting the relevancy of applications to analyze only those with great influence.</li>
+<li>Detecting events of relevant applications.</li>
+</ul>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>DataFrame</code></dt>
+<dd>The DataFrame containing pc data to be inserted.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pc_total_df</code></dt>
+<dd>The total pc DataFrame grouped by timestamp.</dd>
+<dt><code>anomaly_list</code></dt>
+<dd>A list of detected anomalies.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def preprocess_pc_data(df):
+    &#34;&#34;&#34;
+    Preprocesses data before inserting it into the database.
+
+    Features:
+        - Grouping the DataFrame by timestamp to create the total pc DataFrame.
+        - Detecting the relevancy of applications to analyze only those with great influence.
+        - Detecting events of relevant applications.
+
+    Args:
+        df (DataFrame): The DataFrame containing pc data to be inserted.
+
+    Returns:
+        pc_total_df: The total pc DataFrame grouped by timestamp.
+        anomaly_list: A list of detected anomalies.
+    &#34;&#34;&#34;
+    df = df.set_index(&#39;timestamp&#39;)
+    anomaly_list = []
+    pc_total_df = manipulation.group_by_timestamp(df)
+    relevant_list = involvement.detect_relevancy(pc_total_df, df,
+                                                 &#39;residentSetSize&#39;)  # hardcoded to work for ram
+    print(relevant_list)
+    for application in relevant_list:
+        selected_row = manipulation.select_rows_by_application(application, df)
+        moving_avg = get_moving_avg_of_application_ram(1, application)
+        if moving_avg &gt; 0:
+            last_entry_was_anomaly = False
+            anomaly.detect_anomaly(selected_row, &#39;residentSetSize&#39;, moving_avg, last_entry_was_anomaly, anomaly_list,
+                                   application)
+    return pc_total_df, anomaly_list</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="data_analytics" href="index.html">data_analytics</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="data_analytics.requests.analyze_application_data" href="#data_analytics.requests.analyze_application_data">analyze_application_data</a></code></li>
+<li><code><a title="data_analytics.requests.analyze_pc_data" href="#data_analytics.requests.analyze_pc_data">analyze_pc_data</a></code></li>
+<li><code><a title="data_analytics.requests.forecast_disk_space" href="#data_analytics.requests.forecast_disk_space">forecast_disk_space</a></code></li>
+<li><code><a title="data_analytics.requests.preprocess_pc_data" href="#data_analytics.requests.preprocess_pc_data">preprocess_pc_data</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
