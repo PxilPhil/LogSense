@@ -1,0 +1,108 @@
+<router-outlet></router-outlet>
+<div class="anti-th">
+  <div class="mar-left-64 mar-top-48">
+    <h1>Disk</h1>
+  </div>
+  <h2 class="mar-left-64 mar-top-32">Usage</h2>
+  <div class="pad-right-128 pad-left-64 mar-top-32 w-100">
+    <div class="grey-box flex-start w-100">
+      <div class="mar-right-96">
+        <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24">
+          <option *ngFor="let elem of times" [ngValue]="elem">{{elem.time}}</option>
+        </select>
+        <canvas class="white-bg w-100" id="disk"></canvas>
+        <div class="flex-center mar-top-12">
+          <div class="form-check">
+            <input type="checkbox" [(ngModel)]="isShowEventsChecked" (change)="reloadChart()" class="form-check-input" checked>
+            <span class="txt-16">Show Events</span>
+          </div>
+          <div class="form-check mar-left-12">
+            <input type="checkbox" [(ngModel)]="isShowAnomaliesChecked" (change)="reloadChart()" class="form-check-input" checked>
+            <span class="txt-16">Show Anomalies</span>
+          </div>
+          <div class="form-check mar-left-12">
+            <input type="checkbox" [(ngModel)]="isShowPredictionsChecked" (change)="reloadChart()" class="form-check-input">
+            <span class="txt-16">Show Predictions</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 class="mar-bot-24">Statistics ({{selectedTime.time}})</h3>
+        <div class="white-bg">
+          <div class="align-general">
+            <div class="align-txt">
+              <span class="txt-16">Total Disk Space</span>
+              <span class="txt-16">Free Disk Space</span>
+            </div>
+            <div class="align-txt mar-left-32">
+              <span class="txt-16"> <!--{{disk.totalMemory}}--> 1024 GB</span>
+              <span class="txt-16">{{this.roundDecimalNumber(this.convertBytesToGigaBytes(latestPCDataMeasurement.free_disk_space), 2)}} GB</span>
+            </div>
+          </div>
+
+          <div class="boxes mar-top-12">
+            <div class="white-box txt-16">Current
+              <div class="value">
+                <!--{{disk.current}}--> 25%
+              </div>
+            </div>
+            <div class="white-box txt-16 mar-left-12">
+              Average
+              <div class="value">
+                <!--{{disk.average}}--> 20.03%
+              </div>
+            </div>
+            <div class="white-box txt-16 mar-left-12">Stability
+              <div class="value">
+                <!--{{disk.stability}}--> High
+              </div>
+            </div>
+          </div>
+          <div class="align-notes mar-top-16">
+            <span *ngFor="let stat of statistics" class="txt-16 mar-bot-5">{{stat}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pad-left-64 pad-right-128 mar-top-32 w-100">
+    <div class="w-100">
+      <h2 class="mar-bot-24">Alerts</h2>
+      <div class="grey-box w-100">
+        <div *ngFor="let alert of alerts; let last = last" [ngClass]="{'mar-bot-12': !last}"
+             class="alert-box flex-center">
+          <mat-icon class="icon-32 icon">warning</mat-icon>
+          <span class="mar-left-32 txt-16">{{alert}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pad-bot-64 pad-left-64 pad-right-128 mar-top-32 w-100">
+    <h2 class="mar-bot-24">Disk Stores</h2>
+    <div class="grey-box">
+      <table class="table">
+        <thead class="bold">
+        <tr>
+          <td class="cell txt-16">Serial Number</td>
+          <td class="cell txt-16">Name</td>
+          <td class="cell txt-16">Model</td>
+          <td class="cell txt-16">Size</td>
+          <td class="cell txt-16">Partitions</td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let diskStore of diskData.disks; let i = index">
+          <td class="cell txt-16">{{diskStore.serialnumber}}</td>
+          <td class="cell txt-16">{{diskStore.name}}</td>
+          <td class="cell txt-16">{{diskStore.model}}</td>
+          <td class="cell txt-16">{{roundDecimalNumber(convertBytesToGigaBytes(diskStore.size), 3)}} GB</td>
+          <td (click)="openDialog(i)" class="cell txt-16 part-link">See Partitions</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!--Modal-->
+
+</div>

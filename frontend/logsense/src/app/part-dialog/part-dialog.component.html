@@ -1,0 +1,29 @@
+<div class="pad-right-32 pad-left-32 pad-top-32 pad-bot-32">
+  <h1>Partitions</h1>
+  <div class="grey-box" mat-dialog-content>
+    <table class="table">
+      <thead class="bold">
+      <tr>
+        <td class="cell txt-16">Identification</td>
+        <td class="cell txt-16">Name</td>
+        <td class="cell txt-16">Type</td>
+        <td class="cell txt-16">Mount Point</td>
+        <td class="cell txt-16">Size</td>
+        <td class="cell txt-16">Major Faults</td>
+        <td class="cell txt-16">Minor Faults</td>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let partition of data">
+        <td class="cell txt-16">{{partition.identification}}</td>
+        <td class="cell txt-16">{{partition.name}}</td>
+        <td class="cell txt-16">{{partition.type}}</td>
+        <td class="cell txt-16">{{partition.mount_point}}</td>
+        <td class="cell txt-16">{{partition.size}}</td>
+        <td class="cell txt-16">{{partition.major_faults}}</td>
+        <td class="cell txt-16">{{partition.minor_faults}}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

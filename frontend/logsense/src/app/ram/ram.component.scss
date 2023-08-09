@@ -1,0 +1,43 @@
+@import "../../styles.scss";
+
+.white-bg {
+  background-color: $white;
+  padding: 16px;
+
+  .boxes {
+    display: flex;
+    flex-direction: row;
+
+    .white-box {
+      background-color: $white;
+      border: $border-1px;
+      padding: 12px 24px;
+
+      .value {
+        display: flex;
+        justify-content: center;
+        margin: 16px 0 6px 0;
+      }
+    }
+  }
+
+  .align-notes {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.align-general {
+  display: flex;
+  flex-direction: row;
+
+  .align-txt {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.position-boxes {
+  display: flex;
+  flex-direction: row;
+}

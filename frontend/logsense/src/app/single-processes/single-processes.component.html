@@ -1,0 +1,132 @@
+<div class="anti-th">
+  <h1 class="mar-left-64 mar-top-48">Applications</h1>
+  <div class="pad-left-64 mar-top-48 flex-start w-100 pad-right-128 pad-bot-64">
+    <div class="white-box pad-top-bot-16 h-100">
+      <form class="example-form pad-left-right-16">
+        <mat-form-field class="example-full-width">
+          <input matInput placeholder="Search..." type="tel">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </form>
+      <div (click)="loadApplicationData(applicationName)"
+           *ngFor="let applicationName of applicationNameList.application_list" class="process-box">
+        <div class="txt-16">
+          {{applicationName}}
+        </div>
+      </div>
+    </div>
+    <div class="mar-left-64 w-100">
+      <div *ngIf="isApplicationSelected">
+        <select (change)="reloadApplicationDataOnTimesSelectionChange()" [(ngModel)]="selectedTime"
+                class="dropdown-btn mar-bot-24">
+          <option *ngFor="let timeElement of times" [ngValue]="timeElement">{{timeElement.time}}</option>
+        </select>
+      </div>
+      <div *ngIf="isApplicationSelected" class="space-base mar-top-16">
+        <div class="flex-center">
+          <h2>{{selectedApplication.application_name}}</h2>
+          <div class="flex-center">
+            <mat-icon class="info-icon mar-left-12 icon-hov">info_outline</mat-icon>
+            <div class="white-box hidden">
+              <span class="txt-22">Details</span>
+              <div class="align-general">
+                <div class="align-txt">
+                  <span class="txt-16">Proccess ID</span>
+                  <span class="txt-16">Path</span>
+                  <span class="txt-16">Working Directory</span>
+                  <span class="txt-16">Command Line</span>
+                  <span class="txt-16">Parent Process ID</span>
+                  <span class="txt-16">User</span>
+                  <span class="txt-16">Bitness</span>
+                </div>
+                <div class="align-txt mar-left-24">
+                  <span class="txt-16">{{latestApplicationMeasurement.id}}</span>
+                  <span class="txt-16">{{latestApplicationMeasurement.path}}</span>
+                  <span class="txt-16">{{latestApplicationMeasurement.current_Working_Directory}}</span>
+                  <span class="txt-16">{{latestApplicationMeasurement.commandLine}}</span>
+                  <span class="txt-16">{{latestApplicationMeasurement.parent_process_id}}</span>
+                  <span class="txt-16">{{latestApplicationMeasurement.user}}</span>
+                  <span class="txt-16">{{latestApplicationMeasurement.bitness}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <span class="txt-16">running for: {{formatUpTime(latestApplicationMeasurement.uptime)}}</span>
+        </div>
+      </div>
+      <div *ngIf="isApplicationSelected" class="grey-box flex-row w-100 mar-top-24">
+        <div class="w-100 pad-right-32">
+          <div class="space-base">
+            <div>
+              <span class="txt-22">CPU</span>
+            </div>
+            <div>
+              <span class="txt-22">{{roundDecimalNumber(selectedApplication.mean_cpu, 2)}}%</span>
+            </div>
+          </div>
+          <div class="mar-top-16">
+            <canvas class="white-bg w-100" id="usageCPU"></canvas>
+          </div>
+        </div>
+        <div class="w-100 pad-left-32">
+          <div class="space-base">
+            <div>
+              <span class="txt-22">RAM</span>
+            </div>
+            <div>
+              <span class="txt-22">{{roundDecimalNumber(convertBytesToMegaBytes(selectedApplication.mean_ram), 2)}}
+                MB</span>
+            </div>
+          </div>
+          <div class="mar-top-16">
+            <canvas class="white-bg w-100" id="usageRAM"></canvas>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="isApplicationSelected" class="align-general mar-top-32 w-100">
+        <div>
+          <h2 class="mar-bot-24">General</h2>
+          <div class="grey-box mar-right-96">
+            <div class="align-general">
+              <div class="align-txt">
+                <span class="txt-16">State</span>
+                <span class="txt-16">Major Faults</span>
+                <span class="txt-16">Context Switches</span>
+                <span class="txt-16">Threads</span>
+                <span class="txt-16">Open Files</span>
+              </div>
+              <div class="align-txt mar-left-24">
+                <span class="txt-16">{{latestApplicationMeasurement.state}}</span>
+                <span class="txt-16">{{latestApplicationMeasurement.major_faults}}</span>
+                <span class="txt-16">{{latestApplicationMeasurement.context_switches}}</span>
+                <span class="txt-16">{{latestApplicationMeasurement.thread_count}}</span>
+                <span class="txt-16">{{latestApplicationMeasurement.open_files}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="">
+          <h2 class="mar-bot-24">Statistics</h2>
+          <div class="grey-box align-general">
+            <div class="align-txt">
+              <span *ngFor="let stat of statistics; let last = last"
+                    class="txt-16">{{stat}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div [ngClass]="{'mar-left-64 w-100': !isApplicationSelected, 'mar-top-32 w-100': isApplicationSelected}">
+        <h2 class="mar-bot-24 mar-bot">Alerts</h2>
+        <div class="grey-box w-100">
+          <div *ngFor="let alert of alerts; let last = last" [ngClass]="{'mar-bot-12': !last}"
+               class="alert-box flex-center">
+            <mat-icon class="icon-32 icon">warning</mat-icon>
+            <span class="mar-left-32 txt-16">{{alert}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
