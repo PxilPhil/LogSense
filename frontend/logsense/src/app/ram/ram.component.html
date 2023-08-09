@@ -7,21 +7,21 @@
   <div class="pad-right-128 pad-left-64 mar-top-32 w-100">
     <div class="grey-box flex-start w-100">
       <div class="mar-right-96">
-        <select class="dropdown-btn mar-bot-24" [(ngModel)]="selectedTime">
+        <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24">
           <option *ngFor="let elem of times" [ngValue]="elem">{{elem.time}}</option>
         </select>
-        <canvas id="ram" class="white-bg w-100"></canvas>
+        <canvas class="white-bg w-100" id="ram"></canvas>
         <div class="flex-center mar-top-12">
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="" id="events">
+            <input class="form-check-input" id="events" type="checkbox" value="">
             <span class="txt-16">Show Events</span>
           </div>
           <div class="form-check mar-left-12">
-            <input class="form-check-input" type="checkbox" value="" id="anomalies" checked>
+            <input checked class="form-check-input" id="anomalies" type="checkbox" value="">
             <span class="txt-16">Show Anomalies</span>
           </div>
           <div class="form-check mar-left-12">
-            <input class="form-check-input" type="checkbox" value="" id="outlyers">
+            <input class="form-check-input" id="outlyers" type="checkbox" value="">
             <span class="txt-16">Show Outlyers</span>
           </div>
         </div>
@@ -61,7 +61,7 @@
             </div>
           </div>
           <div class="align-notes mar-top-16">
-            <span class="txt-16 mar-bot-5" *ngFor="let stat of ram.stats">{{stat}}</span>
+            <span *ngFor="let stat of ram.stats" class="txt-16 mar-bot-5">{{stat}}</span>
           </div>
         </div>
       </div>
@@ -73,18 +73,21 @@
       <div class="grey-box align-general">
         <div class="align-txt">
           <span class="txt-16 bold mar-bot-12">Name</span>
-          <span class="txt-16" *ngFor="let process of ram.processes; let last = last" [ngClass]="{'mar-bot-5': !last}">{{process.name}}</span>
+          <span *ngFor="let process of ram.processes; let last = last" [ngClass]="{'mar-bot-5': !last}"
+                class="txt-16">{{process.name}}</span>
         </div>
         <div class="align-txt mar-left-32">
           <span class="txt-16 bold mar-bot-12">CPU Allocation</span>
-          <span class="txt-16 mar-bot-5" *ngFor="let process of ram.processes; let last = last" [ngClass]="{'mar-bot-5': !last}">{{process.allocation}}%</span>
+          <span *ngFor="let process of ram.processes; let last = last" [ngClass]="{'mar-bot-5': !last}"
+                class="txt-16 mar-bot-5">{{process.allocation}}%</span>
         </div>
       </div>
     </div>
     <div class="w-100">
       <h2 class="mar-bot-24 mar-bot">Alerts</h2>
       <div class="grey-box w-100">
-        <div class="alert-box flex-center" *ngFor="let alert of ram.alerts; let last = last" [ngClass]="{'mar-bot-12': !last}">
+        <div *ngFor="let alert of ram.alerts; let last = last" [ngClass]="{'mar-bot-12': !last}"
+             class="alert-box flex-center">
           <mat-icon class="icon-32 icon">warning</mat-icon>
           <span class="mar-left-32 txt-16">{{alert}}</span>
         </div>

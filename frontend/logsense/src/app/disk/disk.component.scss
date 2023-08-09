@@ -4,13 +4,16 @@
 .white-bg {
   background-color: $white;
   padding: 16px;
+
   .boxes {
     display: flex;
     flex-direction: row;
+
     .white-box {
       background-color: $white;
       border: $border-1px;
       padding: 12px 24px;
+
       .value {
         display: flex;
         justify-content: center;
@@ -18,6 +21,7 @@
       }
     }
   }
+
   .align-notes {
     display: flex;
     flex-direction: column;
@@ -27,11 +31,13 @@
 .align-general {
   display: flex;
   flex-direction: row;
+
   .align-txt {
     display: flex;
     flex-direction: column;
   }
 }
+
 .position-boxes {
   display: flex;
   flex-direction: row;
@@ -48,10 +54,12 @@
   border-style: hidden;
   margin: 0;
 }
+
 .part-link {
   text-decoration: underline;
   text-decoration-color: $dark-grey-2;
 }
+
 .part-link:hover {
   color: $grey;
   text-decoration-color: $grey;

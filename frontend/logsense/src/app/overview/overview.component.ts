@@ -4,7 +4,7 @@ import {CPUModel} from "../cpu/cpu.component";
 import {RAMModel} from "../ram/ram.component";
 import {TimeModel} from "../disk/disk.component";
 import {ApiService} from '../services/api-service.service';
-import {PCDataResponse} from '../model/PCData';
+import {PCData} from '../model/PCData';
 import {DiskData} from "../model/DiskData";
 
 Chart.register(...registerables);
@@ -56,7 +56,7 @@ export class OverviewComponent implements OnInit {
     console.log('init')
 
     this.apiService.getPCData(1, 'RAM', '2023-07-25 10:20:16', '2023-08-25 10:20:16').subscribe(
-      (response: PCDataResponse) => {
+      (response: PCData) => {
         console.log('Data:', response);
       },
       (error) => {

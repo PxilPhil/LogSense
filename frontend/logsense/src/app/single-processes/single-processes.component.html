@@ -4,11 +4,12 @@
     <div class="white-box pad-top-bot-16 h-100">
       <form class="example-form pad-left-right-16">
         <mat-form-field class="example-full-width">
-          <input type="tel" matInput placeholder="Search...">
+          <input matInput placeholder="Search..." type="tel">
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
       </form>
-      <div *ngFor="let applicationName of applicationNameList.application_list" (click)="loadApplicationData(applicationName)" class="process-box">
+      <div (click)="loadApplicationData(applicationName)"
+           *ngFor="let applicationName of applicationNameList.application_list" class="process-box">
         <div class="txt-16">
           {{applicationName}}
         </div>
@@ -16,7 +17,8 @@
     </div>
     <div class="mar-left-64 w-100">
       <div *ngIf="isApplicationSelected">
-        <select [(ngModel)]="selectedTime" (change)="reloadApplicationDataOnTimesSelectionChange()" class="dropdown-btn mar-bot-24">
+        <select (change)="reloadApplicationDataOnTimesSelectionChange()" [(ngModel)]="selectedTime"
+                class="dropdown-btn mar-bot-24">
           <option *ngFor="let timeElement of times" [ngValue]="timeElement">{{timeElement.time}}</option>
         </select>
       </div>
@@ -65,7 +67,7 @@
             </div>
           </div>
           <div class="mar-top-16">
-            <canvas id="usageCPU" class="white-bg w-100"></canvas>
+            <canvas class="white-bg w-100" id="usageCPU"></canvas>
           </div>
         </div>
         <div class="w-100 pad-left-32">
@@ -74,11 +76,12 @@
               <span class="txt-22">RAM</span>
             </div>
             <div>
-              <span class="txt-22">{{roundDecimalNumber(convertBytesToMegaBytes(selectedApplication.mean_ram), 2)}} MB</span>
+              <span class="txt-22">{{roundDecimalNumber(convertBytesToMegaBytes(selectedApplication.mean_ram), 2)}}
+                MB</span>
             </div>
           </div>
           <div class="mar-top-16">
-            <canvas id="usageRAM" class="white-bg w-100"></canvas>
+            <canvas class="white-bg w-100" id="usageRAM"></canvas>
           </div>
         </div>
       </div>
@@ -108,8 +111,8 @@
           <h2 class="mar-bot-24">Statistics</h2>
           <div class="grey-box align-general">
             <div class="align-txt">
-              <span class="txt-16"
-                    *ngFor="let stat of statistics; let last = last">{{stat}}</span>
+              <span *ngFor="let stat of statistics; let last = last"
+                    class="txt-16">{{stat}}</span>
             </div>
           </div>
         </div>
@@ -117,8 +120,8 @@
       <div [ngClass]="{'mar-left-64 w-100': !isApplicationSelected, 'mar-top-32 w-100': isApplicationSelected}">
         <h2 class="mar-bot-24 mar-bot">Alerts</h2>
         <div class="grey-box w-100">
-          <div class="alert-box flex-center" *ngFor="let alert of alerts; let last = last"
-               [ngClass]="{'mar-bot-12': !last}">
+          <div *ngFor="let alert of alerts; let last = last" [ngClass]="{'mar-bot-12': !last}"
+               class="alert-box flex-center">
             <mat-icon class="icon-32 icon">warning</mat-icon>
             <span class="mar-left-32 txt-16">{{alert}}</span>
           </div>

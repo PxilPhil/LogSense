@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {NetworkDataService} from "../services/network.service";
 import {NetworkData} from "../model/NetworkData";
 import {Alert} from "../model/Alert";
@@ -22,9 +22,9 @@ export class NetworkComponent implements OnInit {
   }
 
   loadNetworkData() {
-   this.networkDataService.getNetworkData(1 /* TODO get dynamic pc id */).subscribe((data: NetworkData) => {
-     this.networkData = data;
-   });
+    this.networkDataService.getNetworkData(1 /* TODO get dynamic pc id */).subscribe((data: NetworkData) => {
+      this.networkData = data;
+    });
   }
 
   loadAlerts(): void {

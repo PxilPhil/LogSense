@@ -10,10 +10,14 @@ export class RAMModel {
   current: Number = 21; //%
   average: Number = 48; //%
   stability: String = "Low";
-  stats: String[] = ["RAM Usage dropped 4%", "21 anomalies detected", "5 Events registered",  "Recent Rise of 15% detected"];
-  processes: ProcessModel[] = [{name: "Chrome", allocation: 15}, {name: "Explorer", allocation: 10},{name: "Intellij", allocation: 48}];
+  stats: String[] = ["RAM Usage dropped 4%", "21 anomalies detected", "5 Events registered", "Recent Rise of 15% detected"];
+  processes: ProcessModel[] = [{name: "Chrome", allocation: 15}, {name: "Explorer", allocation: 10}, {
+    name: "Intellij",
+    allocation: 48
+  }];
   alerts: String[] = ["Some devices are at their workload limit", "Abnormal CPU-Spikes detected (21 Anomalies in the last 24 hours)"];
 }
+
 @Component({
   selector: 'app-ram',
   templateUrl: './ram.component.html',
@@ -65,6 +69,6 @@ export class RamComponent implements OnInit {
   getData(): { labels: string[], values: number[] } {
     const labels = ['Zeitpunkt 1', 'Zeitpunkt 2', 'Zeitpunkt 3']; // Beispiellabels
     const values = [75, 90, 60]; // Beispielauslastung
-    return { labels, values };
+    return {labels, values};
   }
 }

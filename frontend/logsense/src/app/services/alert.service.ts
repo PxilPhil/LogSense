@@ -1,8 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {ApplicationNames} from "../model/ApplicationNames";
-import {Application} from "../model/Application";
 import {Alert} from "../model/Alert";
 
 @Injectable({

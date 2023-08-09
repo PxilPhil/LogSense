@@ -1,7 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Chart} from "chart.js";
-import _default from "chart.js/dist/plugins/plugin.legend";
-import {TimeModel} from "../disk/disk.component";
 
 export class CPUModel {
   cpuName: String = "AMD Ryzen 7 5800H";
@@ -23,15 +21,19 @@ export class ProcessModel {
   name: String = "chrome";
   allocation: Number = 15;
 }
+
 @Component({
   selector: 'app-cpu',
   templateUrl: './cpu.component.html',
   styleUrls: ['./cpu.component.scss']
 })
-export class CpuComponent implements OnInit{
+export class CpuComponent implements OnInit {
   cpu: CPUModel = new CPUModel();
   notes: String[] = ["CPU Usage dropped 4%", "21 Anomalies detected", "5 Events registered"];
-  processes: ProcessModel[] = [{name: "Chrome", allocation: 15}, {name: "Explorer", allocation: 10},{name: "Intellij", allocation: 48}];
+  processes: ProcessModel[] = [{name: "Chrome", allocation: 15}, {name: "Explorer", allocation: 10}, {
+    name: "Intellij",
+    allocation: 48
+  }];
   alerts: String[] = ["Some devices are at their workload limit", "Abnormal CPU-Spikes detected (21 Anomalies in the last 24 hours)"];
   times = [
     {id: 1, time: "Last 24h", valueInMilliseconds: 86400000},
@@ -45,6 +47,7 @@ export class CpuComponent implements OnInit{
 
   constructor() {
   }
+
   ngOnInit() {
     this.usageChart();
   }
@@ -79,6 +82,6 @@ export class CpuComponent implements OnInit{
   getData(): { labels: string[], values: number[] } {
     const labels = ['Zeitpunkt 1', 'Zeitpunkt 2', 'Zeitpunkt 3']; // Beispiellabels
     const values = [75, 90, 60]; // Beispielauslastung
-    return { labels, values };
+    return {labels, values};
   }
 }
