@@ -1,0 +1,61 @@
+@import "../../styles";
+
+.example-form {
+  min-width: 150px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.example-full-width {
+  width: 100%;
+}
+
+.process-box {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  width: 100%;
+  padding: 0 24px;
+}
+
+.process-box:hover {
+  background-color: $light-grey-1;
+}
+
+.flex-spacing-search {
+  flex: 0 0 20%;
+  max-width: 20%;
+}
+
+.flex-spacing-process {
+  flex: 0 0 80%;
+  max-width: 80%;
+}
+
+
+.align-general {
+  display: flex;
+  flex-direction: row;
+
+  .align-txt {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+
+.white-bg {
+  background-color: $white;
+  padding: 8px;
+}
+
+.icon-hov:hover + .hidden {
+  display: block;
+}
+
+.hidden {
+  display: none;
+  position: absolute;
+  transform: translate(48px, 96px);
+  padding: 8px 16px;
+}

@@ -1,0 +1,145 @@
+<router-outlet></router-outlet>
+<div class="anti-th pad-right-128">
+  <h1 class="mar-left-64 mar-top-48">Overview</h1>
+  <div class=" mar-top-32 space-base pad-left-64">
+    <div class="flex-center">
+      <h2>{{client.manufacturer}} {{client.model}}</h2>
+      <div class="flex-center">
+        <mat-icon class="info-icon icon-hov mar-left-12">info_outline</mat-icon>
+        <div class="white-box hidden">
+          <span class="txt-22">Details</span>
+          <div class="flex-row mar-bot-12 mar-top-12">
+            <div class="flex-col">
+              <span class="txt-16">Manufacturer</span>
+              <span class="txt-16">Model</span>
+              <span class="txt-16">Hardware UUID</span>
+            </div>
+            <div class="flex-col">
+              <span class="txt-16 mar-left-24">{{client.manufacturer}}</span>
+              <span class="txt-16 mar-left-24">{{client.model}}</span>
+              <span class="txt-16 mar-left-24">{{client.uuid}}</span>
+            </div>
+          </div>
+          <span class="txt-16">Power Sources:</span>
+          <div class="flex-row mar-left-12">
+            <div class="flex-col">
+              <span class="txt-16">System Battery</span>
+              <span class="txt-16">Remaining Capacity</span>
+              <span class="txt-16">Charging</span>
+              <span class="txt-16">Discharging</span>
+              <span class="txt-16">Power On Line</span>
+            </div>
+            <div class="flex-col">
+              <span class="txt-16 mar-left-24">{{client.powerSources.systemBattery}}</span>
+              <span class="txt-16 mar-left-24">{{client.powerSources.remainingCapacity}}</span>
+              <span class="txt-16 mar-left-24">{{client.powerSources.charging}}</span>
+              <span class="txt-16 mar-left-24">{{client.powerSources.discharging}}</span>
+              <span class="txt-16 mar-left-24">{{client.powerSources.powerOnLine}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <span class="txt-16">running for: {{runtime}}</span>
+    </div>
+  </div>
+  <div class="pad-left-64 mar-top-24">
+    <h3>Resource Metrics</h3>
+    <div class="mar-top-12 test">
+      <div class="grey-box mar-right-32">
+        <div class="space-base">
+          <span class="txt-22 mar-bot-5">CPU</span>
+          <span class="txt-16">{{cpu.average}}%</span>
+        </div>
+        <div class="flex-row">
+          <div class="flex-col">
+            <span class="txt-16">Name</span>
+            <span class="txt-16">Physical Packages</span>
+            <span class="txt-16">Physical Processors</span>
+            <span class="txt-16">Logical Processors</span>
+          </div>
+          <div class="flex-col mar-left-24">
+            <span class="txt-16">{{cpu.cpuName}}</span>
+            <span class="txt-16">{{cpu.physicalPackages}}</span>
+            <span class="txt-16">{{cpu.physicalProcessors}}</span>
+            <span class="txt-16">{{cpu.logicalProcessors}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="grey-box mar-right-32">
+        <div class="space-base">
+          <span class="txt-22 mar-bot-5">RAM</span>
+          <span class="txt-16">{{ram.average}}%</span>
+        </div>
+        <div class="flex-row">
+          <div class="flex-col">
+            <span class="txt-16">Total Memory</span>
+            <span class="txt-16">Free Memory</span>
+            <span class="txt-16">Page Size</span>
+          </div>
+          <div class="flex-col mar-left-24">
+            <span class="txt-16">{{ram.totalMemory}}</span>
+            <span class="txt-16">{{ram.freeMemory}}</span>
+            <span class="txt-16">{{ram.pageSize}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="grey-box">
+        <div class="space-base">
+          <span class="txt-22 mar-bot-5">Disk</span>
+          <span class="txt-16"><!--{{disk.average}}-->20%</span>
+        </div>
+        <div class="flex-row">
+          <div class="flex-col">
+            <span class="txt-16">Total Memory</span>
+            <span class="txt-16">Free Memory</span>
+          </div>
+          <div class="flex-col mar-left-24">
+            <span class="txt-16"><!--{{disk.totalMemory}}-->1024 GB</span>
+            <span class="txt-16"><!--{{disk.free}}-->312.7 GB</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pad-left-64 mar-top-32">
+    <h3>Time Metrics</h3>
+    <div class="grey-box flex-row mar-top-12">
+      <div class="flex-col w-100">
+        <canvas class="white-bg w-100" id="timeChart"></canvas>
+        <div class="flex-center mar-top-12">
+          <div class="form-check">
+            <input class="form-check-input" id="linechart" type="checkbox" value="">
+            <span class="txt-16">Line Chart</span>
+          </div>
+          <div class="form-check mar-left-12">
+            <input checked class="form-check-input" id="predictions" type="checkbox" value="">
+            <span class="txt-16">Predictions</span>
+          </div>
+        </div>
+      </div>
+      <div class="mar-left-64 w-100">
+        <div>
+          <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24">
+            <option *ngFor="let elem of times" [ngValue]="elem">{{elem.time}}</option>
+          </select>
+        </div>
+        <span class="txt-16">Details ({{selectedTime.time}})</span>
+        <div class="white-box">
+          txt
+        </div>
+      </div>
+    </div>
+    <div class="pad-bot-64 mar-top-32 w-100">
+      <h2 class="mar-bot-24">Alerts</h2>
+      <div class="grey-box w-100">
+        <div *ngFor="let alert of alerts; let last = last" [ngClass]="{'mar-bot-12': !last}"
+             class="alert-box flex-center">
+          <mat-icon class="icon-32 icon">warning</mat-icon>
+          <span class="mar-left-32 txt-16">{{alert}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

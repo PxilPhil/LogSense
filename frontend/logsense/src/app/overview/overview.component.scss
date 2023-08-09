@@ -1,0 +1,27 @@
+@import "../../styles.scss";
+
+.white-bg {
+  background-color: $white;
+  padding: 16px;
+}
+
+.alignment {
+  display: inline-flex;
+  align-items: flex-start;
+}
+
+.icon-hov:hover + .hidden {
+  display: block;
+}
+
+.hidden {
+  display: none;
+  position: absolute;
+  transform: translate(48px, 136px);
+  padding: 8px 16px;
+}
+
+.test {
+  display: flex;
+  flex-direction: row;
+}
