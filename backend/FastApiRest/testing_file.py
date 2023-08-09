@@ -5,21 +5,53 @@ import time
 
 
 
-"""
 if __name__ == "__main__":
-    url = "http://localhost:8000/data/initial"
+    ### 1 => first time !=0=> anything else
+    run = 1
 
-    files = {
-        ('files', ('client', open('data/client/client_1690439985645.csv', 'rb'), 'text/csv')),
-        ('files', ('disk', open('data/disk/diskStores_1690439985646.csv', 'rb'), 'text/csv')),
-        ('files', ('partition', open('data/partition/partitions_1690439985647.csv', 'rb'), 'text/csv')),
-    }
-    response = requests.post(url, files=files)
-    print(response.status_code)
-    print(response.text)
+    if run == 1:
+        ### user
+        url = "http://localhost:8000/user/add_user"
+        headers = {"Content-Type": "application/json"}
+        data = {
+            "name": "John Doe",
+            "email": "johndoe@example.com",
+            "password": "password123"
+        }
+        response = requests.post(url, json=data, headers=headers)
+        if response.status_code == 200:
+            print("User added successfully!")
+        else:
+            print(f"Failed to add user. Status code: {response.status_code}")
+            print("Response content:", response.text)
 
-"""
-if __name__ == "__main__":
+        ### pc
+        url = "http://localhost:8000/pc/add_pc"
+        headers = {"Content-Type": "application/json"}
+        data = {
+            "user_id": "1",
+            "hardware_uuid": "4C4C4544-0052-5210-8050-C8C04F385932",
+            "client_name": "Test Client"
+        }
+        response = requests.post(url, json=data, headers=headers)
+        if response.status_code == 200:
+            print("Request successful!")
+        else:
+            print(f"Request failed with status code: {response.status_code}")
+            print(response.text)
+
+        ###state
+        url = "http://localhost:8000/data/initial"
+        files = {
+            ('files', ('client', open('data/client/client_1690439985645.csv', 'rb'), 'text/csv')),
+            ('files', ('disk', open('data/disk/diskStores_1690439985646.csv', 'rb'), 'text/csv')),
+            ('files', ('partition', open('data/partition/partitions_1690439985647.csv', 'rb'), 'text/csv')),
+        }
+        response = requests.post(url, files=files)
+        print(response.status_code)
+        print(response.text)
+
+
     url = "http://localhost:8000/data/?stateId=1"
     file_names = os.listdir("data/application")
 
