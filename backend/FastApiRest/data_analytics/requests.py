@@ -31,10 +31,6 @@ def preprocess_pc_data(df, state_id):
     df = df.set_index('timestamp')
     event_list = []
     pc_total_df = manipulation.group_by_timestamp(df)
-    # check for custom alerts
-    # TODO: Get custom alerts here or before
-    custom_conditions = []  # list of conditions of a custom alerts
-    alerts.check_custom_alerts(df, pc_total_df, custom_conditions)
     # find out if event has occured in pc_total_df
     pc_id = get_pcid_by_stateid(state_id)
     moving_avg_ram, moving_avg_cpu = get_latest_moving_avg(pc_id)
@@ -126,7 +122,7 @@ def analyze_application_data(df, application_name):
     return df, event_list, anomaly_list, std_ram, std_cpu, mean_ram, mean_cpu
 
 
-def analyze_pc_data(df, pc_total_df):
+def analyze_pc_data(application_dataframe, pc_total_df):
     """
     Analyzes pc data, called by the client when fetching pc data of a certain category (like RAM).
 
@@ -135,7 +131,7 @@ def analyze_pc_data(df, pc_total_df):
         - Simple statistical math (standard deviation, mean).
 
     Args:
-        df (DataFrame): The DataFrame containing application data.
+        application_dataframe (DataFrame): The DataFrame containing application data.
         pc_total_df (DataFrame): The DataFrame containing total pc data.
         column (str): Column which should be analyzed like RAM (deprecated).
 
@@ -146,24 +142,31 @@ def analyze_pc_data(df, pc_total_df):
         std: Standard deviation from mean, used for calculating "Stability".
         mean: Average of the values.
     """
+    # TODO: This is going to be slightly complicated due to changes
     # get stats
-    std_ram = df['ram'].std()
-    mean_ram = df['ram'].mean()
-    std_cpu = df['cpu'].std()
-    mean_cpu = df['cpu'].mean()
+    std_ram = pc_total_df['ram'].std()
+    mean_ram = pc_total_df['ram'].mean()
+    std_cpu = pc_total_df['cpu'].std()
+    mean_cpu = pc_total_df['cpu'].mean()
+
+    # detect if any relevant events have happened overall
+    event_list = alerts.detect_pc_events(pc_total_df, application_dataframe)
+
+    #TODO: select latests rows
+    latest_application_dataframe = application_dataframe[application_dataframe['measurement_time'] == application_dataframe['measurement_time'].max()]
     # get allocation percentage for ram
     latest_total_value = pc_total_df.at[pc_total_df.index.max(), 'ram']
-    allocation_map_ram = stats.calc_allocation(latest_total_value, 'ram', df)
+    allocation_map_ram = stats.calc_allocation(latest_total_value, 'ram', latest_application_dataframe)
     allocation_list_ram = [AllocationClass(name=key, allocation=value) for key, value in
                            allocation_map_ram.items()]  # convert map into list of our model object to send via json
 
     # get allocation percentage for cpu, no calculation needed
     allocation_list_cpu = []
-    for index, row in df.iterrows():
+    for index, row in latest_application_dataframe.iterrows():
         allocation_instance = AllocationClass(name=row['name'], allocation=row['cpu'])
         allocation_list_cpu.append(allocation_instance)
 
-    anomaly_list = alerts.detect_anomalies(df, 'cpu', 'ram')
+    anomaly_list = alerts.detect_anomalies(latest_application_dataframe, 'cpu', 'ram')
     return pc_total_df, anomaly_list, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu
 
 

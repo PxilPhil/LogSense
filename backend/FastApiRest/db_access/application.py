@@ -7,7 +7,7 @@ from exceptions.DataBaseExcepion import DataBaseException
 from model.application import ApplicationTimeSeriesData
 
 
-def get_application_between(pc_id: int, application_name, start, end):
+def get_application_by_name(pc_id: int, application_name, start, end):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
@@ -208,6 +208,63 @@ def get_grouped_by_interval_application(pc_id: int, application_name: str, start
             data_list = df.to_dict(orient='records')
 
             return df, data_list
+        else:
+            return None, None
+    except psycopg2.DatabaseError as e:
+        if e.pgerror == psycopg2.errorcodes.INVALID_TEXT_REPRESENTATION:
+            raise InvalidParametersException()
+        raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
+
+def get_applications_between(pc_id: int, start, end):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        select_application_query = """
+        SELECT
+            id,
+            pcdata_id,
+            measurement_time,
+            name,
+            path,
+            cpu,
+            ram,
+            state,
+            "user",
+            context_switches,
+            major_faults,
+            bitness,
+            commandline,
+            "current_Working_Directory",
+            open_files,
+            parent_process_id,
+            thread_count,
+            uptime,
+            process_count_difference,
+            AVG(ram) OVER (PARTITION BY name ORDER BY measurement_time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS rolling_avg_ram,
+            AVG(cpu) OVER (PARTITION BY name ORDER BY measurement_time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS rolling_avg_cpu
+        FROM
+            applicationdata
+        WHERE
+            pc_id = %s AND
+            measurement_time BETWEEN %s AND %s
+        ORDER BY
+            measurement_time;
+        """
+
+        cursor.execute(select_application_query, (pc_id, start, end))
+        result = cursor.fetchall()
+
+        if result:
+            columns = [desc[0] for desc in cursor.description]
+            df = pd.DataFrame(result, columns=columns)
+            application_list = []
+            for _, row in df.iterrows():
+                # Convert the 'measurement_time' from string to a datetime object
+                application_list.append(ApplicationTimeSeriesData(**row.to_dict()))
+
+            return df, application_list
         else:
             return None, None
     except psycopg2.DatabaseError as e:

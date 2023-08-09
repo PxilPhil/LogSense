@@ -121,7 +121,8 @@ def get_total_pc_application_data_between(pc_id, start, end):
         major_faults,
         open_files,
         thread_count,
-        AVG(ram) OVER (ORDER BY measurement_time ROWS BETWEEN 5 PRECEDING AND CURRENT ROW) AS moving_average_ram
+        AVG(ram) OVER (ORDER BY measurement_time ROWS BETWEEN 5 PRECEDING AND CURRENT ROW) AS moving_average_ram,
+        AVG(cpu) OVER (ORDER BY measurement_time ROWS BETWEEN 5 PRECEDING AND CURRENT ROW) AS moving_average_cpu
     FROM
         pcdata
     WHERE
