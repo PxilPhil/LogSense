@@ -1,6 +1,5 @@
 package org.example.model;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import oshi.software.os.OSProcess;
@@ -23,13 +22,13 @@ class ApplicationTest {
 
         this.application.addProcess(osProcessMock, 20.0);
 
-        assertEquals(1, this.application.getContainedProcessesMap().size());
+        assertEquals(1, this.application.getContainedProcesses().size());
     }
 
     @Test
     void addProcessWithNullOsProcessDoesNotAddProcess() {
         this.application.addProcess(null, 20.0);
-        assertEquals(0, this.application.getContainedProcessesMap().size());
+        assertEquals(0, this.application.getContainedProcesses().size());
     }
 
     @Test
@@ -38,7 +37,7 @@ class ApplicationTest {
 
         this.application.addProcess(osProcessMock, -10.0);
 
-        assertEquals(0, this.application.getContainedProcessesMap().size());
+        assertEquals(0, this.application.getContainedProcesses().size());
     }
 
     @Test

@@ -40,7 +40,8 @@ public class SessionComputerDataResponseHandler implements HttpClientResponseHan
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> jsonObject;
         try {
-            jsonObject = objectMapper.readValue(responseContent, new TypeReference<>() {});
+            jsonObject = objectMapper.readValue(responseContent, new TypeReference<>() {
+            });
         } catch (JsonProcessingException e) {
             LOGGER.error("Error while retrieving the returned state ID from the content of the HTTP request: " + e);
             return -1;

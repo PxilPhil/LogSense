@@ -3,11 +3,11 @@ package org.example.controller;
 import org.example.analysis.StatService;
 import org.example.api.ApiClient;
 import org.example.converter.CSVDataConverter;
+import org.example.model.Process;
 import org.example.model.*;
-import org.example.monitor.Monitor;
+import org.example.monitor.OshiMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import oshi.software.os.OSProcess;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Agent {
     private static final Logger LOGGER = LoggerFactory.getLogger(Agent.class);
-    private final Monitor monitor;
+    private final OshiMonitor oshiMonitor;
     private final StatService statService;
     private final CSVDataConverter csvDataConverter;
     private final ApiClient apiClient;
@@ -31,7 +31,7 @@ public class Agent {
 
     public Agent() {
         this.statService = new StatService();
-        this.monitor = new Monitor();
+        this.oshiMonitor = new OshiMonitor();
         this.csvDataConverter = new CSVDataConverter();
         this.apiClient = new ApiClient();
         this.sessionComputerData = null;
@@ -51,7 +51,7 @@ public class Agent {
     }
 
     private boolean clientHasSupportedOperatingSystem() {
-        String operatingSystemFamily = this.monitor.monitorOperatingSystem();
+        String operatingSystemFamily = this.oshiMonitor.monitorOperatingSystem();
         return operatingSystemFamily != null && operatingSystemFamily.equals("Windows");
     }
 
@@ -68,8 +68,8 @@ public class Agent {
     }
 
     private void getAndIngestOSProcesses(long timestamp) {
-        List<OSProcess> osProcesses = this.monitor.monitorProcesses();
-        this.statService.ingestData(timestamp, osProcesses);
+        List<Process> processes = this.oshiMonitor.monitorProcesses();
+        this.statService.ingestData(timestamp, processes);
     }
 
     private void monitorSessionComputerData() {
@@ -78,10 +78,7 @@ public class Agent {
         List<Partition> partitions = getPartitions();
 
         if (this.sessionComputerData == null || hasClientDataChanged(client) || haveDiskStoresChanged(diskStores) || havePartitionsChanged(partitions)) {     // session computer data has never been set --> initial data that starts a new "session"
-            SessionComputerData sessionComputerData = new SessionComputerData();
-            sessionComputerData.setClient(client);
-            sessionComputerData.setDiskStores(diskStores);
-            sessionComputerData.setPartitions(partitions);
+            SessionComputerData sessionComputerData = new SessionComputerData(client, diskStores, partitions);
 
             int stateId = this.apiClient.postSessionComputerData(sessionComputerData);
             if (stateId > 0) {
@@ -101,7 +98,7 @@ public class Agent {
     }
 
     private Client getClientData() {
-        Client client = this.monitor.monitorClientData();
+        Client client = this.oshiMonitor.monitorClientData();
         if (client == null) {
             LOGGER.error("Error while monitoring the client data: the client data object is null. Therefore the data can not be sent to the server.");
         }
@@ -109,7 +106,7 @@ public class Agent {
     }
 
     private List<DiskStore> getDiskStores() {
-        List<DiskStore> diskStores = this.monitor.monitorDiskStores();
+        List<DiskStore> diskStores = this.oshiMonitor.monitorDiskStores();
         if (diskStores == null) {
             LOGGER.error("Error while monitoring the disk stores: the list of disk stores is null. Therefore the data can not be sent to the server.");
         }
@@ -117,7 +114,7 @@ public class Agent {
     }
 
     private List<Partition> getPartitions() {
-        List<Partition> partitions = this.monitor.monitorPartitions();
+        List<Partition> partitions = this.oshiMonitor.monitorPartitions();
         if (partitions == null) {
             LOGGER.error("Error while monitoring the partitions: the list of partitions is null. Therefore the data can not be sent to the server");
         }
@@ -125,15 +122,15 @@ public class Agent {
     }
 
     private boolean hasClientDataChanged(Client client) {
-        return !client.equals(this.sessionComputerData.getClient());
+        return !client.equals(this.sessionComputerData.client());
     }
 
     private boolean haveDiskStoresChanged(List<DiskStore> diskStores) {
-        return !diskStores.equals(this.sessionComputerData.getDiskStores());
+        return !diskStores.equals(this.sessionComputerData.diskStores());
     }
 
     private boolean havePartitionsChanged(List<Partition> partitions) {
-        return !partitions.equals(this.sessionComputerData.getPartitions());
+        return !partitions.equals(this.sessionComputerData.partitions());
     }
 
     private void monitorRunningData(List<Application> analysedApplications, long timestamp) {
@@ -159,7 +156,7 @@ public class Agent {
     }
 
     private Resources getResources() {
-        Resources resourceData = this.monitor.monitorResources();
+        Resources resourceData = this.oshiMonitor.monitorResources();
         if (resourceData == null) {
             LOGGER.error("Error while monitoring the resources: the resources data object is null. Therefore the data can not be sent to the server.");
         }
@@ -167,7 +164,7 @@ public class Agent {
     }
 
     private List<NetworkInterface> getNetworkInterfaces() {
-        List<NetworkInterface> networkInterfaces = this.monitor.monitorNetworkInterfaces();
+        List<NetworkInterface> networkInterfaces = this.oshiMonitor.monitorNetworkInterfaces();
         if (networkInterfaces == null) {
             LOGGER.error("Error while monitoring the network interfaces: the list of network interfaces is null. Therefore the data can not be sent to the server.");
         }
@@ -175,7 +172,7 @@ public class Agent {
     }
 
     private List<Connection> getIpConnections() {
-        List<Connection> connectionData = this.monitor.monitorIpConnections();
+        List<Connection> connectionData = this.oshiMonitor.monitorIpConnections();
         if (connectionData == null) {
             LOGGER.error("Error while monitoring the IP connections: the list of connections is null. Therefore the data can not be sent to the server.");
         }

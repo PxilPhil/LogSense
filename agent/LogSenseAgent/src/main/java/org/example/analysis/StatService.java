@@ -1,9 +1,9 @@
 package org.example.analysis;
 
 import org.example.model.Application;
+import org.example.model.Process;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import oshi.software.os.OSProcess;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -15,16 +15,14 @@ public class StatService {
     private static final Logger LOGGER = LoggerFactory.getLogger(StatService.class);
     private final Map<String, List<Application>> applicationMeasurements = new TreeMap<>();
     private int dataAmount = 0; //saves how many times data was measured
-    private long lastAnalysis;
 
     public StatService() {
-
     }
 
-    public void ingestData(long timestamp, List<OSProcess> osProcesses) {
-        if (osProcesses != null && osProcesses.size() > 0 && timestamp >= 0 && timestamp <= Instant.now().toEpochMilli()) {
+    public void ingestData(long timestamp, List<Process> processes) {
+        if (processes != null && processes.size() > 0 && timestamp >= 0 && timestamp <= Instant.now().toEpochMilli()) {
             this.dataAmount++;
-            List<OSProcess> filteredOsProcesses = filterSystemProcesses(osProcesses);
+            List<Process> filteredOsProcesses = filterSystemProcesses(processes);
             Map<String, Application> mergedApplications = mergeProcessesIntoApplications(timestamp, filteredOsProcesses);
             insertApplicationDataIntoApplicationMeasurements(mergedApplications);
         } else {
@@ -37,7 +35,6 @@ public class StatService {
         if (timestamp >= 0 && timestamp <= Instant.now().toEpochMilli()) {
             evaluatedApplicationData = evaluateApplicationMeasurements(timestamp);
             this.applicationMeasurements.clear();
-            this.lastAnalysis = timestamp;
             this.dataAmount = 0;
         } else {
             LOGGER.error("Error while analysing the application measurements: the timestamp is not between epoch and now. Therefore the application measurements can not be analysed.");
@@ -45,20 +42,20 @@ public class StatService {
         return evaluatedApplicationData;
     }
 
-    private List<OSProcess> filterSystemProcesses(List<OSProcess> osProcesses) {
-        List<OSProcess> filteredOsProcesses = new ArrayList<>();
-        for (OSProcess process : osProcesses) {
-            if (process.getCommandLine() != null && !process.getCommandLine().equalsIgnoreCase("") && !process.getCommandLine().equalsIgnoreCase("C:\\Windows") && !process.getCommandLine().equalsIgnoreCase("C:\\Windows\\system32")) {
-                filteredOsProcesses.add(process);
+    private List<Process> filterSystemProcesses(List<Process> processes) {
+        List<Process> filteredProcesses = new ArrayList<>();
+        for (Process process : processes) {
+            if (process.commandLine() != null && !process.commandLine().equalsIgnoreCase("") && !process.commandLine().equalsIgnoreCase("C:\\Windows") && !process.commandLine().equalsIgnoreCase("C:\\Windows\\system32")) {
+                filteredProcesses.add(process);
             }
         }
-        return filteredOsProcesses;
+        return filteredProcesses;
     }
 
-    private Map<String, Application> mergeProcessesIntoApplications(long timestamp, List<OSProcess> processList) {
+    private Map<String, Application> mergeProcessesIntoApplications(long timestamp, List<Process> processList) {
         Map<String, Application> mergedApplications = new TreeMap<>();
-        for (OSProcess process : processList) {
-            String name = process.getName();
+        for (Process process : processList) {
+            String name = process.name();
 
             Application application;
             if (mergedApplications.containsKey(name)) {
@@ -66,38 +63,20 @@ public class StatService {
             } else {
                 application = new Application();
                 application.setTimestamp(timestamp);
-                application.setBitness(process.getBitness());
-                application.setCommandLine(process.getCommandLine());
-                application.setCurrentWorkingDirectory(process.getCurrentWorkingDirectory());
+                application.setBitness(process.bitness());
+                application.setCommandLine(process.commandLine());
+                application.setCurrentWorkingDirectory(process.currentWorkingDirectory());
                 application.setName(name);
-                application.setPath(process.getPath());
-                application.setState(process.getState().toString());
-                application.setUser(process.getUser());
+                application.setPath(process.path());
+                application.setState(process.state());
+                application.setUser(process.user());
             }
-            addProcessAndCpuUsageToApplication(application, process);
+            application.addProcess(process);
 
-            application.mergeData(process.getContextSwitches(), process.getMajorFaults(), process.getOpenFiles(), process.getResidentSetSize(), process.getThreadCount(), process.getUpTime());
+            application.mergeData(process.contextSwitches(), process.majorFaults(), process.openFiles(), process.residentSetSize(), process.threadCount(), process.upTime());
             mergedApplications.put(name, application);
         }
         return mergedApplications;
-    }
-
-    private void addProcessAndCpuUsageToApplication(Application application, OSProcess process) {
-        if (this.applicationMeasurements.containsKey(process.getName())) { //if already has entry get previous cpu usage of respective process
-            List<Application> applicationList = this.applicationMeasurements.get(process.getName());
-            Application previousAppData = applicationList.get(applicationList.size() - 1);
-            for (OSProcess previousProcess : previousAppData.getContainedProcessesMap().keySet()) {
-                if (previousProcess.getProcessID() == process.getProcessID()) {
-                    application.addProcess(process, calculateCpuUsage(process, previousProcess));
-                }
-            }
-        } else {
-            application.addProcess(process, calculateCpuUsage(process, null));
-        }
-    }
-
-    private double calculateCpuUsage(OSProcess osProcess, OSProcess previousProcess) {
-        return osProcess.getProcessCpuLoadBetweenTicks(previousProcess);
     }
 
     private void insertApplicationDataIntoApplicationMeasurements(Map<String, Application> mergedApplications) {
@@ -139,18 +118,18 @@ public class StatService {
     private Application performStatisticalAnalysis(List<Application> applicationList, long timestamp) {
         Application averageApplication = new Application();
         for (Application application : applicationList) {
-            averageApplication.setCpuUsage(averageApplication.getCpuUsage() + calcTotalApplicationCpuUsage(application.getContainedProcessesMap()));
+            averageApplication.setCpuUsage(averageApplication.getCpuUsage() + calcTotalApplicationCpuUsage(application.getContainedProcesses()));
             averageApplication.mergeData(application.getContextSwitches(), application.getMajorFaults(), application.getOpenFiles(), application.getResidentSetSize(), application.getThreadCount(), application.getUpTime());
         }
         return setApplicationState(applicationList, averageApplication, timestamp);
     }
 
-    private double calcTotalApplicationCpuUsage(Map<OSProcess, Double> processes) {
-        double sum = 0;
-        for (Map.Entry<OSProcess, Double> current : processes.entrySet()) {
-            sum += current.getValue();
+    private double calcTotalApplicationCpuUsage(List<Process> processes) {
+        double cpuUsage = 0;
+        for (Process process : processes) {
+            cpuUsage += process.cpuUsage();
         }
-        return sum;
+        return cpuUsage;
     }
 
     private Application setApplicationState(List<Application> applicationMeasurements, Application averageApplication, long timestamp) {
@@ -167,6 +146,6 @@ public class StatService {
     private int compareProcessesAmount(List<Application> applicationList) {
         Application firstAppData = applicationList.get(0);
         Application lastAppData = applicationList.get(applicationList.size() - 1);
-        return lastAppData.getContainedProcessesMap().size() - firstAppData.getContainedProcessesMap().size();
+        return lastAppData.getContainedProcesses().size() - firstAppData.getContainedProcesses().size();
     }
 }

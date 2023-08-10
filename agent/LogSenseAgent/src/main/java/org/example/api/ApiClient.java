@@ -32,9 +32,9 @@ public class ApiClient {
     public int postSessionComputerData(SessionComputerData sessionComputerData) {
         if (sessionComputerData != null) {
             MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
-            multipartEntityBuilder.addBinaryBody("files", this.csvDataConverter.convertClientData(sessionComputerData.getClient()).getBytes(), ContentType.TEXT_PLAIN, "client");
-            multipartEntityBuilder.addBinaryBody("files", this.csvDataConverter.convertDiskStoreData(sessionComputerData.getDiskStores()).getBytes(), ContentType.TEXT_PLAIN, "disk");
-            multipartEntityBuilder.addBinaryBody("files", this.csvDataConverter.convertPartitionData(sessionComputerData.getPartitions()).getBytes(), ContentType.TEXT_PLAIN, "partition");
+            multipartEntityBuilder.addBinaryBody("files", this.csvDataConverter.convertClientData(sessionComputerData.client()).getBytes(), ContentType.TEXT_PLAIN, "client");
+            multipartEntityBuilder.addBinaryBody("files", this.csvDataConverter.convertDiskStoreData(sessionComputerData.diskStores()).getBytes(), ContentType.TEXT_PLAIN, "disk");
+            multipartEntityBuilder.addBinaryBody("files", this.csvDataConverter.convertPartitionData(sessionComputerData.partitions()).getBytes(), ContentType.TEXT_PLAIN, "partition");
 
             HttpPost httpPost = new HttpPost("http://127.0.0.1:8000/data/initial");
             httpPost.setEntity(multipartEntityBuilder.build());

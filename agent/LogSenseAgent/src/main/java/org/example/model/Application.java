@@ -1,9 +1,7 @@
 package org.example.model;
 
-import oshi.software.os.OSProcess;
-
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Application {
     private long contextSwitches;
@@ -22,9 +20,10 @@ public class Application {
     private long upTime;
     private String user;
     private double cpuUsage;
-    private final Map<OSProcess, Double> containedProcessesMap = new HashMap<>(); //saves all contained processes, if a new processes is added or one is removed, processCounter should be changed
     private int processCountDifference;
     private long timestamp;
+    private List<Process> containedProcesses; //saves all contained processes, if a new processes is added or one is removed, processCounter should be changed
+
 
     public Application() {
     }
@@ -48,6 +47,7 @@ public class Application {
         this.cpuUsage = cpuUsage;
         this.processCountDifference = processCountDifference;
         this.timestamp = timestamp;
+        this.containedProcesses = new ArrayList<>();
     }
 
     public long getContextSwitches() {
@@ -194,13 +194,13 @@ public class Application {
         this.timestamp = timestamp;
     }
 
-    public Map<OSProcess, Double> getContainedProcessesMap() {
-        return containedProcessesMap;
+    public List<Process> getContainedProcesses() {
+        return containedProcesses;
     }
 
-    public void addProcess(OSProcess process, double cpuUsage) {
-        if (process != null && cpuUsage >= 0) {
-            this.containedProcessesMap.put(process, cpuUsage);
+    public void addProcess(Process process) {
+        if (process != null) {
+            this.containedProcesses.add(process);
         }
     }
 
