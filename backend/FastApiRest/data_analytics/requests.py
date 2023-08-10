@@ -1,7 +1,12 @@
 import pandas as pd
 import warnings
-from data_analytics import involvement, manipulation, alerts, trend, stats
-from data_analytics.prediction import fit_linear_regression, predict_for_df
+
+from pandas import DataFrame
+
+from data_analytics import involvement, manipulation, custom_alerts, stats
+from data_analytics.anomaly_detection import detect_anomalies
+from data_analytics.change_detection import detect_change_events
+from data_analytics.forecasting import fit_linear_regression, predict_for_df
 from db_access.data import get_moving_avg_of_application
 from db_access.pc import get_latest_moving_avg
 from db_access.helper import get_pcid_by_stateid
@@ -10,8 +15,24 @@ from model.pc import ForecastData
 
 warnings.filterwarnings("ignore")
 
-
-def preprocess_pc_data(df, state_id):
+"""
+    Documentation Comments:
+    Events:
+    Rework event detection to make threshold dependent on things like variance
+    Formula for threshold: mean + (multiplier * std_dev)
+    Alternatives to percentual detection include online/offline change point detection algorithms (ChangeFinder/Ruptures)
+    
+    Predictions:
+    If possible save a trained model
+    Use exponential smoothing( Holt-Winters?), might be possible to use more powerful models than linear regression
+    -> Random Forest, Keep linear regression with Piecewise Linear Regression or time bucketing
+    
+    Anomalies:
+    We just assume a normal distribution of data
+    
+    Any other things we could implement?
+"""
+def preprocess_pc_data(df: DataFrame, state_id: int):
     """
     Preprocesses and analyzes data before inserting it into the database.
 
@@ -31,26 +52,6 @@ def preprocess_pc_data(df, state_id):
     df = df.set_index('timestamp')
     event_list = []
     pc_total_df = manipulation.group_by_timestamp(df)
-    # check for custom alerts
-    # TODO: Get custom alerts here or before
-    custom_conditions = []  # list of conditions of a custom alerts
-    alerts.check_custom_alerts(df, pc_total_df, custom_conditions)
-    # find out if event has occured in pc_total_df
-    pc_id = get_pcid_by_stateid(state_id)
-    moving_avg_ram, moving_avg_cpu = get_latest_moving_avg(pc_id)
-    if alerts.has_event_occurred(pc_total_df, moving_avg_ram, moving_avg_cpu):
-        relevant_list = involvement.detect_relevancy(pc_total_df, df)
-        for application in relevant_list:
-            # TODO: We are working with percentual changes with moving averages, should we change that?
-            selected_row = manipulation.select_rows_by_application(application, df)
-            moving_avg_ram, moving_avg_cpu = get_moving_avg_of_application(pc_id, application)
-            if moving_avg_ram > 0 and moving_avg_cpu > 0:
-                alerts.detect_ram_event(selected_row, 'residentSetSize', moving_avg_ram, event_list,
-                                        application)  # find ram events
-                alerts.detect_cpu_event(selected_row, 'cpuUsage', moving_avg_cpu, event_list,
-                                        application)  # find cpu events
-
-    # if an event has been found, look through what application caused it
     return pc_total_df, event_list
 
 
@@ -115,14 +116,17 @@ def analyze_application_data(df, application_name):
         mean: Average of the values.
     """
     # find events
-    event_list = alerts.detect_multiple_events(df, application_name)
+    event_list = []
+    anomaly_list = []
+    event_list = detect_change_events(df, 'ram')
     # get stats
     std_ram = df['ram'].std()
     mean_ram = df['ram'].mean()
     std_cpu = df['cpu'].std()
     mean_cpu = df['cpu'].mean()
     # find anomalies
-    anomaly_list = alerts.detect_anomalies(df, 'cpu', 'ram')
+    anomaly_list = detect_anomalies(df, 'ram')
+    anomaly_list.append(detect_anomalies(df, 'cpu'))
     return df, event_list, anomaly_list, std_ram, std_cpu, mean_ram, mean_cpu
 
 
@@ -163,7 +167,16 @@ def analyze_pc_data(df, pc_total_df):
         allocation_instance = AllocationClass(name=row['name'], allocation=row['cpu'])
         allocation_list_cpu.append(allocation_instance)
 
-    anomaly_list = alerts.detect_anomalies(df, 'cpu', 'ram')
+    # detect events
+    event_list = detect_change_events(pc_total_df, 'ram')
+    #TODO: add for cpu via anomaly detection
+    #find out by what these events were caused
+
+    # detect anomalies
+    anomaly_list = detect_anomalies(df, 'ram')
+    anomaly_list.append(detect_anomalies(df, 'cpu'))
+
+    print(anomaly_list)
     return pc_total_df, anomaly_list, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu
 
 

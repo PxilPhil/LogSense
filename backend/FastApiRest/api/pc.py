@@ -95,8 +95,7 @@ def get_pc_data(pc_id: int, start: str, end: str):
         mean_cpu=mean_cpu,
         time_series_list=total_data_list,
         allocation_list_ram=allocation_list_ram,
-        allocation_list_cpu=allocation_list_cpu,
-        anomaly_list=anomaly_list,
+        allocation_list_cpu=allocation_list_cpu
     )
 
     print(pc_data)

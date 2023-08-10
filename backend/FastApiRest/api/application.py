@@ -39,8 +39,7 @@ def fetch_application(pc_id: int, application_name: str, start: str, end: str):
             mean_ram=mean_ram,
             mean_cpu=mean_cpu,
             time_series_data=data_list,
-            event_list=event_list,
-            anomaly_list=anomaly_list
+            event_list=event_list
         )
 
         return application_data

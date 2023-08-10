@@ -86,4 +86,3 @@ class PCData(BaseModel):  # Missing Trends
     time_series_list: List[PCTimeSeriesData]
     allocation_list_ram: List[AllocationClass]
     allocation_list_cpu: List[AllocationClass]
-    anomaly_list: List[AnomalyData]
