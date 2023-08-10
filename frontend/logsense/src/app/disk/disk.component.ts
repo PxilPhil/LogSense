@@ -142,14 +142,18 @@ export class DiskComponent implements OnInit, OnDestroy {
     return {measurementTimes: measurementTimes, diskUsages: diskUsages};
   }
 
-  openDialog(diskListIndex: number) {
-    this.dialog.open(PartDialogComponent, {
-      data: this.diskData.disks.at(diskListIndex)!.partitions
-    });
+  reloadPCDataOnTimesSelectionChange() {
+    this.loadPCData();
   }
 
   reloadChart() {
     this.diskUsageChart();
+  }
+
+  openDialog(diskListIndex: number) {
+    this.dialog.open(PartDialogComponent, {
+      data: this.diskData.disks.at(diskListIndex)!.partitions
+    });
   }
 
   convertBytesToGigaBytes(valueInBytes: number): number {
