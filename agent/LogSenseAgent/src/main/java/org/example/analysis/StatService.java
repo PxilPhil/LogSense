@@ -14,20 +14,15 @@ public class StatService {
 
     // JR: why tree map?
     private final Map<String, List<Application>> applicationMeasurements = new TreeMap<>();
-    private int dataAmount = 0; //saves how many times data was measured
-    private long lastAnalysis; // JR: unused
-
-    public StatService() { // JR: default
-
-    }
+    private int dataMeasurementsAmount = 0; //saves how many times data was measured
 
     public void ingestData(long timestamp, List<OSProcess> osProcesses) {
         // JR: nullability could be enforced with requireNonNull
-        // JR: long line
         Objects.requireNonNull(osProcesses);
-        if (osProcesses != null && osProcesses.size() > 0 && timestamp >= 0
+        if (!osProcesses.isEmpty()
+                && timestamp >= 0
                 && timestamp <= Instant.now().toEpochMilli()) {
-            this.dataAmount++;
+            this.dataMeasurementsAmount++;
             List<OSProcess> filteredOsProcesses = filterSystemProcesses(osProcesses);
             Map<String, Application> mergedApplications = mergeProcessesIntoApplications(timestamp, filteredOsProcesses);
             insertApplicationDataIntoApplicationMeasurements(mergedApplications);
@@ -41,8 +36,7 @@ public class StatService {
         if (timestamp >= 0 && timestamp <= Instant.now().toEpochMilli()) {
             evaluatedApplicationData = evaluateApplicationMeasurements(timestamp);
             this.applicationMeasurements.clear();
-            this.lastAnalysis = timestamp;
-            this.dataAmount = 0;
+            this.dataMeasurementsAmount = 0;
         } else {
             LOGGER.error("Error while analysing the application measurements: the timestamp is not between epoch and now. Therefore the application measurements can not be analysed.");
         }
@@ -52,7 +46,9 @@ public class StatService {
     private List<OSProcess> filterSystemProcesses(List<OSProcess> osProcesses) {
         List<OSProcess> filteredOsProcesses = new ArrayList<>();
         for (OSProcess process : osProcesses) {
-            if (process.getCommandLine() != null && !process.getCommandLine().equalsIgnoreCase("") && !process.getCommandLine().equalsIgnoreCase("C:\\Windows") && !process.getCommandLine().equalsIgnoreCase("C:\\Windows\\system32")) {
+            if (process.getCommandLine() != null && !process.getCommandLine().equalsIgnoreCase("")
+                    && !process.getCommandLine().equalsIgnoreCase("C:\\Windows")
+                    && !process.getCommandLine().equalsIgnoreCase("C:\\Windows\\system32")) {
                 filteredOsProcesses.add(process);
             }
         }
@@ -80,7 +76,8 @@ public class StatService {
             }
             addProcessAndCpuUsageToApplication(application, process);
 
-            application.mergeData(process.getContextSwitches(), process.getMajorFaults(), process.getOpenFiles(), process.getResidentSetSize(), process.getThreadCount(), process.getUpTime());
+            application.mergeData(process.getContextSwitches(), process.getMajorFaults(), process.getOpenFiles(),
+                    process.getResidentSetSize(), process.getThreadCount(), process.getUpTime());
             mergedApplications.put(name, application);
         }
         return mergedApplications;
@@ -158,9 +155,9 @@ public class StatService {
     }
 
     private Application setApplicationState(List<Application> applicationMeasurements, Application averageApplication, long timestamp) {
-        if (applicationMeasurements.size() < this.dataAmount && applicationMeasurements.get(applicationMeasurements.size() - 1).getTimestamp() < timestamp) { //indicates that an application was closed during measuring
+        if (applicationMeasurements.size() < this.dataMeasurementsAmount && applicationMeasurements.get(applicationMeasurements.size() - 1).getTimestamp() < timestamp) { //indicates that an application was closed during measuring
             averageApplication.setState("STOPPED");
-        } else if (applicationMeasurements.size() < this.dataAmount && applicationMeasurements.get(applicationMeasurements.size() - 1).getTimestamp() == timestamp) { //indicates that an application was opened during measuring
+        } else if (applicationMeasurements.size() < this.dataMeasurementsAmount && applicationMeasurements.get(applicationMeasurements.size() - 1).getTimestamp() == timestamp) { //indicates that an application was opened during measuring
             averageApplication.setState("STARTED");
         } else {
             averageApplication.setState("RUNNING");

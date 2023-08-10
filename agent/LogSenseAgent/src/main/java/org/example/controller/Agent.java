@@ -31,8 +31,6 @@ public class Agent {
     private long measuringCount;
     private long failedSessionComputerDataPostRequest;
 
-    private final String clientBaseUrl;
-
     public Agent(String clientBaseUrl) {
         this.statService = new StatService();
         this.monitor = new Monitor();
@@ -41,7 +39,6 @@ public class Agent {
         this.sessionComputerData = null;
         this.measuringCount = 0;
         this.failedSessionComputerDataPostRequest = 0;
-        this.clientBaseUrl = clientBaseUrl;
     }
 
     public void monitor() {
@@ -127,15 +124,15 @@ public class Agent {
     }
 
     private boolean hasClientDataChanged(Client client) {
-        return !client.equals(this.sessionComputerData.getClient());
+        return !client.equals(this.sessionComputerData.client());
     }
 
     private boolean haveDiskStoresChanged(List<DiskStore> diskStores) {
-        return !diskStores.equals(this.sessionComputerData.getDiskStores());
+        return !diskStores.equals(this.sessionComputerData.diskStores());
     }
 
     private boolean havePartitionsChanged(List<Partition> partitions) {
-        return !partitions.equals(this.sessionComputerData.getPartitions());
+        return !partitions.equals(this.sessionComputerData.partitions());
     }
 
     private void monitorRunningData(List<Application> analysedApplications, long timestamp) {
@@ -143,18 +140,19 @@ public class Agent {
         List<NetworkInterface> networkInterfaces = getNetworkInterfaces();
         List<Connection> connections = getIpConnections();
 
-        RunningData runningData = new RunningData();
-        runningData.setApplication_data(this.csvDataConverter.convertApplicationData(timestamp, analysedApplications));
-        runningData.setPc_resources(this.csvDataConverter.convertResourceData(timestamp, resources));
-        runningData.setNetwork_interface(this.csvDataConverter.convertNetworkInterfacesData(timestamp, networkInterfaces));
-        runningData.setConnection_data(this.csvDataConverter.convertConnectionData(timestamp, connections));
+        RunningData runningData = new RunningData(
+                this.csvDataConverter.convertApplicationData(timestamp, analysedApplications),
+                this.csvDataConverter.convertResourceData(timestamp, resources),
+                this.csvDataConverter.convertNetworkInterfacesData(timestamp, networkInterfaces),
+                this.csvDataConverter.convertConnectionData(timestamp, connections)
+        );
 
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\test\\application_" + timestamp + ".csv"));
             writer.write(runningData.getApplication_data());
             writer.close();
         } catch (IOException e) {
-            System.out.println(runningData.getApplication_data());
+            LOGGER.info(runningData.getApplication_data());
         }
 
         this.apiClient.postRunningData(runningData, this.stateId);
@@ -163,7 +161,8 @@ public class Agent {
     private Resources getResources() {
         Resources resourceData = this.monitor.monitorResources();
         if (resourceData == null) {
-            LOGGER.error("Error while monitoring the resources: the resources data object is null. Therefore the data can not be sent to the server.");
+            LOGGER.error("Error while monitoring the resources: the resources data object is null. Therefore the " +
+                    "data can not be sent to the server.");
         }
         return resourceData;
     }
@@ -171,7 +170,8 @@ public class Agent {
     private List<NetworkInterface> getNetworkInterfaces() {
         List<NetworkInterface> networkInterfaces = this.monitor.monitorNetworkInterfaces();
         if (networkInterfaces == null) {
-            LOGGER.error("Error while monitoring the network interfaces: the list of network interfaces is null. Therefore the data can not be sent to the server.");
+            LOGGER.error("Error while monitoring the network interfaces: the list of network interfaces is null. " +
+                    "Therefore the data can not be sent to the server.");
         }
         return networkInterfaces;
     }
@@ -179,7 +179,8 @@ public class Agent {
     private List<Connection> getIpConnections() {
         List<Connection> connectionData = this.monitor.monitorIpConnections();
         if (connectionData == null) {
-            LOGGER.error("Error while monitoring the IP connections: the list of connections is null. Therefore the data can not be sent to the server.");
+            LOGGER.error("Error while monitoring the IP connections: the list of connections is null. Therefore " +
+                    "the data can not be sent to the server.");
         }
         return connectionData;
     }

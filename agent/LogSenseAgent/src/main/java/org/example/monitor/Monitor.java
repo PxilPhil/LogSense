@@ -427,18 +427,9 @@ public class Monitor {
             for (HWDiskStore diskStore : hwDiskStoreList) {
                 List<HWPartition> hwPartitionList = diskStore.getPartitions();
                 if (hwPartitionList != null) {
-                    for (HWPartition partition : hwPartitionList) {
-                        Partition partitionData = new Partition();
-                        partitionData.setTimestamp(timestamp);
-                        partitionData.setDiskStoreName(diskStore.getName());
-                        partitionData.setIdentification(partition.getIdentification());
-                        partitionData.setName(partition.getName());
-                        partitionData.setType(partition.getType());
-                        partitionData.setMountPoint(partition.getMountPoint());
-                        partitionData.setSize(partition.getSize());
-                        partitionData.setMajorFaults(partition.getMajor());
-                        partitionData.setMinorFaults(partition.getMinor());
-                        partitions.add(partitionData);
+                    for (HWPartition hwPartition : hwPartitionList) {
+                        Partition partition = map(hwPartition, timestamp, diskStore.getName());
+                        partitions.add(partition);
                     }
                 } else {
                     LOGGER.error("Error while monitoring the partitions: the list of HW partitions of the disk store " + diskStore.getName() + " is null. Therefore the information about the partitions of this disk store can not be collected.");
@@ -448,5 +439,19 @@ public class Monitor {
             LOGGER.error("Error while monitoring the partitions: the list of HW disk stores is null. Therefore the information about the partitions of the disk stores can not be collected.");
         }
         return partitions;
+    }
+
+    private Partition map(HWPartition hwPartition, long timestamp, String diskStoreName) {
+        return new Partition(
+                timestamp,
+                diskStoreName,
+                hwPartition.getIdentification(),
+                hwPartition.getName(),
+                hwPartition.getType(),
+                hwPartition.getMountPoint(),
+                hwPartition.getSize(),
+                hwPartition.getMajor(),
+                hwPartition.getMinor()
+        );
     }
 }

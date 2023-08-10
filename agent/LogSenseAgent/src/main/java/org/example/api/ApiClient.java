@@ -18,12 +18,13 @@ import java.io.IOException;
 import static java.util.Objects.requireNonNull;
 
 public class ApiClient {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiClient.class);
+
     private final CloseableHttpClient httpClient;
     private final HttpClientResponseHandler<Integer> sessionComputerDataResponseHandler;
     private final HttpClientResponseHandler<Integer> runningDataResponseHandler;
     private final DataConverter csvDataConverter;
-
     private final String clientBaseUrl;
 
     public ApiClient(String clientBaseUrl) {
@@ -39,10 +40,14 @@ public class ApiClient {
         if (sessionComputerData != null) {
             MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
             multipartEntityBuilder.addBinaryBody("files",
-                    this.csvDataConverter.convertClientData(sessionComputerData.getClient()).getBytes(),
+                    this.csvDataConverter.convertClientData(sessionComputerData.client()).getBytes(),
                     ContentType.TEXT_PLAIN, "client");
-            multipartEntityBuilder.addBinaryBody("files", this.csvDataConverter.convertDiskStoreData(sessionComputerData.getDiskStores()).getBytes(), ContentType.TEXT_PLAIN, "disk");
-            multipartEntityBuilder.addBinaryBody("files", this.csvDataConverter.convertPartitionData(sessionComputerData.getPartitions()).getBytes(), ContentType.TEXT_PLAIN, "partition");
+            multipartEntityBuilder.addBinaryBody("files",
+                    this.csvDataConverter.convertDiskStoreData(
+                            sessionComputerData.diskStores()).getBytes(), ContentType.TEXT_PLAIN, "disk");
+            multipartEntityBuilder.addBinaryBody("files",
+                    this.csvDataConverter.convertPartitionData(
+                            sessionComputerData.partitions()).getBytes(), ContentType.TEXT_PLAIN, "partition");
 
             // JR: would make this configurable
             HttpPost httpPost = new HttpPost(clientBaseUrl + "/data/initial");
@@ -63,12 +68,16 @@ public class ApiClient {
     public void postRunningData(RunningData runningData, long stateId) {
         if (runningData != null && stateId > 0) {
             MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
-            multipartEntityBuilder.addBinaryBody("files", runningData.getApplication_data().getBytes(), ContentType.TEXT_PLAIN, "application");
-            multipartEntityBuilder.addBinaryBody("files", runningData.getPc_resources().getBytes(), ContentType.TEXT_PLAIN, "resources");
-            multipartEntityBuilder.addBinaryBody("files", runningData.getNetwork_interface().getBytes(), ContentType.TEXT_PLAIN, "network");
-            multipartEntityBuilder.addBinaryBody("files", runningData.getConnection_data().getBytes(), ContentType.TEXT_PLAIN, "connection");
+            multipartEntityBuilder.addBinaryBody("files",
+                    runningData.getApplication_data().getBytes(), ContentType.TEXT_PLAIN, "application");
+            multipartEntityBuilder.addBinaryBody("files",
+                    runningData.getPc_resources().getBytes(), ContentType.TEXT_PLAIN, "resources");
+            multipartEntityBuilder.addBinaryBody("files",
+                    runningData.getNetwork_interface().getBytes(), ContentType.TEXT_PLAIN, "network");
+            multipartEntityBuilder.addBinaryBody("files",
+                    runningData.getConnection_data().getBytes(), ContentType.TEXT_PLAIN, "connection");
 
-            HttpPost httpPost = new HttpPost("http://127.0.0.1:8000/data?stateId=" + stateId);
+            HttpPost httpPost = new HttpPost(clientBaseUrl + "/data?stateId=" + stateId);
             httpPost.setEntity(multipartEntityBuilder.build());
 
             try {
