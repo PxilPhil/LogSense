@@ -83,7 +83,6 @@ def get_pc_data(pc_id: int, start: str, end: str):
     pc_total_df, anomaly_list, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu = requests.analyze_pc_data(
         df, total_df)
 
-    # TODO: Analyzing cpu data doesnt really makesense(atleast like RAM), remove feature or take a closer look at it
 
     pc_data = PCData(
         pc_id=pc_id,

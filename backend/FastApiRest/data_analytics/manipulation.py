@@ -3,6 +3,10 @@ import numpy as np
 import io
 from datetime import datetime, timedelta
 
+"""
+    This module contains a lot of helper methods for specific cases in our application
+"""
+
 
 def group_by_timestamp(df):
     return df.groupby('timestamp')[
@@ -14,6 +18,9 @@ def group_by_timestamp(df):
 def select_rows_by_application(selected_value, df):  # Method to select rows by value
     return df.loc[df.name == selected_value].groupby(['timestamp']).sum(numeric_only=True).sort_values(
         by=['timestamp'])
+
+def group_by_name(df):
+    return df.groupby(['name']).sum(numeric_only=True)
 
 
 def calculate_moving_avg(df, column):  # calculates moving avg for the column

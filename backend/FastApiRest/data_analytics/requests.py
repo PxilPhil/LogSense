@@ -5,7 +5,7 @@ from pandas import DataFrame
 
 from data_analytics import involvement, manipulation, custom_alerts, stats
 from data_analytics.anomaly_detection import detect_anomalies
-from data_analytics.change_detection import detect_change_events
+from data_analytics.change_detection import detect_change_events, check_on_events
 from data_analytics.forecasting import fit_linear_regression, predict_for_df
 from db_access.data import get_moving_avg_of_application
 from db_access.pc import get_latest_moving_avg
@@ -32,6 +32,8 @@ warnings.filterwarnings("ignore")
     
     Any other things we could implement?
 """
+
+
 def preprocess_pc_data(df: DataFrame, state_id: int):
     """
     Preprocesses and analyzes data before inserting it into the database.
@@ -116,8 +118,6 @@ def analyze_application_data(df, application_name):
         mean: Average of the values.
     """
     # find events
-    event_list = []
-    anomaly_list = []
     event_list = detect_change_events(df, 'ram')
     # get stats
     std_ram = df['ram'].std()
@@ -169,9 +169,9 @@ def analyze_pc_data(df, pc_total_df):
 
     # detect events
     event_list = detect_change_events(pc_total_df, 'ram')
-    #TODO: add for cpu via anomaly detection
-    #find out by what these events were caused
-
+    # TODO: add for cpu via anomaly detection
+    # find out by what these events were caused
+    check_on_events(event_list, 1)  # TODO: change pc_id
     # detect anomalies
     anomaly_list = detect_anomalies(df, 'ram')
     anomaly_list.append(detect_anomalies(df, 'cpu'))

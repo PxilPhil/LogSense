@@ -99,7 +99,7 @@ def get_application_list(pc_id: int, start, end):
         conn_pool.putconn(conn)
 
 
-def get_application_data_before(pc_id: int, measurement_time, limit):
+def get_application_data_before(pc_id: int, measurement_time, limit):  # gets all data contained in application data table
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
@@ -129,7 +129,8 @@ def get_application_data_before(pc_id: int, measurement_time, limit):
         WHERE
         app.pc_id = %s AND
         app.measurement_time IN 
-        (SELECT measurement_time from applicationdata where measurement_time<=%s group by measurement_time order by measurement_time desc limit %s);
+        (SELECT measurement_time from applicationdata where measurement_time<=%s group by measurement_time order by measurement_time desc limit %s)
+        ORDER BY app.measurement_time;
         """
 
         cursor.execute(query, (pc_id, measurement_time, limit))
