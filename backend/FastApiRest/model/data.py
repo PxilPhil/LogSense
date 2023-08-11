@@ -21,7 +21,6 @@ class EventData(BaseModel):  # anomaly data class returned when analyzing applic
 class AnomalyData(BaseModel):  # anomaly data class returned when analyzing application data
     timestamp: datetime
     severity: int  # calculated via z-score
-    application: str
     column: str
 
 
@@ -75,7 +74,7 @@ class AllocationClass(BaseModel):
     allocation: float
 
 
-class PCData(BaseModel):  # Missing Trends
+class PCData(BaseModel):
     pc_id: int
     start: str
     end: str

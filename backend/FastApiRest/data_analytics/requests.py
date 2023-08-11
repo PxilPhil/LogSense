@@ -151,10 +151,10 @@ def analyze_pc_data(df, pc_total_df):
         mean: Average of the values.
     """
     # get stats
-    std_ram = df['ram'].std()
-    mean_ram = df['ram'].mean()
-    std_cpu = df['cpu'].std()
-    mean_cpu = df['cpu'].mean()
+    std_ram = pc_total_df['ram'].std()
+    mean_ram = pc_total_df['ram'].mean()
+    std_cpu = pc_total_df['cpu'].std()
+    mean_cpu = pc_total_df['cpu'].mean()
     # get allocation percentage for ram
     latest_total_value = pc_total_df.at[pc_total_df.index.max(), 'ram']
     allocation_map_ram = stats.calc_allocation(latest_total_value, 'ram', df)
@@ -167,16 +167,20 @@ def analyze_pc_data(df, pc_total_df):
         allocation_instance = AllocationClass(name=row['name'], allocation=row['cpu'])
         allocation_list_cpu.append(allocation_instance)
 
-    # detect events
-    event_list = detect_change_events(pc_total_df, 'ram')
-    # TODO: add for cpu via anomaly detection
-    # find out by what these events were caused
-    check_on_events(event_list, 1)  # TODO: change pc_id
     # detect anomalies
-    anomaly_list = detect_anomalies(df, 'ram')
-    anomaly_list.append(detect_anomalies(df, 'cpu'))
+    anomaly_list_ram, anomaly_time_list_ram = detect_anomalies(df, 'ram')
+    anomaly_list_cpu, anomaly_time_list_cpu = detect_anomalies(df, 'ram')
+    anomaly_list = anomaly_list_ram + anomaly_list_cpu
 
-    print(anomaly_list)
+    # detect changes
+    change_points = set(detect_change_events(pc_total_df, 'ram'))
+    change_points.update(anomaly_time_list_ram)
+    change_points.update(anomaly_time_list_cpu)
+
+    # explain changes (events) and anomalies with EventLogs
+    #TODO: Determine if all anomalies need to be looked at, events always have to be but perhaps we could limit to only cpu anomalies since they are basically changepoints
+    event_list = check_on_events(change_points, 1)  # TODO: change pc_id
+
     return pc_total_df, anomaly_list, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu
 
 

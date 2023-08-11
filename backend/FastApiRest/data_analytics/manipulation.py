@@ -59,3 +59,6 @@ def convert_to_data_frame(csv_string):
     csv_io = io.StringIO(csv_string)
     df = pd.read_csv(csv_io, sep="|")
     return df
+
+def convert_column_to_list(df, column):
+    return df[column].tolist()

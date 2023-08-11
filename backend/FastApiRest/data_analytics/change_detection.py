@@ -83,16 +83,6 @@ def check_on_events(change_points: list, pc_id: int):
             applications_dict[row['measurement_time']] = {row['name']: application_stat}
 
         gather_event_logs(event_logs, entry, applications_dict)
-    print('printing')
-    for key, value in event_logs.items():
-        for entry in value:
-            print(entry.application)
-            print(entry.started)
-            print(entry.stopped)
-            print(entry.process_change)
-            print(entry.delta_ram)
-            print(entry.delta_cpu)
-            print(entry.warning)
     return event_logs
 
 def gather_event_logs(event_logs, entry, applications_dict):
