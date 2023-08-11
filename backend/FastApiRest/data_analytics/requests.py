@@ -125,8 +125,10 @@ def analyze_application_data(df, application_name):
     std_cpu = df['cpu'].std()
     mean_cpu = df['cpu'].mean()
     # find anomalies
-    anomaly_list = detect_anomalies(df, 'ram')
-    anomaly_list.append(detect_anomalies(df, 'cpu'))
+    anomaly_list_ram, anomaly_time_list_ram = detect_anomalies(df, 'ram')
+    anomaly_list_cpu, anomaly_time_list_cpu = detect_anomalies(df, 'cpu')
+    anomaly_list = anomaly_list_ram + anomaly_list_cpu
+
     return df, event_list, anomaly_list, std_ram, std_cpu, mean_ram, mean_cpu
 
 
