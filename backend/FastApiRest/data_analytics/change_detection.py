@@ -1,11 +1,8 @@
-from datetime import timedelta
-
-from pandas import DataFrame
-import ruptures as rpt
 import numpy as np
-from data_analytics import manipulation
+import ruptures as rpt
+from pandas import DataFrame
 
-from db_access.application import get_latest_application_data, get_application_data_before
+from db_access.application import get_application_data_before
 
 penalty_value = 0.5  # value used for "penalizing" the pelting model for overfitting, decrease to detect more insignicant events and vice versa -> sensitivity in other words
 
@@ -28,13 +25,20 @@ penalty_value = 0.5  # value used for "penalizing" the pelting model for overfit
 
 
 class EventLog:  # class to store event log data
-    def __init__(self, application, interruption, process_change, delta_ram, delta_cpu, warning):
+    def __init__(self, application, started, stopped, process_change, delta_ram, delta_cpu, warning):
         self.application = application
-        self.interruption = interruption
+        self.started = started
+        self.stopped = stopped
         self.process_change = process_change
         self.delta_ram = delta_ram
         self.delta_cpu = delta_cpu
         self.warning = warning
+
+
+class EventLogs:
+    def __init__(self, timestamp, event_log_list):
+        self.timestamp = timestamp
+        self.event_log_list = event_log_list
 
 
 class ApplicationStat:  # class to store application data
@@ -63,13 +67,13 @@ def check_on_events(change_points: list, pc_id: int):
     On init, make a map of applications, if any applications are added/removed later it will be registered
     :return:
     """
-    event_logs = dict()  # a dictionary containing our detected event logs
+    event_logs = dict() # Map <timestamp, List<EventLogs>>
     for entry in change_points:
         applications_df, application_data_list = get_application_data_before(pc_id, entry, 10)
         # group by application data
-        # TODO: replace with pandas function
         # TODO: only select relevant applications
         applications_dict = dict()
+        print(applications_df)
         for index, row in applications_df.iterrows():
             application_stat = ApplicationStat(
                 ram=row['ram'],
@@ -78,20 +82,50 @@ def check_on_events(change_points: list, pc_id: int):
             )
             applications_dict[row['measurement_time']] = {row['name']: application_stat}
 
-        last_application_data = None
-        for timestamp, application_data in applications_dict.items():
-            for name, data in application_data.items():
-                if last_application_data:
-                    # Check if the name is in the current application_data
-                    if name not in application_data:
-                        print(f"{name} exists in the current application_data.")
+        gather_event_logs(event_logs, entry, applications_dict)
+    print('printing')
+    for key, value in event_logs.items():
+        for entry in value:
+            print(entry.application)
+            print(entry.started)
+            print(entry.stopped)
+            print(entry.process_change)
+            print(entry.delta_ram)
+            print(entry.delta_cpu)
+            print(entry.warning)
+    return event_logs
 
-                    # Check if the name is in the previous application_data but not in the current one
-                    if name in last_application_data and name not in application_data:
-                        print(f"{name} was in the last application_data but not in the current one.")
-            last_application_data = application_data
-def gather_event_logs():
+def gather_event_logs(event_logs, entry, applications_dict):
     """
     Function to gather information on why an event was caused like an application closing, processes closing or similiar
     :return:
     """
+    last_application_dict = None
+    for timestamp, application_dict in applications_dict.items():  # looping through our Map<timestamp, Map<name, values>
+        event_logs[timestamp] = []
+        for name, data in application_dict.items():  # looping through our Map<name, values>
+            if last_application_dict:
+                started = False
+                stopped = False
+                process_change = 0
+                delta_ram = 0
+                delta_cpu = 0
+                warning = False
+
+                if name not in last_application_dict:  # application was started
+                    started = True
+                    delta_ram = data.ram
+                    delta_cpu = data.cpu
+                elif name in last_application_dict and name not in last_application_dict:  # application was stopped
+                    stopped = True
+                    delta_ram = data.ram
+                    delta_cpu = data.cpu
+                else:  # default case: nothing happened or only processes were stopped or started
+                    warning = True
+                    delta_ram = data.ram - last_application_dict[name].ram
+                    delta_cpu = data.cpu - last_application_dict[name].cpu
+                process_change = data.process_change
+
+                event_log = EventLog(name, started, stopped, process_change, delta_ram, delta_cpu, warning)
+                event_logs[timestamp].append(event_log)
+        last_application_dict = application_dict
