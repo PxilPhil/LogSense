@@ -3,6 +3,8 @@ import numpy as np
 import io
 from datetime import datetime, timedelta
 
+from model.data import TimestampJustificatonData
+
 """
     This module contains a lot of helper methods for specific cases in our application
 """
@@ -18,6 +20,7 @@ def group_by_timestamp(df):
 def select_rows_by_application(selected_value, df):  # Method to select rows by value
     return df.loc[df.name == selected_value].groupby(['timestamp']).sum(numeric_only=True).sort_values(
         by=['timestamp'])
+
 
 def group_by_name(df):
     return df.groupby(['name']).sum(numeric_only=True)
@@ -60,5 +63,28 @@ def convert_to_data_frame(csv_string):
     df = pd.read_csv(csv_io, sep="|")
     return df
 
+
 def convert_column_to_list(df, column):
     return df[column].tolist()
+
+
+def merge_significant_data_points(change_points, anomaly_list_ram, anomaly_list_cpu):
+    significant_data_points = {change: ['Event'] for change in change_points}
+
+    for anomaly in anomaly_list_ram:
+        timestamp = anomaly.timestamp
+        if timestamp in significant_data_points:
+            significant_data_points[timestamp].append(['Anomaly'])
+        else:
+            significant_data_points[timestamp] = ['Anomaly']
+
+    for anomaly in anomaly_list_cpu:
+        timestamp = anomaly.timestamp
+        significant_data_points[timestamp] = ['Event', 'Anomaly']
+    return significant_data_points
+
+
+def add_justification_to_anomaly(anomaly_list: list, justification: TimestampJustificatonData):
+    for anomaly in anomaly_list:
+        if anomaly.timestamp == justification.timestamp:
+            anomaly.justification = justification

@@ -5,8 +5,10 @@ from pandas import DataFrame
 
 from data_analytics import involvement, manipulation, custom_alerts, stats
 from data_analytics.anomaly_detection import detect_anomalies
-from data_analytics.change_detection import detect_change_events, check_on_events
+from data_analytics.change_detection import detect_change_events
 from data_analytics.forecasting import fit_linear_regression, predict_for_df
+from data_analytics.justification import justify_pc_data_points
+from data_analytics.manipulation import merge_significant_data_points
 from db_access.data import get_moving_avg_of_application
 from db_access.pc import get_latest_moving_avg
 from db_access.helper import get_pcid_by_stateid
@@ -158,8 +160,8 @@ def analyze_pc_data(df, pc_total_df):
     std_cpu = pc_total_df['cpu'].std()
     mean_cpu = pc_total_df['cpu'].mean()
     # get allocation percentage for ram
-    latest_total_value = pc_total_df.at[pc_total_df.index.max(), 'ram']
-    allocation_map_ram = stats.calc_allocation(latest_total_value, 'ram', df)
+    latest_total_ram = pc_total_df.at[pc_total_df.index.max(), 'ram']
+    allocation_map_ram = stats.calc_allocation(latest_total_ram, 'ram', df)
     allocation_list_ram = [AllocationClass(name=key, allocation=value) for key, value in
                            allocation_map_ram.items()]  # convert map into list of our model object to send via json
 
@@ -170,18 +172,28 @@ def analyze_pc_data(df, pc_total_df):
         allocation_list_cpu.append(allocation_instance)
 
     # detect anomalies
-    anomaly_list_ram, anomaly_time_list_ram = detect_anomalies(df, 'ram')
-    anomaly_list_cpu, anomaly_time_list_cpu = detect_anomalies(df, 'ram')
+    anomaly_list_ram= detect_anomalies(df, 'ram')
+    anomaly_list_cpu = detect_anomalies(df, 'cpu')
     anomaly_list = anomaly_list_ram + anomaly_list_cpu
 
-    # detect changes
-    change_points = set(detect_change_events(pc_total_df, 'ram'))
-    change_points.update(anomaly_time_list_ram)
-    change_points.update(anomaly_time_list_cpu)
+    # detect changes / events
+    change_points = detect_change_events(pc_total_df, 'ram')
+
+    # merge anomaly and event lists to find justifications
+    significant_data_points = merge_significant_data_points(change_points, anomaly_list_ram, anomaly_list_cpu)
 
     # explain changes (events) and anomalies with EventLogs
-    #TODO: Determine if all anomalies need to be looked at, events always have to be but perhaps we could limit to only cpu anomalies since they are basically changepoints
-    event_list = check_on_events(change_points, 1)  # TODO: change pc_id
+    justification_timestamps = justify_pc_data_points(pc_total_df, significant_data_points, 1)  # TODO: change pc_id
+
+    # "map" justification logs to events and anomalies
+    for justification in justification_timestamps:
+        print(justification.timestamp)
+        if 'Event' in justification.types:
+            print('Map to event')
+        if 'Anomaly' in justification.types:
+            print('Map to anomaly')
+            manipulation.add_justification_to_anomaly(anomaly_list, justification)
+    print(justification_timestamps)
 
     return pc_total_df, anomaly_list, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu
 

@@ -10,6 +10,7 @@ from model.pc import Connection, NetworkInterface, Disk
 
 # TODO: Keep in mind to return AlertData to user instead of respective classes used for saving data
 
+
 class EventData(BaseModel):  # anomaly data class returned when analyzing application data
     timestamp: datetime
     anomaly_type: int
@@ -18,10 +19,26 @@ class EventData(BaseModel):  # anomaly data class returned when analyzing applic
     column: str
 
 
+class JustificationData(BaseModel):  # class containing explanation, justification and details about an event or anomaly
+    application: str
+    started: bool
+    stopped: bool
+    process_change: int
+    delta_ram: float
+    delta_cpu: float
+    warning: bool
+
+
+class TimestampJustificatonData(BaseModel):  # basically a "map" for mapping event log lists to a timestamp
+    timestamp: datetime
+    types: List[str]
+    justification_list: List[JustificationData]
+
 class AnomalyData(BaseModel):  # anomaly data class returned when analyzing application data
     timestamp: datetime
     severity: int  # calculated via z-score
     column: str
+    justification: Optional[TimestampJustificatonData]
 
 
 class AlertData(BaseModel):  # basically AnomalyData (EventData) but includes custom alerts and are returned to the user
