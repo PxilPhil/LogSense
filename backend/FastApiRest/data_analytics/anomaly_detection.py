@@ -13,6 +13,7 @@ z_limit = 2
 def detect_anomalies(df, column):
     df['zscore'] = stats.zscore(df[column])
     anomaly_df = df.loc[stats.zscore(df[column]) > z_limit]
+    print('anomaly_df')
     return anomaly_df['measurement_time'].tolist()
 
 

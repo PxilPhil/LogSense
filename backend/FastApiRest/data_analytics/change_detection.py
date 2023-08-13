@@ -23,11 +23,19 @@ penalty_value = 0.5  # value used for "penalizing" the pelting model for overfit
     Keep in mind to check on time gaps as well
 """
 
-def detect_change_events(df: DataFrame, column: str):  # should not be used for data with very high variance like cpu usage
+
+def get_event_measurement_times(df: DataFrame,
+                                column: str) -> list:
+    # TODO: Perhaps move into manipulation?
+    change_points = detect_events(df, column)
+    change_points_measurement_times = df['measurement_time'].iloc[change_points].tolist()
+    print(change_points_measurement_times)
+    return change_points_measurement_times
+
+
+def detect_events(df: DataFrame, column: str) -> list:  # should not be used for data with very high variance like cpu usage
     df_values = df[column].values  # Access values
     detector = rpt.Pelt(model="rbf").fit(df_values.reshape(-1, 1))  # Reshape data
     change_points = detector.predict(pen=penalty_value)  # data points where significant change was detected
     change_points = np.array(change_points) - 1
-    change_points_measurement_times = df['measurement_time'].iloc[change_points].tolist()
-    print(change_points_measurement_times)
-    return change_points_measurement_times
+    return change_points

@@ -5,9 +5,9 @@ from pandas import DataFrame
 
 from data_analytics import involvement, manipulation, custom_alerts, stats
 from data_analytics.anomaly_detection import detect_anomalies
-from data_analytics.change_detection import detect_change_events
+from data_analytics.change_detection import get_event_measurement_times, detect_events
 from data_analytics.forecasting import fit_linear_regression, predict_for_df
-from data_analytics.justification import justify_pc_data_points
+from data_analytics.justification import justify_pc_data_points, justify_application_data_points
 from db_access.data import get_moving_avg_of_application
 from db_access.pc import get_latest_moving_avg
 from db_access.helper import get_pcid_by_stateid
@@ -119,18 +119,24 @@ def analyze_application_data(df, application_name):
         mean: Average of the values.
     """
     # find events
-    event_list = detect_change_events(df, 'ram')
+    ram_event_points = detect_events(df, 'ram')
     # get stats
     std_ram = df['ram'].std()
     mean_ram = df['ram'].mean()
     std_cpu = df['cpu'].std()
     mean_cpu = df['cpu'].mean()
     # find anomalies
-    anomaly_list_ram, anomaly_time_list_ram = detect_anomalies(df, 'ram')
-    anomaly_list_cpu, anomaly_time_list_cpu = detect_anomalies(df, 'cpu')
-    anomaly_list = anomaly_list_ram + anomaly_list_cpu
+    #TODO: Implement new anomaly and event justification like for pc data
+    #TODO: On Insert we get duplicate data (why????)
+    anomaly_measurements_ram = detect_anomalies(df, 'ram')
+    anomaly_measurements_cpu = detect_anomalies(df, 'cpu')
 
-    return df, event_list, anomaly_list, std_ram, std_cpu, mean_ram, mean_cpu
+    ram_events = justify_application_data_points(df, ram_event_points, application_name)
+    cpu_events = []
+    print(ram_events)
+
+    return df, ram_events, cpu_events, anomaly_measurements_ram, anomaly_measurements_cpu, std_ram, std_cpu, mean_ram, mean_cpu
+
 
 
 def analyze_pc_data(df, pc_total_df):
@@ -175,7 +181,7 @@ def analyze_pc_data(df, pc_total_df):
     anomaly_measurements_cpu = detect_anomalies(pc_total_df, 'cpu')
 
     # detect changes / events
-    ram_change_points = detect_change_events(pc_total_df, 'ram')
+    ram_change_points = get_event_measurement_times(pc_total_df, 'ram')
 
     # explain changes (events) and anomalies with EventLogs
     ram_events = justify_pc_data_points(pc_total_df, ram_change_points, 1)  # TODO: change pc_id

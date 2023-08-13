@@ -1,3 +1,7 @@
+from datetime import datetime
+
+from pandas import DataFrame
+
 from db_access.application import get_relevant_application_data
 from model.data import EventAnomalyJustifications, JustificationData
 
@@ -26,7 +30,9 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, pc_id: in
         # TODO: coming up with something when there are time gaps between data
         # TODO: only register relevant changes as justification not list everything that happened in important appplications
         total_ram = pc_total_df.loc[pc_total_df['measurement_time'] == timestamp, 'ram'].iloc[0]
-        applications_df, application_data_list = get_relevant_application_data(pc_id, timestamp, 5, total_ram*ram_relevancy_threshold, cpu_relevancy_threshold)
+        applications_df, application_data_list = get_relevant_application_data(pc_id, timestamp, 5,
+                                                                               total_ram * ram_relevancy_threshold,
+                                                                               cpu_relevancy_threshold)
         applications_dict = dict()
         print(applications_df)
         for index, row in applications_df.iterrows():
@@ -66,15 +72,19 @@ def justify_data_point(lj: EventAnomalyJustifications, applications_dict):
                     started = True
                     delta_ram = data.ram
                     delta_cpu = data.cpu
+                    process_change = data.process_change
                 elif name in last_application_dict and name not in last_application_dict:  # application was stopped
                     stopped = True
-                    delta_ram = data.ram
-                    delta_cpu = data.cpu
+                    delta_ram = last_application_dict[name].ram
+                    delta_cpu = last_application_dict[name].cpu
+                    process_change = last_application_dict[name].process_change
                 else:  # default case: nothing happened or only processes were stopped or started
-                    warning = True
                     delta_ram = data.ram - last_application_dict[name].ram
                     delta_cpu = data.cpu - last_application_dict[name].cpu
-                process_change = data.process_change
+                    process_change = data.process_change
+                    if not ((delta_ram < 0 and delta_cpu < 0 and process_change < 0) or (
+                            delta_ram > 0 and delta_cpu > 0 and process_change > 0)):
+                        warning = True
 
                 justification_data = JustificationData(
                     application=name,
@@ -88,3 +98,37 @@ def justify_data_point(lj: EventAnomalyJustifications, applications_dict):
 
                 lj.justification_list.append(justification_data)
         last_application_dict = application_dict
+
+
+def justify_application_data_points(df: DataFrame, data_points: list, name: str) -> JustificationData:
+    # this method shares a lot of similarities with justify_data_point but its meant only for one singular application
+    justification_logs = []
+    #TODO: change justification structure for singular structure since we dont have multiple justifications per timestamp
+    for point in data_points:
+        justification_list = []
+        last_row = df.iloc[point-1]
+        row = df.iloc[point]
+        delta_ram = row['ram'] - last_row['ram']
+        delta_cpu = row['cpu'] - last_row['ram']
+        process_change = row['process_count_difference']
+        warning = False
+        if not ((delta_ram < 0 and delta_cpu < 0 and process_change < 0) or (
+                delta_ram > 0 and delta_cpu > 0 and process_change > 0)):
+            warning = True
+        justification_data = JustificationData(
+            application=name,
+            started=False,
+            stopped=False,
+            process_change=process_change,
+            delta_ram=delta_ram,
+            delta_cpu=delta_cpu,
+            warning=warning
+        )
+
+        justification_list.append(justification_data)
+        justification_data = EventAnomalyJustifications(
+            timestamp=row['measurement_time'],
+            justification_list=justification_list
+        )
+        justification_logs.append(justification_data)
+    return justification_logs
