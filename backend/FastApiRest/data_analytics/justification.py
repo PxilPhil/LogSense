@@ -1,5 +1,5 @@
 from db_access.application import get_relevant_application_data
-from model.data import EventJustificationData, JustificationData
+from model.data import EventAnomalyJustifications, JustificationData
 
 ram_relevancy_threshold = 0.05  # percentual threshold applications should have to be considered relevant
 cpu_relevancy_threshold = 0.05  # percentual threshold applications should have to be considered relevant
@@ -12,7 +12,7 @@ class ApplicationStat:  # class to store application data
         self.process_change = process_change  # same as event_headers (processes in applications were closed or opened marked with -1, 0 or 1)
 
 
-def justify_pc_data_points(pc_total_df, significant_data_points: dict, pc_id: int):
+def justify_pc_data_points(pc_total_df, significant_data_points: list, pc_id: int):
     """
     Function to loop through event list to call gather_event_logs()
 
@@ -21,7 +21,7 @@ def justify_pc_data_points(pc_total_df, significant_data_points: dict, pc_id: in
     :return:
     """
     justification_logs = []
-    for timestamp, types in significant_data_points.items():
+    for timestamp in significant_data_points:
         # TODO: coming up with something when theres no data to look back to
         # TODO: coming up with something when there are time gaps between data
         # TODO: only register relevant changes as justification not list everything that happened in important appplications
@@ -36,9 +36,8 @@ def justify_pc_data_points(pc_total_df, significant_data_points: dict, pc_id: in
                 process_change=row['process_count_difference']
             )
             applications_dict[row['measurement_time']] = {row['name']: application_stat}
-        lj = EventJustificationData(
+        lj = EventAnomalyJustifications(
             timestamp=timestamp,
-            types=types,
             justification_list=[]
         )
         justify_data_point(lj, applications_dict)
@@ -47,7 +46,7 @@ def justify_pc_data_points(pc_total_df, significant_data_points: dict, pc_id: in
     return justification_logs
 
 
-def justify_data_point(lj: EventJustificationData, applications_dict):
+def justify_data_point(lj: EventAnomalyJustifications, applications_dict):
     """
     Function to gather information on why an event was caused like an application closing, processes closing or similiar
     :return:

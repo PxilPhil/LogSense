@@ -80,7 +80,7 @@ def get_pc_data(pc_id: int, start: str, end: str):
     df, application_data_list = get_latest_application_data(pc_id, 1, None)
     if df is None or total_df is None:
         raise InvalidParametersException()
-    pc_total_df, anomaly_list, event_anomaly_justifications, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu = requests.analyze_pc_data(
+    pc_total_df, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu, ram_events, cpu_events, ram_anomalies, cpu_anomalies = requests.analyze_pc_data(
         df, total_df)
 
 
@@ -95,10 +95,10 @@ def get_pc_data(pc_id: int, start: str, end: str):
         time_series_list=total_data_list,
         allocation_list_ram=allocation_list_ram,
         allocation_list_cpu=allocation_list_cpu,
-        anomaly_list_ram=anomaly_list,
-        anomaly_list_cpu=anomaly_list,
-        change_events_cpu=event_anomaly_justifications,
-        change_events_ram=event_anomaly_justifications
+        ram_events=ram_events,
+        cpu_events=cpu_events,
+        ram_anomalies=ram_anomalies,
+        cpu_anomalies=cpu_anomalies
     )
 
     print(pc_data)

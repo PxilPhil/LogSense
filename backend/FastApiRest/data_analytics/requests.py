@@ -8,7 +8,6 @@ from data_analytics.anomaly_detection import detect_anomalies
 from data_analytics.change_detection import detect_change_events
 from data_analytics.forecasting import fit_linear_regression, predict_for_df
 from data_analytics.justification import justify_pc_data_points
-from data_analytics.manipulation import merge_significant_data_points
 from db_access.data import get_moving_avg_of_application
 from db_access.pc import get_latest_moving_avg
 from db_access.helper import get_pcid_by_stateid
@@ -172,31 +171,19 @@ def analyze_pc_data(df, pc_total_df):
         allocation_list_cpu.append(allocation_instance)
 
     # detect anomalies
-    anomaly_list_ram= detect_anomalies(pc_total_df, 'ram')
-    anomaly_list_cpu = detect_anomalies(pc_total_df, 'cpu')
-    anomaly_list = anomaly_list_ram + anomaly_list_cpu
+    anomaly_measurements_ram = detect_anomalies(pc_total_df, 'ram')
+    anomaly_measurements_cpu = detect_anomalies(pc_total_df, 'cpu')
 
     # detect changes / events
-    change_points = detect_change_events(pc_total_df, 'ram')
-    change_events = []
-
-    # merge anomaly and event lists to find justifications
-    significant_data_points = manipulation.merge_significant_data_points(change_points, anomaly_list_ram, anomaly_list_cpu)
+    ram_change_points = detect_change_events(pc_total_df, 'ram')
 
     # explain changes (events) and anomalies with EventLogs
-    event_anomaly_justifications = justify_pc_data_points(pc_total_df, significant_data_points, 1)  # TODO: change pc_id
+    ram_events = justify_pc_data_points(pc_total_df, ram_change_points, 1)  # TODO: change pc_id
+    cpu_events = justify_pc_data_points(pc_total_df, anomaly_measurements_cpu, 1)  # TODO: change pc_id
+    ram_anomalies = justify_pc_data_points(pc_total_df, anomaly_measurements_ram, 1)  # TODO: change pc_id
+    cpu_anomalies = cpu_events  # cpu events are the same as cpu anomalies
 
-    # "map" justification logs to events and anomalies
-    for justification in event_anomaly_justifications:
-        print(justification.timestamp)
-        if 'Event' in justification.types:
-            print('Map to event')
-        if 'Anomaly' in justification.types:
-            print('Map to anomaly')
-            manipulation.add_justification_to_anomaly(anomaly_list, justification)
-    #TODO: get rid of any anomaly or event classes, it is enough to return a list of "event justification data" as anomaly_list or event_list
-
-    return pc_total_df, anomaly_list, event_anomaly_justifications, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu
+    return pc_total_df, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu, ram_events, cpu_events, ram_anomalies, cpu_anomalies
 
 
 def analyze_trends():
