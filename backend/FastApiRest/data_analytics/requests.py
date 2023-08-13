@@ -172,30 +172,31 @@ def analyze_pc_data(df, pc_total_df):
         allocation_list_cpu.append(allocation_instance)
 
     # detect anomalies
-    anomaly_list_ram= detect_anomalies(df, 'ram')
-    anomaly_list_cpu = detect_anomalies(df, 'cpu')
+    anomaly_list_ram= detect_anomalies(pc_total_df, 'ram')
+    anomaly_list_cpu = detect_anomalies(pc_total_df, 'cpu')
     anomaly_list = anomaly_list_ram + anomaly_list_cpu
 
     # detect changes / events
     change_points = detect_change_events(pc_total_df, 'ram')
+    change_events = []
 
     # merge anomaly and event lists to find justifications
-    significant_data_points = merge_significant_data_points(change_points, anomaly_list_ram, anomaly_list_cpu)
+    significant_data_points = manipulation.merge_significant_data_points(change_points, anomaly_list_ram, anomaly_list_cpu)
 
     # explain changes (events) and anomalies with EventLogs
-    justification_timestamps = justify_pc_data_points(pc_total_df, significant_data_points, 1)  # TODO: change pc_id
+    event_anomaly_justifications = justify_pc_data_points(pc_total_df, significant_data_points, 1)  # TODO: change pc_id
 
     # "map" justification logs to events and anomalies
-    for justification in justification_timestamps:
+    for justification in event_anomaly_justifications:
         print(justification.timestamp)
         if 'Event' in justification.types:
             print('Map to event')
         if 'Anomaly' in justification.types:
             print('Map to anomaly')
             manipulation.add_justification_to_anomaly(anomaly_list, justification)
-    print(justification_timestamps)
+    #TODO: get rid of any anomaly or event classes, it is enough to return a list of "event justification data" as anomaly_list or event_list
 
-    return pc_total_df, anomaly_list, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu
+    return pc_total_df, anomaly_list, event_anomaly_justifications, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu
 
 
 def analyze_trends():

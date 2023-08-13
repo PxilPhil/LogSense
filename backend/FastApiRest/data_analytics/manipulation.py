@@ -1,9 +1,11 @@
+from typing import List
+
 import pandas as pd
 import numpy as np
 import io
 from datetime import datetime, timedelta
 
-from model.data import TimestampJustificatonData
+from model.data import EventJustificationData
 
 """
     This module contains a lot of helper methods for specific cases in our application
@@ -69,6 +71,7 @@ def convert_column_to_list(df, column):
 
 
 def merge_significant_data_points(change_points, anomaly_list_ram, anomaly_list_cpu):
+    # TODO: Differeentiate between ram and cpu anomalies here if you want to
     significant_data_points = {change: ['Event'] for change in change_points}
 
     for anomaly in anomaly_list_ram:
@@ -84,7 +87,7 @@ def merge_significant_data_points(change_points, anomaly_list_ram, anomaly_list_
     return significant_data_points
 
 
-def add_justification_to_anomaly(anomaly_list: list, justification: TimestampJustificatonData):
+def add_justification_to_anomaly(anomaly_list: list, justification: EventJustificationData):
     for anomaly in anomaly_list:
         if anomaly.timestamp == justification.timestamp:
             anomaly.justification = justification

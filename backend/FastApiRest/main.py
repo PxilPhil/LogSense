@@ -89,3 +89,4 @@ def root():
         dict: A dictionary with the message "LogSense"
     """
     return {"message": "LogSense"}
+

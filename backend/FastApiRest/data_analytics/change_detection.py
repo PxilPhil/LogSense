@@ -2,8 +2,7 @@ import numpy as np
 import ruptures as rpt
 from pandas import DataFrame
 
-from db_access.application import get_application_data_before
-from model.data import TimestampJustificatonData, JustificationData
+from model.data import EventJustificationData, JustificationData
 
 penalty_value = 0.5  # value used for "penalizing" the pelting model for overfitting, decrease to detect more insignicant events and vice versa -> sensitivity in other words
 
@@ -24,8 +23,7 @@ penalty_value = 0.5  # value used for "penalizing" the pelting model for overfit
     Keep in mind to check on time gaps as well
 """
 
-def detect_change_events(df: DataFrame,
-                         column: str):  # should not be used for data with very high variance like cpu usage
+def detect_change_events(df: DataFrame, column: str):  # should not be used for data with very high variance like cpu usage
     df_values = df[column].values  # Access values
     detector = rpt.Pelt(model="rbf").fit(df_values.reshape(-1, 1))  # Reshape data
     change_points = detector.predict(pen=penalty_value)  # data points where significant change was detected
