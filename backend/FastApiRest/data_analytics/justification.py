@@ -26,8 +26,7 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, pc_id: in
     """
     justification_logs = []
     for timestamp in significant_data_points:
-        # TODO: coming up with something when theres no data to look back to
-        # TODO: coming up with something when there are time gaps between data
+        # TODO: If it returns null => time gap or no data before => application was started initially
         # TODO: only register relevant changes as justification not list everything that happened in important appplications
         total_ram = pc_total_df.loc[pc_total_df['measurement_time'] == timestamp, 'ram'].iloc[0]
         applications_df, application_data_list = get_relevant_application_data(pc_id, timestamp, 5,

@@ -113,14 +113,8 @@ WITH MaxValues AS (
         applicationdata AS app
     WHERE
         app.pc_id = %s AND
-        app.measurement_time IN (
-            SELECT measurement_time
-            FROM applicationdata
-            WHERE measurement_time <= %s
-            GROUP BY measurement_time
-            ORDER BY measurement_time DESC
-            LIMIT %s
-        )
+        app.measurement_time BETWEEN
+            %s - INTERVAL '5 minutes' AND %s
     GROUP BY app.id
 )
 SELECT
@@ -154,18 +148,12 @@ WHERE
         OR
         mv.max_cpu > %s
     )
-    AND app.measurement_time IN (
-        SELECT measurement_time
-        FROM applicationdata
-        WHERE measurement_time <= %s
-        GROUP BY measurement_time
-        ORDER BY measurement_time DESC
-        LIMIT %s
-    )
+    AND app.measurement_time BETWEEN
+        %s - INTERVAL '5 minutes' AND %s
 ORDER BY app.measurement_time;
         """
 
-        cursor.execute(query, (pc_id, measurement_time, limit, pc_id, ram_threshold, cpu_threshold, measurement_time, limit))
+        cursor.execute(query, (pc_id, measurement_time, measurement_time, pc_id, ram_threshold, cpu_threshold, measurement_time, measurement_time))
         result = cursor.fetchall()
 
         if result:
