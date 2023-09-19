@@ -1,7 +1,15 @@
+from typing import List
+
 import pandas as pd
 import numpy as np
 import io
 from datetime import datetime, timedelta
+
+from model.data import EventAnomalyJustifications
+
+"""
+    This module contains a lot of helper methods for specific cases in our application
+"""
 
 
 def group_by_timestamp(df):
@@ -14,6 +22,10 @@ def group_by_timestamp(df):
 def select_rows_by_application(selected_value, df):  # Method to select rows by value
     return df.loc[df.name == selected_value].groupby(['timestamp']).sum(numeric_only=True).sort_values(
         by=['timestamp'])
+
+
+def group_by_name(df):
+    return df.groupby(['name']).sum(numeric_only=True)
 
 
 def calculate_moving_avg(df, column):  # calculates moving avg for the column
@@ -52,3 +64,12 @@ def convert_to_data_frame(csv_string):
     csv_io = io.StringIO(csv_string)
     df = pd.read_csv(csv_io, sep="|")
     return df
+
+
+def convert_column_to_list(df, column):
+    return df[column].tolist()
+
+def add_justification_to_anomaly(anomaly_list: list, justification: EventAnomalyJustifications):
+    for anomaly in anomaly_list:
+        if anomaly.timestamp == justification.timestamp:
+            anomaly.justification = justification

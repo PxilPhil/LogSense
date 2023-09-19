@@ -99,6 +99,90 @@ def get_application_list(pc_id: int, start, end):
         conn_pool.putconn(conn)
 
 
+def get_relevant_application_data(pc_id: int, measurement_time, limit, ram_threshold, cpu_threshold):  # gets all data contained in application data table
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        query = """
+WITH MaxValues AS (
+    SELECT
+        app.id AS application_id,
+        MAX(app.ram) AS max_ram,
+        MAX(app.cpu) AS max_cpu
+    FROM
+        applicationdata AS app
+    WHERE
+        app.pc_id = %s AND
+        app.measurement_time IN (
+            SELECT measurement_time
+            FROM applicationdata
+            WHERE measurement_time <= %s
+            GROUP BY measurement_time
+            ORDER BY measurement_time DESC
+            LIMIT %s
+        )
+    GROUP BY app.id
+)
+SELECT
+    app.id,
+    app.pcdata_id,
+    app.measurement_time,
+    app.name,
+    app.path,
+    app.cpu,
+    app.ram,
+    app.state,
+    app."user",
+    app.context_switches,
+    app.major_faults,
+    app.bitness,
+    app.commandline,
+    app."current_Working_Directory",
+    app.open_files,
+    app.parent_process_id,
+    app.thread_count,
+    app.uptime,
+    app.process_count_difference
+FROM
+    applicationdata AS app
+JOIN
+    MaxValues AS mv ON app.id = mv.application_id
+WHERE
+    app.pc_id = %s
+    AND (
+        mv.max_ram > %s
+        OR
+        mv.max_cpu > %s
+    )
+    AND app.measurement_time IN (
+        SELECT measurement_time
+        FROM applicationdata
+        WHERE measurement_time <= %s
+        GROUP BY measurement_time
+        ORDER BY measurement_time DESC
+        LIMIT %s
+    )
+ORDER BY app.measurement_time;
+        """
+
+        cursor.execute(query, (pc_id, measurement_time, limit, pc_id, ram_threshold, cpu_threshold, measurement_time, limit))
+        result = cursor.fetchall()
+
+        if result:
+            columns = [desc[0] for desc in cursor.description]
+            df = pd.DataFrame(result, columns=columns)
+            data_list = df.to_dict(orient='records')
+
+            return df, data_list
+        else:
+            return None, None
+    except psycopg2.DatabaseError as e:
+        if e.pgerror == psycopg2.errorcodes.INVALID_TEXT_REPRESENTATION:
+            raise InvalidParametersException()
+        raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
+
 def get_latest_application_data(pc_id: int, limit, application_name):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
@@ -154,7 +238,6 @@ def get_latest_application_data(pc_id: int, limit, application_name):
         raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
-
 
 def get_grouped_by_interval_application(pc_id: int, application_name: str, start, end, time_bucket_value,
                                         limit):  # time bucket value can be '5 minutes' for instance
