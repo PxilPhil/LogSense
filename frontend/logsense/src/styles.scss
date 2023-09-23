@@ -59,7 +59,7 @@ h2 {
   font-family: $font-family;
   font-size: 28px;
   color: $dark-grey-2;
-  margin: 0;
+  margin: 0 !important;
 }
 
 h3 {
@@ -86,6 +86,14 @@ h3 {
 
 .bold {
   font-weight: bold;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.nowrap {
+  white-space: nowrap;
 }
 //Borders, Shadows, etc
 $shadow: 0 0 5px 0 rgba(0, 0, 0, 0.25);
@@ -156,6 +164,10 @@ $border-1px: solid $black 1px;
   display: inline-flex;
   align-items: flex-start;
 }
+.flex-end {
+  display: inline-flex;
+  align-items: flex-end;
+}
 .flex-row {
   display: flex;
   flex-direction: row;
@@ -168,6 +180,10 @@ $border-1px: solid $black 1px;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+}
+.space-center {
+  display: flex;
+  justify-content: space-between;
 }
 .dropdown-btn {
   box-shadow: $lil-shadow;
