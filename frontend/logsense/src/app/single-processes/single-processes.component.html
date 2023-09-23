@@ -4,12 +4,12 @@
     <div class="white-box pad-top-bot-16 h-100">
       <form class="example-form pad-left-right-16">
         <mat-form-field class="example-full-width">
-          <input matInput placeholder="Search..." type="tel">
+          <input matInput placeholder="Search..." type="tel" [(ngModel)]="searchCriteria" [ngModelOptions]="{standalone: true}" (change)="filterApplicationNameList()">
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
       </form>
       <div (click)="loadApplicationData(applicationName)"
-           *ngFor="let applicationName of applicationNameList.application_list" class="process-box">
+           *ngFor="let applicationName of displayedApps" class="process-box">
         <div class="txt-16">
           {{applicationName}}
         </div>

@@ -30,6 +30,9 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
   isApplicationSelected = false;
   cpuChart: Chart | undefined;
   ramChart: Chart | undefined;
+  displayedApps: string[] = [];
+  runningApps: string[] = [];
+  searchCriteria: string = "";
 
   constructor(private applicationService: ApplicationService, private alertService: AlertService, private datePipe: DatePipe) {
   }
@@ -53,7 +56,22 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     let dateNow = Date.now();
     this.applicationService.getApplicationNameList(1, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: ApplicationNames) => {
       this.applicationNameList = data;
+      for (let app of this.applicationNameList.application_list) {
+        this.runningApps.push(app);
+      }
+      this.displayedApps = this.applicationNameList.application_list;
     });
+  }
+
+  filterApplicationNameList(): void {
+    this.displayedApps = this.runningApps;
+    let tmp: string[] = [];
+    for (let app of this.displayedApps) {
+      if(app.toLowerCase().includes(this.searchCriteria.toLowerCase())) {
+        tmp.push(app);
+      }
+    }
+    this.displayedApps = tmp;
   }
 
   loadAlerts(): void {
@@ -209,5 +227,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
   roundDecimalNumber(decimalNumber: number, places: number): number {
     return Math.round((decimalNumber + Number.EPSILON) * Math.pow(10, places)) / Math.pow(10, places);
   }
+
+  protected readonly onchange = onchange;
 }
 
