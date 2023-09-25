@@ -61,7 +61,18 @@
     </div>
   </div>
 
-  <div class="pad-left-64 pad-right-128 align-general mar-top-32 w-100">
+  <div class="pad-left-64 pad-right-128 mar-top-32 w-100">
+    <h2 class="mar-bot-24">Alerts</h2>
+    <div class="grey-box w-100">
+      <div *ngFor="let alert of alerts; let last = last" [ngClass]="{'mar-bot-12': !last}"
+           class="alert-box flex-center">
+        <mat-icon class="icon-32 icon">warning</mat-icon>
+        <span class="mar-left-32 txt-16">{{alert}}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="pad-left-64 pad-bot-64 pad-right-128 align-general mar-top-32 w-100">
     <div class="wrapper">
       <div class="first">
         <h2 class="mar-bot-24">General</h2>
@@ -112,16 +123,6 @@
                   class="txt-16 mar-bot-5 text-right">{{process.allocation}}%</span>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-  <div class="pad-left-64 pad-bot-64 pad-right-128 mar-top-32 w-100">
-    <h2 class="mar-bot-24">Alerts</h2>
-    <div class="grey-box w-100">
-      <div *ngFor="let alert of alerts; let last = last" [ngClass]="{'mar-bot-12': !last}"
-           class="alert-box flex-center">
-        <mat-icon class="icon-32 icon">warning</mat-icon>
-        <span class="mar-left-32 txt-16">{{alert}}</span>
       </div>
     </div>
   </div>
