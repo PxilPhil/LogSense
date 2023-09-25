@@ -57,3 +57,9 @@
     }
   }
 }
+
+@media (max-width: 970px) {
+  .hidden {
+    transform: translate(-262px, 196px);
+  }
+}
