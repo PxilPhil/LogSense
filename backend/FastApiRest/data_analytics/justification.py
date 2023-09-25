@@ -26,14 +26,11 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, pc_id: in
     """
     justification_logs = []
     for timestamp in significant_data_points:
-        # TODO: If it returns null => time gap or no data before => application was started initially
-        # TODO: only register relevant changes as justification not list everything that happened in important appplications
         total_ram = pc_total_df.loc[pc_total_df['measurement_time'] == timestamp, 'ram'].iloc[0]
-        applications_df, application_data_list = get_relevant_application_data(pc_id, timestamp, 5,
+        applications_df, application_data_list = get_relevant_application_data(pc_id, timestamp,
                                                                                total_ram * ram_relevancy_threshold,
                                                                                cpu_relevancy_threshold)
         applications_dict = dict()
-        print(applications_df)
         for index, row in applications_df.iterrows():
             application_stat = ApplicationStat(
                 ram=row['ram'],
@@ -80,6 +77,7 @@ def justify_data_point(lj: EventAnomalyJustifications, applications_dict):
                 else:  # default case: nothing happened or only processes were stopped or started
                     delta_ram = data.ram - last_application_dict[name].ram
                     delta_cpu = data.cpu - last_application_dict[name].cpu
+                    print(delta_cpu)
                     process_change = data.process_change
                     if not ((delta_ram < 0 and delta_cpu < 0 and process_change < 0) or (
                             delta_ram > 0 and delta_cpu > 0 and process_change > 0)):
@@ -108,7 +106,7 @@ def justify_application_data_points(df: DataFrame, data_points: list, name: str)
         last_row = df.iloc[point-1]
         row = df.iloc[point]
         delta_ram = row['ram'] - last_row['ram']
-        delta_cpu = row['cpu'] - last_row['ram']
+        delta_cpu = row['cpu'] - last_row['cpu']
         process_change = row['process_count_difference']
         warning = False
         if not ((delta_ram < 0 and delta_cpu < 0 and process_change < 0) or (
