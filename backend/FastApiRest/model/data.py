@@ -20,6 +20,7 @@ class EventData(BaseModel):  # TODO: deprecated but kept in application to avoid
 
 class JustificationData(BaseModel):  # class containing explanation, justification and details about an event or anomaly
     application: str
+    timestamp: datetime
     started: bool
     stopped: bool
     process_change: int

@@ -90,6 +90,7 @@ def justify_data_point(lj: EventAnomalyJustifications, applications_dict, time_g
 
                 justification_data = JustificationData(
                     application=name,
+                    timestamp=timestamp,
                     started=started,
                     stopped=stopped,
                     process_change=process_change,
@@ -105,8 +106,9 @@ def justify_data_point(lj: EventAnomalyJustifications, applications_dict, time_g
 def justify_application_data_points(df: DataFrame, data_points: list, name: str) -> JustificationData:
     # this method shares a lot of similarities with justify_data_point but its meant only for one singular application
     justification_logs = []
-    #TODO: change justification structure for singular structure since we dont have multiple justifications per timestamp
+    #TODO: justifications dont work here as they only take the last row into consideration
     for point in data_points:
+        print('point '+point)
         justification_list = []
         last_row = df.iloc[point-1]
         row = df.iloc[point]
@@ -119,6 +121,7 @@ def justify_application_data_points(df: DataFrame, data_points: list, name: str)
             warning = True
         justification_data = JustificationData(
             application=name,
+            timestamp=last_row['measurement_time'],
             started=False,
             stopped=False,
             process_change=process_change,
