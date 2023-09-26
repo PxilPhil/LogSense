@@ -136,7 +136,7 @@ export class DiskComponent implements OnInit, OnDestroy {
     let measurementTimes: string[] = [];
     let diskUsages: number[] = [];
     this.pcData.time_series_list.forEach(pcDataMeasurement => {
-      measurementTimes.push(this.datePipe.transform(pcDataMeasurement.measurement_time, 'yyyy-MM-dd HH:mm') ?? "");
+      measurementTimes.push(this.datePipe.transform(pcDataMeasurement.measurement_time, 'MM-dd HH:mm') ?? "");
       diskUsages.push(this.roundDecimalNumber(this.convertBytesToGigaBytes(pcDataMeasurement.free_disk_space), 2));
     });
     return {measurementTimes: measurementTimes, diskUsages: diskUsages};

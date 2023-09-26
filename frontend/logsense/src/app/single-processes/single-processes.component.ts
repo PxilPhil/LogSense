@@ -117,7 +117,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
         labels: cpuData.measurementTimes,
         datasets: [{
           data: cpuData.cpuUsages,
-          borderColor: "#3e95cd",
+          borderColor: "#2b26a8",
           fill: false
         }]
       }, options: {
@@ -130,18 +130,6 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
         plugins: {
           legend: {
             display: false
-          },
-          tooltip: {
-            callbacks: {
-              label: function (context) {
-                let label = context.dataset.label || '';
-                if (label) {
-                  label += ' ';
-                }
-                label += context.parsed.y + '%';
-                return label;
-              }
-            }
           }
         }
       },
@@ -196,7 +184,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     let measurementTimes: string[] = [];
     let cpuUsages: number[] = [];
     this.selectedApplication.time_series_data.forEach(cpuUsageMeasurement => {
-      measurementTimes.push(this.datePipe.transform(cpuUsageMeasurement.measurement_time, 'yyyy-MM-dd HH:mm') ?? "");
+      measurementTimes.push(this.datePipe.transform(cpuUsageMeasurement.measurement_time, 'MM-dd HH:mm') ?? "");
       cpuUsages.push(this.roundDecimalNumber(cpuUsageMeasurement.cpu, 2));
     });
     return {measurementTimes: measurementTimes, cpuUsages: cpuUsages};
@@ -206,7 +194,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     let measurementTimes: string[] = [];
     let ramUsages: number[] = [];
     this.selectedApplication.time_series_data.forEach(ramUsageMeasurement => {
-      measurementTimes.push(this.datePipe.transform(ramUsageMeasurement.measurement_time, 'yyyy-MM-dd HH:mm') ?? "");
+      measurementTimes.push(this.datePipe.transform(ramUsageMeasurement.measurement_time, 'MM-dd HH:mm') ?? "");
       ramUsages.push(this.roundDecimalNumber(this.convertBytesToMegaBytes(ramUsageMeasurement.ram), 2));
     });
     return {measurementTimes: measurementTimes, ramUsages: ramUsages};
