@@ -52,6 +52,19 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     }
   }
 
+  selectedTimeChanged(): void {
+    let tmp: string[] = [];
+    //var tmpValueInMilliseconds = 0;
+    for (let measurementTime of this.getCpuData().measurementTimes) {
+      let time: Date = new Date(measurementTime);
+      if(time.valueOf()>=Date.now()-this.selectedTime.valueInMilliseconds) {
+        console.log(time);
+        console.log(time.valueOf());
+        console.log(Date.now()-this.selectedTime.valueInMilliseconds);
+      }
+    }
+  }
+
   loadApplicationNameList(): void {
     let dateNow = Date.now();
     this.applicationService.getApplicationNameList(1, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: ApplicationNames) => {
@@ -121,6 +134,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
           fill: false
         }]
       }, options: {
+        maintainAspectRatio: false,
         responsive: true,
         scales: {
           y: {
@@ -130,6 +144,17 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
         plugins: {
           legend: {
             display: false
+          }, tooltip: {
+            callbacks: {
+              label: function (context) {
+                let label = context.dataset.label || '';
+                if (label) {
+                  label += ' ';
+                }
+                label += context.parsed.y + '%';
+                return label;
+              }
+            }
           }
         }
       },
@@ -149,10 +174,11 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
         labels: ramData.measurementTimes,
         datasets: [{
           data: ramData.ramUsages,
-          borderColor: "#3e95cd",
+          borderColor: "#2b26a8",
           fill: false
         }]
       }, options: {
+        maintainAspectRatio: false,
         responsive: true,
         scales: {
           y: {
@@ -184,7 +210,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     let measurementTimes: string[] = [];
     let cpuUsages: number[] = [];
     this.selectedApplication.time_series_data.forEach(cpuUsageMeasurement => {
-      measurementTimes.push(this.datePipe.transform(cpuUsageMeasurement.measurement_time, 'MM-dd HH:mm') ?? "");
+      measurementTimes.push(this.datePipe.transform(cpuUsageMeasurement.measurement_time, 'yyyy-MM-dd HH:mm') ?? "");
       cpuUsages.push(this.roundDecimalNumber(cpuUsageMeasurement.cpu, 2));
     });
     return {measurementTimes: measurementTimes, cpuUsages: cpuUsages};

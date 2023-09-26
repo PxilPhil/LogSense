@@ -105,6 +105,7 @@ export class DiskComponent implements OnInit, OnDestroy {
           fill: false
         }]
       }, options: {
+        maintainAspectRatio: false,
         responsive: true,
         scales: {
           y: {
