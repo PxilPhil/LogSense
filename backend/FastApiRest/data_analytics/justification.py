@@ -30,6 +30,10 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, pc_id: in
         applications_df, application_data_list = get_relevant_application_data(pc_id, timestamp,
                                                                                total_ram * ram_relevancy_threshold,
                                                                                cpu_relevancy_threshold)
+        time_gap = False
+        if applications_df['measurement_time'].nunique() <= 1:
+            time_gap=True
+
         applications_dict = dict()
         for index, row in applications_df.iterrows():
             application_stat = ApplicationStat(
@@ -42,21 +46,22 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, pc_id: in
             timestamp=timestamp,
             justification_list=[]
         )
-        justify_data_point(lj, applications_dict)
+        justify_data_point(lj, applications_dict, time_gap)
         justification_logs.append(lj)
     print(justification_logs)
     return justification_logs
 
 
-def justify_data_point(lj: EventAnomalyJustifications, applications_dict):
+def justify_data_point(lj: EventAnomalyJustifications, applications_dict, time_gap: bool):
     """
     Function to gather information on why an event was caused like an application closing, processes closing or similiar
     :return:
     """
+    #TODO: If amount of distinct times only 1 then it initially started
     last_application_dict = None
     for timestamp, application_dict in applications_dict.items():  # looping through our Map<timestamp, Map<name, values>
         for name, data in application_dict.items():  # looping through our Map<name, values>
-            if last_application_dict:
+            if last_application_dict or time_gap:
                 started = False
                 stopped = False
                 process_change = 0
@@ -64,7 +69,7 @@ def justify_data_point(lj: EventAnomalyJustifications, applications_dict):
                 delta_cpu = 0
                 warning = False
 
-                if name not in last_application_dict:  # application was started
+                if time_gap or name not in last_application_dict:  # application was started
                     started = True
                     delta_ram = data.ram
                     delta_cpu = data.cpu
