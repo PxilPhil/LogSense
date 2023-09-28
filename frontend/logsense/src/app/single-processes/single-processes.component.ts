@@ -7,6 +7,10 @@ import {Application, ApplicationTimeSeriesData} from "../model/Application";
 import {AlertService} from "../services/alert.service";
 import {Alert} from "../model/Alert";
 
+export class ChartData {
+  measurementTime: string[] = [];
+  usage: number[] = [];
+}
 @Component({
   selector: 'app-single-processes',
   templateUrl: './single-processes.component.html',
@@ -33,6 +37,8 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
   displayedApps: string[] = [];
   runningApps: string[] = [];
   searchCriteria: string = "";
+  cpuData: ChartData = {measurementTime: [], usage: []};
+  ramData: ChartData = {measurementTime: [], usage: []};
 
   constructor(private applicationService: ApplicationService, private alertService: AlertService, private datePipe: DatePipe) {
   }
@@ -53,16 +59,28 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
   }
 
   selectedTimeChanged(): void {
-    let tmp: string[] = [];
-    //var tmpValueInMilliseconds = 0;
-    for (let measurementTime of this.getCpuData().measurementTimes) {
-      let time: Date = new Date(measurementTime);
+    let tmpTime: string[] = [];
+    let tmpVal: number[] = [];
+    /*for (let i = 0; i < this.getCpuData().measurementTime.length; i++) {
+      let time: Date = new Date(this.getCpuData().measurementTime[i]);
       if(time.valueOf()>=Date.now()-this.selectedTime.valueInMilliseconds) {
-        console.log(time);
-        console.log(time.valueOf());
-        console.log(Date.now()-this.selectedTime.valueInMilliseconds);
+        tmpTime.push(this.getCpuData().measurementTime[i]);
+        tmpVal.push(this.getCpuData().usage[i]);
       }
     }
+    this.cpuData.measurementTime = tmpTime;
+    this.cpuData.usage = tmpVal;
+    for (let i = 0; i < this.getRamData().measurementTime.length; i++) {
+      let time: Date = new Date(this.getRamData().measurementTime[i]);
+      if(time.valueOf()>=Date.now()-this.selectedTime.valueInMilliseconds) {
+        tmpTime.push(this.getRamData().measurementTime[i]);
+        tmpVal.push(this.getRamData().usage[i]);
+      }
+    }
+    this.ramData.measurementTime = tmpTime;
+    this.ramData.usage = tmpVal;*/
+    this.cpuData = this.getCpuData();
+    this.ramData = this.getRamData();
   }
 
   loadApplicationNameList(): void {
@@ -96,9 +114,10 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
   loadApplicationData(applicationName: string): void {
     this.isApplicationSelected = true;
     let dateNow = Date.now();
-    this.applicationService.getApplicationByApplicationName(1, applicationName, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: Application) => {
+    this.applicationService.getApplicationByApplicationName(1, applicationName, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: Application) => {
       this.selectedApplication = data;
       this.latestApplicationMeasurement = this.getLatestApplicationMeasurementOfSelectedApplication();
+      this.selectedTimeChanged();
       this.cpuUsageChart();
       this.ramUsageChart();
     });
@@ -118,8 +137,6 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
   }
 
   cpuUsageChart(): void {
-    const cpuData = this.getCpuData();
-
     if (this.cpuChart) {
       this.cpuChart.destroy();
     }
@@ -127,9 +144,9 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     this.cpuChart = new Chart("usageCPU", {
       type: "line",
       data: {
-        labels: cpuData.measurementTimes,
+        labels: this.cpuData.measurementTime,
         datasets: [{
-          data: cpuData.cpuUsages,
+          data: this.cpuData.usage,
           borderColor: "#2b26a8",
           fill: false
         }]
@@ -162,8 +179,6 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
   }
 
   ramUsageChart(): void {
-    const ramData = this.getRamData();
-
     if (this.ramChart) {
       this.ramChart.destroy();
     }
@@ -171,9 +186,9 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     this.ramChart = new Chart("usageRAM", {
       type: "line",
       data: {
-        labels: ramData.measurementTimes,
+        labels: this.ramData.measurementTime,
         datasets: [{
-          data: ramData.ramUsages,
+          data: this.ramData.usage,
           borderColor: "#2b26a8",
           fill: false
         }]
@@ -206,24 +221,22 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     });
   }
 
-  getCpuData(): { measurementTimes: string[], cpuUsages: number[] } {
-    let measurementTimes: string[] = [];
-    let cpuUsages: number[] = [];
+  getCpuData(): ChartData {
+    let data: ChartData = {measurementTime: [], usage: []};
     this.selectedApplication.time_series_data.forEach(cpuUsageMeasurement => {
-      measurementTimes.push(this.datePipe.transform(cpuUsageMeasurement.measurement_time, 'yyyy-MM-dd HH:mm') ?? "");
-      cpuUsages.push(this.roundDecimalNumber(cpuUsageMeasurement.cpu, 2));
+      data.measurementTime.push(this.datePipe.transform(cpuUsageMeasurement.measurement_time, 'MM-dd HH:mm') ?? "");
+      data.usage.push(this.roundDecimalNumber(cpuUsageMeasurement.cpu, 2));
     });
-    return {measurementTimes: measurementTimes, cpuUsages: cpuUsages};
+    return data;
   }
 
-  getRamData(): { measurementTimes: string[], ramUsages: number[] } {
-    let measurementTimes: string[] = [];
-    let ramUsages: number[] = [];
+  getRamData(): ChartData {
+    let data: ChartData = {measurementTime: [], usage: []};
     this.selectedApplication.time_series_data.forEach(ramUsageMeasurement => {
-      measurementTimes.push(this.datePipe.transform(ramUsageMeasurement.measurement_time, 'MM-dd HH:mm') ?? "");
-      ramUsages.push(this.roundDecimalNumber(this.convertBytesToMegaBytes(ramUsageMeasurement.ram), 2));
+      data.measurementTime.push(this.datePipe.transform(ramUsageMeasurement.measurement_time, 'MM-dd HH:mm') ?? "");
+      data.usage.push(this.roundDecimalNumber(this.convertBytesToMegaBytes(ramUsageMeasurement.ram), 2));
     });
-    return {measurementTimes: measurementTimes, ramUsages: ramUsages};
+    return data;
   }
 
   formatUpTime(upTime: number): string {
