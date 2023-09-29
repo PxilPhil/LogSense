@@ -9,7 +9,7 @@ from db_access.application import get_latest_application_data
 from data_analytics import requests
 from exceptions.DataBaseInsertExcepion import DataBaseInsertException
 from exceptions.InvalidParametersException import InvalidParametersException
-from model.pc import PCItem, ForecastResult, ForecastData, DISKS, Network
+from model.pc import PCItem, ForecastResult, ForecastData, DISKS, Network, PCSpecs
 from model.data import PCData
 
 pc = APIRouter()
@@ -188,3 +188,19 @@ def forecast_free_disk_space(pc_id: int, days: int):
         return forecast_result
     except Exception as e:
         raise InvalidParametersException()
+
+
+@pc.get('/general_specs/{user_id}', response_model=PCSpecs, tags=["PC"])
+def get_pc_by_user_id(user_id: str):
+    """
+    Get specs of PC by user ID.
+
+    Args:
+        user_id (str): The user ID to filter PCs.
+
+    Returns:
+        dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
+    """
+
+    specs = db_access.pc.general_specs(user_id)
+    return specs
