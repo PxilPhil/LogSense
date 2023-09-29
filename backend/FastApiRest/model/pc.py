@@ -135,3 +135,16 @@ class Disk(BaseModel):
     name: str
     size: int
     disk_partition_list: List[DiskPartition] = []
+
+
+class PCSpecs(BaseModel):
+    processor_name: str
+    processor_identifier: str
+    processor_id: str
+    processor_vendor: str
+    processor_bitness: int
+    physical_package_count: int
+    physical_processor_count: int
+    logical_processor_count: int
+    context_switches: int
+    interrupts: int

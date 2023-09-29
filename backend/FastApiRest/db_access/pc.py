@@ -9,7 +9,7 @@ from exceptions.NotFoundExcepion import NotFoundException
 from model.data import PCTimeSeriesData
 from pydantic import BaseModel, create_model
 
-from model.pc import NetworkInterface, Connection, Disk, DiskPartition, PCState
+from model.pc import NetworkInterface, Connection, Disk, DiskPartition, PCState, PCSpecs
 from model.pc import DISK, PARTITION, DISKS
 
 
@@ -463,6 +463,64 @@ def get_recent_pc_total_data(pc_id, limit):
                 data_list.append(PCTimeSeriesData(**row.to_dict()))
             return df, data_list
         return None, None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
+
+
+def general_specs(user_id):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        querry = """
+        select 
+        processor_name, 
+        processor_identifier, 
+        processor_id, 
+        processor_vendor, 
+        processor_bitness, 
+        physical_package_count, 
+        physical_processor_count,
+        logical_processor_count 
+        from pcstate
+        WHERE pc_id = %s
+        """
+
+        querry2 = """
+        select
+            context_switches_processor,
+             interrupts_processor
+        from pcdata
+        WHERE pc_id = %s
+        ORDER BY measurement_time desc 
+        """
+
+        cursor.execute(querry, user_id)
+        result = cursor.fetchone()
+
+        cursor.execute(querry2, user_id)
+        result2 = cursor.fetchone()
+
+        if result and result2:
+            processor_name, processor_identifier, processor_id, processor_vendor, processor_bitness, physical_package_count, physical_processor_count, logical_processor_count = result
+            context_switches, interrupts = result2
+
+            # Create an instance of PCSpecs
+            pc_specs = PCSpecs(
+                processor_name=processor_name,
+                processor_identifier=processor_identifier,
+                processor_id=processor_id,
+                processor_vendor=processor_vendor,
+                processor_bitness=processor_bitness,
+                physical_package_count=physical_package_count,
+                physical_processor_count=physical_processor_count,
+                logical_processor_count=logical_processor_count,
+                context_switches=context_switches,
+                interrupts=interrupts
+            )
+            return pc_specs
+        return None
     except psycopg2.DatabaseError as e:
         raise DataBaseException()
     finally:
