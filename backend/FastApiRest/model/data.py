@@ -19,7 +19,7 @@ class EventData(BaseModel):  # TODO: deprecated but kept in application to avoid
     column: str
 
 class JustificationData(BaseModel):  # class containing explanation, justification and details about an event or anomaly
-    application: str
+    application: Optional[str]
     timestamp: datetime
     started: bool
     stopped: bool
@@ -31,6 +31,10 @@ class JustificationData(BaseModel):  # class containing explanation, justificati
 
 class EventAnomalyJustifications(BaseModel):  # class containing justifications for events and anomalies
     timestamp: datetime
+    till_timestamp: datetime
+    total_delta_ram: float
+    total_delta_cpu: float
+    pc_just_started: Optional[bool]
     justification_list: List[JustificationData]
 
 
