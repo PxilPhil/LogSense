@@ -85,11 +85,11 @@
           </div>
         </div>
       </div>
-      <div *ngIf="isApplicationSelected" class="align-general mar-top-32 w-100">
-        <div>
+      <div *ngIf="isApplicationSelected" class="align-general mar-top-32 wrapper">
+        <div class="first">
           <h2 class="mar-bot-24">General</h2>
-          <div class="grey-box mar-right-96">
-            <div class="align-general">
+          <div class="grey-box">
+            <div class="align-general space-center">
               <div class="align-txt">
                 <span class="txt-16">State</span>
                 <span class="txt-16">Major Faults</span>
@@ -98,16 +98,16 @@
                 <span class="txt-16">Open Files</span>
               </div>
               <div class="align-txt mar-left-24">
-                <span class="txt-16">{{latestApplicationMeasurement.state}}</span>
-                <span class="txt-16">{{latestApplicationMeasurement.major_faults}}</span>
-                <span class="txt-16">{{latestApplicationMeasurement.context_switches}}</span>
-                <span class="txt-16">{{latestApplicationMeasurement.thread_count}}</span>
-                <span class="txt-16">{{latestApplicationMeasurement.open_files}}</span>
+                <span class="txt-16 nowrap text-right">{{latestApplicationMeasurement.state}}</span>
+                <span class="txt-16 nowrap text-right">{{latestApplicationMeasurement.major_faults}}</span>
+                <span class="txt-16 nowrap text-right">{{latestApplicationMeasurement.context_switches}}</span>
+                <span class="txt-16 nowrap text-right">{{latestApplicationMeasurement.thread_count}}</span>
+                <span class="txt-16 nowrap text-right">{{latestApplicationMeasurement.open_files}}</span>
               </div>
             </div>
           </div>
         </div>
-        <div class="">
+        <div class="second">
           <h2 class="mar-bot-24">Statistics</h2>
           <div class="grey-box align-general">
             <div class="align-txt">

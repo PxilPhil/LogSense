@@ -65,3 +65,33 @@
   height: 100vh;
   width: 200vh;
 }
+
+.wrapper {
+  display: flex;
+  flex-direction: row;
+  width: calc(100% - 96px);
+  .first {
+    flex: 0 0 50%;
+    margin: 0 96px 0 0;
+    width: 100%;
+  }
+  .second {
+    flex: 0 0 50%;
+    width: 100%;
+  }
+}
+
+@include media-breakpoint-down(xxl) {
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    .first {
+      margin: 0 0 32px 0;
+      width: 100%;
+    }
+    .second {
+      width: 100%;
+    }
+  }
+}
