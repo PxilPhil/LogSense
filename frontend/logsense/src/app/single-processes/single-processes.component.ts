@@ -58,52 +58,48 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     }
   }
 
-  selectedTimeChanged(): void {
-    let tmpTime: string[] = [];
-    let tmpVal: number[] = [];
-    /*for (let i = 0; i < this.getCpuData().measurementTime.length; i++) {
-      let time: Date = new Date(this.getCpuData().measurementTime[i]);
-      if(time.valueOf()>=Date.now()-this.selectedTime.valueInMilliseconds) {
-        tmpTime.push(this.getCpuData().measurementTime[i]);
-        tmpVal.push(this.getCpuData().usage[i]);
-      }
-    }
-    this.cpuData.measurementTime = tmpTime;
-    this.cpuData.usage = tmpVal;
-    for (let i = 0; i < this.getRamData().measurementTime.length; i++) {
-      let time: Date = new Date(this.getRamData().measurementTime[i]);
-      if(time.valueOf()>=Date.now()-this.selectedTime.valueInMilliseconds) {
-        tmpTime.push(this.getRamData().measurementTime[i]);
-        tmpVal.push(this.getRamData().usage[i]);
-      }
-    }
-    this.ramData.measurementTime = tmpTime;
-    this.ramData.usage = tmpVal;*/
+  setData(): void {
     this.cpuData = this.getCpuData();
     this.ramData = this.getRamData();
   }
 
   loadApplicationNameList(): void {
+    this.runningApps = [];
     let dateNow = Date.now();
-    this.applicationService.getApplicationNameList(1, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: ApplicationNames) => {
-      this.applicationNameList = data;
-      for (let app of this.applicationNameList.application_list) {
-        this.runningApps.push(app);
-      }
-      this.displayedApps = this.applicationNameList.application_list;
-    });
+    if(this.selectedTime.valueInMilliseconds!=0) {
+      this.applicationService.getApplicationNameList(1, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: ApplicationNames) => {
+        this.applicationNameList = data;
+        for (let app of this.applicationNameList.application_list) {
+          this.runningApps.push(app);
+        }
+        this.displayedApps = this.applicationNameList.application_list;
+      });
+    } else {
+      this.applicationService.getApplicationNameList(1, this.datePipe.transform(dateNow-dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: ApplicationNames) => {
+        this.applicationNameList = data;
+        for (let app of this.applicationNameList.application_list) {
+          this.runningApps.push(app);
+        }
+        this.displayedApps = this.applicationNameList.application_list;
+      });
+    }
   }
 
   filterApplicationNameList(): void {
+    console.log("d\n" + this.displayedApps);
+    console.log("r\n" + this.runningApps);
     this.displayedApps = this.runningApps;
+    console.log("d\n" + this.displayedApps);
     let tmp: string[] = [];
     for (let app of this.displayedApps) {
       if(app.toLowerCase().includes(this.searchCriteria.toLowerCase())) {
         tmp.push(app);
       }
     }
+    console.log("t\n" + tmp);
     this.displayedApps = tmp;
   }
+
 
   loadAlerts(): void {
     this.alertService.getAlerts().subscribe((data: Alert[]) => {
@@ -114,16 +110,18 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
   loadApplicationData(applicationName: string): void {
     this.isApplicationSelected = true;
     let dateNow = Date.now();
-    this.applicationService.getApplicationByApplicationName(1, applicationName, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: Application) => {
+    this.applicationService.getApplicationByApplicationName(1, applicationName, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: Application) => {
       this.selectedApplication = data;
+      //console.log(data);
       this.latestApplicationMeasurement = this.getLatestApplicationMeasurementOfSelectedApplication();
-      this.selectedTimeChanged();
+      this.setData();
       this.cpuUsageChart();
       this.ramUsageChart();
     });
   }
 
   reloadApplicationDataOnTimesSelectionChange() {
+    this.loadApplicationNameList();
     this.loadApplicationData(this.selectedApplication.application_name);
   }
 
@@ -225,8 +223,10 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     let data: ChartData = {measurementTime: [], usage: []};
     this.selectedApplication.time_series_data.forEach(cpuUsageMeasurement => {
       data.measurementTime.push(this.datePipe.transform(cpuUsageMeasurement.measurement_time, 'MM-dd HH:mm') ?? "");
-      data.usage.push(this.roundDecimalNumber(cpuUsageMeasurement.cpu, 2));
+      //console.log(cpuUsageMeasurement.cpu);
+      data.usage.push(this.roundDecimalNumber(cpuUsageMeasurement.cpu, 5));
     });
+    //console.log(data);
     return data;
   }
 

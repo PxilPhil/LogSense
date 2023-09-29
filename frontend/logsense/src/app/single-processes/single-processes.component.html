@@ -18,7 +18,7 @@
     <div class="mar-left-64 w-100">
       <div *ngIf="isApplicationSelected">
         <select (change)="reloadApplicationDataOnTimesSelectionChange()" [(ngModel)]="selectedTime"
-                class="dropdown-btn mar-bot-24" (ngModelChange)="selectedTimeChanged()">
+                class="dropdown-btn mar-bot-24" (ngModelChange)="setData()">
           <option *ngFor="let timeElement of times" [ngValue]="timeElement">{{timeElement.time}}</option>
         </select>
       </div>
