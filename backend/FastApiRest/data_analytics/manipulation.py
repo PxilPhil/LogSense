@@ -59,6 +59,15 @@ def calc_end_timestamp(timestamp,
     end_timestamp = int(end_date_time.timestamp() * 1000)
     return end_timestamp
 
+def determine_stability(cov): # maybe put this into a own module later on, used to convert COV to be easily readable by a user
+    # TODO: keep in mind these are really abstract placeholder values
+    if cov<5:
+        return 'High Stability'
+    elif cov<10:
+        return 'Medium Stability'
+    elif cov<20:
+        return 'Low Stability'
+    return 'Extremely Low Stability'
 
 def convert_to_data_frame(csv_string):
     csv_io = io.StringIO(csv_string)

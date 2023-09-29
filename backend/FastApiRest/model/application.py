@@ -39,6 +39,10 @@ class ApplicationData(BaseModel):
     standard_deviation_cpu: float
     mean_ram: float
     mean_cpu: float
+    cov_ram: float
+    cov_cpu: float
+    stability_ram: str
+    stability_cpu: str
     time_series_data: List[ApplicationTimeSeriesData]
     cpu_events_and_anomalies: List[EventAnomalyJustifications]
     ram_events_and_anomalies: List[EventAnomalyJustifications]

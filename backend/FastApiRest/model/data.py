@@ -104,6 +104,10 @@ class PCData(BaseModel):
     mean_ram: float
     standard_deviation_cpu: float
     mean_cpu: float
+    cov_ram: float
+    cov_cpu: float
+    stability_ram: str
+    stability_cpu: str
     time_series_list: List[PCTimeSeriesData]
     allocation_list_ram: List[AllocationClass]
     allocation_list_cpu: List[AllocationClass]
