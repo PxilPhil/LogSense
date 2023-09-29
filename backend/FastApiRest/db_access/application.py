@@ -81,6 +81,8 @@ def get_application_list(pc_id: int, start, end):
         pc.pc_id = %s AND
         app.measurement_time BETWEEN %s AND %s
         GROUP BY
+        app.name
+        ORDER BY 
         app.name"""
 
         cursor.execute(select_app_list_query, (pc_id, start, end))
