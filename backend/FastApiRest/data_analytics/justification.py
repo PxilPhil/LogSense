@@ -26,14 +26,15 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, pc_id: in
     """
     justification_logs = []
     for timestamp in significant_data_points:
-        # TODO: If it returns null => time gap or no data before => application was started initially
-        # TODO: only register relevant changes as justification not list everything that happened in important appplications
         total_ram = pc_total_df.loc[pc_total_df['measurement_time'] == timestamp, 'ram'].iloc[0]
-        applications_df, application_data_list = get_relevant_application_data(pc_id, timestamp, 5,
+        applications_df, application_data_list = get_relevant_application_data(pc_id, timestamp,
                                                                                total_ram * ram_relevancy_threshold,
                                                                                cpu_relevancy_threshold)
+        time_gap = False
+        if applications_df['measurement_time'].nunique() <= 1:
+            time_gap=True
+
         applications_dict = dict()
-        print(applications_df)
         for index, row in applications_df.iterrows():
             application_stat = ApplicationStat(
                 ram=row['ram'],
@@ -45,21 +46,22 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, pc_id: in
             timestamp=timestamp,
             justification_list=[]
         )
-        justify_data_point(lj, applications_dict)
+        justify_data_point(lj, applications_dict, time_gap)
         justification_logs.append(lj)
     print(justification_logs)
     return justification_logs
 
 
-def justify_data_point(lj: EventAnomalyJustifications, applications_dict):
+def justify_data_point(lj: EventAnomalyJustifications, applications_dict, time_gap: bool):
     """
     Function to gather information on why an event was caused like an application closing, processes closing or similiar
     :return:
     """
+    #TODO: If amount of distinct times only 1 then it initially started
     last_application_dict = None
     for timestamp, application_dict in applications_dict.items():  # looping through our Map<timestamp, Map<name, values>
         for name, data in application_dict.items():  # looping through our Map<name, values>
-            if last_application_dict:
+            if last_application_dict or time_gap:
                 started = False
                 stopped = False
                 process_change = 0
@@ -67,7 +69,7 @@ def justify_data_point(lj: EventAnomalyJustifications, applications_dict):
                 delta_cpu = 0
                 warning = False
 
-                if name not in last_application_dict:  # application was started
+                if time_gap or name not in last_application_dict:  # application was started
                     started = True
                     delta_ram = data.ram
                     delta_cpu = data.cpu
@@ -80,6 +82,7 @@ def justify_data_point(lj: EventAnomalyJustifications, applications_dict):
                 else:  # default case: nothing happened or only processes were stopped or started
                     delta_ram = data.ram - last_application_dict[name].ram
                     delta_cpu = data.cpu - last_application_dict[name].cpu
+                    print(delta_cpu)
                     process_change = data.process_change
                     if not ((delta_ram < 0 and delta_cpu < 0 and process_change < 0) or (
                             delta_ram > 0 and delta_cpu > 0 and process_change > 0)):
@@ -87,6 +90,7 @@ def justify_data_point(lj: EventAnomalyJustifications, applications_dict):
 
                 justification_data = JustificationData(
                     application=name,
+                    timestamp=timestamp,
                     started=started,
                     stopped=stopped,
                     process_change=process_change,
@@ -102,13 +106,14 @@ def justify_data_point(lj: EventAnomalyJustifications, applications_dict):
 def justify_application_data_points(df: DataFrame, data_points: list, name: str) -> JustificationData:
     # this method shares a lot of similarities with justify_data_point but its meant only for one singular application
     justification_logs = []
-    #TODO: change justification structure for singular structure since we dont have multiple justifications per timestamp
+    #TODO: justifications dont work here as they only take the last row into consideration
     for point in data_points:
+        print('point '+point)
         justification_list = []
         last_row = df.iloc[point-1]
         row = df.iloc[point]
         delta_ram = row['ram'] - last_row['ram']
-        delta_cpu = row['cpu'] - last_row['ram']
+        delta_cpu = row['cpu'] - last_row['cpu']
         process_change = row['process_count_difference']
         warning = False
         if not ((delta_ram < 0 and delta_cpu < 0 and process_change < 0) or (
@@ -116,6 +121,7 @@ def justify_application_data_points(df: DataFrame, data_points: list, name: str)
             warning = True
         justification_data = JustificationData(
             application=name,
+            timestamp=last_row['measurement_time'],
             started=False,
             stopped=False,
             process_change=process_change,

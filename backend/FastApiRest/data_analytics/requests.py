@@ -170,6 +170,8 @@ def analyze_pc_data(df, pc_total_df):
     allocation_list_ram = [AllocationClass(name=key, allocation=value) for key, value in
                            allocation_map_ram.items()]  # convert map into list of our model object to send via json
 
+    #TODO: Fix cpu delta being calculated incorrectly
+    #TODO: Add total delta for ram and cpu events
     # get allocation percentage for cpu, no calculation needed
     allocation_list_cpu = []
     for index, row in df.iterrows():
