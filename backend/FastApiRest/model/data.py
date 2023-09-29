@@ -35,6 +35,7 @@ class EventAnomalyJustifications(BaseModel):  # class containing justifications 
     total_delta_ram: float
     total_delta_cpu: float
     pc_just_started: Optional[bool]
+    is_anomaly: bool
     justification_list: List[JustificationData]
 
 
@@ -106,7 +107,5 @@ class PCData(BaseModel):
     time_series_list: List[PCTimeSeriesData]
     allocation_list_ram: List[AllocationClass]
     allocation_list_cpu: List[AllocationClass]
-    ram_events: List[EventAnomalyJustifications]
-    cpu_events: List[EventAnomalyJustifications]
-    ram_anomalies: List[EventAnomalyJustifications]
-    cpu_anomalies: List[EventAnomalyJustifications]
+    ram_events_and_anomalies: List[EventAnomalyJustifications]
+    cpu_events_and_anomalies: List[EventAnomalyJustifications]

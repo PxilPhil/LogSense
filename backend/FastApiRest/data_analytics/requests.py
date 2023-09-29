@@ -126,16 +126,14 @@ def analyze_application_data(df, application_name):
     std_cpu = df['cpu'].std()
     mean_cpu = df['cpu'].mean()
     # find anomalies
-    #TODO: Implement new anomaly and event justification like for pc data
-    #TODO: On Insert we get duplicate data (why????)
     anomaly_measurements_ram = detect_anomalies(df, 'ram')
     anomaly_measurements_cpu = detect_anomalies(df, 'cpu')
 
-    ram_events = justify_application_data_points(df, ram_event_points, application_name)
-    cpu_events = []
-    print(ram_events)
+    ram_anomalies = justify_application_data_points(df, anomaly_measurements_ram, application_name, None, True)
+    ram_events_and_anomalies = justify_application_data_points(df, ram_event_points, application_name, ram_anomalies, False)
+    cpu_events_and_anomalies = justify_application_data_points(df, anomaly_measurements_ram, application_name, None, False)
 
-    return df, ram_events, cpu_events, anomaly_measurements_ram, anomaly_measurements_cpu, std_ram, std_cpu, mean_ram, mean_cpu
+    return df, ram_events_and_anomalies, cpu_events_and_anomalies, anomaly_measurements_ram, anomaly_measurements_cpu, std_ram, std_cpu, mean_ram, mean_cpu
 
 
 
@@ -170,8 +168,6 @@ def analyze_pc_data(df, pc_total_df):
     allocation_list_ram = [AllocationClass(name=key, allocation=value) for key, value in
                            allocation_map_ram.items()]  # convert map into list of our model object to send via json
 
-    #TODO: Fix cpu delta being calculated incorrectly
-    #TODO: Add total delta for ram and cpu events
     # get allocation percentage for cpu, no calculation needed
     allocation_list_cpu = []
     for index, row in df.iterrows():
@@ -185,13 +181,12 @@ def analyze_pc_data(df, pc_total_df):
     # detect changes / events
     ram_change_points = get_event_measurement_times(pc_total_df, 'ram')
 
-    # explain changes (events) and anomalies with EventLogs
-    ram_events = justify_pc_data_points(pc_total_df, ram_change_points, 1)  # TODO: change pc_id
-    cpu_events = justify_pc_data_points(pc_total_df, anomaly_measurements_cpu, 1)  # TODO: change pc_id
-    ram_anomalies = justify_pc_data_points(pc_total_df, anomaly_measurements_ram, 1)  # TODO: change pc_id
-    cpu_anomalies = cpu_events  # cpu events are the same as cpu anomalies
+    # justifies events and anomalies
+    ram_anomalies = justify_pc_data_points(pc_total_df, anomaly_measurements_ram, None, 1, True)  # TODO: change pc_id
+    ram_event_justifications = justify_pc_data_points(pc_total_df, ram_change_points, ram_anomalies, 1, False)  # TODO: change pc_id
+    cpu_event_anomaly_justifications = justify_pc_data_points(pc_total_df, anomaly_measurements_cpu, ram_event_justifications, 1, False)  # TODO: change pc_id
 
-    return pc_total_df, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu, ram_events, cpu_events, ram_anomalies, cpu_anomalies
+    return pc_total_df, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu, ram_event_justifications, cpu_event_anomaly_justifications
 
 
 def analyze_trends():

@@ -40,10 +40,8 @@ class ApplicationData(BaseModel):
     mean_ram: float
     mean_cpu: float
     time_series_data: List[ApplicationTimeSeriesData]
-    cpu_events: List[EventAnomalyJustifications]
-    ram_events: List[EventAnomalyJustifications]
-    cpu_anomalies: List[datetime]
-    ram_anomalies: List[datetime]
+    cpu_events_and_anomalies: List[EventAnomalyJustifications]
+    ram_events_and_anomalies: List[EventAnomalyJustifications]
 
 
 class ApplicationListObject(BaseModel):

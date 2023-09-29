@@ -69,7 +69,16 @@ def convert_to_data_frame(csv_string):
 def convert_column_to_list(df, column):
     return df[column].tolist()
 
+
 def add_justification_to_anomaly(anomaly_list: list, justification: EventAnomalyJustifications):
     for anomaly in anomaly_list:
         if anomaly.timestamp == justification.timestamp:
             anomaly.justification = justification
+
+
+def get_justification_contained(timestamp: datetime, justification_list: list[EventAnomalyJustifications]):
+    if justification_list is not None:
+        for justification in justification_list:
+            if timestamp == justification.timestamp:
+                return justification
+    return None
