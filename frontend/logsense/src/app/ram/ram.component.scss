@@ -47,11 +47,12 @@
   flex-direction: row;
   width: calc(100% - 96px);
   .first {
-    flex: 0 0 35%;
+    flex: 0 0 65%;
     width: 100%;
+    margin: 0 96px 0 0;
   }
   .second {
-    flex: 0 0 65%;
+    flex: 0 0 35%;
     width: 100%;
   }
 }
