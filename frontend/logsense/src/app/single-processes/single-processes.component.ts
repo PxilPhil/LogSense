@@ -45,7 +45,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadApplicationNameList();
-    //this.loadAlerts();  //TODO: insert again when endpoint is implemented
+    this.loadAlerts();
   }
 
   ngOnDestroy() {
@@ -57,6 +57,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
       this.ramChart.destroy();
     }
   }
+
 
   setData(): void {
     this.cpuData = this.getCpuData();
@@ -224,7 +225,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     this.selectedApplication.time_series_data.forEach(cpuUsageMeasurement => {
       data.measurementTime.push(this.datePipe.transform(cpuUsageMeasurement.measurement_time, 'MM-dd HH:mm') ?? "");
       //console.log(cpuUsageMeasurement.cpu);
-      data.usage.push(this.roundDecimalNumber(cpuUsageMeasurement.cpu, 5));
+      data.usage.push(this.roundDecimalNumber(cpuUsageMeasurement.cpu, 4));
     });
     //console.log(data);
     return data;
@@ -244,7 +245,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
     const seconds = date.getSeconds().toString().padStart(2, '0');
-    return `${hours} hours, ${minutes} minutes and ${seconds} seconds`;
+    return `${hours}:${minutes}:${seconds}`;
   }
 
   convertBytesToMegaBytes(valueInBytes: number): number {

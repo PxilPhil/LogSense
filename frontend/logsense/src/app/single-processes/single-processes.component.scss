@@ -67,12 +67,12 @@
 }
 .cpu-ram-container {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   .first {
-    margin: 0 32px 0 0;
+    margin: 0;
   }
   .second {
-    margin: 0 0 0 32px;
+    margin: 24px 0 0 0;
   }
 }
 .wrapper {
@@ -101,15 +101,6 @@
     }
     .second {
       width: 100%;
-    }
-  }
-  .cpu-ram-container {
-    flex-direction: column;
-    .first {
-      margin: 0;
-    }
-    .second {
-      margin: 24px 0 0 0;
     }
   }
   .hidden {

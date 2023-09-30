@@ -53,7 +53,7 @@
           </div>
         </div>
         <div>
-          <span class="txt-16">running for: {{formatUpTime(latestApplicationMeasurement.uptime)}}</span>
+          <span class="mar-left-24 txt-16">running for: {{formatUpTime(latestApplicationMeasurement.uptime)}}</span>
         </div>
       </div>
       <div *ngIf="isApplicationSelected" class="grey-box cpu-ram-container w-100 mar-top-24">
@@ -117,7 +117,7 @@
           </div>
         </div>
       </div>
-      <div [ngClass]="{'w-100': !isApplicationSelected, 'mar-top-32 w-100': isApplicationSelected}">
+      <div *ngIf="alerts.length>0" [ngClass]="{'w-100': !isApplicationSelected, 'mar-top-32 w-100': isApplicationSelected}">
         <h2 class="mar-bot-24 mar-bot">Alerts</h2>
         <div class="grey-box w-100">
           <div *ngFor="let alert of alerts; let last = last" [ngClass]="{'mar-bot-12': !last}"
