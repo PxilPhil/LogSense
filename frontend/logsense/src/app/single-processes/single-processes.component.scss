@@ -65,7 +65,16 @@
   height: 100vh;
   width: 200vh;
 }
-
+.cpu-ram-container {
+  display: flex;
+  flex-direction: row;
+  .first {
+    margin: 0 32px 0 0;
+  }
+  .second {
+    margin: 0 0 0 32px;
+  }
+}
 .wrapper {
   display: flex;
   flex-direction: row;
@@ -93,5 +102,17 @@
     .second {
       width: 100%;
     }
+  }
+  .cpu-ram-container {
+    flex-direction: column;
+    .first {
+      margin: 0;
+    }
+    .second {
+      margin: 24px 0 0 0;
+    }
+  }
+  .hidden {
+    transform: translate(-76px, 150px);
   }
 }
