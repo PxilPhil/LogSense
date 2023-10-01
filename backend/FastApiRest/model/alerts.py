@@ -17,7 +17,7 @@ class CustomCondition(BaseModel):
     conditions: Optional[List[CustomCondition]] = None  # maybe replace with CustomCondition
 
 
-class CustomAlertObject(BaseModel):
+class CustomAlert(BaseModel):
     user_id: int
     type: str
     message: str
@@ -26,14 +26,14 @@ class CustomAlertObject(BaseModel):
 
 
 class CustomAlerts(BaseModel):
-    custom_alert_list: List[CustomAlertObject]
+    custom_alert_list: List[CustomAlert]
 
-class InjestCustomAlertObject(BaseModel):
+class CustomAlertDBObject(BaseModel):
     user_id: int
     type: str
     message: str
     severity_level: int
     conditions: str
 
-class InjestCustomAlerts(BaseModel):
-    custom_alert_list: List[InjestCustomAlertObject]
+class IngestCustomAlert(BaseModel):
+    custom_alert_list: List[CustomAlertDBObject]

@@ -9,6 +9,7 @@ from data_analytics.change_detection import get_event_measurement_times, detect_
 from data_analytics.forecasting import fit_linear_regression, predict_for_df
 from data_analytics.justification import justify_pc_data_points, justify_application_data_points
 from data_analytics.manipulation import determine_stability
+from db_access.alerts import getCustomAlerts
 from db_access.data import get_moving_avg_of_application
 from db_access.pc import get_latest_moving_avg
 from db_access.helper import get_pcid_by_stateid
@@ -209,3 +210,15 @@ def analyze_trends():
     Analyzes application & pc trends, in order for that it groups data sets by date intervals
     :return:
     """
+
+def check_for_alerts(user_id, start, end):
+    """
+    Checks for alerts that have appeared in a specified timeframe
+    :return:
+    """
+
+    #first check for custom alerts
+    custom_alerts = getCustomAlerts(user_id)
+
+    print(custom_alerts)
+

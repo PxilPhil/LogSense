@@ -4,7 +4,7 @@ from db_access.application import get_latest_application_data, get_application_b
 from db_access.pc import select_recent_state, get_recent_pc_total_data, get_total_pc_application_data_between
 from model.data import EventData
 from model.data import AnomalyData
-from model.alerts import CustomAlerts, CustomAlertObject, CustomCondition
+from model.alerts import CustomAlerts, CustomAlert, CustomCondition
 from scipy import stats
 from data_analytics import manipulation
 

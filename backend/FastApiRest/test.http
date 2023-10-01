@@ -113,13 +113,16 @@ GET http://localhost:8000/pc/1/data/GPU?start=2023-07-25 10:20:16&end=2023-12-25
 GET http://localhost:8000/pc/1/application/chrome?start=2023-07-25 10:20:16&end=2023-09-25 10:33:01
 
 ### get list of applications
-GET http://localhost:8000/pc/1/application/?start=2023-07-25 10:20:16&end=2023-12-25 10:33:01
+GET http://localhost:8000/pc/1/application/?start=2022-07-25 10:20:16&end=2023-12-25 10:33:01
 
 ### get forecast of available disk space
 GET http://localhost:8000/pc/1/data/forecast/30
 
-### get all user alerts between a timespan
-GET http://localhost:8000/user/1?start=2023-07-20 10:20:16&end=2024-07-20 10:20:16
+### get alerts
+GET http://localhost:8000/alerts/1?start=2022-07-25 10:20:16&end=2023-12-25 10:33:01
+
+### get all possible alerts
+GET http://localhost:8000/alerts/all/1
 
 ### get application data bucketed ###
 GET http://localhost:8000/pc/1/application/chrome/bucket/?start=2023-07-25 10:20:16&end=2023-07-25 10:33:01&bucket_value=5 minutes
@@ -202,19 +205,14 @@ Content-Type: application/json
         "severity_level": 5,
         "conditions": [
             {
-                "order": 1,
-                "logical_condition": "OR",
                 "conditions": [
                     {
-                        "order": 1,
                         "percentage_trigger_value": 0.9,
                         "operator": ">=",
                         "column": "ram",
-                        "application": "chrome",
-                        "logical_condition": "AND"
+                        "application": "chrome"
                     },
                     {
-                        "order": 2,
                         "percentage_trigger_value": 0.5,
                         "operator": ">=",
                         "column": "cpu",
@@ -223,7 +221,6 @@ Content-Type: application/json
                 ]
             },
             {
-                "order": 2,
                 "absolute_trigger_value": 5000000000,
                 "operator": ">=",
                 "column": "ram",

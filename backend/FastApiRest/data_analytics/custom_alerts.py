@@ -2,10 +2,10 @@ from typing import List
 
 from db_access.application import get_latest_application_data, get_application_between
 from db_access.pc import select_recent_state, get_recent_pc_total_data, get_total_pc_application_data_between
-from model.alerts import CustomAlerts, CustomAlertObject, CustomCondition
+from model.alerts import CustomAlerts, CustomAlert, CustomCondition
 from data_analytics import manipulation
 
-def check_custom_alerts(pc_id, df, pc_total_df, custom_alerts: List[CustomAlertObject]):
+def check_custom_alerts(pc_id, df, pc_total_df, custom_alerts: List[CustomAlert]):
     """
     Checks data that was requested if any custom alerts have occurred
     :param df:

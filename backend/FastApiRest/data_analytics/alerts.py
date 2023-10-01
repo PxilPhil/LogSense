@@ -4,7 +4,7 @@ from db_access.application import get_latest_application_data, get_application_b
 from db_access.pc import select_recent_state, get_recent_pc_total_data, get_total_pc_application_data_between
 from model.data import EventData
 from model.data import AnomalyData
-from model.alerts import CustomAlerts, CustomAlertObject, CustomCondition
+from model.alerts import CustomAlerts, CustomAlert, CustomCondition
 from scipy import stats
 from data_analytics import manipulation
 
@@ -18,82 +18,6 @@ event_sensitivity_cpu = 0.1
 Event Sensitivity for RAM is always the percentual value of the difference between the current value and the moving average of the last 5 rows
 Event Sensitivity for CPU is always a percentual limiter, e.g. the pc cpu allocation has to rise by 10% to be registered as an event
 """
-
-
-def has_event_occurred(df, moving_avg_ram, moving_avg_cpu):
-    percentual_change = df['residentSetSize'].values[0] / moving_avg_ram
-    if abs(percentual_change - 1) > event_sensitivity_ram_occurrence or (
-            df['cpuUsage'].values[0] - moving_avg_cpu) > event_sensitivity_cpu_occurrence:
-        return True
-    return False
-
-
-# TODO: Merge the event detection methods
-def detect_ram_event(selected_row, column, moving_avg, event_list, application):
-    percentual_change = selected_row[column].values[0] / moving_avg
-    event_header = selected_row['processCountDifference'].values[0]
-    if abs(percentual_change - 1) > event_sensitivity_ram:
-        if (percentual_change > 1 and event_header > 0) or (percentual_change < 1 and event_header < 0):
-            event_data = EventData(timestamp=selected_row.index.values[0], anomaly_type=1, change=percentual_change,
-                                   application=application, column=column)
-            event_list.append(event_data)
-        else:
-            event_data = EventData(timestamp=selected_row.index.values[0], anomaly_type=2, change=percentual_change,
-                                   application=application, column=column)
-            event_list.append(event_data)
-
-
-def detect_cpu_event(selected_row, column, moving_avg, event_list, application):
-    difference = selected_row[column].values[0] - moving_avg
-    event_header = selected_row['processCountDifference'].values[0]
-    if abs(difference) > event_sensitivity_cpu:
-        if (difference > 0 and event_header > 0) or (difference < 0 and event_header < 0):
-            event_data = EventData(timestamp=selected_row.index.values[0], anomaly_type=3, change=difference,
-                                   application=application, column=column)
-            event_list.append(event_data)
-        else:
-            event_data = EventData(timestamp=selected_row.index.values[0], anomaly_type=4, change=difference,
-                                   application=application, column=column)
-            event_list.append(event_data)
-
-
-def detect_multiple_events(selected_row, application_name):
-    event_list = []
-    selected_row['percentage_change'] = selected_row['ram'] / selected_row['rolling_avg_ram'].shift()
-    selected_row['cpu_difference'] = selected_row['cpu'] - selected_row['rolling_avg_cpu'].shift()
-    selected_row = selected_row.dropna()
-    previous_was_flagged = False
-    for index, row in selected_row.iterrows():
-        percentual_change = row['percentage_change']
-        cpu_difference = row['cpu_difference']
-        event_header = row['process_count_difference']
-        # check for ram events
-        if abs(percentual_change - 1) > event_sensitivity_ram:
-            if (percentual_change > 1 and event_header > 0) or (percentual_change < 1 and event_header < 0):
-                event_data = EventData(timestamp=row['measurement_time'], anomaly_type=1, change=percentual_change,
-                                       application=application_name, column='ram')
-                event_list.append(event_data)
-            elif not previous_was_flagged:
-                event_data = EventData(timestamp=row['measurement_time'], anomaly_type=2, change=percentual_change,
-                                       application=application_name, column='ram')
-                event_list.append(event_data)
-            previous_was_flagged = True
-        else:
-            previous_was_flagged = False
-        # check for cpu events
-        if cpu_difference > event_sensitivity_cpu:
-            if (cpu_difference > 0 and event_header > 0) or (cpu_difference < 0 and event_header < 0):
-                event_data = EventData(timestamp=row['measurement_time'], anomaly_type=3, change=cpu_difference,
-                                       application=application_name, column='cpu')
-                event_list.append(event_data)
-            elif not previous_was_flagged:
-                event_data = EventData(timestamp=row['measurement_time'], anomaly_type=4, change=cpu_difference,
-                                       application=application_name, column='cpu')
-                event_list.append(event_data)
-            previous_was_flagged = True
-        else:
-            previous_was_flagged = False
-    return event_list
 
 
 def detect_anomalies(df, first_column, second_column):
@@ -119,8 +43,7 @@ def detect_anomalies_via_score(anomaly_list, anomaly_df, column):
         anomaly_list.append(anomaly_data)
 
 
-def check_custom_alerts(pc_id, df, pc_total_df, custom_alerts: List[
-    CustomAlertObject]):
+def check_custom_alerts(pc_id, df, pc_total_df, custom_alerts: List[CustomAlert]):
     """
     Checks data that was requested if any custom alerts have occurred
     :param df:
@@ -137,10 +60,13 @@ def check_custom_alerts(pc_id, df, pc_total_df, custom_alerts: List[
     for alert in custom_alerts:
         for condition in alert.conditions:
             if condition.degree_trigger_value:
-                process_degree_trigger(condition, pc_id, df)
+                print('degree not implemented')
+                # process_degree_trigger(condition, pc_id, df)
             elif condition.percentage_trigger_value:
+                # finished
                 process_percentage_trigger(condition, df)
             elif condition.absolute_trigger_value:
+                # finished
                 process_absolute_trigger(condition, pc_total_df, df)
 
 
@@ -168,43 +94,37 @@ def process_degree_trigger(condition, pc_id, df):
             print(recent_pc_df)
 
 
-def process_percentage_trigger(condition, df):
+def process_percentage_trigger(condition, df) -> bool:
     if condition.application:
         application_df = manipulation.select_rows_by_application(condition.application, df)
-        check_relative_condition(application_df, condition)
+        return check_percentage_trigger(application_df, condition)
     else:
-        check_relative_condition(df, condition)
+        return check_percentage_trigger(df, condition)
 
 
-def process_absolute_trigger(condition, pc_total_df, df):
+def process_absolute_trigger(condition, pc_total_df, df) -> bool:
     if condition.application:
         application_df = manipulation.select_rows_by_application(condition.application, df)
-        check_absolute_condition(application_df, condition)
+        return check_absolute_condition(application_df, condition)
     else:
-        check_absolute_condition(pc_total_df, condition)
+        return check_absolute_condition(pc_total_df, condition)
 
 
-def check_absolute_condition(df, condition):
+def check_absolute_condition(df, condition) -> bool:
     if df[condition.column].values[0] >= condition.absolute_trigger_value:
         return True
     return False
 
 
-def check_relative_condition(df, condition):
+def check_percentage_trigger(df, condition) -> bool:
     # TODO: Make this more universal for everything later on
-    if str.lower(condition.column) == "ram":
-        state_dict = select_recent_state()
-        if df.iloc[0][condition.column] / state_dict[condition.column]:
-            return True
-        return False
-    if str.lower(condition.column) == "cpu":
-        if df[condition.column].values[0] >= condition.relative_trigger_value:
-            return True
-        return False
-    print('not implemented yet')
+    state_dict = select_recent_state()
+    if df.iloc[0][condition.column] / state_dict[condition.column] > condition.percentage_trigger_value:
+        return True
     return False
 
-def check_degree_condition(current_df, prev_df, condition):
+
+def check_degree_condition(current_df, prev_df, condition) -> bool:
     # Divide current column by last (oldest) row of the previous rows
     # delta_y_value = current_df.iloc[0][condition.column]-prev_df.iloc[-1][condition.column]
     delta_y_value = current_df.iloc[0][condition.column] - prev_df[prev_df.index.min()][condition.column]
