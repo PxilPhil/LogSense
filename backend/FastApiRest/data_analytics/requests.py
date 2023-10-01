@@ -4,6 +4,7 @@ import warnings
 from pandas import DataFrame
 
 from data_analytics import involvement, manipulation, custom_alerts, stats
+from data_analytics.alerts import check_custom_alerts
 from data_analytics.anomaly_detection import detect_anomalies
 from data_analytics.change_detection import get_event_measurement_times, detect_events
 from data_analytics.forecasting import fit_linear_regression, predict_for_df
@@ -218,7 +219,7 @@ def check_for_alerts(user_id, start, end):
     """
 
     #first check for custom alerts
-    custom_alerts = getCustomAlerts(user_id)
+    found_custom_alerts = getCustomAlerts(user_id)
 
-    print(custom_alerts)
+    # check for standard alerts
 

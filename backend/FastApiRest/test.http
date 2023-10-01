@@ -139,96 +139,78 @@ POST http://localhost:8000/alerts
 Content-Type: application/json
 
 {
-  "custom_alert_list":
-[
+  "custom_alert_list": [
     {
-        "user_id": 1,
-        "type": "Breaking threshold alert for chrome",
-        "message": "Chrome has broken a defined threshold (90% RAM usage per pc or went over 5GB absolute usage)",
-        "severity_level": 5,
-        "conditions": [
-            {
-                "percentage_trigger_value": 0.9,
-                "operator": ">=",
-                "column": "ram",
-                "application": "chrome"
-            }
-        ]
+      "user_id": 1,
+      "type": "Breaking threshold alert for PC RAM",
+      "message": "Breaking threshold alert for PC RAM",
+      "severity_level": 5,
+      "conditions": [
+        {
+          "percentage_trigger_value": 0.9,
+          "operator": ">=",
+          "column": "ram"
+        }
+      ]
     },
     {
-        "user_id": 1,
-        "type": "RAM leak detected",
-        "message": "A RAM leak has been detected on this pc",
-        "severity_level": 5,
-        "conditions": [
-            {
-                "degree_trigger_value": 45,
-                "operator": ">=",
-                "column": "ram",
-                "lookback_time": 10
-            }
-        ]
+      "user_id": 1,
+      "type": "Breaking threshold alert for chrome",
+      "message": "Chrome has broken a defined threshold (90% RAM usage per pc or went over 5GB absolute usage)",
+      "severity_level": 5,
+      "conditions": [
+        {
+          "percentage_trigger_value": 0.9,
+          "operator": ">=",
+          "column": "ram",
+          "application": "chrome"
+        }
+      ]
     },
     {
-        "user_id": 1,
-        "type": "Rapid increase in disk space usage",
-        "message": "A rapid increase in disk space usage has been detected",
-        "severity_level": 4,
-        "conditions": [
-            {
-                "degree_trigger_value": 10,
-                "operator": ">=",
-                "column": "free_disk_space",
-                "application": "pc",
-                "start_date": "2023-07-25T00:00:00Z"
-            }
-        ]
+      "user_id": 1,
+      "type": "Breaking absolute threshold alert for chrome",
+      "message": "Chrome has broken a defined threshold of 5GB",
+      "severity_level": 5,
+      "conditions": [
+        {
+          "absolute_trigger_value": 5000000000,
+          "operator": ">=",
+          "column": "ram",
+          "application": "chrome"
+        }
+      ]
     },
     {
-        "user_id": 1,
-        "type": "Breaking absolute threshold alert for chrome",
-        "message": "Chrome has broken a defined threshold of 5GB",
-        "severity_level": 5,
-        "conditions": [
+      "user_id": 1,
+      "type": "Combined threshold alert for chrome",
+      "message": "Chrome has broken a defined threshold (90% RAM usage per pc combined with 50% CPU usage or went over 5GB absolute usage)",
+      "severity_level": 5,
+      "conditions": [
+        {
+          "combined_conditions": [
             {
-                "absolute_trigger_value": 5000000000,
-                "operator": ">=",
-                "column": "ram",
-                "application": "chrome"
-            }
-        ]
-    },
-    {
-        "user_id": 1,
-        "type": "Combined threshold alert for chrome",
-        "message": "Chrome has broken a defined threshold (90% RAM usage per pc combined with 50% CPU usage or went over 5GB absolute usage)",
-        "severity_level": 5,
-        "conditions": [
-            {
-                "conditions": [
-                    {
-                        "percentage_trigger_value": 0.9,
-                        "operator": ">=",
-                        "column": "ram",
-                        "application": "chrome"
-                    },
-                    {
-                        "percentage_trigger_value": 0.5,
-                        "operator": ">=",
-                        "column": "cpu",
-                        "application": "chrome"
-                    }
-                ]
+              "percentage_trigger_value": 0.9,
+              "operator": ">=",
+              "column": "ram",
+              "application": "chrome"
             },
             {
-                "absolute_trigger_value": 5000000000,
-                "operator": ">=",
-                "column": "ram",
-                "application": "chrome"
+              "percentage_trigger_value": 0.5,
+              "operator": ">=",
+              "column": "cpu",
+              "application": "chrome"
             }
-        ]
+        },
+        {
+          "absolute_trigger_value": 5000000000,
+          "operator": ">=",
+          "column": "ram",
+          "application": "chrome"
+        }
+      ]
     }
-]
+  ]
 }
 
 ###

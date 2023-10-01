@@ -5,6 +5,7 @@ import numpy as np
 import io
 from datetime import datetime, timedelta
 
+from model.alerts import CustomAlert
 from model.data import EventAnomalyJustifications
 
 """
@@ -91,3 +92,4 @@ def get_justification_contained(timestamp: datetime, justification_list: list[Ev
             if timestamp == justification.timestamp:
                 return justification
     return None
+

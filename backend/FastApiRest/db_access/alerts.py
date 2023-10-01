@@ -30,7 +30,7 @@ def injestCustomAlerts(alerts: CustomAlerts):
         """
         alert_tuples = []
         for alert in alerts.custom_alert_list:
-            conditions_json = json.dumps(alert.conditions, default=lambda o: o.__dict__, indent=4)
+            conditions_json = json.dumps(alert.conditions)
             alert_tuples.append((alert.user_id, alert.type, alert.severity_level, alert.message, conditions_json))
         psycopg2.extras.execute_values(cursor, insert_query, alert_tuples)
 
@@ -43,7 +43,7 @@ def injestCustomAlerts(alerts: CustomAlerts):
     finally:
         conn_pool.putconn(conn)
 
-def getCustomAlerts(user_id: int) -> List[CustomAlert]:
+def getCustomAlerts(user_id: int) -> CustomAlerts:
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
@@ -66,7 +66,7 @@ def getCustomAlerts(user_id: int) -> List[CustomAlert]:
                     type=anomaly[2],
                     message=anomaly[4],
                     severity_level=anomaly[3],
-                    conditions=[CustomCondition(**json.loads(item)) for item in anomaly[5]]
+                    conditions=json.loads(anomaly[5], object_hook=lambda d: CustomCondition(**d))
                 )
                 for anomaly in anomalies
             ]
@@ -75,8 +75,7 @@ def getCustomAlerts(user_id: int) -> List[CustomAlert]:
         return custom_alerts
     except Exception as e:
         print(str(e))
-        #if e.pgerror == psycopg2.errorcodes.INVALID_TEXT_REPRESENTATION:
-        #    raise InvalidParametersException()
-        raise e#DataBaseException()
+        # Handle exceptions as needed.
+        raise e  # DataBaseException()
     finally:
         conn_pool.putconn(conn)

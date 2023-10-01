@@ -123,12 +123,3 @@ def check_percentage_trigger(df, condition) -> bool:
         return True
     return False
 
-
-def check_degree_condition(current_df, prev_df, condition) -> bool:
-    # Divide current column by last (oldest) row of the previous rows
-    # delta_y_value = current_df.iloc[0][condition.column]-prev_df.iloc[-1][condition.column]
-    delta_y_value = current_df.iloc[0][condition.column] - prev_df[prev_df.index.min()][condition.column]
-    degree_value = delta_y_value / (len(prev_df) + len(current_df))
-    if degree_value > condition.degree_trigger_value:
-        return True
-    return False
