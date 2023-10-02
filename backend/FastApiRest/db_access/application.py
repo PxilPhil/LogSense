@@ -81,6 +81,8 @@ def get_application_list(pc_id: int, start, end):
         pc.pc_id = %s AND
         app.measurement_time BETWEEN %s AND %s
         GROUP BY
+        app.name
+        ORDER BY 
         app.name"""
 
         cursor.execute(select_app_list_query, (pc_id, start, end))
@@ -99,7 +101,7 @@ def get_application_list(pc_id: int, start, end):
         conn_pool.putconn(conn)
 
 
-def get_relevant_application_data(pc_id: int, measurement_time, limit, ram_threshold, cpu_threshold):  # gets all data contained in application data table
+def get_relevant_application_data(pc_id: int, measurement_time, ram_threshold, cpu_threshold):  # gets all data contained in application data table
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:

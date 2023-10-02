@@ -9,7 +9,7 @@ from db_access.application import get_latest_application_data
 from data_analytics import requests
 from exceptions.DataBaseInsertExcepion import DataBaseInsertException
 from exceptions.InvalidParametersException import InvalidParametersException
-from model.pc import PCItem, ForecastResult, ForecastData, DISKS, Network
+from model.pc import PCItem, ForecastResult, ForecastData, DISKS, Network, PCSpecs
 from model.data import PCData
 
 pc = APIRouter()
@@ -80,7 +80,7 @@ def get_pc_data(pc_id: int, start: str, end: str):
     df, application_data_list = get_latest_application_data(pc_id, 1, None)
     if df is None or total_df is None:
         raise InvalidParametersException()
-    pc_total_df, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu, ram_events, cpu_events, ram_anomalies, cpu_anomalies = requests.analyze_pc_data(
+    pc_total_df, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu, ram_events_anomalies, cpu_events_anomalies, cov_ram, cov_cpu, stability_ram, stability_cpu = requests.analyze_pc_data(
         df, total_df)
 
 
@@ -92,13 +92,15 @@ def get_pc_data(pc_id: int, start: str, end: str):
         mean_ram=mean_ram,
         standard_deviation_cpu=std_cpu,
         mean_cpu=mean_cpu,
+        cov_ram=cov_ram,
+        cov_cpu=cov_cpu,
+        stability_ram=stability_ram,
+        stability_cpu=stability_cpu,
         time_series_list=total_data_list,
         allocation_list_ram=allocation_list_ram,
         allocation_list_cpu=allocation_list_cpu,
-        ram_events=ram_events,
-        cpu_events=cpu_events,
-        ram_anomalies=ram_anomalies,
-        cpu_anomalies=cpu_anomalies
+        ram_events_and_anomalies=ram_events_anomalies,
+        cpu_events_and_anomalies=cpu_events_anomalies
     )
 
     print(pc_data)
@@ -188,3 +190,19 @@ def forecast_free_disk_space(pc_id: int, days: int):
         return forecast_result
     except Exception as e:
         raise InvalidParametersException()
+
+
+@pc.get('/general_specs/{user_id}', response_model=PCSpecs, tags=["PC"])
+def get_pc_by_user_id(user_id: str):
+    """
+    Get specs of PC by user ID.
+
+    Args:
+        user_id (str): The user ID to filter PCs.
+
+    Returns:
+        dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
+    """
+
+    specs = db_access.pc.general_specs(user_id)
+    return specs
