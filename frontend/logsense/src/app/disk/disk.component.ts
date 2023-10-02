@@ -35,6 +35,8 @@ export class DiskComponent implements OnInit, OnDestroy {
   diskData: DiskData = new DiskData();
   pcData: PCData = new PCData();
   latestPCDataMeasurement: PCTimeSeriesData = new PCTimeSeriesData();
+  diskTotal: string = "platzhalter"; // TODO
+  diskFree: string = "platzhalter";
 
   diskChart: Chart | undefined;
 
@@ -60,6 +62,7 @@ export class DiskComponent implements OnInit, OnDestroy {
     }
   }
 
+
   loadDiskData() {
     this.diskDataService.getDiskData(1 /* TODO: get dynamic pc id */).subscribe((data: DiskData) => {
       this.diskData = data;
@@ -68,11 +71,19 @@ export class DiskComponent implements OnInit, OnDestroy {
 
   loadPCData() {
     let dateNow = Date.now();
-    this.pcDataService.getPcData(1 /* TODO: get dynamic pc id */, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: PCData) => {
-      this.pcData = data;
-      this.latestPCDataMeasurement = this.getLatestPCDataMeasurement();
-      this.diskUsageChart();
-    });
+    if(this.selectedTime.valueInMilliseconds == 0) {
+      this.pcDataService.getPcData(1 /* TODO: get dynamic pc id */, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: PCData) => {
+        this.pcData = data;
+        this.latestPCDataMeasurement = this.getLatestPCDataMeasurement();
+        this.diskUsageChart();
+      });
+    } else {
+      this.pcDataService.getPcData(1 /* TODO: get dynamic pc id */, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: PCData) => {
+        this.pcData = data;
+        this.latestPCDataMeasurement = this.getLatestPCDataMeasurement();
+        this.diskUsageChart();
+      });
+    }
   }
 
   getLatestPCDataMeasurement(): PCTimeSeriesData {

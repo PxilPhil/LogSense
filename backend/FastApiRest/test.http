@@ -48,7 +48,7 @@ Content-Type: application/json
 
 {
   "user_id": "1",
-  "hardware_uuid": "4C4C4544-0052-5210-8050-C8C04F385932",
+  "hardware_uuid": "D185977D-3FC7-EB11-80C1-E4A8DFFF5ACC",
   "client_name": "Test Client"
 }
 
@@ -104,22 +104,22 @@ timestamp|displayName
 Content-Disposition: form-data; name="files[]"; filename="file2.txt"
 
 ### get pc data ###
-GET http://localhost:8000/pc/1/data?start=2023-07-25 10:20:16&end=2023-07-25 10:33:01
+GET http://localhost:8000/pc/1/data?start=2023-09-20 10:20:16&end=2023-09-29 23:33:01
 
 ### get pc invalid data ###
 GET http://localhost:8000/pc/1/data/GPU?start=2023-07-25 10:20:16&end=2023-07-25 10:33:01
 
 ### get application data ###
-GET http://localhost:8000/pc/1/application/chrome?start=2023-07-25 10:20:16&end=2023-07-25 10:33:01
+GET http://localhost:8000/pc/1/application/chrome?start=2023-09-25 10:20:16&end=2023-09-29 23:33:01
 
 ### get list of applications
-GET http://localhost:8000/pc/1/application/?start=2023-07-25 10:20:16&end=2023-07-25 10:33:01
+GET http://localhost:8000/pc/1/application/?start=2023-09-20 10:20:16&end=2023-09-29 23:33:01
 
 ### get forecast of available disk space
 GET http://localhost:8000/pc/1/data/forecast/30
 
 ### get all user alerts between a timespan
-GET http://localhost:8000/user/1?start=2023-07-20 10:20:16&end=2024-07-20 10:20:16
+GET http://localhost:8000/user/1?start=2023-09-20 10:20:16&end=2024-09-30 20:20:16
 
 ### get application data bucketed ###
 GET http://localhost:8000/pc/1/application/chrome/bucket/?start=2023-07-25 10:20:16&end=2023-07-25 10:33:01&bucket_value=5 minutes

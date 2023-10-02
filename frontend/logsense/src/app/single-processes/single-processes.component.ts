@@ -111,14 +111,24 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
   loadApplicationData(applicationName: string): void {
     this.isApplicationSelected = true;
     let dateNow = Date.now();
-    this.applicationService.getApplicationByApplicationName(1, applicationName, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: Application) => {
-      this.selectedApplication = data;
-      //console.log(data);
-      this.latestApplicationMeasurement = this.getLatestApplicationMeasurementOfSelectedApplication();
-      this.setData();
-      this.cpuUsageChart();
-      this.ramUsageChart();
-    });
+    if(this.selectedTime.valueInMilliseconds == 0) {
+      this.applicationService.getApplicationByApplicationName(1, applicationName, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: Application) => {
+        this.selectedApplication = data;
+        this.latestApplicationMeasurement = this.getLatestApplicationMeasurementOfSelectedApplication();
+        this.setData();
+        this.cpuUsageChart();
+        this.ramUsageChart();
+      });
+    } else {
+      this.applicationService.getApplicationByApplicationName(1, applicationName, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: Application) => {
+        this.selectedApplication = data;
+        //console.log(data);
+        this.latestApplicationMeasurement = this.getLatestApplicationMeasurementOfSelectedApplication();
+        this.setData();
+        this.cpuUsageChart();
+        this.ramUsageChart();
+      });
+    }
   }
 
   reloadApplicationDataOnTimesSelectionChange() {

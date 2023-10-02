@@ -5,12 +5,16 @@
   </div>
   <h2 class="mar-left-64 mar-top-32">Usage</h2>
   <div class="pad-right-128 pad-left-64 mar-top-32 w-100">
-    <div class="grey-box flex-start w-100">
-      <div class="mar-right-96">
-        <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24">
-          <option *ngFor="let elem of times" [ngValue]="elem">{{elem.time}}</option>
-        </select>
-        <canvas class="white-bg w-100" id="disk"></canvas>
+    <div class="grey-box w-100 wrapper">
+      <div class="wrap-select">
+        <div>
+          <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24" (ngModelChange)="loadPCData()">
+            <option *ngFor="let elem of times" [ngValue]="elem">{{elem.time}}</option>
+          </select>
+        </div>
+        <div class="chart">
+          <canvas class="white-bg" id="disk"></canvas>
+        </div>
         <div class="flex-center mar-top-12">
           <div class="form-check">
             <input type="checkbox" [(ngModel)]="isShowEventsChecked" (change)="reloadChart()" class="form-check-input" checked>
@@ -35,29 +39,28 @@
               <span class="txt-16">Free Disk Space</span>
             </div>
             <div class="align-txt mar-left-32">
-              <span class="txt-16"> <!--{{disk.totalMemory}}--> 1024 GB</span>
-              <span class="txt-16">{{this.roundDecimalNumber(this.convertBytesToGigaBytes(latestPCDataMeasurement.free_disk_space), 2)}} GB</span>
+              <span class="txt-16">{{this.diskTotal}}</span>
+              <span class="txt-16">{{this.diskFree}}</span>
             </div>
           </div>
-
+          <mat-divider class="mar-top-12"></mat-divider>
+          <!--
           <div class="boxes mar-top-12">
             <div class="white-box txt-16">Current
-              <div class="value">
-                <!--{{disk.current}}--> 25%
+              <div class="value">25%
               </div>
             </div>
             <div class="white-box txt-16 mar-left-12">
               Average
-              <div class="value">
-                <!--{{disk.average}}--> 20.03%
+              <div class="value">20.03%
               </div>
             </div>
             <div class="white-box txt-16 mar-left-12">Stability
-              <div class="value">
-                <!--{{disk.stability}}--> High
+              <div class="value">High
               </div>
             </div>
           </div>
+          -->
           <div class="align-notes mar-top-16">
             <span *ngFor="let stat of statistics" class="txt-16 mar-bot-5">{{stat}}</span>
           </div>
@@ -71,7 +74,7 @@
       <div class="grey-box w-100">
         <div *ngFor="let alert of alerts; let last = last" [ngClass]="{'mar-bot-12': !last}"
              class="alert-box flex-center">
-          <mat-icon class="icon-32 icon">warning</mat-icon>
+          <mat-icon class="icon-32">warning</mat-icon>
           <span class="mar-left-32 txt-16">{{alert}}</span>
         </div>
       </div>
@@ -102,7 +105,5 @@
       </table>
     </div>
   </div>
-
-  <!--Modal-->
 
 </div>

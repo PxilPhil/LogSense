@@ -5,7 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a3b0c86a-56b9-40a5-bdfe-abebb08d5502" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../../backend/LogSense/logsense" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/LogSense/logsense" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../backend/FastApiRest/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/FastApiRest/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/FastApiRest/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/FastApiRest/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/FastApiRest/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/FastApiRest/test.http" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/FastApiRest/test.http" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/app.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.scss" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/services/api-service.service.spec.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/services/api-service.service.spec.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/single-processes/single-processes.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/single-processes/single-processes.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/styles.scss" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/styles.scss" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,7 +44,7 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/philipp.borbely/Documents/LogSenseRepo/logsense/agent/LogSenseAgent&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/School/LogSense/logsense/agent/LogSenseAgent&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -63,6 +76,21 @@
       <workItem from="1689059525455" duration="8300000" />
       <workItem from="1689146300117" duration="20269000" />
       <workItem from="1689233986647" duration="12000" />
+      <workItem from="1695279419975" duration="654000" />
+      <workItem from="1695289020186" duration="1333000" />
+      <workItem from="1695468426705" duration="664000" />
+      <workItem from="1695481846376" duration="678000" />
+      <workItem from="1695627437474" duration="1238000" />
+      <workItem from="1695641657153" duration="794000" />
+      <workItem from="1695661951137" duration="691000" />
+      <workItem from="1695710386845" duration="1932000" />
+      <workItem from="1695742122283" duration="624000" />
+      <workItem from="1695823769766" duration="917000" />
+      <workItem from="1695923403897" duration="998000" />
+      <workItem from="1695996703191" duration="650000" />
+      <workItem from="1696059046725" duration="675000" />
+      <workItem from="1696070931293" duration="652000" />
+      <workItem from="1696230775482" duration="752000" />
     </task>
     <servers />
   </component>
