@@ -1,7 +1,10 @@
 from __future__ import annotations
+
+from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel
 
+from model.data import JustificationData
 
 
 class CustomCondition(BaseModel):
@@ -11,7 +14,8 @@ class CustomCondition(BaseModel):
     operator: str
     column: str
     application: Optional[str] = None
-    timespan: Optional[int] = None
+    detect_via_moving_averages: bool
+
 
 class CustomAlert(BaseModel):
     user_id: int
@@ -19,6 +23,7 @@ class CustomAlert(BaseModel):
     message: str
     severity_level: int
     conditions: List[CustomCondition] = []
+
 
 class CustomAlerts(BaseModel):
     custom_alert_list: List[CustomAlert] = []
@@ -34,5 +39,18 @@ class CustomAlertDBObject(BaseModel):
     severity_level: int
     conditions: str
 
+
 class IngestCustomAlert(BaseModel):
     custom_alert_list: List[CustomAlertDBObject]
+
+
+class DetectedAlertData(BaseModel):  # detected alert information
+    timestamp: datetime
+    justification_list: List[JustificationData]
+
+
+class AlertObject(BaseModel):  # the actual alert returned to the user
+    type: str
+    message: str
+    severity_level: int
+    detected_alert_list: List[DetectedAlertData]

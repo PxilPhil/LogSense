@@ -57,26 +57,26 @@ def check_for_custom_alerts(pc_id, df, custom_alerts: List[CustomAlert], start, 
         - absolute_trigger_value works with raw values like 5GB
     :return:
     """
-    # TODO: If things doesnt work with iloc append with .values[0]
-    # TODO: This is just a example implemeentation, change it lateer on
-    # if absolute_trigger_value or relative_trigger_value with cpu=> we dont need anything more
-    # if relative_trigger_value and NOT CPU =>
+
+    #TODO: Build alert if dataframe not empty => add alert data = > add alert justifications
     for alert in custom_alerts:
         print(alert.message)
         for condition in alert.conditions:
+            # get application data frame if required
             if condition.application:
                 df, application_data_list = get_application_between(pc_id, condition.application, start, end)
+            # get moving average values if required ( for now only ram and cpu are allowed)
+            # TODO: IMPLEMENT ABOVE
+            # normal checks
             if condition.percentage_trigger_value and condition.column != "cpu":
                 print(check_percentage_trigger(df, condition))
-            elif condition.column == "cpu":
+            elif condition.column == "cpu": # since cpu values could be seen as both percentage and absolute values
                 condition.absolute_trigger_value = condition.percentage_trigger_value
                 print(check_absolute_trigger(df, condition))
             else:
                 print(check_absolute_trigger(df, condition))
 
 def check_percentage_trigger(df, condition: CustomCondition) -> bool:
-    # TODO: Make this more universal for everything later on
-    print(df)
     state_dict = select_recent_state()
     filtered_df = df[df['moving_average_'+condition.column] / state_dict[condition.column] > condition.percentage_trigger_value]
     if not filtered_df.empty:
@@ -85,9 +85,10 @@ def check_percentage_trigger(df, condition: CustomCondition) -> bool:
 
 
 def check_absolute_trigger(df, condition: CustomCondition) -> bool:
-    print(df)
     filtered_df = df[df['moving_average_'+condition.column] > condition.absolute_trigger_value]
     if not filtered_df.empty:
         return True
     return False
+
+
 
