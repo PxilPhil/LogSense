@@ -41,3 +41,17 @@
   display: flex;
   flex-direction: row;
 }
+
+.wrapper {
+  display: flex;
+  flex-direction: row;
+  width: calc(100% - 96px);
+  .first {
+    flex: 0 0 35%;
+    width: 100%;
+  }
+  .second {
+    flex: 0 0 65%;
+    width: 100%;
+  }
+}
