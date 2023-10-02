@@ -28,8 +28,8 @@ class ApplicationTimeSeriesData(BaseModel):
     thread_count: int
     uptime: int
     process_count_difference: int
-    rolling_avg_ram: float
-    rolling_avg_cpu: float
+    moving_average_ram: float
+    moving_average_cpu: float
 
 
 class ApplicationData(BaseModel):

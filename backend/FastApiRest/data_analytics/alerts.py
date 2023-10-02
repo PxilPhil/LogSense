@@ -43,83 +43,51 @@ def detect_anomalies_via_score(anomaly_list, anomaly_df, column):
         anomaly_list.append(anomaly_data)
 
 
-def check_custom_alerts(pc_id, df, pc_total_df, custom_alerts: List[CustomAlert]):
+def check_for_custom_alerts(pc_id, df, custom_alerts: List[CustomAlert], start, end):
     """
     Checks data that was requested if any custom alerts have occurred
+    :param end:
+    :param start:
     :param df:
     :param pc_total_df:
     :param custom_alerts:
 
     Documentation for Custom Alerts:
-        - degree_trigger_value is used whenever a change should be a measured, when a condition uses it is also requires the property "lookback_time" on how many rows should be looked back upon or the property start_date from when data should be analyzed
         - percentage_trigger_value is used whenever a percentual trigger value should be set, in applications the formula is usage divided by maximum possible usage
         - absolute_trigger_value works with raw values like 5GB
     :return:
     """
     # TODO: If things doesnt work with iloc append with .values[0]
+    # TODO: This is just a example implemeentation, change it lateer on
+    # if absolute_trigger_value or relative_trigger_value with cpu=> we dont need anything more
+    # if relative_trigger_value and NOT CPU =>
     for alert in custom_alerts:
+        print(alert.message)
         for condition in alert.conditions:
-            if condition.degree_trigger_value:
-                print('degree not implemented')
-                # process_degree_trigger(condition, pc_id, df)
-            elif condition.percentage_trigger_value:
-                # finished
-                process_percentage_trigger(condition, df)
-            elif condition.absolute_trigger_value:
-                # finished
-                process_absolute_trigger(condition, pc_total_df, df)
+            if condition.application:
+                df, application_data_list = get_application_between(pc_id, condition.application, start, end)
+            if condition.percentage_trigger_value and condition.column != "cpu":
+                print(check_percentage_trigger(df, condition))
+            elif condition.column == "cpu":
+                condition.absolute_trigger_value = condition.percentage_trigger_value
+                print(check_absolute_trigger(df, condition))
+            else:
+                print(check_absolute_trigger(df, condition))
 
-
-def process_degree_trigger(condition, pc_id, df):
-    if condition.start_date:
-        # TODO: below this the df arent sorted by descending
-        if condition.application:
-            recent_app_df, recent_app_list = get_application_between(pc_id, condition.application, condition.start_date,
-                                                                     df.index[-1])
-            print(recent_app_df)
-        else:
-            recent_pc_df, recent_pc_list = get_total_pc_application_data_between(pc_id, condition.start_date,
-                                                                                 df.index[-1])
-            print(recent_pc_df)
-    elif condition.lookback_time:
-        # slope calculated via delta-y divided by delta-x
-        # delta-y is calculated by last value divided by first value
-        # delta-x is lookback_time
-        if condition.application:
-            recent_app_df, recent_app_list = get_latest_application_data(pc_id, condition.lookback_time,
-                                                                         condition.application)
-            print(recent_app_df)
-        else:
-            recent_pc_df, recent_pc_list = get_recent_pc_total_data(pc_id, condition.lookback_time)
-            print(recent_pc_df)
-
-
-def process_percentage_trigger(condition, df) -> bool:
-    if condition.application:
-        application_df = manipulation.select_rows_by_application(condition.application, df)
-        return check_percentage_trigger(application_df, condition)
-    else:
-        return check_percentage_trigger(df, condition)
-
-
-def process_absolute_trigger(condition, pc_total_df, df) -> bool:
-    if condition.application:
-        application_df = manipulation.select_rows_by_application(condition.application, df)
-        return check_absolute_condition(application_df, condition)
-    else:
-        return check_absolute_condition(pc_total_df, condition)
-
-
-def check_absolute_condition(df, condition) -> bool:
-    if df[condition.column].values[0] >= condition.absolute_trigger_value:
+def check_percentage_trigger(df, condition: CustomCondition) -> bool:
+    # TODO: Make this more universal for everything later on
+    print(df)
+    state_dict = select_recent_state()
+    filtered_df = df[df['moving_average_'+condition.column] / state_dict[condition.column] > condition.percentage_trigger_value]
+    if not filtered_df.empty:
         return True
     return False
 
 
-def check_percentage_trigger(df, condition) -> bool:
-    # TODO: Make this more universal for everything later on
-    state_dict = select_recent_state()
-    if df.iloc[0][condition.column] / state_dict[condition.column] > condition.percentage_trigger_value:
+def check_absolute_trigger(df, condition: CustomCondition) -> bool:
+    print(df)
+    filtered_df = df[df['moving_average_'+condition.column] > condition.absolute_trigger_value]
+    if not filtered_df.empty:
         return True
     return False
 

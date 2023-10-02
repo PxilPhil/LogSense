@@ -3,23 +3,28 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
+
 class CustomCondition(BaseModel):
     combined_conditions: Optional[CustomCondition] = None
     percentage_trigger_value: Optional[float] = None
-    absolute_trigger_value: Optional[int] = None
+    absolute_trigger_value: Optional[float] = None
     operator: str
     column: str
     application: Optional[str] = None
+    timespan: Optional[int] = None
 
 class CustomAlert(BaseModel):
     user_id: int
     type: str
     message: str
     severity_level: int
-    conditions: List[CustomCondition]  # Use List instead of list
+    conditions: List[CustomCondition] = []
 
 class CustomAlerts(BaseModel):
-    custom_alert_list: List[CustomAlert]
+    custom_alert_list: List[CustomAlert] = []
+
+    def to_dict(self):
+        return self.dict()
 
 
 class CustomAlertDBObject(BaseModel):

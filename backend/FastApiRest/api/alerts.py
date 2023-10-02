@@ -3,6 +3,7 @@ from starlette.responses import JSONResponse
 
 from data_analytics.requests import check_for_alerts
 from db_access.alerts import injestCustomAlerts, getCustomAlerts
+from db_access.pc import get_total_pc_application_data_between
 from model.alerts import CustomAlerts, IngestCustomAlert
 
 alerts = APIRouter()
@@ -17,8 +18,10 @@ def fetch_alerts(user_id: int, start: str, end: str):
     :param user_id:
     :return:
     """
-    detected_alerts = check_for_alerts(user_id, start, end)
-    return JSONResponse(content=detected_alerts)
+    pc_df, pc_data_list = get_total_pc_application_data_between(user_id, start, end)
+    found_custom_alerts = getCustomAlerts(user_id)
+    detected_alerts = check_for_alerts(user_id, found_custom_alerts.custom_alert_list, pc_df, start, end)
+    return JSONResponse(content="Worked ig")
 
 @alerts.get("/all/{user_id}", tags=["Alerts"], response_model=IngestCustomAlert, responses={
     200: {"description": "Successful response"},
