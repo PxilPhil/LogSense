@@ -1,21 +1,21 @@
 export class CpuData {
-  disks: DiskStore[] = [];
+  cpuData: Cpu[] = [];
 }
 
-export class DiskStore {
+export class Cpu {
   id: number = 0;
-  cpuName: String = "AMD Ryzen 7 5800H";
-  identifier: String = "Intel64 Family 6 Model 165 Stepping 2";
-  processorID: String = "BFEBFBFF000A0652";
-  vendor: String = "GenuineIntel";
-  bitness: String = "64 Bit";
-  physicalPackages: Number = 1;
-  physicalProcessors: Number = 6;
-  logicalProcessors: Number = 12;
-  contextSwitches: String = "230431317";
-  interrupts: String = "185631654";
-  current: Number = 21; //%
-  average: Number = 48; //%
-  stability: String = "Low";
+  cpuName: String = "";
+  identifier: String = "";
+  processorID: String = "";
+  vendor: String = "";
+  bitness: String = "";
+  physicalPackages: Number = 0;
+  physicalProcessors: Number = 0;
+  logicalProcessors: Number = 0;
+  contextSwitches: String = "";
+  interrupts: String = "";
+  current: Number = 0; //%
+  average: Number = 0; //%
+  stability: String = "";
 }
 
