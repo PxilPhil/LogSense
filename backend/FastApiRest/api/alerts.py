@@ -1,15 +1,18 @@
+from typing import List
+
 from fastapi import APIRouter, HTTPException, Body
 from starlette.responses import JSONResponse
 
 from data_analytics.requests import check_for_alerts
 from db_access.alerts import injestCustomAlerts, getCustomAlerts
 from db_access.pc import get_total_pc_application_data_between
-from model.alerts import CustomAlerts, IngestCustomAlert
+from model.alerts import CustomAlerts, IngestCustomAlert, AlertNotification
 
 alerts = APIRouter()
 
+
 # 1 - get all
-@alerts.get("/{user_id}", response_model=dict, tags=["Alerts"])
+@alerts.get("/{user_id}", response_model=List[AlertNotification], tags=["Alerts"])
 def fetch_alerts(user_id: int, start: str, end: str):
     """
     Returns all alerts that have occured in the specified timeframe, both standardized alerts and custom user alerts
@@ -20,8 +23,9 @@ def fetch_alerts(user_id: int, start: str, end: str):
     """
     pc_df, pc_data_list = get_total_pc_application_data_between(user_id, start, end)
     found_custom_alerts = getCustomAlerts(user_id)
-    detected_alerts = check_for_alerts(user_id, found_custom_alerts.custom_alert_list, pc_df, start, end)
-    return JSONResponse(content="Worked ig")
+    alert_notifications = check_for_alerts(user_id, found_custom_alerts.custom_alert_list, pc_df, start, end)
+    return alert_notifications
+
 
 @alerts.get("/all/{user_id}", tags=["Alerts"], response_model=IngestCustomAlert, responses={
     200: {"description": "Successful response"},
@@ -31,6 +35,7 @@ def fetch_alerts(user_id: int, start: str, end: str):
 def get_all_alerts(user_id: int):
     return getCustomAlerts(user_id)
 
+
 # 2 - add custom
 @alerts.post("/", tags=["Alerts"], responses={
     200: {"description": "Successful response"},
@@ -39,7 +44,8 @@ def get_all_alerts(user_id: int):
 })
 def add_custom_alert(alerts: CustomAlerts = Body(...)):
     anomaly_id = injestCustomAlerts(alerts)
-    return JSONResponse(content={"detail": "anomalies inserted successfully", "anomaly_id": anomaly_id}, status_code=200)
+    return JSONResponse(content={"detail": "anomalies inserted successfully", "anomaly_id": anomaly_id},
+                        status_code=200)
 
 
 # 3 - delete
@@ -49,8 +55,8 @@ def add_custom_alert(alerts: CustomAlerts = Body(...)):
     500: {"description": "Internal server error"}
 })
 def delete_custom_alert():
-
     raise NotImplemented
+
 
 # 4 - update (put to )
 @alerts.put("/", tags=["Alerts"], responses={

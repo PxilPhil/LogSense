@@ -16,7 +16,7 @@ from db_access.alerts import getCustomAlerts
 from db_access.data import get_moving_avg_of_application
 from db_access.pc import get_latest_moving_avg
 from db_access.helper import get_pcid_by_stateid
-from model.alerts import CustomAlert
+from model.alerts import CustomAlert, AlertNotification
 from model.data import AllocationClass
 from model.pc import ForecastData
 
@@ -216,14 +216,14 @@ def analyze_trends():
     """
 
 
-def check_for_alerts(user_id: int, custom_alert_list: List[CustomAlert], pc_df: DataFrame, start, end):
+def check_for_alerts(user_id: int, custom_alert_list: List[CustomAlert], pc_df: DataFrame, start, end) -> List[AlertNotification]:
     """
     Checks for alerts that have appeared in a specified timeframe
     :return:
     """
 
     # first check for custom alerts
+    alert_notifications = check_for_custom_alerts(user_id, pc_df, custom_alert_list, start, end)
+    # check multiple complex, standard alerts
 
-    check_for_custom_alerts(user_id, pc_df, custom_alert_list, start, end)
-
-    return True
+    return alert_notifications

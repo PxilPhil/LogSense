@@ -49,8 +49,8 @@ class DetectedAlertData(BaseModel):  # detected alert information
     justification_list: List[JustificationData]
 
 
-class AlertObject(BaseModel):  # the actual alert returned to the user
+class AlertNotification(BaseModel):  # the actual alert returned to the user
     type: str
     message: str
     severity_level: int
-    detected_alert_list: List[DetectedAlertData]
+    detected_alert_list: Optional[List[DetectedAlertData]]
