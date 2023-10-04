@@ -27,18 +27,18 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, prior_jus
     :return:
     """
     justification_logs = []
-    for timestamp in significant_data_points:
+    for point in significant_data_points:
         print('data point')
-        print(timestamp)
+        print(point)
 
-        existing_justification = get_justification_contained(timestamp, prior_justifications)
+        existing_justification = get_justification_contained(point, prior_justifications)
         if existing_justification:
             justification_logs.append(existing_justification)
         else:
-            total_ram = pc_total_df.loc[pc_total_df['measurement_time'] == timestamp, 'ram'].iloc[0]
-            total_cpu = pc_total_df.loc[pc_total_df['measurement_time'] == timestamp, 'cpu'].iloc[0]
+            total_ram = pc_total_df.loc[pc_total_df['measurement_time'] == point, 'ram'].iloc[0]
+            total_cpu = pc_total_df.loc[pc_total_df['measurement_time'] == point, 'cpu'].iloc[0]
 
-            applications_df, application_data_list = get_relevant_application_data(pc_id, timestamp,
+            applications_df, application_data_list = get_relevant_application_data(pc_id, point,
                                                                                    total_ram * ram_relevancy_threshold,
                                                                                    cpu_relevancy_threshold)
             pc_just_started = False
@@ -59,7 +59,7 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, prior_jus
             total_delta_cpu = total_cpu - pc_total_df.loc[pc_total_df['measurement_time'] == till_timestamp, 'cpu']
 
             lj = EventAnomalyJustifications(
-                timestamp=timestamp,
+                timestamp=point,
                 till_timestamp=till_timestamp,
                 total_delta_ram=total_delta_ram,
                 total_delta_cpu=total_delta_cpu,
@@ -127,7 +127,7 @@ def justify_data_point(lj: EventAnomalyJustifications, applications_dict, pc_jus
         last_application_dict = application_dict
 
 
-def justify_application_data_points(df: DataFrame, data_points: list, name: str, prior_justifications: list[EventAnomalyJustifications], should_tag_as_anomaly: bool) -> JustificationData:
+def justify_application_data_points(df: DataFrame, data_points: list, name: str, prior_justifications: list[EventAnomalyJustifications], should_tag_as_anomaly: bool) -> list[EventAnomalyJustifications]:
     # this method shares a lot of similarities with justify_data_point but it's meant only for one singular application
     justification_logs = []
     for point in data_points:

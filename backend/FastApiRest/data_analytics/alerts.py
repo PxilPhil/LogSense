@@ -2,7 +2,9 @@ from typing import List
 
 import pandas as pd
 
+from data_analytics.justification import justify_pc_data_points, justify_application_data_points
 from db_access.application import get_latest_application_data, get_application_between
+
 from db_access.pc import select_recent_state, get_recent_pc_total_data, get_total_pc_application_data_between
 from model.data import EventData
 from model.data import AnomalyData
@@ -60,11 +62,10 @@ def check_for_custom_alerts(pc_id, df, custom_alerts: List[CustomAlert], start, 
     :return:
     """
 
-    # TODO: Build alert if dataframe not empty => add alert data = > add alert justifications
+    #TODO: Keep in mind to add moving_average_ if you want it to be detected that way
     filtered_df = pd.DataFrame()  # data frame containing filtered values for the alerts
     alert_notifications: List[AlertNotification] = []
     for alert in custom_alerts:
-        print(alert.message)
         for condition in alert.conditions:
             # get application data frame if required
             if condition.application:
@@ -72,33 +73,45 @@ def check_for_custom_alerts(pc_id, df, custom_alerts: List[CustomAlert], start, 
             # check conditions
             if condition.percentage_trigger_value and condition.column != "cpu":
                 state_dict = select_recent_state()
-                filtered_df = df[df['moving_average_' + condition.column] / state_dict[
+                filtered_df = df[df[condition.column] / state_dict[
                     condition.column] > condition.percentage_trigger_value]
             elif condition.column == "cpu":  # since cpu values could be seen as both percentage and absolute values
                 condition.absolute_trigger_value = condition.percentage_trigger_value
-                filtered_df = [df['moving_average_' + condition.column] > condition.absolute_trigger_value]
+                filtered_df = df[df[condition.column] > condition.absolute_trigger_value]
             else:
-                filtered_df = [df['moving_average_' + condition.column] > condition.absolute_trigger_value]
+                filtered_df = df[df[condition.column] > condition.absolute_trigger_value]
             # create notification
-            if len(filtered_df) > 0:
-                alert_notification = AlertNotification(
-                    type=alert.type,
-                    message=alert.message,
-                    severity_level=alert.severity_level,
-                    detected_alert_list=None
-                )
-                alert_notifications.append(alert_notification)
+            create_alert_notifications(df, filtered_df, alert_notifications, alert, condition, pc_id)
     return alert_notifications
+
+
+def create_alert_notifications(df, filtered_df, alert_notifications, alert, condition, pc_id):
+    if len(filtered_df) > 0:
+        print(filtered_df)
+        timestamps = filtered_df['measurement_time'].tolist()
+        justifications = []
+        if condition.application:
+            # justifications = justify_application_data_points(df, timestamps, condition.application, None, False)
+            print('Feature not implemented yet')
+        else:
+            justifications = justify_pc_data_points(df, timestamps, None, pc_id, False)
+        alert_notification = AlertNotification(
+            type=alert.type,
+            message=alert.message,
+            severity_level=alert.severity_level,
+            detected_alert_list=justifications
+        )
+        alert_notifications.append(alert_notification)
 
 
 def check_percentage_trigger(df, condition: CustomCondition) -> bool:
     state_dict = select_recent_state()
     filtered_df = df[
-        df['moving_average_' + condition.column] / state_dict[condition.column] > condition.percentage_trigger_value]
+        df[condition.column] / state_dict[condition.column] > condition.percentage_trigger_value]
     if not filtered_df.empty:
         return True
     return False
 
 
 def check_absolute_trigger(df, condition: CustomCondition) -> bool:
-    filtered_df = df[df['moving_average_' + condition.column] > condition.absolute_trigger_value]
+    filtered_df = df[df[condition.column] > condition.absolute_trigger_value]
