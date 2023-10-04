@@ -22,7 +22,8 @@ import {DiskComponent} from './disk/disk.component';
 import {NetworkComponent} from './network/network.component';
 import {MatDialogModule} from "@angular/material/dialog";
 import {PartDialogComponent} from './part-dialog/part-dialog.component';
-import {HttpClientModule} from '@angular/common/http'; // Import HttpClientModule
+import {HttpClientModule} from '@angular/common/http';
+import {MatDividerModule} from "@angular/material/divider"; // Import HttpClientModule
 
 @NgModule({
   declarations: [
@@ -40,18 +41,19 @@ import {HttpClientModule} from '@angular/common/http'; // Import HttpClientModul
     NetworkComponent,
     PartDialogComponent
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    CommonModule,
-    BrowserAnimationsModule,
-    MatIconModule,
-    MatFormFieldModule,
-    FormsModule,
-    MatInputModule,
-    MatDialogModule,
-    HttpClientModule
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        CommonModule,
+        BrowserAnimationsModule,
+        MatIconModule,
+        MatFormFieldModule,
+        FormsModule,
+        MatInputModule,
+        MatDialogModule,
+        HttpClientModule,
+        MatDividerModule
+    ],
   providers: [DatePipe],
   bootstrap: [AppComponent]
 })

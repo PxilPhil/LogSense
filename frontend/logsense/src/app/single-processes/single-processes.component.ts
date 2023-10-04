@@ -157,7 +157,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
         labels: this.cpuData.measurementTime,
         datasets: [{
           data: this.cpuData.usage,
-          borderColor: "#2b26a8",
+          borderColor: "#3e95cd",
           fill: false
         }]
       }, options: {
