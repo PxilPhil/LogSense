@@ -62,6 +62,7 @@ def check_for_custom_alerts(pc_id, df, custom_alerts: List[CustomAlert], start, 
     :return:
     """
 
+    # TODO: Keep in mind to add moving_average_ if you want it to be detected that way
     filtered_df = pd.DataFrame()  # data frame containing filtered values for the alerts
     alert_notifications: List[AlertNotification] = []
     for alert in custom_alerts:
@@ -72,19 +73,17 @@ def check_for_custom_alerts(pc_id, df, custom_alerts: List[CustomAlert], start, 
                 df, application_data_list = get_application_between(pc_id, condition.application, start, end)
             # calculate moving averages if required
             if condition.detect_via_moving_averages:
-                selected_column = 'moving_average_'+condition.column
+                selected_column = 'moving_average_' + condition.column
                 df[selected_column] = df[condition.column].rolling(window=5).mean()
                 df[selected_column].fillna(df[condition.column], inplace=True)
             # check conditions
             if condition.percentage_trigger_value and condition.column != "cpu":
-                state_dict = select_recent_state()
-                filtered_df = df[df[selected_column] / state_dict[
-                    condition.column] > condition.percentage_trigger_value]
+                filtered_df = check_percentage_trigger(df, condition, selected_column)
             elif condition.column == "cpu":  # since cpu values could be seen as both percentage and absolute values
                 condition.absolute_trigger_value = condition.percentage_trigger_value
-                filtered_df = df[df[selected_column] > condition.absolute_trigger_value]
+                filtered_df = check_absolute_trigger(df, condition, selected_column)
             else:
-                filtered_df = df[df[selected_column] > condition.absolute_trigger_value]
+                filtered_df = check_absolute_trigger(df, condition, selected_column)
             # create notification
             create_alert_notifications(df, filtered_df, alert_notifications, alert, condition, pc_id)
     return alert_notifications
@@ -107,3 +106,26 @@ def create_alert_notifications(df, filtered_df, alert_notifications, alert, cond
             detected_alert_list=justifications
         )
         alert_notifications.append(alert_notification)
+
+
+# below code really hurts but no idea how to do it otherwise
+def check_percentage_trigger(df, condition: CustomCondition, selected_column):
+    state_dict = select_recent_state()
+    if condition.operator == '>':
+        return df[df[selected_column] / state_dict[
+            condition.column] > condition.percentage_trigger_value]
+    elif condition.operator == '<':
+        return df[df[selected_column] / state_dict[
+            condition.column] < condition.percentage_trigger_value]
+    elif condition.operator == '=':
+        return df[df[selected_column] / state_dict[
+            condition.column] == condition.percentage_trigger_value]
+
+
+def check_absolute_trigger(df, condition: CustomCondition, selected_column):
+    if condition.operator == '>':
+        return df[df[selected_column] > condition.absolute_trigger_value]
+    elif condition.operator == '<':
+        return df[df[selected_column] < condition.absolute_trigger_value]
+    elif condition.operator == '=':
+        return df[df[selected_column] == condition.absolute_trigger_value]
