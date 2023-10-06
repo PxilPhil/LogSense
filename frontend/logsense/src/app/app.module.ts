@@ -23,7 +23,8 @@ import {NetworkComponent} from './network/network.component';
 import {MatDialogModule} from "@angular/material/dialog";
 import {PartDialogComponent} from './part-dialog/part-dialog.component';
 import {HttpClientModule} from '@angular/common/http';
-import {MatDividerModule} from "@angular/material/divider"; // Import HttpClientModule
+import {MatDividerModule} from "@angular/material/divider";
+import { CustomAlertsComponent } from './custom-alerts/custom-alerts.component'; // Import HttpClientModule
 
 @NgModule({
   declarations: [
@@ -39,7 +40,8 @@ import {MatDividerModule} from "@angular/material/divider"; // Import HttpClient
     RamComponent,
     DiskComponent,
     NetworkComponent,
-    PartDialogComponent
+    PartDialogComponent,
+    CustomAlertsComponent
   ],
     imports: [
         BrowserModule,

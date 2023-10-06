@@ -6,13 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="a3b0c86a-56b9-40a5-bdfe-abebb08d5502" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/app.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.scss" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.scss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/services/api-service.service.spec.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/single-processes/single-processes.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/single-processes/single-processes.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/styles.scss" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/styles.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/FastApiRest/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/FastApiRest/.idea/misc.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,6 +64,7 @@
       <workItem from="1689059525455" duration="8300000" />
       <workItem from="1689146300117" duration="20269000" />
       <workItem from="1689233986647" duration="12000" />
+      <workItem from="1696485365612" duration="675000" />
     </task>
     <servers />
   </component>

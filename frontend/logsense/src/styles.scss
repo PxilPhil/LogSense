@@ -42,7 +42,7 @@ $light-grey-2: #dadada; //background
 $grey: #c2c2c2;
 $dark-grey-1: #9A9A9A;
 $dark-grey-2: #707070;
-$cyan: #7BE1DF;
+$cyan: #41bcb8;
 $blue: #2b26a8;
 
 //Fonts
@@ -102,6 +102,20 @@ $border-1px: solid $black 1px;
 
 
 //UI
+.default-btn {
+  padding: 10px 20px;
+  border-radius: 25px;
+  border: none;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: $blue;
+  color: $white;
+}
+.default-btn:hover {
+  background-color: $cyan;
+}
+
 .header {
   display: flex;
   align-items: center;
@@ -219,6 +233,12 @@ button:focus-visible {
   height: 32px;
   width: 32px;
   font-size: 32px;
+  color: $black;
+}
+.icon-48 {
+  height: 48px;
+  width: 48px;
+  font-size: 48px;
   color: $black;
 }
 .info-icon:hover {

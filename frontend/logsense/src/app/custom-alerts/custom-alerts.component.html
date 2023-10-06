@@ -1,0 +1,78 @@
+<div class="anti-th">
+  <h1 class="mar-left-64 mar-top-48">Alerts</h1>
+  <div class="pad-left-64 mar-top-48 flex-start w-100 pad-right-128 pad-bot-64">
+    <div class="white-box pad-top-bot-16 h-100">
+      <form class="example-form pad-left-right-16">
+        <mat-form-field class="example-full-width">
+          <input matInput placeholder="Search..." type="tel" [(ngModel)]="searchCriteria" [ngModelOptions]="{standalone: true}">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </form>
+      <div class="choose-alert txt-16">
+          text
+      </div>
+      <div class="choose-alert txt-16">
+        text
+      </div>
+      <div class="choose-alert txt-16">
+        text
+      </div>
+    </div>
+    <div class="mar-left-64 w-100">
+      <div *ngIf="true" class="grey-box">
+        <div class="flex-col">
+          <div class="flex-center mar-bot-24 w-100">
+            <div class="flex-center mar-right-32">
+              <mat-icon class="icon-48">warning</mat-icon>
+            </div>
+            <div class="w-100">
+              <input type="text" class="w-100" placeholder="idk">
+            </div>
+          </div>
+          <div class="flex-col mar-bot-12">
+            <span class="txt-16">Message</span>
+            <input>
+          </div>
+          <div class="flex-row mar-bot-24">
+            <span class="txt-16 mar-right-24">Severity Level</span>
+            <select>
+            </select>
+          </div>
+          <span class="txt-22 mar-bot-12">Conditions</span>
+          <div class="flex-center mar-bot-24">
+            <span class="txt-16 mar-right-24 label">Column:</span>
+            <input class="input">
+          </div>
+          <div class="flex-center mar-bot-24">
+            <span class="txt-16 mar-right-24 label">Application:</span>
+            <input class="input">
+          </div>
+          <div class="flex-center mar-bot-24">
+            <span class="txt-16 mar-right-24 label">Percentual Value:</span>
+            <input class="input">
+          </div>
+          <div class="flex-center mar-bot-24">
+            <span class="txt-16 mar-right-24 label">Absolute Value:</span>
+            <input class="input">
+          </div>
+          <div class="flex-center mar-bot-24">
+            <span class="txt-16 mar-right-24 label">Operator:</span>
+            <select>
+
+            </select>
+          </div>
+          <div class="flex-center mar-bot-24">
+            <span class="txt-16 mar-right-24 label">Detection by:</span>
+            <select>
+
+            </select>
+          </div>
+          <div class="just-end w-100">
+            <button class="default-btn mar-right-32">Discard</button>
+            <button class="default-btn">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
