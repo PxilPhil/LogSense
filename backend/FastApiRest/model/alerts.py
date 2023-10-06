@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel
 
-from model.data import JustificationData, EventAnomalyJustifications
+from model.data import JustificationData, Justification
 
 
 class CustomCondition(BaseModel):
@@ -43,14 +43,10 @@ class CustomAlertDBObject(BaseModel):
 class IngestCustomAlert(BaseModel):
     custom_alert_list: List[CustomAlertDBObject]
 
-
-class DetectedAlertData(BaseModel):  # detected alert information
-    timestamp: datetime
-    justification_list: List[JustificationData]
-
-
 class AlertNotification(BaseModel):  # the actual alert returned to the user
     type: str
     message: str
     severity_level: int
-    detected_alert_list: Optional[List[EventAnomalyJustifications]]
+    column: str
+    application: Optional[str]
+    detected_alert_list: List[datetime]

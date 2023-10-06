@@ -1,12 +1,15 @@
+from datetime import datetime
 from typing import List
 
 from fastapi import APIRouter, HTTPException, Body
 from starlette.responses import JSONResponse
 
+from data_analytics.justification import justify_pc_data_points
 from data_analytics.requests import check_for_alerts
 from db_access.alerts import injestCustomAlerts, getCustomAlerts
 from db_access.pc import get_total_pc_application_data_between
 from model.alerts import CustomAlerts, IngestCustomAlert, AlertNotification
+from model.data import Justification
 
 alerts = APIRouter()
 
@@ -25,6 +28,18 @@ def fetch_alerts(user_id: int, start: str, end: str):
     found_custom_alerts = getCustomAlerts(user_id)
     alert_notifications = check_for_alerts(user_id, found_custom_alerts.custom_alert_list, pc_df, start, end)
     return alert_notifications
+
+
+@alerts.get("/explain", response_model=list[Justification], tags=["Alerts"])
+def explain(alert_notification: AlertNotification):
+    """
+    Returns the justifications for a certain timestamp (the client sends this request when it wants to know details about alerts or events)
+    :param alert_notification:
+    :return:
+    """
+    timestamps: List[datetime] = alert_notification.detected_alert_list
+    justifications: list[Justification] = justify_pc_data_points(None, timestamps, None, 1, False)
+    return None
 
 
 @alerts.get("/all/{user_id}", tags=["Alerts"], response_model=IngestCustomAlert, responses={

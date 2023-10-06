@@ -325,7 +325,7 @@ ORDER BY
         results = cursor.fetchall()
 
         if results:
-            result_dict = {'data': [{'name': row[0], 'total_running_time_seconds': row[1]} for row in results]}
+            result_dict = {'data': [{'name': row[0], 'total_running_time_seconds': float(row[1])} for row in results]}
             return result_dict
         else:
             return None

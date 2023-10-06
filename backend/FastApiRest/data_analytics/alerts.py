@@ -62,11 +62,11 @@ def check_for_custom_alerts(pc_id, df, custom_alerts: List[CustomAlert], start, 
     :return:
     """
 
-    # TODO: Keep in mind to add moving_average_ if you want it to be detected that way
     filtered_df = pd.DataFrame()  # data frame containing filtered values for the alerts
     alert_notifications: List[AlertNotification] = []
     for alert in custom_alerts:
-        for condition in alert.conditions:
+        detected_alert_list = []
+        for condition in alert.conditions: # TODO: Remove multiple conditions from alerts
             selected_column = condition.column
             # get application data frame if required
             if condition.application:
@@ -91,19 +91,15 @@ def check_for_custom_alerts(pc_id, df, custom_alerts: List[CustomAlert], start, 
 
 def create_alert_notifications(df, filtered_df, alert_notifications, alert, condition, pc_id):
     if len(filtered_df) > 0:
-        print(filtered_df)
         timestamps = filtered_df['measurement_time'].tolist()
-        justifications = []
-        if condition.application:
-            # justifications = justify_application_data_points(df, timestamps, condition.application, None, False)
-            print('Feature not implemented yet')
-        else:
-            justifications = justify_pc_data_points(df, timestamps, None, pc_id, False)
+        # create the alert notification object
         alert_notification = AlertNotification(
             type=alert.type,
             message=alert.message,
             severity_level=alert.severity_level,
-            detected_alert_list=justifications
+            column=condition.column,
+            application=condition.application,
+            detected_alert_list=timestamps
         )
         alert_notifications.append(alert_notification)
 

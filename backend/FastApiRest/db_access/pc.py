@@ -526,3 +526,23 @@ def general_specs(user_id):
         raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
+
+
+def get_pc_data_at_measurement(ram_multiplier, timestamp: datetime, pc_id: int):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        query = """
+        SELECT ram * %s AS ram FROM pcdata WHERE measurement_time = %s AND pc_id=%s;
+        """
+
+        cursor.execute(query, (ram_multiplier, timestamp, pc_id))
+        result = cursor.fetchone()
+
+        if result:
+            return result[0]
+        return None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)

@@ -29,11 +29,11 @@ class JustificationData(BaseModel):  # class containing explanation, justificati
     warning: bool
 
 
-class EventAnomalyJustifications(BaseModel):  # class containing justifications for events and anomalies
+class Justification(BaseModel):  # class containing justification dat
     timestamp: datetime
     till_timestamp: datetime
-    total_delta_ram: float
-    total_delta_cpu: float
+    total_delta_ram: Optional[float]
+    total_delta_cpu: Optional[float]
     pc_just_started: Optional[bool]
     is_anomaly: bool
     justification_list: List[JustificationData]
@@ -43,7 +43,7 @@ class AnomalyData(BaseModel):  # anomaly data class returned when analyzing appl
     timestamp: datetime
     severity: int  # calculated via z-score
     column: str
-    justification: Optional[EventAnomalyJustifications]
+    justification: Optional[Justification]
 
 
 class AlertData(BaseModel):  # basically AnomalyData (EventData) but includes custom alerts and are returned to the user
@@ -111,5 +111,5 @@ class PCData(BaseModel):
     time_series_list: List[PCTimeSeriesData]
     allocation_list_ram: List[AllocationClass]
     allocation_list_cpu: List[AllocationClass]
-    ram_events_and_anomalies: List[EventAnomalyJustifications]
-    cpu_events_and_anomalies: List[EventAnomalyJustifications]
+    ram_events_and_anomalies: List[Justification]
+    cpu_events_and_anomalies: List[Justification]

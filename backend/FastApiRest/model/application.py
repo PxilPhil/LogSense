@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
-from model.data import EventData, AnomalyData, EventAnomalyJustifications
+from model.data import EventData, AnomalyData, Justification
 
 
 class ApplicationTimeSeriesData(BaseModel):
@@ -44,8 +44,8 @@ class ApplicationData(BaseModel):
     stability_ram: str
     stability_cpu: str
     time_series_data: List[ApplicationTimeSeriesData]
-    cpu_events_and_anomalies: List[EventAnomalyJustifications]
-    ram_events_and_anomalies: List[EventAnomalyJustifications]
+    cpu_events_and_anomalies: List[Justification]
+    ram_events_and_anomalies: List[Justification]
 
 
 class ApplicationListObject(BaseModel):

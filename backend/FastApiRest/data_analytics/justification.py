@@ -5,7 +5,8 @@ from pandas import DataFrame
 
 from data_analytics.manipulation import get_justification_contained
 from db_access.application import get_relevant_application_data
-from model.data import EventAnomalyJustifications, JustificationData
+from db_access.pc import get_pc_data_at_measurement
+from model.data import Justification, JustificationData
 
 ram_relevancy_threshold = 0.05  # percentual threshold applications should have to be considered relevant
 cpu_relevancy_threshold = 0.05  # percentual threshold applications should have to be considered relevant
@@ -18,7 +19,8 @@ class ApplicationStat:  # class to store application data
         self.process_change = process_change  # same as event_headers (processes in applications were closed or opened marked with -1, 0 or 1)
 
 
-def justify_pc_data_points(pc_total_df, significant_data_points: list, prior_justifications: list[EventAnomalyJustifications], pc_id: int, should_tag_as_anomaly: bool) -> list[EventAnomalyJustifications]:
+def justify_pc_data_points(pc_total_df, significant_data_points: list, prior_justifications: list[Justification],
+                           pc_id: int, should_tag_as_anomaly: bool) -> list[Justification]:
     """
     Function to loop through event list to call gather_event_logs()
 
@@ -27,6 +29,13 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, prior_jus
     :return:
     """
     justification_logs = []
+    """
+                total_ram = pc_total_df.loc[pc_total_df['measurement_time'] == point, 'ram'].iloc[0]
+            total_cpu = pc_total_df.loc[pc_total_df['measurement_time'] == point, 'cpu'].iloc[0]
+
+            total_delta_ram = total_ram - pc_total_df.loc[pc_total_df['measurement_time'] == till_timestamp, 'ram']
+            total_delta_cpu = total_cpu - pc_total_df.loc[pc_total_df['measurement_time'] == till_timestamp, 'cpu']
+    """
     for point in significant_data_points:
         print('data point')
         print(point)
@@ -35,11 +44,10 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, prior_jus
         if existing_justification:
             justification_logs.append(existing_justification)
         else:
-            total_ram = pc_total_df.loc[pc_total_df['measurement_time'] == point, 'ram'].iloc[0]
-            total_cpu = pc_total_df.loc[pc_total_df['measurement_time'] == point, 'cpu'].iloc[0]
 
+            ram_relevancy = get_pc_data_at_measurement(ram_relevancy_threshold, point, pc_id)
             applications_df, application_data_list = get_relevant_application_data(pc_id, point,
-                                                                                   total_ram * ram_relevancy_threshold,
+                                                                                   ram_relevancy,
                                                                                    cpu_relevancy_threshold)
             pc_just_started = False
             if applications_df['measurement_time'].nunique() <= 1:
@@ -55,15 +63,13 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, prior_jus
                 applications_dict[row['measurement_time']] = {row['name']: application_stat}
 
             till_timestamp = applications_df['measurement_time'].min()
-            total_delta_ram = total_ram - pc_total_df.loc[pc_total_df['measurement_time'] == till_timestamp, 'ram']
-            total_delta_cpu = total_cpu - pc_total_df.loc[pc_total_df['measurement_time'] == till_timestamp, 'cpu']
 
-            lj = EventAnomalyJustifications(
+            lj = Justification(
                 timestamp=point,
                 till_timestamp=till_timestamp,
-                total_delta_ram=total_delta_ram,
-                total_delta_cpu=total_delta_cpu,
                 pc_just_started=pc_just_started,
+                total_delta_ram=None,
+                total_delta_cpu=None,
                 is_anomaly=should_tag_as_anomaly,
                 justification_list=[]
             )
@@ -73,12 +79,11 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, prior_jus
     return justification_logs
 
 
-def justify_data_point(lj: EventAnomalyJustifications, applications_dict, pc_just_started: bool):
+def justify_data_point(lj: Justification, applications_dict, pc_just_started: bool):
     """
     Function to gather information on why an event was caused like an application closing, processes closing or similiar
     :return:
     """
-    # TODO: If amount of distinct times only 1 then it initially started
     last_application_dict = None
     for timestamp, application_dict in applications_dict.items():  # looping through our Map<timestamp, Map<name, values>
         for name, data in application_dict.items():  # looping through our Map<name, values>
@@ -127,7 +132,9 @@ def justify_data_point(lj: EventAnomalyJustifications, applications_dict, pc_jus
         last_application_dict = application_dict
 
 
-def justify_application_data_points(df: DataFrame, data_points: list, name: str, prior_justifications: list[EventAnomalyJustifications], should_tag_as_anomaly: bool) -> list[EventAnomalyJustifications]:
+def justify_application_data_points(df: DataFrame, data_points: list, name: str,
+                                    prior_justifications: list[Justification], should_tag_as_anomaly: bool) -> list[
+    Justification]:
     # this method shares a lot of similarities with justify_data_point but it's meant only for one singular application
     justification_logs = []
     for point in data_points:
@@ -172,7 +179,7 @@ def justify_application_data_points(df: DataFrame, data_points: list, name: str,
 
                 last_row = row
 
-            event_anomaly = EventAnomalyJustifications(
+            event_anomaly = Justification(
                 timestamp=time_window_end,
                 till_timestamp=time_window_start,
                 total_delta_ram=total_delta_ram,
