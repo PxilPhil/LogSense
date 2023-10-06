@@ -1,8 +1,11 @@
+from datetime import datetime
+
 import pandas as pd
 from fastapi import APIRouter, HTTPException, Body
 from starlette.responses import JSONResponse
 
 import db_access.pc
+from db_access.data import select_total_running_time
 from db_access.pc import get_pcs, get_pcs_by_userid, add_pc, get_free_disk_space_data, \
     get_recent_disk_and_partition
 from db_access.application import get_latest_application_data
@@ -82,7 +85,6 @@ def get_pc_data(pc_id: int, start: str, end: str):
         raise InvalidParametersException()
     pc_total_df, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu, ram_events_anomalies, cpu_events_anomalies, cov_ram, cov_cpu, stability_ram, stability_cpu = requests.analyze_pc_data(
         df, total_df)
-
 
     pc_data = PCData(
         pc_id=pc_id,
@@ -206,3 +208,9 @@ def get_pc_by_user_id(user_id: str):
 
     specs = db_access.pc.general_specs(user_id)
     return specs
+
+
+@pc.get('/{pc_id}/time-metrics/', response_model=dict, tags=["PC"])
+def get_pc_time_metrics(pc_id: int, start: datetime, end:datetime):
+    time_metrics_dict = select_total_running_time(start, end, pc_id)
+    return time_metrics_dict

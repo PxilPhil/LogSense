@@ -271,3 +271,67 @@ def insert_anomalies(pcdata_id, event_list):
         raise e
     finally:
         conn_pool.putconn(conn)
+
+
+def select_total_running_time(start: datetime, end: datetime, pc_id: int):
+    # TODO: Keep in mind that this might contain errors, in the worst case it cant be calculated via database operations
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        total_running_time_query = """
+WITH app_with_lead AS (
+    SELECT
+        id,
+        pcdata_id,
+        pc_id,
+        name,
+        path,
+        measurement_time,
+        ram,
+        cpu,
+        LEAD(measurement_time) OVER (PARTITION BY pc_id, name ORDER BY measurement_time) AS next_measurement_time
+    FROM
+        applicationdata
+    WHERE
+        pc_id = %s
+)
+SELECT
+    name,
+    SUM(
+        CASE
+            WHEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time) >= 30 AND EXTRACT(EPOCH FROM next_measurement_time - measurement_time) <= 90 THEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time)
+            ELSE 0
+        END
+    ) AS total_running_time_seconds
+FROM
+    app_with_lead
+WHERE
+    next_measurement_time IS NOT NULL
+    AND measurement_time BETWEEN %s AND %s
+GROUP BY
+    name
+HAVING
+    SUM(
+        CASE
+            WHEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time) >= 30 AND EXTRACT(EPOCH FROM next_measurement_time - measurement_time) <= 90 THEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time)
+            ELSE 0
+        END
+    ) > 0
+ORDER BY
+    SUM(ram) DESC, SUM(cpu) DESC;
+        """
+
+        cursor.execute(total_running_time_query, (pc_id, start, end))
+        results = cursor.fetchall()
+
+        if results:
+            result_dict = {'data': [{'name': row[0], 'total_running_time_seconds': row[1]} for row in results]}
+            return result_dict
+        else:
+            return None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    except KeyError as e:
+        raise InvalidParametersException()
+    finally:
+        conn_pool.putconn(conn)
