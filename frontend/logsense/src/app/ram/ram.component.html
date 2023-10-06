@@ -67,10 +67,10 @@
       </div>
     </div>
   </div>
-  <div class="pad-bot-64 pad-left-64 pad-right-128 align-general mar-top-32 w-100">
-    <div class="w-100 mar-right-96">
+  <div class="pad-bot-64 pad-left-64 pad-right-128 align-general mar-top-32 wrapper">
+    <div class="mar-right-96 first">
       <h2 class="mar-bot-24">Processes</h2>
-      <div class="grey-box align-general">
+      <div class="grey-box align-general space-center">
         <div class="align-txt">
           <span class="txt-16 bold mar-bot-12">Name</span>
           <span *ngFor="let process of ram.processes; let last = last" [ngClass]="{'mar-bot-5': !last}"
@@ -79,11 +79,11 @@
         <div class="align-txt mar-left-32">
           <span class="txt-16 bold mar-bot-12">CPU Allocation</span>
           <span *ngFor="let process of ram.processes; let last = last" [ngClass]="{'mar-bot-5': !last}"
-                class="txt-16 mar-bot-5">{{process.allocation}}%</span>
+                class="txt-16 mar-bot-5 text-right">{{process.allocation}}%</span>
         </div>
       </div>
     </div>
-    <div class="w-100">
+    <div class="second">
       <h2 class="mar-bot-24 mar-bot">Alerts</h2>
       <div class="grey-box w-100">
         <div *ngFor="let alert of ram.alerts; let last = last" [ngClass]="{'mar-bot-12': !last}"

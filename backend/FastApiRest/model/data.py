@@ -19,7 +19,7 @@ class EventData(BaseModel):  # TODO: deprecated but kept in application to avoid
     column: str
 
 class JustificationData(BaseModel):  # class containing explanation, justification and details about an event or anomaly
-    application: str
+    application: Optional[str]
     timestamp: datetime
     started: bool
     stopped: bool
@@ -31,6 +31,11 @@ class JustificationData(BaseModel):  # class containing explanation, justificati
 
 class EventAnomalyJustifications(BaseModel):  # class containing justifications for events and anomalies
     timestamp: datetime
+    till_timestamp: datetime
+    total_delta_ram: float
+    total_delta_cpu: float
+    pc_just_started: Optional[bool]
+    is_anomaly: bool
     justification_list: List[JustificationData]
 
 
@@ -99,10 +104,12 @@ class PCData(BaseModel):
     mean_ram: float
     standard_deviation_cpu: float
     mean_cpu: float
+    cov_ram: float
+    cov_cpu: float
+    stability_ram: str
+    stability_cpu: str
     time_series_list: List[PCTimeSeriesData]
     allocation_list_ram: List[AllocationClass]
     allocation_list_cpu: List[AllocationClass]
-    ram_events: List[EventAnomalyJustifications]
-    cpu_events: List[EventAnomalyJustifications]
-    ram_anomalies: List[EventAnomalyJustifications]
-    cpu_anomalies: List[EventAnomalyJustifications]
+    ram_events_and_anomalies: List[EventAnomalyJustifications]
+    cpu_events_and_anomalies: List[EventAnomalyJustifications]

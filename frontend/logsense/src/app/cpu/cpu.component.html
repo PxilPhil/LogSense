@@ -8,8 +8,8 @@
       <h3>{{cpu.cpuName}}</h3>
     </div>
   </div>
-  <h2 class="mar-left-64 mar-top-32">Usage</h2>
-  <div class="pad-right-128 pad-left-64 mar-top-32 w-100">
+  <h2 class="mar-h2">Usage</h2>
+  <div class="pad-right-128 pad-left-64 mar-top-24 w-100">
     <div class="grey-box flex-start w-100">
       <div class="mar-right-96">
         <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24">
@@ -61,65 +61,68 @@
     </div>
   </div>
 
-  <div class="pad-left-64 pad-right-128 align-general mar-top-32 w-100">
-    <div>
-      <h2 class="mar-bot-24">General</h2>
-      <div class="grey-box mar-right-96">
-        <div class="align-general">
-          <div class="align-txt">
-            <span class="txt-16 mar-bot-5">Name</span>
-            <span class="txt-16 mar-bot-5">Identifier</span>
-            <span class="txt-16 mar-bot-5">Processor ID</span>
-            <span class="txt-16 mar-bot-5">Vendor</span>
-            <span class="txt-16">Bitness</span>
-          </div>
-          <div class="align-txt mar-left-24">
-            <span class="txt-16 mar-bot-5">{{cpu.cpuName}}</span>
-            <span class="txt-16 mar-bot-5">{{cpu.identifier}}</span>
-            <span class="txt-16 mar-bot-5">{{cpu.processorID}}</span>
-            <span class="txt-16 mar-bot-5">{{cpu.vendor}}</span>
-            <span class="txt-16">{{cpu.bitness}}</span>
-          </div>
-          <div class="align-txt mar-left-32">
-            <span class="txt-16 mar-bot-5">Physical Packages</span>
-            <span class="txt-16 mar-bot-5">Physical Processors</span>
-            <span class="txt-16 mar-bot-5">Logical Processors</span>
-            <span class="txt-16 mar-bot-5">Context Switches</span>
-            <span class="txt-16">Interrupts</span>
-          </div>
-          <div class="align-txt mar-left-24">
-            <span class="txt-16 mar-bot-5">{{cpu.physicalPackages}}</span>
-            <span class="txt-16 mar-bot-5">{{cpu.physicalProcessors}}</span>
-            <span class="txt-16 mar-bot-5">{{cpu.logicalProcessors}}</span>
-            <span class="txt-16 mar-bot-5">{{cpu.contextSwitches}}</span>
-            <span class="txt-16">{{cpu.interrupts}}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="">
-      <h2 class="mar-bot-24">Processes</h2>
-      <div class="grey-box align-general">
-        <div class="align-txt">
-          <span class="txt-16 bold mar-bot-12">Name</span>
-          <span *ngFor="let process of processes; let last = last" [ngClass]="{'mar-bot-5': !last}"
-                class="txt-16">{{process.name}}</span>
-        </div>
-        <div class="align-txt mar-left-32">
-          <span class="txt-16 bold mar-bot-12">CPU Allocation</span>
-          <span *ngFor="let process of processes; let last = last" [ngClass]="{'mar-bot-5': !last}"
-                class="txt-16 mar-bot-5">{{process.allocation}}%</span>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="pad-left-64 pad-bot-64 pad-right-128 mar-top-32 w-100">
+  <div class="pad-left-64 pad-right-128 mar-top-32 w-100">
     <h2 class="mar-bot-24">Alerts</h2>
     <div class="grey-box w-100">
       <div *ngFor="let alert of alerts; let last = last" [ngClass]="{'mar-bot-12': !last}"
            class="alert-box flex-center">
         <mat-icon class="icon-32 icon">warning</mat-icon>
         <span class="mar-left-32 txt-16">{{alert}}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="pad-left-64 pad-bot-64 pad-right-128 align-general mar-top-32 w-100">
+    <div class="wrapper">
+      <div class="first">
+        <h2 class="mar-bot-24">General</h2>
+        <div class="grey-box">
+          <div class="align-general space-center">
+            <div class="align-txt">
+              <span class="txt-16 mar-bot-5 nowrap">Name</span>
+              <span class="txt-16 mar-bot-5 nowrap">Identifier</span>
+              <span class="txt-16 mar-bot-5 nowrap">Processor ID</span>
+              <span class="txt-16 mar-bot-5 nowrap">Vendor</span>
+              <span class="txt-16 nowrap">Bitness</span>
+            </div>
+            <div class="align-txt mar-left-24">
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.cpuName}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.identifier}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.processorID}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.vendor}}</span>
+              <span class="txt-16 nowrap text-right">{{cpu.bitness}}</span>
+            </div>
+            <div class="align-txt mar-left-32">
+              <span class="txt-16 mar-bot-5 nowrap">Physical Packages</span>
+              <span class="txt-16 mar-bot-5 nowrap">Physical Processors</span>
+              <span class="txt-16 mar-bot-5 nowrap">Logical Processors</span>
+              <span class="txt-16 mar-bot-5 nowrap">Context Switches</span>
+              <span class="txt-16 nowrap">Interrupts</span>
+            </div>
+            <div class="align-txt mar-left-24">
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.physicalPackages}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.physicalProcessors}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.logicalProcessors}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.contextSwitches}}</span>
+              <span class="txt-16 nowrap text-right">{{cpu.interrupts}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="second">
+        <h2 class="mar-bot-24">Processes</h2>
+        <div class="grey-box align-general space-center">
+          <div class="align-txt">
+            <span class="txt-16 bold mar-bot-12">Name</span>
+            <span *ngFor="let process of processes; let last = last" [ngClass]="{'mar-bot-5': !last}"
+                  class="txt-16 nowrap">{{process.name}}</span>
+          </div>
+          <div class="align-txt mar-left-32">
+            <span class="txt-16 bold mar-bot-12 nowrap">CPU Allocation</span>
+            <span *ngFor="let process of processes; let last = last" [ngClass]="{'mar-bot-5': !last}"
+                  class="txt-16 mar-bot-5 text-right">{{process.allocation}}%</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>

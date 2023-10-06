@@ -87,6 +87,14 @@ h3 {
 .bold {
   font-weight: bold;
 }
+
+.text-right {
+  text-align: right;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
 //Borders, Shadows, etc
 $shadow: 0 0 5px 0 rgba(0, 0, 0, 0.25);
 $lil-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.20);
@@ -148,6 +156,11 @@ $border-1px: solid $black 1px;
   border: $border-1px;
   padding: 6px 12px;
 }
+
+.chart-container {
+  position: relative;
+}
+
 .flex-center {
   display: inline-flex;
   align-items: center;
@@ -155,6 +168,10 @@ $border-1px: solid $black 1px;
 .flex-start {
   display: inline-flex;
   align-items: flex-start;
+}
+.flex-end {
+  display: inline-flex;
+  align-items: flex-end;
 }
 .flex-row {
   display: flex;
@@ -168,6 +185,10 @@ $border-1px: solid $black 1px;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+}
+.space-center {
+  display: flex;
+  justify-content: space-between;
 }
 .dropdown-btn {
   box-shadow: $lil-shadow;
@@ -285,6 +306,9 @@ button:focus-visible {
 }
 .mar-bot-5 {
   margin-bottom: 5px;
+}
+.mar-0-imp {
+  margin: 0 !important;
 }
 .pad-right-128 {
   padding-right: 128px;
