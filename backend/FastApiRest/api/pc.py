@@ -9,7 +9,7 @@ from db_access.application import get_latest_application_data
 from data_analytics import requests
 from exceptions.DataBaseInsertExcepion import DataBaseInsertException
 from exceptions.InvalidParametersException import InvalidParametersException
-from model.pc import PCItem, ForecastResult, ForecastData, DISKS, Network, PCSpecs
+from model.pc import PCItem, ForecastResult, ForecastData, DISKS, Network, PCSpecs, PCMetrics
 from model.data import PCData
 
 pc = APIRouter()
@@ -190,17 +190,32 @@ def forecast_free_disk_space(pc_id: int, days: int):
         raise InvalidParametersException()
 
 
-@pc.get('/general_specs/{user_id}', response_model=PCSpecs, tags=["PC"])
-def get_pc_by_user_id(user_id: str):
+@pc.get('/general_specs/{pc_id}', response_model=PCSpecs, tags=["PC"])
+def get_pc_by_user_id(pc_id: str):
     """
     Get specs of PC by user ID.
 
     Args:
-        user_id (str): The user ID to filter PCs.
+        pc_id (str): The user ID to filter PCs.
 
     Returns:
         dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
     """
 
-    specs = db_access.pc.general_specs(user_id)
+    specs = db_access.pc.general_specs(pc_id)
     return specs
+
+@pc.get('/resource_metrics/{pc_id}', response_model=PCMetrics, tags=["PC"])
+def get_pc_by_user_id(pc_id: str):
+    """
+    Get recource metrics of pc by ID
+
+    Args:
+        pc_id (str): The user ID to filter PCs.
+
+    Returns:
+        dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
+    """
+
+    metrics = db_access.pc.resource_metrics(pc_id)
+    return metrics
