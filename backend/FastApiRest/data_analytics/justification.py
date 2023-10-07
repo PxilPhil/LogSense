@@ -4,7 +4,7 @@ import pandas
 from pandas import DataFrame
 
 from data_analytics.manipulation import get_justification_contained
-from db_access.application import get_relevant_application_data
+from db_access.application import get_relevant_application_data, get_application_between
 from db_access.pc import get_pc_data_at_measurement
 from model.data import Justification, JustificationData
 
@@ -132,13 +132,42 @@ def justify_data_point(lj: Justification, applications_dict, pc_just_started: bo
         last_application_dict = application_dict
 
 
-def justify_application_data_points(df: DataFrame, data_points: list, name: str,
-                                    prior_justifications: list[Justification], should_tag_as_anomaly: bool) -> list[
+def justify_application_data_points(data_points: list, name: str, pc_id: int) -> list[
+    Justification]:
+    """
+    Method to justify application data points without the application dataframe, mainly used for alerts
+    :param df:
+    :param data_points:
+    :param name:
+    :param prior_justifications:
+    :param should_tag_as_anomaly:
+    :return:
+    """
+    justifications: list[Justification] = []
+    for point in data_points:
+        start_point: datetime = point-timedelta(minutes=5)
+        application_df, application_data_list = get_application_between(pc_id, name, start_point, point)
+        # check application for justifications
+        justification_list = check_application(application_df, name)
+
+        event_anomaly = Justification(
+            timestamp=point,
+            till_timestamp=start_point,
+            total_delta_ram=None,
+            total_delta_cpu=None,
+            pc_just_started=None,
+            is_anomaly=False,
+            justification_list=justification_list
+        )
+        justifications.append(event_anomaly)
+    return justifications
+
+def justify_application_df(df: DataFrame, data_points: list, name: str,
+                           prior_justifications: list[Justification], should_tag_as_anomaly: bool) -> list[
     Justification]:
     # this method shares a lot of similarities with justify_data_point but it's meant only for one singular application
     justification_logs = []
     for point in data_points:
-        justification_list = []
 
         time_window_start = df.loc[point, 'measurement_time'] - timedelta(minutes=5)
         time_window_end = df.loc[point, 'measurement_time']
@@ -153,31 +182,8 @@ def justify_application_data_points(df: DataFrame, data_points: list, name: str,
             total_delta_ram = time_window_rows.iloc[-1]['ram'] - time_window_rows.iloc[0]['ram']
             total_delta_cpu = time_window_rows.iloc[-1]['cpu'] - time_window_rows.iloc[0]['cpu']
 
-            # go through the specified time window
-            last_row = None
-            for index, row in time_window_rows.iterrows():
-                if last_row is not None:
-                    delta_ram = row['ram'] - last_row['ram']
-                    delta_cpu = row['cpu'] - last_row['cpu']
-                    process_change = row['process_count_difference']
-                    warning = False
-                    if (delta_ram > 0 > process_change and delta_cpu > 0) or (
-                            delta_ram < 0 < process_change and delta_cpu < 0):
-                        warning = True
-                    justification_data = JustificationData(
-                        application=name,
-                        timestamp=row['measurement_time'],
-                        started=False,
-                        stopped=False,
-                        process_change=process_change,
-                        delta_ram=delta_ram,
-                        delta_cpu=delta_cpu,
-                        warning=warning
-                    )
-
-                    justification_list.append(justification_data)
-
-                last_row = row
+            # check application for justifications
+            justification_list = check_application(time_window_rows, name)
 
             event_anomaly = Justification(
                 timestamp=time_window_end,
@@ -191,3 +197,35 @@ def justify_application_data_points(df: DataFrame, data_points: list, name: str,
             justification_logs.append(event_anomaly)
 
     return justification_logs
+
+
+def check_application(time_window_rows, name: str) -> list[
+    JustificationData]:  # checks application in order to get justfications
+    # go through the specified time window
+    justification_list = []
+
+    last_row = None
+    for index, row in time_window_rows.iterrows():
+        if last_row is not None:
+            delta_ram = row['ram'] - last_row['ram']
+            delta_cpu = row['cpu'] - last_row['cpu']
+            process_change = row['process_count_difference']
+            warning = False
+            if (delta_ram > 0 > process_change and delta_cpu > 0) or (
+                    delta_ram < 0 < process_change and delta_cpu < 0):
+                warning = True
+            justification_data = JustificationData(
+                application=name,
+                timestamp=row['measurement_time'],
+                started=False,
+                stopped=False,
+                process_change=process_change,
+                delta_ram=delta_ram,
+                delta_cpu=delta_cpu,
+                warning=warning
+            )
+
+            justification_list.append(justification_data)
+
+        last_row = row
+    return justification_list

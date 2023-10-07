@@ -127,17 +127,11 @@ GET http://localhost:8000/alerts/1?start=2023-07-25 10:20:16&end=2023-09-25 10:3
 ### get all possible alerts
 GET http://localhost:8000/alerts/all/1
 
-### get alert justificatons
-GET http://localhost:8000/alerts/explain
+### get alert justificatons for pc
+GET http://localhost:8000/alerts/justify/1
 Content-Type: application/json
 
-{
-    "type": "CPU Threshold for Chrome",
-    "message": "Chrome is using more than 5% CPU",
-    "severity_level": 5,
-    "column": "cpu",
-    "application": "chrome",
-    "detected_alert_list": [
+    [
       "2023-08-02T16:51:12.816000",
       "2023-08-02T16:52:55.264000",
       "2023-08-02T16:54:28.269000",
@@ -153,7 +147,29 @@ Content-Type: application/json
       "2023-08-02T17:27:42.133000",
       "2023-08-02T17:29:20.280000"
     ]
- }
+
+
+### get alert justificatons for an application
+GET http://localhost:8000/alerts/justify/1?application=chrome
+Content-Type: application/json
+
+    [
+      "2023-08-02T16:51:12.816000",
+      "2023-08-02T16:52:55.264000",
+      "2023-08-02T16:54:28.269000",
+      "2023-08-02T16:56:02.418000",
+      "2023-08-02T16:57:33.203000",
+      "2023-08-02T16:59:05.950000",
+      "2023-08-02T17:00:45.167000",
+      "2023-08-02T17:02:12.057000",
+      "2023-08-02T17:03:34.686000",
+      "2023-08-02T17:04:59.088000",
+      "2023-08-02T17:06:18.701000",
+      "2023-08-02T17:25:59.911000",
+      "2023-08-02T17:27:42.133000",
+      "2023-08-02T17:29:20.280000"
+    ]
+
 
 
 ### get application data bucketed ###

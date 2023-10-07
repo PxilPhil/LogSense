@@ -10,7 +10,7 @@ from data_analytics.alerts import check_for_custom_alerts
 from data_analytics.anomaly_detection import detect_anomalies
 from data_analytics.change_detection import get_event_measurement_times, detect_events
 from data_analytics.forecasting import fit_linear_regression, predict_for_df
-from data_analytics.justification import justify_pc_data_points, justify_application_data_points
+from data_analytics.justification import justify_pc_data_points, justify_application_df
 from data_analytics.manipulation import determine_stability
 from db_access.alerts import getCustomAlerts
 from db_access.data import get_moving_avg_of_application
@@ -141,11 +141,11 @@ def analyze_application_data(df, application_name):
     anomaly_measurements_ram = detect_anomalies(df, 'ram')
     anomaly_measurements_cpu = detect_anomalies(df, 'cpu')
 
-    ram_anomalies = justify_application_data_points(df, anomaly_measurements_ram, application_name, None, True)
-    ram_events_and_anomalies = justify_application_data_points(df, ram_event_points, application_name, ram_anomalies,
-                                                               False)
-    cpu_events_and_anomalies = justify_application_data_points(df, anomaly_measurements_ram, application_name, None,
-                                                               False)
+    ram_anomalies = justify_application_df(df, anomaly_measurements_ram, application_name, None, True)
+    ram_events_and_anomalies = justify_application_df(df, ram_event_points, application_name, ram_anomalies,
+                                                      False)
+    cpu_events_and_anomalies = justify_application_df(df, anomaly_measurements_ram, application_name, None,
+                                                      False)
 
     return df, ram_events_and_anomalies, cpu_events_and_anomalies, anomaly_measurements_ram, anomaly_measurements_cpu, std_ram, std_cpu, mean_ram, mean_cpu, cov_ram, cov_cpu, stability_ram, stability_cpu
 

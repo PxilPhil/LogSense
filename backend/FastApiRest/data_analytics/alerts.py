@@ -2,7 +2,7 @@ from typing import List
 
 import pandas as pd
 
-from data_analytics.justification import justify_pc_data_points, justify_application_data_points
+from data_analytics.justification import justify_pc_data_points, justify_application_df
 from db_access.application import get_latest_application_data, get_application_between
 
 from db_access.pc import select_recent_state, get_recent_pc_total_data, get_total_pc_application_data_between
