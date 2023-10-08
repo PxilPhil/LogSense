@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+import numpy as np
 import pandas
 from pandas import DataFrame
 
@@ -62,7 +63,7 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, prior_jus
                 is_anomaly=should_tag_as_anomaly,
                 justification_list=[]
             )
-            calc_deltas(pc_total_df, justification, point, till_timestamp)
+            calc_deltas(pc_total_df, justification, point)
 
             justify_data_point(justification, applications_dict, pc_just_started)
             justification_logs.append(justification)
@@ -140,8 +141,7 @@ def justify_application_data_points(data_points: list, name: str, pc_id: int) ->
         application_df, application_data_list = get_application_between(pc_id, name, start_point, point)
         # check application for justifications
         justification_list = check_application(application_df, name, point)
-
-        event_anomaly = Justification(
+        justification = Justification(
             timestamp=point,
             till_timestamp=start_point,
             total_delta_ram=None,
@@ -150,7 +150,9 @@ def justify_application_data_points(data_points: list, name: str, pc_id: int) ->
             is_anomaly=False,
             justification_list=justification_list
         )
-        justifications.append(event_anomaly)
+
+        calc_deltas(application_df, justification, point)
+        justifications.append(justification)
     return justifications
 
 
@@ -230,13 +232,12 @@ def check_application(time_window_rows, name: str, timestamp: datetime) -> list[
     return justification_list
 
 
-def calc_deltas(pc_total_df: DataFrame, justification: Justification, point: datetime, till_timestamp: datetime):
-    if len(pc_total_df) > 0:
-        total_ram = pc_total_df.loc[pc_total_df['measurement_time'] == point, 'ram'].iloc[0]
-        total_cpu = pc_total_df.loc[pc_total_df['measurement_time'] == point, 'cpu'].iloc[0]
+def calc_deltas(df: DataFrame, justification: Justification, point: datetime):
+    if df is not None:
+        total_ram = df.loc[df['measurement_time'] == point, 'ram'].iloc[0]
+        total_cpu = df.loc[df['measurement_time'] == point, 'cpu'].iloc[0]
 
-        total_delta_ram = total_ram - pc_total_df.loc[pc_total_df['measurement_time'] == till_timestamp, 'ram']
-        total_delta_cpu = total_cpu - pc_total_df.loc[pc_total_df['measurement_time'] == till_timestamp, 'cpu']
-        justification.total_delta_ram = total_delta_ram
-        justification.total_delta_cpu = total_delta_cpu
-    # TODO: calculate via select operation
+        total_delta_ram = total_ram - df.loc[df['measurement_time'] == df['measurement_time'].min(), 'ram'].iloc[0]
+        total_delta_cpu = total_cpu - df.loc[df['measurement_time'] == df['measurement_time'].min(), 'cpu'].iloc[0]
+        justification.total_delta_ram = np.int64(total_delta_ram).item()
+        justification.total_delta_cpu = np.int64(total_delta_cpu).item()
