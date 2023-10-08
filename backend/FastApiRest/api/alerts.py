@@ -6,7 +6,7 @@ from starlette.responses import JSONResponse
 
 from data_analytics.justification import justify_pc_data_points, justify_application_data_points
 from data_analytics.requests import check_for_alerts
-from db_access.alerts import injestCustomAlerts, getCustomAlerts
+from db_access.alerts import ingestCustomAlerts, getCustomAlerts
 from db_access.pc import get_total_pc_application_data_between
 from model.alerts import CustomAlerts, IngestCustomAlert, AlertNotification
 from model.data import Justification
@@ -63,7 +63,7 @@ def get_all_alerts(user_id: int):
     500: {"description": "Internal server error"}
 })
 def add_custom_alert(alerts: CustomAlerts = Body(...)):
-    anomaly_id = injestCustomAlerts(alerts)
+    anomaly_id = ingestCustomAlerts(alerts)
     return JSONResponse(content={"detail": "anomalies inserted successfully", "anomaly_id": anomaly_id},
                         status_code=200)
 

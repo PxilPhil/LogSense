@@ -8,7 +8,6 @@ from model.data import JustificationData, Justification
 
 
 class CustomCondition(BaseModel):
-    combined_conditions: Optional[CustomCondition] = None
     percentage_trigger_value: Optional[float] = None
     absolute_trigger_value: Optional[float] = None
     operator: str
@@ -42,6 +41,7 @@ class CustomAlertDBObject(BaseModel):
 
 class IngestCustomAlert(BaseModel):
     custom_alert_list: List[CustomAlertDBObject]
+
 
 class AlertNotification(BaseModel):  # the actual alert returned to the user
     type: str

@@ -195,66 +195,12 @@ Content-Type: application/json
       "severity_level": 5,
       "conditions": [
         {
-          "percentage_trigger_value": 0.9,
-          "operator": ">=",
-          "column": "ram"
-        }
-      ]
-    },
-    {
-      "user_id": 1,
-      "type": "Breaking threshold alert for chrome",
-      "message": "Chrome has broken a defined threshold (90% RAM usage per pc or went over 5GB absolute usage)",
-      "severity_level": 5,
-      "conditions": [
-        {
-          "percentage_trigger_value": 0.9,
-          "operator": ">=",
-          "column": "ram",
-          "application": "chrome"
-        }
-      ]
-    },
-    {
-      "user_id": 1,
-      "type": "Breaking absolute threshold alert for chrome",
-      "message": "Chrome has broken a defined threshold of 5GB",
-      "severity_level": 5,
-      "conditions": [
-        {
-          "absolute_trigger_value": 5000000000,
-          "operator": ">=",
-          "column": "ram",
-          "application": "chrome"
-        }
-      ]
-    },
-    {
-      "user_id": 1,
-      "type": "Combined threshold alert for chrome",
-      "message": "Chrome has broken a defined threshold (90% RAM usage per pc combined with 50% CPU usage or went over 5GB absolute usage)",
-      "severity_level": 5,
-      "conditions": [
-        {
-          "combined_conditions": [
-            {
-              "percentage_trigger_value": 0.9,
-              "operator": ">=",
-              "column": "ram",
-              "application": "chrome"
-            },
-            {
-              "percentage_trigger_value": 0.5,
-              "operator": ">=",
-              "column": "cpu",
-              "application": "chrome"
-            }
-        },
-        {
-          "absolute_trigger_value": 5000000000,
-          "operator": ">=",
-          "column": "ram",
-          "application": "chrome"
+          "percentage_trigger_value": 0.05,
+          "absolute_trigger_value": 0.05,
+          "operator": ">",
+          "column": "cpu",
+          "application": "chrome",
+          "detect_via_moving_averages": true
         }
       ]
     }

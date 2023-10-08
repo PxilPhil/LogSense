@@ -29,25 +29,14 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, prior_jus
     :return:
     """
     justification_logs = []
-    """
-                total_ram = pc_total_df.loc[pc_total_df['measurement_time'] == point, 'ram'].iloc[0]
-            total_cpu = pc_total_df.loc[pc_total_df['measurement_time'] == point, 'cpu'].iloc[0]
 
-            total_delta_ram = total_ram - pc_total_df.loc[pc_total_df['measurement_time'] == till_timestamp, 'ram']
-            total_delta_cpu = total_cpu - pc_total_df.loc[pc_total_df['measurement_time'] == till_timestamp, 'cpu']
-    """
     for point in significant_data_points:
-        print('data point')
-        print(point)
-
         existing_justification = get_justification_contained(point, prior_justifications)
         if existing_justification:
             justification_logs.append(existing_justification)
         else:
-
             ram_relevancy = get_pc_data_at_measurement(ram_relevancy_threshold, point, pc_id)
-            applications_df, application_data_list = get_relevant_application_data(pc_id, point,
-                                                                                   ram_relevancy,
+            applications_df, application_data_list = get_relevant_application_data(pc_id, point, ram_relevancy,
                                                                                    cpu_relevancy_threshold)
             pc_just_started = False
             if applications_df['measurement_time'].nunique() <= 1:
@@ -64,7 +53,7 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, prior_jus
 
             till_timestamp = applications_df['measurement_time'].min()
 
-            lj = Justification(
+            justification = Justification(
                 timestamp=point,
                 till_timestamp=till_timestamp,
                 pc_just_started=pc_just_started,
@@ -73,8 +62,10 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, prior_jus
                 is_anomaly=should_tag_as_anomaly,
                 justification_list=[]
             )
-            justify_data_point(lj, applications_dict, pc_just_started)
-            justification_logs.append(lj)
+            calc_deltas(pc_total_df, justification, point, till_timestamp)
+
+            justify_data_point(justification, applications_dict, pc_just_started)
+            justification_logs.append(justification)
     print(justification_logs)
     return justification_logs
 
@@ -145,10 +136,10 @@ def justify_application_data_points(data_points: list, name: str, pc_id: int) ->
     """
     justifications: list[Justification] = []
     for point in data_points:
-        start_point: datetime = point-timedelta(minutes=5)
+        start_point: datetime = point - timedelta(minutes=5)
         application_df, application_data_list = get_application_between(pc_id, name, start_point, point)
         # check application for justifications
-        justification_list = check_application(application_df, name)
+        justification_list = check_application(application_df, name, point)
 
         event_anomaly = Justification(
             timestamp=point,
@@ -161,6 +152,7 @@ def justify_application_data_points(data_points: list, name: str, pc_id: int) ->
         )
         justifications.append(event_anomaly)
     return justifications
+
 
 def justify_application_df(df: DataFrame, data_points: list, name: str,
                            prior_justifications: list[Justification], should_tag_as_anomaly: bool) -> list[
@@ -183,7 +175,7 @@ def justify_application_df(df: DataFrame, data_points: list, name: str,
             total_delta_cpu = time_window_rows.iloc[-1]['cpu'] - time_window_rows.iloc[0]['cpu']
 
             # check application for justifications
-            justification_list = check_application(time_window_rows, name)
+            justification_list = check_application(time_window_rows, name, point)
 
             event_anomaly = Justification(
                 timestamp=time_window_end,
@@ -199,7 +191,7 @@ def justify_application_df(df: DataFrame, data_points: list, name: str,
     return justification_logs
 
 
-def check_application(time_window_rows, name: str) -> list[
+def check_application(time_window_rows, name: str, timestamp: datetime) -> list[
     JustificationData]:  # checks application in order to get justfications
     # go through the specified time window
     justification_list = []
@@ -207,17 +199,24 @@ def check_application(time_window_rows, name: str) -> list[
     last_row = None
     for index, row in time_window_rows.iterrows():
         if last_row is not None:
+            warning = False
+            started=False
             delta_ram = row['ram'] - last_row['ram']
             delta_cpu = row['cpu'] - last_row['cpu']
             process_change = row['process_count_difference']
-            warning = False
             if (delta_ram > 0 > process_change and delta_cpu > 0) or (
                     delta_ram < 0 < process_change and delta_cpu < 0):
                 warning = True
+
+            time_difference = row['measurement_time'] - last_row['measurement_time']
+
+            # application has just started if its the only entry or iif the difference to the last row is more than two minutes
+            if (timestamp == index and len(time_window_rows)==1) or (time_difference>timedelta(minutes=2)):
+                started=True
             justification_data = JustificationData(
                 application=name,
                 timestamp=row['measurement_time'],
-                started=False,
+                started=started,
                 stopped=False,
                 process_change=process_change,
                 delta_ram=delta_ram,
@@ -229,3 +228,15 @@ def check_application(time_window_rows, name: str) -> list[
 
         last_row = row
     return justification_list
+
+
+def calc_deltas(pc_total_df: DataFrame, justification: Justification, point: datetime, till_timestamp: datetime):
+    if len(pc_total_df) > 0:
+        total_ram = pc_total_df.loc[pc_total_df['measurement_time'] == point, 'ram'].iloc[0]
+        total_cpu = pc_total_df.loc[pc_total_df['measurement_time'] == point, 'cpu'].iloc[0]
+
+        total_delta_ram = total_ram - pc_total_df.loc[pc_total_df['measurement_time'] == till_timestamp, 'ram']
+        total_delta_cpu = total_cpu - pc_total_df.loc[pc_total_df['measurement_time'] == till_timestamp, 'cpu']
+        justification.total_delta_ram = total_delta_ram
+        justification.total_delta_cpu = total_delta_cpu
+    # TODO: calculate via select operation
