@@ -1,5 +1,4 @@
 ### Add User ###
-
 POST http://localhost:8000/user/add_user
 Content-Type: application/json
 
@@ -112,8 +111,11 @@ GET http://localhost:8000/pc/1/data/GPU?start=2023-07-25 10:20:16&end=2023-12-25
 ### get pc time metrics
 GET http://localhost:8000/pc/1/time-metrics/?start=2023-07-25 10:20:16&end=2023-12-25 10:33:01
 
+### get application time metrics
+GET http://localhost:8000/pc/1/application/jetbrains-toolbox/time-metrics/?start=2023-07-25 10:20:16&end=2023-12-25 10:33:01
+
 ### get application data ###
-GET http://localhost:8000/pc/1/application/chrome?start=2023-07-25 10:20:16&end=2023-09-25 10:33:01
+GET http://localhost:8000/pc/1/application/jetbrains-toolbox?start=2023-07-25 10:20:16&end=2023-09-25 10:33:01
 
 ### get list of applications
 GET http://localhost:8000/pc/1/application/?start=2022-07-25 10:20:16&end=2023-12-25 10:33:01
@@ -173,7 +175,7 @@ Content-Type: application/json
 
 
 ### get application data bucketed ###
-GET http://localhost:8000/pc/1/application/chrome/bucket/?start=2023-07-25 10:20:16&end=2023-07-25 10:33:01&bucket_value=5 minutes
+GET http://localhost:8000/pc/1/application/Adobe Desktop Service/bucket/?start=2023-07-25 10:20:16&end=2023-07-25 10:33:01&bucket_value=5 minutes
 
 ### get disks
 GET http://localhost:8000/pc/1/disk
