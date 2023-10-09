@@ -125,7 +125,7 @@ def analyze_application_data(df, application_name):
         mean: Average of the values.
     """
     # find events
-    ram_event_points = detect_events(df, 'ram')
+    ram_event_points = get_event_measurement_times(df, 'ram')
     # get stats
     std_ram = df['ram'].std()
     mean_ram = df['ram'].mean()

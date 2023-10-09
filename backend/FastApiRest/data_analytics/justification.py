@@ -162,17 +162,16 @@ def justify_application_df(df: DataFrame, data_points: list, name: str,
     # this method shares a lot of similarities with justify_data_point but it's meant only for one singular application
     justification_logs = []
     for point in data_points:
+        till_timestamp_point = point - timedelta(minutes=5)
 
-        time_window_start = df.loc[point, 'measurement_time'] - timedelta(minutes=5)
-        time_window_end = df.loc[point, 'measurement_time']
 
-        existing_justification = get_justification_contained(time_window_end, prior_justifications)
+        existing_justification = get_justification_contained(point, prior_justifications)
         if existing_justification:
             justification_logs.append(existing_justification)
         else:
             # select all rows in the specified time window
             time_window_rows = df[
-                (df['measurement_time'] >= time_window_start) & (df['measurement_time'] <= time_window_end)]
+                (df['measurement_time'] >= till_timestamp_point) & (df['measurement_time'] <= point)]
             total_delta_ram = time_window_rows.iloc[-1]['ram'] - time_window_rows.iloc[0]['ram']
             total_delta_cpu = time_window_rows.iloc[-1]['cpu'] - time_window_rows.iloc[0]['cpu']
 
@@ -180,8 +179,8 @@ def justify_application_df(df: DataFrame, data_points: list, name: str,
             justification_list = check_application(time_window_rows, name, point)
 
             event_anomaly = Justification(
-                timestamp=time_window_end,
-                till_timestamp=time_window_start,
+                timestamp=point,
+                till_timestamp=till_timestamp_point,
                 total_delta_ram=total_delta_ram,
                 total_delta_cpu=total_delta_cpu,
                 pc_just_started=None,
