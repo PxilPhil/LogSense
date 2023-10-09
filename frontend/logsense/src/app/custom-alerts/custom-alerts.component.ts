@@ -8,4 +8,11 @@ import { Component } from '@angular/core';
 export class CustomAlertsComponent {
   searchCriteria: string = "";
 
+  severity: string[] = ["Very Low", "Low", "Medium", "High", "Very High"];
+  operator: string[] = ["<=", "=", ">="];
+  detection: string[] = ["Data Point", "Moving Averages"];
+
+
+
+
 }

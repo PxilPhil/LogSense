@@ -36,6 +36,7 @@
           <div class="flex-row mar-bot-24">
             <span class="txt-16 mar-right-24">Severity Level</span>
             <select>
+              <option *ngFor="let sev of severity" [ngValue]="sev">{{sev}}</option>
             </select>
           </div>
           <span class="txt-22 mar-bot-12">Conditions</span>
@@ -58,13 +59,13 @@
           <div class="flex-center mar-bot-24">
             <span class="txt-16 mar-right-24 label">Operator:</span>
             <select>
-
+              <option *ngFor="let op of operator" [ngValue]="op">{{op}}</option>
             </select>
           </div>
           <div class="flex-center mar-bot-24">
             <span class="txt-16 mar-right-24 label">Detection by:</span>
             <select>
-
+              <option *ngFor="let det of detection" [ngValue]="det">{{det}}</option>
             </select>
           </div>
           <div class="just-end w-100">
