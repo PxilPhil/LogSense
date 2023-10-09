@@ -1,15 +1,18 @@
+from datetime import datetime
+
 import pandas as pd
 from fastapi import APIRouter, HTTPException, Body
 from starlette.responses import JSONResponse
 
 import db_access.pc
+from db_access.data import select_total_running_time
 from db_access.pc import get_pcs, get_pcs_by_userid, add_pc, get_free_disk_space_data, \
     get_recent_disk_and_partition
 from db_access.application import get_latest_application_data
 from data_analytics import requests
 from exceptions.DataBaseInsertExcepion import DataBaseInsertException
 from exceptions.InvalidParametersException import InvalidParametersException
-from model.pc import PCItem, ForecastResult, ForecastData, DISKS, Network, PCSpecs
+from model.pc import PCItem, ForecastResult, ForecastData, DISKS, Network, PCSpecs, PCMetrics
 from model.data import PCData
 
 pc = APIRouter()
@@ -192,17 +195,37 @@ def forecast_free_disk_space(pc_id: int, days: int):
         raise InvalidParametersException()
 
 
-@pc.get('/general_specs/{user_id}', response_model=PCSpecs, tags=["PC"])
-def get_pc_by_user_id(user_id: str):
+@pc.get('/general_specs/{pc_id}', response_model=PCSpecs, tags=["PC"])
+def get_pc_by_user_id(pc_id: str):
     """
     Get specs of PC by user ID.
 
     Args:
-        user_id (str): The user ID to filter PCs.
+        pc_id (str): The user ID to filter PCs.
 
     Returns:
         dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
     """
 
-    specs = db_access.pc.general_specs(user_id)
+    specs = db_access.pc.general_specs(pc_id)
     return specs
+
+@pc.get('/resource_metrics/{pc_id}', response_model=PCMetrics, tags=["PC"])
+def get_pc_by_user_id(pc_id: str):
+    """
+    Get recource metrics of pc by ID
+
+    Args:
+        pc_id (str): The user ID to filter PCs.
+
+    Returns:
+        dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
+    """
+
+    metrics = db_access.pc.resource_metrics(pc_id)
+    return metrics
+
+@pc.get('/{pc_id}/time-metrics/', response_model=dict, tags=["PC"])
+def get_pc_time_metrics(pc_id: int, start: datetime, end:datetime):
+    time_metrics_dict = select_total_running_time(start, end, pc_id)
+    return time_metrics_dict

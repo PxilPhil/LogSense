@@ -72,23 +72,3 @@ def add_user_api(data: AddUserRequest):
         raise HTTPException(status_code=500, detail='Failed to insert user.')
 
     return {'user_id': user_id}
-
-
-@user.get('/{user_id}', response_model=UserAlerts, status_code=200, tags=["User"])
-def get_user_alerts(user_id: int, start: str, end: str):
-    """
-    Gets User Alerts between a two datetime strings, this includes all Events, Anomalies and Even Custom Alerts
-    """
-    try:
-        alert_list = get_all_user_alerts(user_id, start, end)
-
-        user_alerts = UserAlerts(
-            user_id=user_id,
-            start=start,
-            end=end,
-            alert_list=alert_list
-        )
-
-        return user_alerts
-    except psycopg2.DatabaseError as e:
-        raise DataBaseException()

@@ -5,11 +5,12 @@ import pandas as pd
 from datetime import datetime
 
 from exceptions.DataBaseExcepion import DataBaseException
+from exceptions.InvalidParametersException import InvalidParametersException
 from exceptions.NotFoundExcepion import NotFoundException
 from model.data import PCTimeSeriesData
 from pydantic import BaseModel, create_model
 
-from model.pc import NetworkInterface, Connection, Disk, DiskPartition, PCState, PCSpecs
+from model.pc import NetworkInterface, Connection, Disk, DiskPartition, PCState, PCSpecs, PCMetrics
 from model.pc import DISK, PARTITION, DISKS
 
 
@@ -121,7 +122,8 @@ def get_total_pc_application_data_between(pc_id, start, end):
         major_faults,
         open_files,
         thread_count,
-        AVG(ram) OVER (ORDER BY measurement_time ROWS BETWEEN 5 PRECEDING AND CURRENT ROW) AS moving_average_ram
+        AVG(ram) OVER (ORDER BY measurement_time ROWS BETWEEN 5 PRECEDING AND CURRENT ROW) AS moving_average_ram,
+        AVG(cpu) OVER (ORDER BY measurement_time ROWS BETWEEN 5 PRECEDING AND CURRENT ROW) AS moving_average_cpu
     FROM
         pcdata
     WHERE
@@ -469,7 +471,7 @@ def get_recent_pc_total_data(pc_id, limit):
         conn_pool.putconn(conn)
 
 
-def general_specs(user_id):
+def general_specs(pc_id):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
@@ -496,10 +498,10 @@ def general_specs(user_id):
         ORDER BY measurement_time desc 
         """
 
-        cursor.execute(querry, user_id)
+        cursor.execute(querry, pc_id)
         result = cursor.fetchone()
 
-        cursor.execute(querry2, user_id)
+        cursor.execute(querry2, pc_id)
         result2 = cursor.fetchone()
 
         if result and result2:
@@ -523,5 +525,232 @@ def general_specs(user_id):
         return None
     except psycopg2.DatabaseError as e:
         raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
+
+
+def get_pc_data_at_measurement(ram_multiplier, timestamp: datetime, pc_id: int):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        query = """
+        SELECT ram * %s AS ram FROM pcdata WHERE measurement_time = %s AND pc_id=%s;
+        """
+
+        cursor.execute(query, (ram_multiplier, timestamp, pc_id))
+        result = cursor.fetchone()
+
+        if result:
+            return result[0]
+        return None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
+
+
+
+def resource_metrics(pc_id):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+             SELECT processor_name, physical_package_count, physical_processor_count, logical_processor_count, 
+                    total_memory_size, memory_page_size
+             FROM PCState
+             WHERE pc_id = %s
+             ORDER BY measurement_time DESC
+             LIMIT 1
+         """, (pc_id,))
+        pcstate_row = cursor.fetchone()
+        if pcstate_row is None:
+            return None
+
+        processor_name, physical_package_count, physical_processor_count, logical_processor_count, total_memory_size, memory_page_size = pcstate_row
+
+        cursor.execute("""
+             SELECT cpu, ram, free_disk_space
+             FROM pcdata
+             WHERE pc_id = %s
+             ORDER BY measurement_time DESC
+             LIMIT 1
+         """, (pc_id,))
+        pcdata_row = cursor.fetchone()
+        if pcdata_row is None:
+            return None
+
+        cpu_usage, ram_usage, free_disk_space = pcdata_row
+
+        # Query disk table to retrieve disk metrics
+        cursor.execute("""
+             SELECT SUM(size) AS total_size
+                FROM disk
+                WHERE state_id IN (
+                SELECT id
+                FROM PCState
+                WHERE pc_id = %s
+                ORDER BY measurement_time DESC
+                LIMIT 1
+                );
+         """, (pc_id,))
+        disk_row = cursor.fetchone()
+        if disk_row is None:
+            return None
+
+        total_disk_space = disk_row[0]
+
+        total_memory = total_memory_size
+        free_memory = total_memory - ram_usage
+        cpu_percentage_use = cpu_usage * 100
+        ram_percentage_in_use = (ram_usage / total_memory) * 100
+        page_size = memory_page_size
+        disk_percentage_in_use = ((total_disk_space - free_disk_space) / total_disk_space) * 100
+
+        # Create a PCMetrics instance with the retrieved values
+        pc_metrics = PCMetrics(
+            cpu_percentage_use=cpu_percentage_use,
+            processor_name=processor_name,
+            physical_package_count=physical_package_count,
+            physical_processor_count=physical_processor_count,
+            logical_processor_count=logical_processor_count,
+            ram_percentage_in_use=ram_percentage_in_use,
+            total_memory=total_memory,
+            free_memory=free_memory,
+            page_size=page_size,
+            disk_percentage_in_use=float(disk_percentage_in_use),
+            total_disk_space=int(total_disk_space),
+            free_disk_space=free_disk_space
+        )
+        return pc_metrics
+
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    except Exception as e:
+        print(str(e))
+    finally:
+        conn_pool.putconn(conn)
+
+def select_total_running_time(start: datetime, end: datetime, pc_id: int):
+    # TODO: Keep in mind that this might contain errors, in the worst case it cant be calculated via database operations
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        total_running_time_query = """
+WITH app_with_lead AS (
+    SELECT
+        id,
+        pcdata_id,
+        pc_id,
+        name,
+        path,
+        measurement_time,
+        ram,
+        cpu,
+        LEAD(measurement_time) OVER (PARTITION BY pc_id, name ORDER BY measurement_time) AS next_measurement_time
+    FROM
+        applicationdata
+    WHERE
+        pc_id = %s
+)
+SELECT
+    name,
+    SUM(
+        CASE
+            WHEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time) >= 30 AND EXTRACT(EPOCH FROM next_measurement_time - measurement_time) <= 90 THEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time)
+            ELSE 0
+        END
+    ) AS total_running_time_seconds
+FROM
+    app_with_lead
+WHERE
+    next_measurement_time IS NOT NULL
+    AND measurement_time BETWEEN %s AND %s
+GROUP BY
+    name
+HAVING
+    SUM(
+        CASE
+            WHEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time) >= 30 AND EXTRACT(EPOCH FROM next_measurement_time - measurement_time) <= 90 THEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time)
+            ELSE 0
+        END
+    ) > 0
+ORDER BY
+    SUM(ram) DESC, SUM(cpu) DESC;
+        """
+
+        cursor.execute(total_running_time_query, (pc_id, start, end))
+        results = cursor.fetchall()
+
+        if results:
+            result_dict = {'data': [{'name': row[0], 'total_running_time_seconds': float(row[1])} for row in results]}
+            return result_dict
+        else:
+            return None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    except KeyError as e:
+        raise InvalidParametersException()
+    finally:
+        conn_pool.putconn(conn)
+def select_total_running_time(start: datetime, end: datetime, pc_id: int):
+    # TODO: Keep in mind that this might contain errors, in the worst case it cant be calculated via database operations
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        total_running_time_query = """
+WITH app_with_lead AS (
+    SELECT
+        id,
+        pcdata_id,
+        pc_id,
+        name,
+        path,
+        measurement_time,
+        ram,
+        cpu,
+        LEAD(measurement_time) OVER (PARTITION BY pc_id, name ORDER BY measurement_time) AS next_measurement_time
+    FROM
+        applicationdata
+    WHERE
+        pc_id = %s
+)
+SELECT
+    name,
+    SUM(
+        CASE
+            WHEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time) >= 30 AND EXTRACT(EPOCH FROM next_measurement_time - measurement_time) <= 90 THEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time)
+            ELSE 0
+        END
+    ) AS total_running_time_seconds
+FROM
+    app_with_lead
+WHERE
+    next_measurement_time IS NOT NULL
+    AND measurement_time BETWEEN %s AND %s
+GROUP BY
+    name
+HAVING
+    SUM(
+        CASE
+            WHEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time) >= 30 AND EXTRACT(EPOCH FROM next_measurement_time - measurement_time) <= 90 THEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time)
+            ELSE 0
+        END
+    ) > 0
+ORDER BY
+    SUM(ram) DESC, SUM(cpu) DESC;
+        """
+
+        cursor.execute(total_running_time_query, (pc_id, start, end))
+        results = cursor.fetchall()
+
+        if results:
+            result_dict = {'data': [{'name': row[0], 'total_running_time_seconds': float(row[1])} for row in results]}
+            return result_dict
+        else:
+            return None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    except KeyError as e:
+        raise InvalidParametersException()
     finally:
         conn_pool.putconn(conn)

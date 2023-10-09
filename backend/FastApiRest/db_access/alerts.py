@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
+from typing import List
+
 import psycopg2.errorcodes
 
 from psycopg2 import extras
@@ -15,10 +17,10 @@ from db_access.data_helper import get_pc_state_df, update_disk_df
 from db_access.helper import get_pcid_by_stateid
 from exceptions.DataBaseExcepion import DataBaseException
 from exceptions.DataBaseInsertExcepion import DataBaseInsertException
-from model.alerts import CustomAlerts, CustomAlertObject, InjestCustomAlerts, InjestCustomAlertObject
+from model.alerts import CustomAlerts, CustomAlert, IngestCustomAlert, CustomAlertDBObject, CustomCondition
 
 
-def injestCustomAlerts(alerts: CustomAlerts):
+def ingestCustomAlerts(alerts: CustomAlerts):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
@@ -28,7 +30,7 @@ def injestCustomAlerts(alerts: CustomAlerts):
         """
         alert_tuples = []
         for alert in alerts.custom_alert_list:
-            conditions_json = json.dumps(alert.conditions, default=lambda o: o.__dict__, indent=4)
+            conditions_json = json.dumps([condition.dict() for condition in alert.conditions])
             alert_tuples.append((alert.user_id, alert.type, alert.severity_level, alert.message, conditions_json))
         psycopg2.extras.execute_values(cursor, insert_query, alert_tuples)
 
@@ -41,7 +43,7 @@ def injestCustomAlerts(alerts: CustomAlerts):
     finally:
         conn_pool.putconn(conn)
 
-def getCustomAlerts(user_id: int):
+def getCustomAlerts(user_id: int) -> CustomAlerts:
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
@@ -57,14 +59,14 @@ def getCustomAlerts(user_id: int):
 
         anomalies = cursor.fetchall()
 
-        custom_alerts = InjestCustomAlerts(
+        custom_alerts = CustomAlerts(
             custom_alert_list=[
-                InjestCustomAlertObject(
+                CustomAlert(
                     user_id=anomaly[1],
                     type=anomaly[2],
                     message=anomaly[4],
                     severity_level=anomaly[3],
-                    conditions=str(anomaly[5])
+                    conditions=json.loads(anomaly[5], object_hook=lambda d: CustomCondition(**d))
                 )
                 for anomaly in anomalies
             ]
@@ -73,8 +75,7 @@ def getCustomAlerts(user_id: int):
         return custom_alerts
     except Exception as e:
         print(str(e))
-        #if e.pgerror == psycopg2.errorcodes.INVALID_TEXT_REPRESENTATION:
-        #    raise InvalidParametersException()
-        raise e#DataBaseException()
+        # Handle exceptions as needed.
+        raise e  # DataBaseException()
     finally:
         conn_pool.putconn(conn)

@@ -2,7 +2,7 @@ import numpy as np
 import ruptures as rpt
 from pandas import DataFrame
 
-from model.data import EventAnomalyJustifications, JustificationData
+from model.data import Justification, JustificationData
 
 penalty_value = 0.5  # value used for "penalizing" the pelting model for overfitting, decrease to detect more insignicant events and vice versa -> sensitivity in other words
 

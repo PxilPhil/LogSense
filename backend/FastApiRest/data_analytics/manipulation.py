@@ -5,7 +5,8 @@ import numpy as np
 import io
 from datetime import datetime, timedelta
 
-from model.data import EventAnomalyJustifications
+from model.alerts import CustomAlert
+from model.data import Justification
 
 """
     This module contains a lot of helper methods for specific cases in our application
@@ -62,12 +63,12 @@ def calc_end_timestamp(timestamp,
 def determine_stability(cov): # maybe put this into a own module later on, used to convert COV to be easily readable by a user
     # TODO: keep in mind these are really abstract placeholder values
     if cov<5:
-        return 'High Stability'
+        return 'High'
     elif cov<10:
-        return 'Medium Stability'
+        return 'Medium'
     elif cov<20:
-        return 'Low Stability'
-    return 'Extremely Low Stability'
+        return 'Low'
+    return 'Extremely Low'
 
 def convert_to_data_frame(csv_string):
     csv_io = io.StringIO(csv_string)
@@ -79,15 +80,16 @@ def convert_column_to_list(df, column):
     return df[column].tolist()
 
 
-def add_justification_to_anomaly(anomaly_list: list, justification: EventAnomalyJustifications):
+def add_justification_to_anomaly(anomaly_list: list, justification: Justification):
     for anomaly in anomaly_list:
         if anomaly.timestamp == justification.timestamp:
             anomaly.justification = justification
 
 
-def get_justification_contained(timestamp: datetime, justification_list: list[EventAnomalyJustifications]):
+def get_justification_contained(timestamp: datetime, justification_list: list[Justification]):
     if justification_list is not None:
         for justification in justification_list:
             if timestamp == justification.timestamp:
                 return justification
     return None
+

@@ -1,10 +1,12 @@
+from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Body
 
 from data_analytics import requests
 from exceptions.InvalidParametersException import InvalidParametersException
-from db_access.application import get_application_between, get_application_list, get_grouped_by_interval_application
+from db_access.application import get_application_between, get_application_list, get_grouped_by_interval_application, \
+    select_total_running_time_application
 from exceptions.NotFoundExcepion import NotFoundException
 from model.application import ApplicationData, ApplicationListObject
 from model.pc import PCItem
@@ -13,7 +15,7 @@ application = APIRouter()
 
 
 @application.get("/{application_name}/", response_model=ApplicationData, tags=["Application"])
-def fetch_application(pc_id: int, application_name: str, start: str, end: str):
+def fetch_application(pc_id: int, application_name: str, start: str, end: str): #TODO: what does pc_id do here?
     """
     Get Data to Application
 
@@ -95,3 +97,9 @@ def fetch_application_list(pc_id: int, start: str, end: str):
     )
     #print(application_list_obj)
     return application_list_obj
+
+
+@application.get('/{application_name}/time-metrics/', response_model=dict, tags=["Application"])
+def get_pc_time_metrics(pc_id: int, application_name: str, start: datetime, end: datetime):
+    time_metrics_dict = select_total_running_time_application(start, end, application_name, pc_id)
+    return time_metrics_dict
