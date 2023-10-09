@@ -106,46 +106,9 @@
     </div>
   </div>
 
-  <!--Time Metrics -->
-  <div class="pad-left-64 mar-top-32">
-    <h3>Time Metrics</h3>
-    <div class="grey-box flex-row mar-top-12">
-      <div class="flex-col w-100">
-        <canvas class="white-bg w-100" id="timeChart"></canvas>
-        <div class="flex-center mar-top-12">
-          <div class="form-check">
-            <input class="form-check-input" id="linechart" type="checkbox" value="">
-            <span class="txt-16">Line Chart</span>
-          </div>
-          <div class="form-check mar-left-12">
-            <input checked class="form-check-input" id="predictions" type="checkbox" value="">
-            <span class="txt-16">Predictions</span>
-          </div>
-        </div>
-      </div>
-      <div class="mar-left-64 w-100">
-        <div>
-          <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24">
-            <option *ngFor="let elem of times" [ngValue]="elem">{{elem.time}}</option>
-          </select>
-        </div>
-        <span class="txt-16">Detail Information ({{selectedTime.time}})</span>
-        <div class="white-box flex-center">
-          <div>
-            <!--icon-->
-          </div>
-          <div>
-            <span>
-              Usage
-            </span>
-            <span>
+  <app-time-metrics></app-time-metrics>
 
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="pad-bot-64 mar-top-32 w-100">
+    <div class="pad-bot-64 pad-left-64 mar-top-32 w-100">
       <h2 class="mar-bot-24">Alerts</h2>
       <div class="grey-box w-100">
         <div *ngFor="let alert of alerts; let last = last" [ngClass]="{'mar-bot-12': !last}"
@@ -155,5 +118,4 @@
         </div>
       </div>
     </div>
-  </div>
 </div>

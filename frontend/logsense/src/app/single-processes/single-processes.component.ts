@@ -199,7 +199,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
         labels: this.ramData.measurementTime,
         datasets: [{
           data: this.ramData.usage,
-          borderColor: "#2b26a8",
+          borderColor: "#3e95cd",
           fill: false
         }]
       }, options: {
