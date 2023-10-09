@@ -12,7 +12,7 @@ from db_access.application import get_latest_application_data
 from data_analytics import requests
 from exceptions.DataBaseInsertExcepion import DataBaseInsertException
 from exceptions.InvalidParametersException import InvalidParametersException
-from model.pc import PCItem, ForecastResult, ForecastData, DISKS, Network, PCSpecs
+from model.pc import PCItem, ForecastResult, ForecastData, DISKS, Network, PCSpecs, PCMetrics
 from model.data import PCData
 
 pc = APIRouter()
@@ -85,6 +85,7 @@ def get_pc_data(pc_id: int, start: str, end: str):
         raise InvalidParametersException()
     pc_total_df, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu, ram_events_anomalies, cpu_events_anomalies, cov_ram, cov_cpu, stability_ram, stability_cpu = requests.analyze_pc_data(
         df, total_df)
+
 
     pc_data = PCData(
         pc_id=pc_id,
@@ -194,23 +195,32 @@ def forecast_free_disk_space(pc_id: int, days: int):
         raise InvalidParametersException()
 
 
-@pc.get('/general_specs/{user_id}', response_model=PCSpecs, tags=["PC"])
-def get_pc_by_user_id(user_id: str):
+@pc.get('/general_specs/{pc_id}', response_model=PCSpecs, tags=["PC"])
+def get_pc_by_user_id(pc_id: str):
     """
     Get specs of PC by user ID.
 
     Args:
-        user_id (str): The user ID to filter PCs.
+        pc_id (str): The user ID to filter PCs.
 
     Returns:
         dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
     """
 
-    specs = db_access.pc.general_specs(user_id)
+    specs = db_access.pc.general_specs(pc_id)
     return specs
 
+@pc.get('/resource_metrics/{pc_id}', response_model=PCMetrics, tags=["PC"])
+def get_pc_by_user_id(pc_id: str):
+    """
+    Get recource metrics of pc by ID
 
-@pc.get('/{pc_id}/time-metrics/', response_model=dict, tags=["PC"])
-def get_pc_time_metrics(pc_id: int, start: datetime, end:datetime):
-    time_metrics_dict = select_total_running_time(start, end, pc_id)
-    return time_metrics_dict
+    Args:
+        pc_id (str): The user ID to filter PCs.
+
+    Returns:
+        dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
+    """
+
+    metrics = db_access.pc.resource_metrics(pc_id)
+    return metrics

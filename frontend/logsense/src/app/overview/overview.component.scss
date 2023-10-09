@@ -1,3 +1,4 @@
+@import "bootstrap";
 @import "../../styles.scss";
 
 .white-bg {
@@ -24,4 +25,41 @@
 .test {
   display: flex;
   flex-direction: row;
+  width: calc(100% - 64px);
+  .first {
+    flex: 0 0 45%;
+    width: 100%;
+  }
+  .second {
+    flex: 0 0 25%;
+    width: 100%;
+  }
+  .third {
+    flex: 0 0 30%;
+    width: 100%;
+  }
+}
+
+
+@media (max-width: 1200px) {
+  .test {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    .first {
+      margin: 0 0 24px 0;
+    }
+    .second {
+      margin: 0 0 24px 0;
+    }
+    .third {
+      margin: 0;
+    }
+  }
+}
+
+@include media-breakpoint-down(xl) {
+  .hidden {
+    transform: translate(-262px, 196px);
+  }
 }

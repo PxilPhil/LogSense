@@ -148,3 +148,17 @@ class PCSpecs(BaseModel):
     logical_processor_count: int
     context_switches: int
     interrupts: int
+
+class PCMetrics(BaseModel):
+    cpu_percentage_use: float
+    processor_name: str
+    physical_package_count: int
+    physical_processor_count: int
+    logical_processor_count: int
+    ram_percentage_in_use: float
+    total_memory: int
+    free_memory: int
+    page_size: int
+    disk_percentage_in_use: float
+    total_disk_space: int
+    free_disk_space: int
