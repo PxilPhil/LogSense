@@ -224,3 +224,8 @@ def get_pc_by_user_id(pc_id: str):
 
     metrics = db_access.pc.resource_metrics(pc_id)
     return metrics
+
+@pc.get('/{pc_id}/time-metrics/', response_model=dict, tags=["PC"])
+def get_pc_time_metrics(pc_id: int, start: datetime, end:datetime):
+    time_metrics_dict = select_total_running_time(start, end, pc_id)
+    return time_metrics_dict
