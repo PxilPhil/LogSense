@@ -107,6 +107,7 @@ export class DiskComponent implements OnInit, OnDestroy {
   }
 
   diskUsageChart(): void {
+    console.log(this.pcData);
     if (this.diskChart) {
       this.diskChart.destroy();
     }

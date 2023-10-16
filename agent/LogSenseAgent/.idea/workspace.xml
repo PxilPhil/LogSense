@@ -6,7 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="a3b0c86a-56b9-40a5-bdfe-abebb08d5502" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/model/TimeMetrics.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/model/TimeMetrics.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/services/time-metrics.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/services/time-metrics.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/time-metrics/time-metrics.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/time-metrics/time-metrics.component.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -71,7 +73,8 @@
       <workItem from="1696870465410" duration="731000" />
       <workItem from="1696872472066" duration="607000" />
       <workItem from="1696936590139" duration="1306000" />
-      <workItem from="1697448285504" duration="696000" />
+      <workItem from="1697448285504" duration="699000" />
+      <workItem from="1697460563800" duration="756000" />
     </task>
     <servers />
   </component>

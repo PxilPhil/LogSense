@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {Chart} from "chart.js";
 import {TimeModel} from "../disk/disk.component";
-import {TimeMetrics} from "../model/TimeMetrics";
+import {TimeMetrics, TimeMetricsModel} from "../model/TimeMetrics";
 import {TimeMetricsService} from "../services/time-metrics.service";
 import {DatePipe} from "@angular/common";
 
@@ -29,7 +29,8 @@ export class TimeMetricsComponent {
   }
 
   ngOnInit() {
-    this.timeChart();
+    this.loadTimeMetrics();
+    console.log(this.timeMetrics);
   }
   ngOnDestroy() {
     if (this.timeMetricsChart) {
@@ -37,13 +38,13 @@ export class TimeMetricsComponent {
     }
   }
   timeChart() {
-    const data = this.getData();
+    console.log(this.timeMetrics);
     this.timeMetricsChart = new Chart("timeChart", {
       type: 'bar',
       data: {
-        labels: data.name,
+        labels: this.timeMetrics.name,
         datasets: [{
-          data: data.total_running_time_seconds,
+          data: (this.timeMetrics.total_running_time_minutes),
           borderColor: "#2b26a8",
           backgroundColor: "#7BE1DF",
         }]
@@ -51,8 +52,19 @@ export class TimeMetricsComponent {
       options: {
         plugins: {
           legend: {
-            display: true,
-            position: "right"
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                let label = context.dataset.label || '';
+                if (label) {
+                  label += ' ';
+                }
+                label += context.parsed.y + ' hrs';
+                return label;
+              }
+            }
           }
         },
         scales: {
@@ -64,11 +76,24 @@ export class TimeMetricsComponent {
     });
   }
 
-  getData(): TimeMetrics {
+  loadTimeMetrics() {
     let dateNow = Date.now();
-    this.timeService.getTimeMetrics(1,this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: TimeMetrics) => {
-      this.timeMetrics = data;
+    if(this.selectedTime.valueInMilliseconds!=0) {
+      this.timeService.getTimeMetrics(1,this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: TimeMetricsModel) => {
+        for (let entry of data.data) {
+          this.timeMetrics.name.push(entry.name);
+          this.timeMetrics.total_running_time_minutes.push(Math.round((entry.total_running_time_seconds/60/60 + Number.EPSILON) * 100) / 100); //seconds to hrs
+        }
+        this.timeChart();
+      });
+    }
+    this.timeService.getTimeMetrics(1,this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: TimeMetricsModel) => {
+      for (let entry of data.data) {
+        this.timeMetrics.name.push(entry.name);
+        this.timeMetrics.total_running_time_minutes.push(Math.round((entry.total_running_time_seconds/60/60 + Number.EPSILON) * 100) / 100); //seconds to hours
+      }
+      this.timeChart();
     });
-    return this.timeMetrics;
+
   }
 }
