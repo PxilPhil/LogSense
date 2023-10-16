@@ -1,4 +1,4 @@
 export class TimeMetrics {
   name: string[] = [];
-  runtimeInSec: number[] = [];
+  total_running_time_seconds: number[] = [];
 }

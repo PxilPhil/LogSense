@@ -43,7 +43,7 @@ export class TimeMetricsComponent {
       data: {
         labels: data.name,
         datasets: [{
-          data: data.runtimeInSec,
+          data: data.total_running_time_seconds,
           borderColor: "#2b26a8",
           backgroundColor: "#7BE1DF",
         }]
