@@ -3,7 +3,7 @@
   <div class="grey-box mar-top-12">
     <div class="mar-bot-32">
       <div>
-        <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24">
+        <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24" (change)="loadTimeMetrics()">
           <option *ngFor="let elem of times" [ngValue]="elem">{{elem.time}}</option>
         </select>
       </div>

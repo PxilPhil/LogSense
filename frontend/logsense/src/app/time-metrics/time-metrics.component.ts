@@ -10,7 +10,7 @@ import {DatePipe} from "@angular/common";
   templateUrl: './time-metrics.component.html',
   styleUrls: ['./time-metrics.component.scss']
 })
-export class TimeMetricsComponent {
+export class TimeMetricsComponent implements OnInit, OnDestroy {
 
   selectedTime: TimeModel = {id: 1, time: "Last 24h", valueInMilliseconds: 86400000};
   times = [
@@ -38,7 +38,10 @@ export class TimeMetricsComponent {
     }
   }
   timeChart() {
-    console.log(this.timeMetrics);
+    if(this.timeMetricsChart) {
+      this.timeMetricsChart.destroy();
+    }
+
     this.timeMetricsChart = new Chart("timeChart", {
       type: 'bar',
       data: {
@@ -78,6 +81,8 @@ export class TimeMetricsComponent {
 
   loadTimeMetrics() {
     let dateNow = Date.now();
+    this.timeMetrics.name = [];
+    this.timeMetrics.total_running_time_minutes = [];
     if(this.selectedTime.valueInMilliseconds!=0) {
       this.timeService.getTimeMetrics(1,this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: TimeMetricsModel) => {
         for (let entry of data.data) {
@@ -86,14 +91,14 @@ export class TimeMetricsComponent {
         }
         this.timeChart();
       });
+    } else {
+      this.timeService.getTimeMetrics(1,this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: TimeMetricsModel) => {
+        for (let entry of data.data) {
+          this.timeMetrics.name.push(entry.name);
+          this.timeMetrics.total_running_time_minutes.push(Math.round((entry.total_running_time_seconds/60/60 + Number.EPSILON) * 100) / 100); //seconds to hours
+        }
+        this.timeChart();
+      });
     }
-    this.timeService.getTimeMetrics(1,this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: TimeMetricsModel) => {
-      for (let entry of data.data) {
-        this.timeMetrics.name.push(entry.name);
-        this.timeMetrics.total_running_time_minutes.push(Math.round((entry.total_running_time_seconds/60/60 + Number.EPSILON) * 100) / 100); //seconds to hours
-      }
-      this.timeChart();
-    });
-
   }
 }
