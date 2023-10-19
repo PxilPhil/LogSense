@@ -12,7 +12,6 @@ import {DatePipe} from "@angular/common";
 })
 export class TimeMetricsComponent implements OnInit, OnDestroy {
 
-  selectedTime: TimeModel = {id: 1, time: "Last 24h", valueInMilliseconds: 86400000};
   times = [
     {id: 1, time: "Last 24h", valueInMilliseconds: 86400000},
     {id: 2, time: "Last Week", valueInMilliseconds: 604800000},
@@ -21,6 +20,7 @@ export class TimeMetricsComponent implements OnInit, OnDestroy {
     {id: 5, time: "Last 12 Months", valueInMilliseconds: 31556952000},
     {id: 6, time: "All Time", valueInMilliseconds: 0}
   ];
+  selectedTime: TimeModel = this.times[0];
 
   timeMetricsChart: Chart | undefined;
   timeMetrics: TimeMetrics = new TimeMetrics();
