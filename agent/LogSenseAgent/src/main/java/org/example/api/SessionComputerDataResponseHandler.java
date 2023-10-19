@@ -29,10 +29,6 @@ public class SessionComputerDataResponseHandler implements HttpClientResponseHan
             LOGGER.error(logMessage);
         }
 
-        //TODO: remove prints
-        System.out.println(statusCode);
-        System.out.println(responseContent);
-
         return retrieveStateIdFromResponseContent(responseContent);
     }
 

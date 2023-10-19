@@ -34,18 +34,24 @@ public class OshiMonitor implements Monitor {
         return this.operatingSystem.getFamily();
     }
 
-    public List<Process> monitorProcesses() throws NullPointerException {
-        List<OSProcess> osProcesses = this.operatingSystem.getProcesses();
-        if (osProcesses == null) {
-            throw new NullPointerException("The list of operating system processes is null because the processes could not be collected");
-        }
-
+    public List<Process> monitorProcesses() {
         List<Process> processes = new ArrayList<>();
-        for (OSProcess osProcess : osProcesses) {
-            double cpuUsage = calculateCpuUsage(osProcess);
-            processes.add(new Process(osProcess.getProcessID(), osProcess.getName(), osProcess.getBitness(), osProcess.getCommandLine(), osProcess.getCurrentWorkingDirectory(), osProcess.getPath(), osProcess.getState().toString(), osProcess.getUser(), osProcess.getContextSwitches(), osProcess.getMajorFaults(), osProcess.getOpenFiles(), osProcess.getResidentSetSize(), osProcess.getThreadCount(), osProcess.getUpTime(), cpuUsage));
+
+        List<OSProcess> osProcesses = this.operatingSystem.getProcesses();
+        if (osProcesses != null) {
+            for (OSProcess osProcess : osProcesses) {
+                double cpuUsage = calculateCpuUsage(osProcess);
+                processes.add(new Process(osProcess.getProcessID(), osProcess.getName(), osProcess.getBitness(),
+                        osProcess.getCommandLine(), osProcess.getCurrentWorkingDirectory(), osProcess.getPath(),
+                        osProcess.getState().toString(), osProcess.getUser(), osProcess.getContextSwitches(),
+                        osProcess.getMajorFaults(), osProcess.getOpenFiles(), osProcess.getResidentSetSize(),
+                        osProcess.getThreadCount(), osProcess.getUpTime(), cpuUsage));
+            }
+            this.previousOsProcesses = osProcesses;
+        } else {
+            LOGGER.error("The list of operating system processes is null because the processes " +
+                    "could not be collected");
         }
-        this.previousOsProcesses = osProcesses;
         return processes;
     }
 
@@ -100,7 +106,6 @@ public class OshiMonitor implements Monitor {
             powerSourcesOnLine = booleanObjectListConverter.convertObjectList(powerSourcesInformation.get("powerOnLine"), Boolean.class);
             powerSourcesRemainingCapacityPercent = doubleObjectListConverter.convertObjectList(powerSourcesInformation.get("remainingCapacityPercent"), Double.class);
         }
-
 
         CentralProcessor processor = this.hardware.getProcessor();
         Long processorContextSwitches = null;
@@ -326,14 +331,18 @@ public class OshiMonitor implements Monitor {
                 try {
                     localAddress = InetAddress.getByAddress(connection.getLocalAddress());
                 } catch (UnknownHostException e) {
-                    LOGGER.warn("Error while monitoring the IP connections: the local address of the IP connection could not be parsed to an InetAddress. Therefore the local address attribute of the IP connection will be null.");
+                    LOGGER.warn("Error while monitoring the IP connections: the local address of the IP connection " +
+                            "could not be parsed to an InetAddress. Therefore the local address attribute of the IP " +
+                            "connection will be null.");
                 }
 
                 InetAddress foreignAddress = null;
                 try {
                     foreignAddress = InetAddress.getByAddress(connection.getForeignAddress());
                 } catch (UnknownHostException e) {
-                    LOGGER.warn("Error while monitoring the IP connections: the foreign address of the IP connection could not be parsed to an InetAddress. Therefore the foreign address attribute of the IP connection will be null.");
+                    LOGGER.warn("Error while monitoring the IP connections: the foreign address of the IP connection " +
+                            "could not be parsed to an InetAddress. Therefore the foreign address attribute of the IP" +
+                            " connection will be null.");
                 }
 
                 Connection connectionData = new Connection(localAddress, connection.getLocalPort(), foreignAddress,
@@ -342,7 +351,8 @@ public class OshiMonitor implements Monitor {
                 connections.add(connectionData);
             }
         } else {
-            LOGGER.error("Error while monitoring the IP connections: the list of IP connections is null. Therefore the information about the IP connections can not be collected.");
+            LOGGER.error("Error while monitoring the IP connections: the list of IP connections is null. " +
+                    "Therefore the information about the IP connections can not be collected.");
         }
 
         return connections;
@@ -380,15 +390,18 @@ public class OshiMonitor implements Monitor {
             }
         }
 
-        if (monitoringErrors.size() > 0) {
-            LOGGER.error("Error while monitoring the client data: " + monitoringErrors + "is / are null. Therefore the information about the client can not be collected.");
+        if (!monitoringErrors.isEmpty()) {
+            LOGGER.error("Error while monitoring the client data: " + monitoringErrors + "is / are null. " +
+                    "Therefore the information about the client can not be collected.");
         }
 
         return new Client(Instant.now().toEpochMilli(), computerData, memoryData, processorData);
     }
 
     private Computer getComputerData(ComputerSystem computerSystem) {
-        return new Computer(computerSystem.getHardwareUUID(), computerSystem.getManufacturer(), computerSystem.getModel());
+        return new Computer(computerSystem.getHardwareUUID(),
+                computerSystem.getManufacturer(),
+                computerSystem.getModel());
     }
 
     private Memory getMemoryData(GlobalMemory globalMemory) {
@@ -402,7 +415,14 @@ public class OshiMonitor implements Monitor {
         } else {
             bitness = 32;
         }
-        return new Processor(processorIdentifier.getName(), processorIdentifier.getIdentifier(), processorIdentifier.getProcessorID(), processorIdentifier.getVendor(), bitness, centralProcessor.getPhysicalPackageCount(), centralProcessor.getPhysicalProcessorCount(), centralProcessor.getLogicalProcessorCount());
+        return new Processor(processorIdentifier.getName(),
+                processorIdentifier.getIdentifier(),
+                processorIdentifier.getProcessorID(),
+                processorIdentifier.getVendor(),
+                bitness,
+                centralProcessor.getPhysicalPackageCount(),
+                centralProcessor.getPhysicalProcessorCount(),
+                centralProcessor.getLogicalProcessorCount());
     }
 
     public List<DiskStore> monitorDiskStores() {
@@ -412,11 +432,16 @@ public class OshiMonitor implements Monitor {
 
         if (hwDiskStoreList != null) {
             for (HWDiskStore diskStore : hwDiskStoreList) {
-                DiskStore diskStoreData = new DiskStore(timestamp, diskStore.getSerial(), diskStore.getModel(), diskStore.getName(), diskStore.getSize());
+                DiskStore diskStoreData = new DiskStore(timestamp,
+                        diskStore.getSerial(),
+                        diskStore.getModel(),
+                        diskStore.getName(),
+                        diskStore.getSize());
                 diskStores.add(diskStoreData);
             }
         } else {
-            LOGGER.error("Error while monitoring the disk stores: the list of HW disk stores is null. Therefore the information about the disk stores can not be collected.");
+            LOGGER.error("Error while monitoring the disk stores: the list of HW disk stores is null. " +
+                    "Therefore the information about the disk stores can not be collected.");
         }
 
         return diskStores;
@@ -431,20 +456,34 @@ public class OshiMonitor implements Monitor {
             for (HWDiskStore diskStore : hwDiskStoreList) {
                 List<HWPartition> hwPartitionList = diskStore.getPartitions();
                 if (hwPartitionList != null) {
-                    for (HWPartition partition : hwPartitionList) {
-                        Partition partitionData = new Partition(timestamp, diskStore.getName(),
-                                partition.getIdentification(), partition.getName(), partition.getType(),
-                                partition.getMountPoint(), partition.getSize(), partition.getMajor(),
-                                partition.getMinor());
-                        partitions.add(partitionData);
+                    for (HWPartition hwPartition : hwPartitionList) {
+                        Partition partition = mapPartition(hwPartition, timestamp, diskStore.getName());
+                        partitions.add(partition);
                     }
                 } else {
-                    LOGGER.error("Error while monitoring the partitions: the list of HW partitions of the disk store " + diskStore.getName() + " is null. Therefore the information about the partitions of this disk store can not be collected.");
+                    LOGGER.error("Error while monitoring the partitions: the list of HW partitions of the disk store "
+                            + diskStore.getName() + " is null. " +
+                            "Therefore the information about the partitions of this disk store can not be collected.");
                 }
             }
         } else {
-            LOGGER.error("Error while monitoring the partitions: the list of HW disk stores is null. Therefore the information about the partitions of the disk stores can not be collected.");
+            LOGGER.error("Error while monitoring the partitions: the list of HW disk stores is null. " +
+                    "Therefore the information about the partitions of the disk stores can not be collected.");
         }
         return partitions;
+    }
+
+    private Partition mapPartition(HWPartition hwPartition, long timestamp, String diskStoreName) {
+        return new Partition(
+                timestamp,
+                diskStoreName,
+                hwPartition.getIdentification(),
+                hwPartition.getName(),
+                hwPartition.getType(),
+                hwPartition.getMountPoint(),
+                hwPartition.getSize(),
+                hwPartition.getMajor(),
+                hwPartition.getMinor()
+        );
     }
 }

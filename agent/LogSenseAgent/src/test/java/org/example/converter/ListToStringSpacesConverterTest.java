@@ -1,7 +1,5 @@
 package org.example.converter;
 
-import org.example.common.ListToStringConverter;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +9,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ListToStringSpacesConverterTest {
-    private ListToStringConverter<Integer> listToStringConverter;
+    private ListToStringSpacesConverter<Integer> listToStringConverter;
 
     @BeforeEach
     void setUp() {
@@ -33,10 +31,8 @@ class ListToStringSpacesConverterTest {
     }
 
     @Test
-    void convertWithNullListReturnsNull() {
-        String result = this.listToStringConverter.convert(null);
-
-        assertNull(result);
+    void convertWithNullListThrowsNPE() {
+        assertThrows(NullPointerException.class, () -> this.listToStringConverter.convert(null));
     }
 
     @Test

@@ -16,14 +16,13 @@ public class Application {
     private long residentSetSize;
     private long startTime;
     private String state;
-    private int threadCount;
+    private long threadCount;
     private long upTime;
     private String user;
     private double cpuUsage;
     private int processCountDifference;
     private long timestamp;
     private List<Process> containedProcesses; //saves all contained processes, if a new processes is added or one is removed, processCounter should be changed
-
 
     public Application() {
     }
@@ -146,7 +145,7 @@ public class Application {
         this.state = state;
     }
 
-    public int getThreadCount() {
+    public long getThreadCount() {
         return threadCount;
     }
 

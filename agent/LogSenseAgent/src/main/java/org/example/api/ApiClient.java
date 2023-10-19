@@ -15,50 +15,62 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+import static java.util.Objects.requireNonNull;
+
 public class ApiClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiClient.class);
     private final CloseableHttpClient httpClient;
     private final HttpClientResponseHandler<Integer> sessionComputerDataResponseHandler;
     private final HttpClientResponseHandler<Integer> runningDataResponseHandler;
     private final DataConverter csvDataConverter;
+    private final String clientBaseUrl;
 
-    public ApiClient() {
+    public ApiClient(String clientBaseUrl) {
         this.httpClient = HttpClients.createDefault();
         this.sessionComputerDataResponseHandler = new SessionComputerDataResponseHandler();
         this.runningDataResponseHandler = new RunningDataResponseHandler();
         this.csvDataConverter = new CSVDataConverter();
+        this.clientBaseUrl = requireNonNull(clientBaseUrl);
     }
 
     public int postSessionComputerData(SessionComputerData sessionComputerData) {
-        if (sessionComputerData != null) {
-            MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
-            multipartEntityBuilder.addBinaryBody("files", this.csvDataConverter.convertClientData(sessionComputerData.client()).getBytes(), ContentType.TEXT_PLAIN, "client");
-            multipartEntityBuilder.addBinaryBody("files", this.csvDataConverter.convertDiskStoreData(sessionComputerData.diskStores()).getBytes(), ContentType.TEXT_PLAIN, "disk");
-            multipartEntityBuilder.addBinaryBody("files", this.csvDataConverter.convertPartitionData(sessionComputerData.partitions()).getBytes(), ContentType.TEXT_PLAIN, "partition");
+        requireNonNull(sessionComputerData);
+        MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
+        multipartEntityBuilder.addBinaryBody("files",
+                this.csvDataConverter.convertClientData(sessionComputerData.client()).getBytes(),
+                ContentType.TEXT_PLAIN, "client");
+        multipartEntityBuilder.addBinaryBody("files",
+                this.csvDataConverter.convertDiskStoreData(sessionComputerData.diskStores()).getBytes(),
+                ContentType.TEXT_PLAIN, "disk");
+        multipartEntityBuilder.addBinaryBody("files",
+                this.csvDataConverter.convertPartitionData(sessionComputerData.partitions()).getBytes(),
+                ContentType.TEXT_PLAIN, "partition");
 
-            HttpPost httpPost = new HttpPost("http://127.0.0.1:8000/data/initial");
-            httpPost.setEntity(multipartEntityBuilder.build());
+        HttpPost httpPost = new HttpPost(this.clientBaseUrl + "/data/initial");
+        httpPost.setEntity(multipartEntityBuilder.build());
 
-            try {
-                return this.httpClient.execute(httpPost, this.sessionComputerDataResponseHandler);
-            } catch (IOException e) {
-                LOGGER.error("Error while executing the HTTP POST request for the session computer data: " + e);
-                return -1;
-            }
-        } else {
+        try {
+            return this.httpClient.execute(httpPost, this.sessionComputerDataResponseHandler);
+        } catch (IOException e) {
+            LOGGER.error("Error while executing the HTTP POST request for the session computer data: " + e);
             return -1;
         }
     }
 
     public void postRunningData(RunningData runningData, long stateId) {
-        if (runningData != null && stateId > 0) {
+        requireNonNull(runningData);
+        if (stateId > 0) {
             MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
-            multipartEntityBuilder.addBinaryBody("files", runningData.getApplication_data().getBytes(), ContentType.TEXT_PLAIN, "application");
-            multipartEntityBuilder.addBinaryBody("files", runningData.getPc_resources().getBytes(), ContentType.TEXT_PLAIN, "resources");
-            multipartEntityBuilder.addBinaryBody("files", runningData.getNetwork_interface().getBytes(), ContentType.TEXT_PLAIN, "network");
-            multipartEntityBuilder.addBinaryBody("files", runningData.getConnection_data().getBytes(), ContentType.TEXT_PLAIN, "connection");
+            multipartEntityBuilder.addBinaryBody("files", runningData.applicationData().getBytes(),
+                    ContentType.TEXT_PLAIN, "application");
+            multipartEntityBuilder.addBinaryBody("files", runningData.pcResources().getBytes(),
+                    ContentType.TEXT_PLAIN, "resources");
+            multipartEntityBuilder.addBinaryBody("files", runningData.networkInterfaces().getBytes(),
+                    ContentType.TEXT_PLAIN, "network");
+            multipartEntityBuilder.addBinaryBody("files", runningData.connectionData().getBytes(),
+                    ContentType.TEXT_PLAIN, "connection");
 
-            HttpPost httpPost = new HttpPost("http://127.0.0.1:8000/data?stateId=" + stateId);
+            HttpPost httpPost = new HttpPost(this.clientBaseUrl + "/data?stateId=" + stateId);
             httpPost.setEntity(multipartEntityBuilder.build());
 
             try {

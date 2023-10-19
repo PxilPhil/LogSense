@@ -6,27 +6,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
+
+import static java.util.Objects.requireNonNull;
 
 public class StatService {
     private static final Logger LOGGER = LoggerFactory.getLogger(StatService.class);
-    private final Map<String, List<Application>> applicationMeasurements = new TreeMap<>();
+    private final Map<String, List<Application>> applicationMeasurements = new HashMap<>();
     private int dataAmount = 0; //saves how many times data was measured
 
-    public StatService() {
-    }
-
     public void ingestData(long timestamp, List<Process> processes) {
-        if (processes != null && processes.size() > 0 && timestamp >= 0 && timestamp <= Instant.now().toEpochMilli()) {
+        requireNonNull(processes);
+        if (!processes.isEmpty() && timestamp >= 0 && timestamp <= Instant.now().toEpochMilli()) {
             this.dataAmount++;
             List<Process> filteredOsProcesses = filterSystemProcesses(processes);
             Map<String, Application> mergedApplications = mergeProcessesIntoApplications(timestamp, filteredOsProcesses);
             insertApplicationDataIntoApplicationMeasurements(mergedApplications);
         } else {
-            LOGGER.error("Error while ingesting the data: either the list of processes is null or the list is empty or the timestamp is not between epoch and now. Therefore the data can not be ingested.");
+            LOGGER.error("Error while ingesting the data: either the list of processes is null or the list is empty" +
+                    "or the timestamp is not between epoch and now. Therefore the data can not be ingested.");
         }
     }
 
@@ -37,7 +35,8 @@ public class StatService {
             this.applicationMeasurements.clear();
             this.dataAmount = 0;
         } else {
-            LOGGER.error("Error while analysing the application measurements: the timestamp is not between epoch and now. Therefore the application measurements can not be analysed.");
+            LOGGER.error("Error while analysing the application measurements: the timestamp is not between epoch " +
+                    "and now. Therefore the application measurements can not be analysed.");
         }
         return evaluatedApplicationData;
     }
@@ -45,7 +44,9 @@ public class StatService {
     private List<Process> filterSystemProcesses(List<Process> processes) {
         List<Process> filteredProcesses = new ArrayList<>();
         for (Process process : processes) {
-            if (process.commandLine() != null && !process.commandLine().equalsIgnoreCase("") && !process.commandLine().equalsIgnoreCase("C:\\Windows") && !process.commandLine().equalsIgnoreCase("C:\\Windows\\system32")) {
+            if (process.commandLine() != null && !process.commandLine().equalsIgnoreCase("") &&
+                    !process.commandLine().equalsIgnoreCase("C:\\Windows") &&
+                    !process.commandLine().equalsIgnoreCase("C:\\Windows\\system32")) {
                 filteredProcesses.add(process);
             }
         }
@@ -73,7 +74,8 @@ public class StatService {
             }
             application.addProcess(process);
 
-            application.mergeData(process.contextSwitches(), process.majorFaults(), process.openFiles(), process.residentSetSize(), process.threadCount(), process.upTime());
+            application.mergeData(process.contextSwitches(), process.majorFaults(), process.openFiles(),
+                    process.residentSetSize(), process.threadCount(), process.upTime());
             mergedApplications.put(name, application);
         }
         return mergedApplications;
@@ -106,8 +108,7 @@ public class StatService {
             averageApplication.setName(applicationMeasurementEntry.getKey());
             averageApplication.setPath(applicationList.get(0).getPath());
             averageApplication.setUser(applicationList.get(0).getUser());
-            averageApplication.setProcessCountDifference(compareProcessesAmount(applicationList)); //TODO: detect applications themselves closing too (just look if list is different from max value in list)
-
+            averageApplication.setProcessCountDifference(compareProcessesAmount(applicationList));
             averageApplication.calculateAverage(applicationList.size());
 
             evaluatedApplicationData.add(averageApplication);
@@ -118,8 +119,11 @@ public class StatService {
     private Application performStatisticalAnalysis(List<Application> applicationList, long timestamp) {
         Application averageApplication = new Application();
         for (Application application : applicationList) {
-            averageApplication.setCpuUsage(averageApplication.getCpuUsage() + calcTotalApplicationCpuUsage(application.getContainedProcesses()));
-            averageApplication.mergeData(application.getContextSwitches(), application.getMajorFaults(), application.getOpenFiles(), application.getResidentSetSize(), application.getThreadCount(), application.getUpTime());
+            averageApplication.setCpuUsage(averageApplication.getCpuUsage()
+                    + calcTotalApplicationCpuUsage(application.getContainedProcesses()));
+            averageApplication.mergeData(application.getContextSwitches(), application.getMajorFaults(),
+                    application.getOpenFiles(), application.getResidentSetSize(), application.getThreadCount(),
+                    application.getUpTime());
         }
         return setApplicationState(applicationList, averageApplication, timestamp);
     }
@@ -132,10 +136,13 @@ public class StatService {
         return cpuUsage;
     }
 
-    private Application setApplicationState(List<Application> applicationMeasurements, Application averageApplication, long timestamp) {
-        if (applicationMeasurements.size() < this.dataAmount && applicationMeasurements.get(applicationMeasurements.size() - 1).getTimestamp() < timestamp) { //indicates that an application was closed during measuring
+    private Application setApplicationState(List<Application> applicationMeasurements, Application averageApplication,
+                                            long timestamp) {
+        if (applicationMeasurements.size() < this.dataAmount
+                && applicationMeasurements.get(applicationMeasurements.size() - 1).getTimestamp() < timestamp) { //indicates that an application was closed during measuring
             averageApplication.setState("STOPPED");
-        } else if (applicationMeasurements.size() < this.dataAmount && applicationMeasurements.get(applicationMeasurements.size() - 1).getTimestamp() == timestamp) { //indicates that an application was opened during measuring
+        } else if (applicationMeasurements.size() < this.dataAmount
+                && applicationMeasurements.get(applicationMeasurements.size() - 1).getTimestamp() == timestamp) { //indicates that an application was opened during measuring
             averageApplication.setState("STARTED");
         } else {
             averageApplication.setState("RUNNING");

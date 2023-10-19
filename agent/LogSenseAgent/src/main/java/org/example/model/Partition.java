@@ -18,6 +18,13 @@ public record Partition(
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Partition partition = (Partition) o;
-        return size == partition.size && majorFaults == partition.majorFaults && minorFaults == partition.minorFaults && Objects.equals(diskStoreName, partition.diskStoreName) && Objects.equals(identification, partition.identification) && Objects.equals(name, partition.name) && Objects.equals(type, partition.type) && Objects.equals(mountPoint, partition.mountPoint);
+        return size == partition.size
+                && majorFaults == partition.majorFaults
+                && minorFaults == partition.minorFaults
+                && Objects.equals(diskStoreName, partition.diskStoreName)
+                && Objects.equals(identification, partition.identification)
+                && Objects.equals(name, partition.name)
+                && Objects.equals(type, partition.type)
+                && Objects.equals(mountPoint, partition.mountPoint);
     }
 }

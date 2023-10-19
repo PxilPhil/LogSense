@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ObjectListConverterTest {
     private ObjectListConverter<Integer> objectListConverter;
@@ -35,22 +34,20 @@ class ObjectListConverterTest {
     }
 
     @Test
-    void convertObjectListWithNullObjectListReturnsNull() {
-        List<Integer> integerList = this.objectListConverter.convertObjectList(null, Integer.class);
-
-        assertNull(integerList);
+    void convertObjectListWithNullObjectListThrowsNPE() {
+        assertThrows(NullPointerException.class,
+                () -> this.objectListConverter.convertObjectList(null, Integer.class));
     }
 
     @Test
-    void convertObjectListWithNullTargetTypeReturnsNull() {
+    void convertObjectListWithNullTargetTypeThrowsNPE() {
         List<Object> objectList = new ArrayList<>();
         objectList.add(15);
         objectList.add(2);
         objectList.add(129);
 
-        List<Integer> integerList = this.objectListConverter.convertObjectList(objectList, null);
-
-        assertNull(integerList);
+        assertThrows(NullPointerException.class,
+                () -> this.objectListConverter.convertObjectList(objectList, null));
     }
 
     @Test

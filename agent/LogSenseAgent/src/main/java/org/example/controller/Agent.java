@@ -20,23 +20,26 @@ import java.util.concurrent.TimeUnit;
 
 public class Agent {
     private static final Logger LOGGER = LoggerFactory.getLogger(Agent.class);
+
     private final OshiMonitor oshiMonitor;
     private final StatService statService;
     private final CSVDataConverter csvDataConverter;
     private final ApiClient apiClient;
+    private final String supportedOperatingSystem;
     private int stateId;
     private SessionComputerData sessionComputerData;
     private long measuringCount;
     private long failedSessionComputerDataPostRequest;
 
-    public Agent() {
+    public Agent(String clientBaseUrl, String supportedOperatingSystem) {
         this.statService = new StatService();
         this.oshiMonitor = new OshiMonitor();
         this.csvDataConverter = new CSVDataConverter();
-        this.apiClient = new ApiClient();
+        this.apiClient = new ApiClient(clientBaseUrl);
         this.sessionComputerData = null;
         this.measuringCount = 0;
         this.failedSessionComputerDataPostRequest = 0;
+        this.supportedOperatingSystem = supportedOperatingSystem;
     }
 
     public void monitor() {
@@ -44,15 +47,16 @@ public class Agent {
             monitorSessionComputerData();
 
             ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-            scheduler.scheduleAtFixedRate(() -> monitorData(), 0, 10, TimeUnit.SECONDS);
+            scheduler.scheduleAtFixedRate(this::monitorData, 0, 10, TimeUnit.SECONDS);
         } else {
-            LOGGER.error("The operating system of this client is not supported or could not be detected. Therefore the agent is not able to start and monitor your client.");
+            LOGGER.error("The operating system of this client is not supported or could not be detected. " +
+                    "Therefore the agent is not able to start and monitor your client.");
         }
     }
 
     private boolean clientHasSupportedOperatingSystem() {
         String operatingSystemFamily = this.oshiMonitor.monitorOperatingSystem();
-        return operatingSystemFamily != null && operatingSystemFamily.equals("Windows");
+        return operatingSystemFamily != null && operatingSystemFamily.equals(this.supportedOperatingSystem);
     }
 
     private void monitorData() {
@@ -77,7 +81,8 @@ public class Agent {
         List<DiskStore> diskStores = getDiskStores();
         List<Partition> partitions = getPartitions();
 
-        if (this.sessionComputerData == null || hasClientDataChanged(client) || haveDiskStoresChanged(diskStores) || havePartitionsChanged(partitions)) {     // session computer data has never been set --> initial data that starts a new "session"
+        if (this.sessionComputerData == null || hasClientDataChanged(client) || haveDiskStoresChanged(diskStores)
+                || havePartitionsChanged(partitions)) {     // session computer data has never been set --> initial data that starts a new "session"
             SessionComputerData sessionComputerData = new SessionComputerData(client, diskStores, partitions);
 
             int stateId = this.apiClient.postSessionComputerData(sessionComputerData);
@@ -85,7 +90,9 @@ public class Agent {
                 this.stateId = stateId;
             } else {
                 this.failedSessionComputerDataPostRequest += 1;
-                LOGGER.error("Error while sending the session computer data to the server: the hardware UUID of your device is not registered as a client on the server. Please register first in the web application.");
+                LOGGER.error("Error while sending the session computer data to the server: the hardware UUID of " +
+                        "your device is not registered as a client on the server. Please register first in the " +
+                        "web application.");
                 try {
                     TimeUnit.SECONDS.sleep((long) Math.pow(2, this.failedSessionComputerDataPostRequest));
                 } catch (InterruptedException e) {
@@ -100,7 +107,8 @@ public class Agent {
     private Client getClientData() {
         Client client = this.oshiMonitor.monitorClientData();
         if (client == null) {
-            LOGGER.error("Error while monitoring the client data: the client data object is null. Therefore the data can not be sent to the server.");
+            LOGGER.error("Error while monitoring the client data: the client data object is null. " +
+                    "Therefore the data can not be sent to the server.");
         }
         return client;
     }
@@ -108,7 +116,8 @@ public class Agent {
     private List<DiskStore> getDiskStores() {
         List<DiskStore> diskStores = this.oshiMonitor.monitorDiskStores();
         if (diskStores == null) {
-            LOGGER.error("Error while monitoring the disk stores: the list of disk stores is null. Therefore the data can not be sent to the server.");
+            LOGGER.error("Error while monitoring the disk stores: the list of disk stores is null. " +
+                    "Therefore the data can not be sent to the server.");
         }
         return diskStores;
     }
@@ -116,7 +125,8 @@ public class Agent {
     private List<Partition> getPartitions() {
         List<Partition> partitions = this.oshiMonitor.monitorPartitions();
         if (partitions == null) {
-            LOGGER.error("Error while monitoring the partitions: the list of partitions is null. Therefore the data can not be sent to the server");
+            LOGGER.error("Error while monitoring the partitions: the list of partitions is null. " +
+                    "Therefore the data can not be sent to the server");
         }
         return partitions;
     }
@@ -138,19 +148,11 @@ public class Agent {
         List<NetworkInterface> networkInterfaces = getNetworkInterfaces();
         List<Connection> connections = getIpConnections();
 
-        RunningData runningData = new RunningData();
-        runningData.setApplication_data(this.csvDataConverter.convertApplicationData(timestamp, analysedApplications));
-        runningData.setPc_resources(this.csvDataConverter.convertResourceData(timestamp, resources));
-        runningData.setNetwork_interface(this.csvDataConverter.convertNetworkInterfacesData(timestamp, networkInterfaces));
-        runningData.setConnection_data(this.csvDataConverter.convertConnectionData(timestamp, connections));
-
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\test\\application_" + timestamp + ".csv"));
-            writer.write(runningData.getApplication_data());
-            writer.close();
-        } catch (IOException e) {
-            System.out.println(runningData.getApplication_data());
-        }
+        RunningData runningData = new RunningData(this.csvDataConverter
+                .convertApplicationData(timestamp, analysedApplications),
+                this.csvDataConverter.convertResourceData(timestamp, resources),
+                this.csvDataConverter.convertNetworkInterfacesData(timestamp, networkInterfaces),
+                this.csvDataConverter.convertConnectionData(timestamp, connections));
 
         this.apiClient.postRunningData(runningData, this.stateId);
     }
