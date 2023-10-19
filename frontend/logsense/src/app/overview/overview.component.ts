@@ -52,7 +52,6 @@ export class OverviewComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.timeChart();
     console.log('init')
 
     this.apiService.getPCData(1, 'RAM', '2023-07-25 10:20:16', '2023-08-25 10:20:16').subscribe(
@@ -63,40 +62,6 @@ export class OverviewComponent implements OnInit {
         console.error('Error:', error);
       }
     );
-  }
-
-  timeChart() {
-    const data = this.getData();
-    const config = new Chart("timeChart", {
-      type: 'bar',
-      data: {
-        labels: data.labels,
-        datasets: [{
-          data: data.values,
-          borderColor: "#2b26a8",
-          backgroundColor: "#7BE1DF",
-        }]
-      },
-      options: {
-        plugins: {
-          legend: {
-            display: true,
-            position: "right"
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-          },
-        },
-      },
-    });
-  }
-
-  getData(): { labels: string[], values: number[] } {
-    const labels = ['Zeitpunkt 1', 'Zeitpunkt 2', 'Zeitpunkt 3']; // Beispiellabels
-    const values = [75, 90, 60]; // Beispielauslastung
-    return {labels, values};
   }
 
 }

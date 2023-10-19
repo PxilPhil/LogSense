@@ -37,6 +37,9 @@ export class DiskComponent implements OnInit, OnDestroy {
   latestPCDataMeasurement: PCTimeSeriesData = new PCTimeSeriesData();
 
   diskChart: Chart | undefined;
+  diskTotal: string = "platzhalter"; // TODO
+  diskFree: string = "platzhalter";
+
 
   statistics: String[] = ["Disk usage dropped 4%", "21 anomalies detected", "5 Events registered", "Recent Rise of 15% detected"];
   alerts: Alert[] = ["Some devices are at their workload limit", "Abnormal CPU-Spikes detected (21 Anomalies in the last 24 hours)"];
@@ -60,6 +63,10 @@ export class DiskComponent implements OnInit, OnDestroy {
     }
   }
 
+  onResize(event: Event) {
+    console.log(event);
+  }
+
   loadDiskData() {
     this.diskDataService.getDiskData(1 /* TODO: get dynamic pc id */).subscribe((data: DiskData) => {
       this.diskData = data;
@@ -68,11 +75,20 @@ export class DiskComponent implements OnInit, OnDestroy {
 
   loadPCData() {
     let dateNow = Date.now();
-    this.pcDataService.getPcData(1 /* TODO: get dynamic pc id */, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: PCData) => {
-      this.pcData = data;
-      this.latestPCDataMeasurement = this.getLatestPCDataMeasurement();
-      this.diskUsageChart();
-    });
+    if(this.selectedTime.valueInMilliseconds == 0) {
+      this.pcDataService.getPcData(1 /* TODO: get dynamic pc id */, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: PCData) => {
+        this.pcData = data;
+        this.latestPCDataMeasurement = this.getLatestPCDataMeasurement();
+        this.diskUsageChart();
+      });
+    } else {
+      this.pcDataService.getPcData(1 /* TODO: get dynamic pc id */, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: PCData) => {
+        this.pcData = data;
+        this.latestPCDataMeasurement = this.getLatestPCDataMeasurement();
+        this.diskUsageChart();
+      });
+    }
+
   }
 
   getLatestPCDataMeasurement(): PCTimeSeriesData {
@@ -91,6 +107,7 @@ export class DiskComponent implements OnInit, OnDestroy {
   }
 
   diskUsageChart(): void {
+    console.log(this.pcData);
     if (this.diskChart) {
       this.diskChart.destroy();
     }
@@ -105,8 +122,8 @@ export class DiskComponent implements OnInit, OnDestroy {
           fill: false
         }]
       }, options: {
-        maintainAspectRatio: false,
         responsive: true,
+        maintainAspectRatio: false,
         scales: {
           y: {
             beginAtZero: true,

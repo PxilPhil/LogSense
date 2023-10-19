@@ -7,6 +7,7 @@ import {SingleProcessesComponent} from "./single-processes/single-processes.comp
 import {RamComponent} from "./ram/ram.component";
 import {DiskComponent} from "./disk/disk.component";
 import {NetworkComponent} from "./network/network.component";
+import {CustomAlertsComponent} from "./custom-alerts/custom-alerts.component";
 
 const routes: Routes = [
   {path: '', component: OverviewComponent},
@@ -16,7 +17,8 @@ const routes: Routes = [
   {path: 'processes', component: SingleProcessesComponent},
   {path: 'ram', component: RamComponent},
   {path: 'disk', component: DiskComponent},
-  {path: 'network', component: NetworkComponent}
+  {path: 'network', component: NetworkComponent},
+  {path: 'alerts', component: CustomAlertsComponent}
 ];
 
 @NgModule({

@@ -1,0 +1,26 @@
+@import "bootstrap";
+@import "../../styles.scss";
+
+.choose-alert {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  width: 100%;
+  padding: 0 24px;
+}
+.choose-alert:hover {
+  background-color: $light-grey-1;
+}
+
+.label {
+  width: 130px;
+}
+
+.input {
+  width: 65%;
+}
+
+.just-end {
+  display: flex;
+  justify-content: flex-end;
+}
