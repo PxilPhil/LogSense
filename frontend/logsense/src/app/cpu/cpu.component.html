@@ -5,7 +5,7 @@
       <h1>CPU</h1>
     </div>
     <div>
-      <h3>{{cpu.cpuName}}</h3>
+      <h3>{{cpu.processor_name}}</h3>
     </div>
   </div>
   <h2 class="mar-h2">Usage</h2>
@@ -34,22 +34,22 @@
       <div>
         <h3 class="mar-bot-24">Statistics ({{selectedTime.time}})</h3>
         <div class="white-bg">
-          <span class="txt-16">{{cpu.cpuName}}</span>
+          <span class="txt-16">{{cpu.processor_name}}</span>
           <div class="boxes mar-top-12">
             <div class="white-box txt-16">Current
               <div class="value">
-                {{cpu.current}}%
+                <!--{{cpu.current}}-->%
               </div>
             </div>
             <div class="white-box txt-16 mar-left-12">
               Average
               <div class="value">
-                {{cpu.average}}%
+                <!--{{cpu.average}}-->%
               </div>
             </div>
             <div class="white-box txt-16 mar-left-12">Stability
               <div class="value">
-                {{cpu.stability}}
+                <!--{{cpu.stability}}-->
               </div>
             </div>
           </div>
@@ -86,11 +86,11 @@
               <span class="txt-16 nowrap">Bitness</span>
             </div>
             <div class="align-txt mar-left-24">
-              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.cpuName}}</span>
-              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.identifier}}</span>
-              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.processorID}}</span>
-              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.vendor}}</span>
-              <span class="txt-16 nowrap text-right">{{cpu.bitness}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.processor_name}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.processor_identifier}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.processor_id}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.processor_vendor}}</span>
+              <span class="txt-16 nowrap text-right">{{cpu.processor_bitness}}</span>
             </div>
             <div class="align-txt mar-left-32">
               <span class="txt-16 mar-bot-5 nowrap">Physical Packages</span>
@@ -100,10 +100,10 @@
               <span class="txt-16 nowrap">Interrupts</span>
             </div>
             <div class="align-txt mar-left-24">
-              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.physicalPackages}}</span>
-              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.physicalProcessors}}</span>
-              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.logicalProcessors}}</span>
-              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.contextSwitches}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.physical_package_count}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.physical_processor_count}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.logical_processor_count}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.context_switches}}</span>
               <span class="txt-16 nowrap text-right">{{cpu.interrupts}}</span>
             </div>
           </div>

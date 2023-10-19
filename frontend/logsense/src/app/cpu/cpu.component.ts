@@ -1,5 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {Chart} from "chart.js";
+import {CPUGeneral} from "../model/Cpu";
+import {CpuService} from "../services/cpu.service";
 
 export class CPUModel {
   cpuName: String = "AMD Ryzen 7 5800H";
@@ -28,7 +30,8 @@ export class ProcessModel {
   styleUrls: ['./cpu.component.scss']
 })
 export class CpuComponent implements OnInit {
-  cpu: CPUModel = new CPUModel();
+  //cpu: CPUModel = new CPUModel();
+  cpu: CPUGeneral = new CPUGeneral();
   notes: String[] = ["CPU Usage dropped 4%", "21 Anomalies detected", "5 Events registered"];
   processes: ProcessModel[] = [{name: "Chrome", allocation: 15}, {name: "Explorer", allocation: 10}, {
     name: "Intellij",
@@ -45,10 +48,10 @@ export class CpuComponent implements OnInit {
   ];
   selectedTime = this.times[0];
 
-  constructor() {
-  }
+  constructor(private cpuService: CpuService) {}
 
   ngOnInit() {
+    this.getGeneralInfo()
     this.usageChart();
   }
 
@@ -79,6 +82,11 @@ export class CpuComponent implements OnInit {
     });
   }
 
+  getGeneralInfo() {
+    this.cpuService.getGeneral(1).subscribe((data: CPUGeneral) => {
+      this.cpu = data;
+    })
+  }
   getData(): { labels: string[], values: number[] } {
     const labels = ['Zeitpunkt 1', 'Zeitpunkt 2', 'Zeitpunkt 3']; // Beispiellabels
     const values = [75, 90, 60]; // Beispielauslastung
