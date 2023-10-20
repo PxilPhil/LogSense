@@ -5,6 +5,7 @@ export class PCData {
   standard_deviation_ram: number = 0;
   mean_ram: number = 0;
   standard_deviation_cpu: number = 0;
+  stability_cpu: string = "";
   mean_cpu: number = 0;
   time_series_list: PCTimeSeriesData[] = [];
   allocation_list_ram: {

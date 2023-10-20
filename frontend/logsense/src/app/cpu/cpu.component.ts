@@ -1,7 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {Chart} from "chart.js";
-import {CPUGeneral} from "../model/Cpu";
+import {CPUGeneral, CPUStats} from "../model/Cpu";
 import {CpuService} from "../services/cpu.service";
+import {PCDataService} from "../services/pc-data.service";
+import {DatePipe} from "@angular/common";
+import {PCData} from "../model/PCData";
 
 export class CPUModel {
   cpuName: String = "AMD Ryzen 7 5800H";
@@ -31,7 +34,8 @@ export class ProcessModel {
 })
 export class CpuComponent implements OnInit {
   //cpu: CPUModel = new CPUModel();
-  cpu: CPUGeneral = new CPUGeneral();
+  cpuGeneral: CPUGeneral = new CPUGeneral();
+  cpuStats: CPUStats = new CPUStats();
   notes: String[] = ["CPU Usage dropped 4%", "21 Anomalies detected", "5 Events registered"];
   processes: ProcessModel[] = [{name: "Chrome", allocation: 15}, {name: "Explorer", allocation: 10}, {
     name: "Intellij",
@@ -48,10 +52,12 @@ export class CpuComponent implements OnInit {
   ];
   selectedTime = this.times[0];
 
-  constructor(private cpuService: CpuService) {}
+  constructor(private cpuService: CpuService, private pcDataService: PCDataService, private datePipe: DatePipe) {}
 
   ngOnInit() {
-    this.getGeneralInfo();
+    this.loadStats();
+    console.log(this.cpuStats);
+    this.loadGeneralInfo();
     this.usageChart();
   }
 
@@ -82,10 +88,35 @@ export class CpuComponent implements OnInit {
     });
   }
 
-  getGeneralInfo() {
+  loadGeneralInfo() {
     this.cpuService.getGeneral(1).subscribe((data: CPUGeneral) => {
-      this.cpu = data;
+      this.cpuGeneral = data;
     })
+  }
+
+  loadStats() {
+    let pcData: PCData = new PCData();
+    let dateNow = Date.now();
+    if(this.selectedTime.valueInMilliseconds != 0) {
+      this.pcDataService.getPcData(1, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "").subscribe((data: PCData) => {
+        pcData = data;
+        this.cpuStats.mean_cpu = this.roundDecimal(pcData.mean_cpu, 2);
+        this.cpuStats.stability_cpu = pcData.stability_cpu;
+        this.cpuStats.cur_cpu = this.roundDecimal(pcData.time_series_list[0].cpu, 2);
+      });
+    } else {
+      this.pcDataService.getPcData(1, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "").subscribe((data: PCData) => {
+        pcData = data;
+        this.cpuStats.mean_cpu = this.roundDecimal(pcData.mean_cpu, 2);
+        this.cpuStats.stability_cpu = pcData.stability_cpu;
+        this.cpuStats.cur_cpu = this.roundDecimal(pcData.time_series_list[0].cpu, 2);
+      });
+    }
+
+  }
+
+  roundDecimal(num: number, places: number): number{
+    return Math.round((num + Number.EPSILON) * Math.pow(10, places)) / Math.pow(10, places);
   }
   getData(): { labels: string[], values: number[] } {
     const labels = ['Zeitpunkt 1', 'Zeitpunkt 2', 'Zeitpunkt 3']; // Beispiellabels

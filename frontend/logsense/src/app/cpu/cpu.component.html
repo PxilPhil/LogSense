@@ -5,14 +5,14 @@
       <h1>CPU</h1>
     </div>
     <div>
-      <h3>{{cpu.processor_name}}</h3>
+      <h3>{{cpuGeneral.processor_name}}</h3>
     </div>
   </div>
   <h2 class="mar-h2">Usage</h2>
   <div class="pad-right-128 pad-left-64 mar-top-24 w-100">
     <div class="grey-box flex-start w-100">
       <div class="mar-right-96">
-        <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24">
+        <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24" (change)="loadStats()">
           <option *ngFor="let elem of times" [ngValue]="elem">{{elem.time}}</option>
         </select>
         <canvas class="white-bg w-100" id="usage"></canvas>
@@ -34,22 +34,23 @@
       <div>
         <h3 class="mar-bot-24">Statistics ({{selectedTime.time}})</h3>
         <div class="white-bg">
-          <span class="txt-16">{{cpu.processor_name}}</span>
+          <span class="txt-16">{{cpuGeneral.processor_name}}</span>
           <div class="boxes mar-top-12">
             <div class="white-box txt-16">Current
               <div class="value">
-                <!--{{cpu.current}}-->%
+                {{cpuStats.cur_cpu}}%
               </div>
             </div>
             <div class="white-box txt-16 mar-left-12">
               Average
               <div class="value">
-                <!--{{cpu.average}}-->%
+                {{cpuStats.mean_cpu}}%
               </div>
             </div>
-            <div class="white-box txt-16 mar-left-12">Stability
+            <div class="white-box txt-16 mar-left-12">
+              <span class="jus-center">Stability</span>
               <div class="value">
-                <!--{{cpu.stability}}-->
+                {{cpuStats.stability_cpu}}
               </div>
             </div>
           </div>
@@ -86,11 +87,11 @@
               <span class="txt-16 nowrap">Bitness</span>
             </div>
             <div class="align-txt mar-left-24">
-              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.processor_name}}</span>
-              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.processor_identifier}}</span>
-              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.processor_id}}</span>
-              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.processor_vendor}}</span>
-              <span class="txt-16 nowrap text-right">{{cpu.processor_bitness}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpuGeneral.processor_name}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpuGeneral.processor_identifier}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpuGeneral.processor_id}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpuGeneral.processor_vendor}}</span>
+              <span class="txt-16 nowrap text-right">{{cpuGeneral.processor_bitness}}</span>
             </div>
             <div class="align-txt mar-left-32">
               <span class="txt-16 mar-bot-5 nowrap">Physical Packages</span>
@@ -100,11 +101,11 @@
               <span class="txt-16 nowrap">Interrupts</span>
             </div>
             <div class="align-txt mar-left-24">
-              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.physical_package_count}}</span>
-              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.physical_processor_count}}</span>
-              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.logical_processor_count}}</span>
-              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpu.context_switches}}</span>
-              <span class="txt-16 nowrap text-right">{{cpu.interrupts}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpuGeneral.physical_package_count}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpuGeneral.physical_processor_count}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpuGeneral.logical_processor_count}}</span>
+              <span class="txt-16 mar-bot-5 nowrap text-right">{{cpuGeneral.context_switches}}</span>
+              <span class="txt-16 nowrap text-right">{{cpuGeneral.interrupts}}</span>
             </div>
           </div>
         </div>
