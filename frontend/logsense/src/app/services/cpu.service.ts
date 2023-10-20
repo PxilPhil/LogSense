@@ -17,9 +17,4 @@ export class CpuService {
     const url: string = `http://127.0.0.1:8000/pc/general_specs/${pc_id}`;
     return this.httpClient.get<CPUGeneral>(url);
   }
-
-  getStats(pc_id: number, start: string, end: string): Observable<CPUStats> {
-    const url: string = `http://localhost:8000/pc/${pc_id}/data?start=${start}&end=${end}`;
-    return this.httpClient.get<CPUStats>(url);
-  }
 }
