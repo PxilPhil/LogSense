@@ -18,25 +18,15 @@ class EventData(BaseModel):  # TODO: deprecated but kept in application to avoid
     application: str
     column: str
 
-class JustificationData(BaseModel):  # class containing explanation, justification and details about an event or anomaly
-    application: Optional[str]
-    timestamp: datetime
-    started: bool
-    stopped: bool
-    process_change: int
-    delta_ram: float
-    delta_cpu: float
-    warning: bool
 
-
-class Justification(BaseModel):  # class containing justification dat
+class Justification(BaseModel):  # class containing justification data
     timestamp: datetime
     till_timestamp: datetime
     total_delta_ram: Optional[float]
     total_delta_cpu: Optional[float]
     pc_just_started: Optional[bool]
     is_anomaly: bool
-    justification_list: List[JustificationData]
+    justification_message: str
 
 
 class AnomalyData(BaseModel):  # anomaly data class returned when analyzing application data
