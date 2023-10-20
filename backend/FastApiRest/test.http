@@ -47,8 +47,8 @@ Content-Type: application/json
 
 {
   "user_id": "1",
-  "hardware_uuid": "4C4C4544-0052-5210-8050-C8C04F385932",
-  "client_name": "Test Client"
+  "hardware_uuid": "C0B27178-F5AD-4EB7-93DB-24D3A78F0670",
+  "client_name": "philipp"
 }
 
 ### ADD PC with non excistent user ###

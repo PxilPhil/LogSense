@@ -47,7 +47,7 @@ def justify_application(timestamps: list[datetime], pc_id: int, application: Opt
     return justifications
 
 
-@alerts.get("/all/{user_id}", tags=["Alerts"], response_model=IngestCustomAlert, responses={
+@alerts.get("/all/{user_id}", tags=["Alerts"], response_model=CustomAlerts, responses={
     200: {"description": "Successful response"},
     400: {"description": "Invalid parameters or missing required fields"},
     500: {"description": "Internal server error"}

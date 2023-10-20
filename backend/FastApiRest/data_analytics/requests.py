@@ -187,6 +187,10 @@ def analyze_pc_data(df, pc_total_df):
         allocation_instance = AllocationClass(name=row['name'], allocation=row['cpu'])
         allocation_list_cpu.append(allocation_instance)
 
+    # sort allocations by impact
+    allocation_list_cpu = sorted(allocation_list_cpu, key=lambda cpu: cpu.allocation, reverse=True)
+    allocation_list_ram = sorted(allocation_list_ram, key=lambda ram: ram.allocation, reverse=True)
+
     # detect anomalies
     anomaly_measurements_ram = detect_anomalies(pc_total_df, 'ram')
     anomaly_measurements_cpu = detect_anomalies(pc_total_df, 'cpu')
