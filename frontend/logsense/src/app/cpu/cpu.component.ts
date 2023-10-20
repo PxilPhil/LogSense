@@ -51,7 +51,7 @@ export class CpuComponent implements OnInit {
   constructor(private cpuService: CpuService) {}
 
   ngOnInit() {
-    this.getGeneralInfo()
+    this.getGeneralInfo();
     this.usageChart();
   }
 

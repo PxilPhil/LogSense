@@ -13,7 +13,7 @@ export class CpuService {
   constructor(private httpClient: HttpClient) { }
 
   getGeneral(pc_id: number): Observable<CPUGeneral> {
-    const url: string = `GET http://127.0.0.1:8000/pc/general_specs/${pc_id}`;
+    const url: string = `http://127.0.0.1:8000/pc/general_specs/${pc_id}`;
     return this.httpClient.get<CPUGeneral>(url);
   }
 }
