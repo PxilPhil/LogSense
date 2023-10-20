@@ -1,0 +1,25 @@
+<div class="pad-left-64 mar-top-32">
+  <h3>Time Metrics</h3>
+  <div class="grey-box mar-top-12">
+    <div class="mar-bot-32">
+      <div>
+        <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24" (change)="loadTimeMetrics()">
+          <option *ngFor="let elem of times" [ngValue]="elem">{{elem.time}}</option>
+        </select>
+      </div>
+    </div>
+    <div class="flex-col w-100">
+      <canvas class="white-bg w-100" id="timeChart"></canvas>
+      <div class="flex-center mar-top-12">
+        <div class="form-check">
+          <input class="form-check-input" id="linechart" type="checkbox" value="">
+          <span class="txt-16">Line Chart</span>
+        </div>
+        <div class="form-check mar-left-12">
+          <input checked class="form-check-input" id="predictions" type="checkbox" value="">
+          <span class="txt-16">Predictions</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
