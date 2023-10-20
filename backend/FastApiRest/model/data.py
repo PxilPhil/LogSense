@@ -22,9 +22,6 @@ class EventData(BaseModel):  # TODO: deprecated but kept in application to avoid
 class Justification(BaseModel):  # class containing justification data
     timestamp: datetime
     till_timestamp: datetime
-    total_delta_ram: Optional[float]
-    total_delta_cpu: Optional[float]
-    pc_just_started: Optional[bool]
     is_anomaly: bool
     justification_message: str
 

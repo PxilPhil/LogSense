@@ -53,21 +53,15 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, prior_jus
 
             till_timestamp = applications_df['measurement_time'].min()
 
-            message: str = justify_data_point(applications_dict, pc_just_started)
+            message = create_justification_message(pc_just_started, None, None)
+            message += justify_data_point(applications_dict, pc_just_started)
 
-            print('problems here')
-            print(message)
             justification = Justification(
                 timestamp=point,
                 till_timestamp=till_timestamp,
-                pc_just_started=pc_just_started,
-                total_delta_ram=None,
-                total_delta_cpu=None,
                 is_anomaly=should_tag_as_anomaly,
                 justification_message=message
             )
-
-            calc_deltas(pc_total_df, justification, point)
 
             justification_logs.append(justification)
     print(justification_logs)
@@ -114,7 +108,7 @@ def justify_data_point(applications_dict, pc_just_started: bool) -> str:
                             delta_ram > 0 > process_change and delta_cpu > 0)):
                         warning = True
 
-                message = create_justification_message(message, name, timestamp, started, stopped, process_change,
+                message = append_justification_message(message, name, timestamp, started, stopped, process_change,
                                                        delta_ram, delta_cpu, warning)
 
         last_application_dict = application_dict
@@ -125,11 +119,8 @@ def justify_application_data_points(data_points: list, name: str, pc_id: int) ->
     Justification]:
     """
     Method to justify application data points without the application dataframe, mainly used for alerts
-    :param df:
     :param data_points:
     :param name:
-    :param prior_justifications:
-    :param should_tag_as_anomaly:
     :return:
     """
     justifications: list[Justification] = []
@@ -137,18 +128,18 @@ def justify_application_data_points(data_points: list, name: str, pc_id: int) ->
         start_point: datetime = point - timedelta(minutes=5)
         application_df, application_data_list = get_application_between(pc_id, name, start_point, point)
         # check application for justifications
-        justification_list = check_application(application_df, name, point)
+
+        total_delta_ram, total_delta_cpu = calc_deltas(application_df, point)
+
+        justification_message = create_justification_message(False, total_delta_ram, total_delta_cpu)
+        justification_message += check_application(application_df, name, point)
         justification = Justification(
             timestamp=point,
             till_timestamp=start_point,
-            total_delta_ram=None,
-            total_delta_cpu=None,
-            pc_just_started=None,
             is_anomaly=False,
-            justification_list=justification_list
+            justification_message=justification_message
         )
 
-        calc_deltas(application_df, justification, point)
         justifications.append(justification)
     return justifications
 
@@ -172,14 +163,12 @@ def justify_application_df(df: DataFrame, data_points: list, name: str,
             total_delta_cpu = time_window_rows.iloc[-1]['cpu'] - time_window_rows.iloc[0]['cpu']
 
             # check application for justifications
-            justification_message = check_application(time_window_rows, name, point)
+            justification_message = create_justification_message(False, total_delta_ram, total_delta_cpu)
+            justification_message += check_application(time_window_rows, name, point)
 
             event_anomaly = Justification(
                 timestamp=point,
                 till_timestamp=till_timestamp_point,
-                total_delta_ram=total_delta_ram,
-                total_delta_cpu=total_delta_cpu,
-                pc_just_started=None,
                 is_anomaly=should_tag_as_anomaly,
                 justification_message=justification_message
             )
@@ -211,25 +200,33 @@ def check_application(time_window_rows, name: str,
             # two minutes
             if (timestamp == index and len(time_window_rows) == 1) or (time_difference > timedelta(minutes=2)):
                 started = True
-            message = create_justification_message(message, name, timestamp, started, False, process_change,
+            message = append_justification_message(message, name, timestamp, started, False, process_change,
                                                    delta_ram, delta_cpu, warning)
 
         last_row = row
     return message
 
 
-def calc_deltas(df: DataFrame, justification: Justification, point: datetime):
+def calc_deltas(df: DataFrame, point: datetime):
     if df is not None:
         total_ram = df.loc[df['measurement_time'] == point, 'ram'].iloc[0]
         total_cpu = df.loc[df['measurement_time'] == point, 'cpu'].iloc[0]
 
         total_delta_ram = total_ram - df.loc[df['measurement_time'] == df['measurement_time'].min(), 'ram'].iloc[0]
         total_delta_cpu = total_cpu - df.loc[df['measurement_time'] == df['measurement_time'].min(), 'cpu'].iloc[0]
-        justification.total_delta_ram = np.int64(total_delta_ram).item()
-        justification.total_delta_cpu = np.int64(total_delta_cpu).item()
+        return np.int64(total_delta_ram).item(), np.int64(total_delta_cpu).item()
 
+def create_justification_message(pc_just_started: bool, total_delta_ram, total_delta_cpu) -> str:
+    message = ""
+    if pc_just_started:
+        message = "PC just started\n"
+    if total_delta_ram:
+        message += f"Total Delta of RAM is {total_delta_ram}\n"
+    if total_delta_cpu:
+        message += f"Total Delta of CPU is {total_delta_cpu}\n"
+    return message
 
-def create_justification_message(existing_message: str, application, timestamp, started, stopped, process_change,
+def append_justification_message(existing_message: str, application, timestamp, started, stopped, process_change,
                                  delta_ram, delta_cpu,
                                  warning) -> str:
     message = f"Regarding {application} at {timestamp}:\n"
