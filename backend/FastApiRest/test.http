@@ -47,7 +47,7 @@ Content-Type: application/json
 
 {
   "user_id": "1",
-  "hardware_uuid": "C0B27178-F5AD-4EB7-93DB-24D3A78F0670",
+  "hardware_uuid": "D9ADB1E0-EC2F-91D9-F788-04421A983719",
   "client_name": "philipp"
 }
 
@@ -112,10 +112,10 @@ GET http://localhost:8000/pc/1/data/GPU?start=2023-07-25 10:20:16&end=2023-12-25
 GET http://localhost:8000/pc/1/time-metrics/?start=2022-08-25 10:20:16&end=2023-12-25 10:33:01
 
 ### get application time metrics
-GET http://localhost:8000/pc/1/application/jetbrains-toolbox/time-metrics/?start=2023-07-25 10:20:16&end=2023-12-25 10:33:01
+GET http://localhost:8000/pc/1/application/java/time-metrics/?start=2023-07-25 10:20:16&end=2023-12-25 10:33:01
 
 ### get application data
-GET http://localhost:8000/pc/1/application/jetbrains-toolbox?start=2023-07-25 10:20:16&end=2023-09-25 10:33:01
+GET http://localhost:8000/pc/1/application/chrome?start=2023-01-19 10:20:16&end=2023-11-01 10:33:01
 
 ### get list of applications
 GET http://localhost:8000/pc/1/application/?start=2022-07-25 10:20:16&end=2023-12-25 10:33:01

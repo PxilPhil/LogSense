@@ -5,17 +5,13 @@ import warnings
 
 from pandas import DataFrame
 
-from data_analytics import involvement, manipulation, custom_alerts, stats
+from data_analytics import manipulation, stats
 from data_analytics.alerts import check_for_custom_alerts
 from data_analytics.anomaly_detection import detect_anomalies
-from data_analytics.change_detection import get_event_measurement_times, detect_events
+from data_analytics.change_detection import get_event_measurement_times, detect_events, detect_anomalies_alt
 from data_analytics.forecasting import fit_linear_regression, predict_for_df
 from data_analytics.justification import justify_pc_data_points, justify_application_df
 from data_analytics.manipulation import determine_stability
-from db_access.alerts import getCustomAlerts
-from db_access.data import get_moving_avg_of_application
-from db_access.pc import get_latest_moving_avg
-from db_access.helper import get_pcid_by_stateid
 from model.alerts import CustomAlert, AlertNotification
 from model.data import AllocationClass
 from model.pc import ForecastData
@@ -125,7 +121,13 @@ def analyze_application_data(df, application_name):
         mean: Average of the values.
     """
     # find events
+    print('Classic RAM:')
     ram_event_points = get_event_measurement_times(df, 'ram')
+    print('CPU:')
+    cpu_event_points = detect_anomalies_alt(df, 'cpu')
+    print('RAM:')
+    new_ram_events = detect_anomalies_alt(df, 'ram')
+
     # get stats
     std_ram = df['ram'].std()
     mean_ram = df['ram'].mean()
@@ -197,6 +199,7 @@ def analyze_pc_data(df, pc_total_df):
 
     # detect changes / events
     ram_change_points = get_event_measurement_times(pc_total_df, 'ram')
+
 
     # justifies events and anomalies
     ram_anomalies = justify_pc_data_points(pc_total_df, anomaly_measurements_ram, None, 1, True)  # TODO: change pc_id
