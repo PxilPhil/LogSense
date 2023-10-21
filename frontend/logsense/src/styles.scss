@@ -96,6 +96,11 @@ h3 {
 .nowrap {
   white-space: nowrap;
 }
+
+.overflow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 //Borders, Shadows, etc
 $shadow: 0 0 5px 0 rgba(0, 0, 0, 0.25);
 $lil-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.20);
@@ -236,8 +241,8 @@ button:focus-visible {
   color: $cyan;
 }
 .icon-32 {
-  height: 32px;
-  width: 32px;
+  height: 32px !important;
+  width: 32px !important;
   font-size: 32px;
   color: $black;
 }

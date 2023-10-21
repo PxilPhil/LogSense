@@ -5,11 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a3b0c86a-56b9-40a5-bdfe-abebb08d5502" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/model/Ram.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/model/PCData.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/model/PCData.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/ram/ram.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/ram/ram.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/services/cpu.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/services/cpu.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/FastApiRest/test.http" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/FastApiRest/test.http" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/app.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/cpu/cpu.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/cpu/cpu.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/network/network.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/network/network.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/overview/overview.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/overview/overview.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/overview/overview.component.scss" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/overview/overview.component.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/ram/ram.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/ram/ram.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/single-processes/single-processes.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/single-processes/single-processes.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/styles.scss" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/styles.scss" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,7 +82,9 @@
       <workItem from="1697448285504" duration="699000" />
       <workItem from="1697460563800" duration="756000" />
       <workItem from="1697734072425" duration="620000" />
-      <workItem from="1697785458670" duration="619000" />
+      <workItem from="1697785458670" duration="632000" />
+      <workItem from="1697803036207" duration="1351000" />
+      <workItem from="1697882082347" duration="745000" />
     </task>
     <servers />
   </component>

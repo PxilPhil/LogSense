@@ -84,14 +84,7 @@
       </div>
     </div>
     <div class="second">
-      <h2 class="mar-bot-24 mar-bot">Alerts</h2>
-      <div class="grey-box w-100">
-        <div *ngFor="let alert of ram.alerts; let last = last" [ngClass]="{'mar-bot-12': !last}"
-             class="alert-box flex-center">
-          <mat-icon class="icon-32 icon">warning</mat-icon>
-          <span class="mar-left-32 txt-16">{{alert}}</span>
-        </div>
-      </div>
+      <app-alerts></app-alerts>
     </div>
   </div>
 </div>
