@@ -63,7 +63,7 @@
               <span class="txt-22">CPU</span>
             </div>
             <div>
-              <span class="txt-22">{{roundDecimalNumber(selectedApplication.mean_cpu, 2)}}%</span>
+              <span class="txt-22">{{roundDecimalNumber(selectedApplication.mean_cpu*100, 2)}}%</span>
             </div>
           </div>
           <div class="chart-container mar-top-16">
@@ -118,7 +118,7 @@
         </div>
       </div>
       <div [ngClass]="{'w-100': !isApplicationSelected, 'mar-top-32 w-100': isApplicationSelected}">
-        <app-alerts></app-alerts>
+        <app-alerts [alerts]="alerts"></app-alerts>
       </div>
     </div>
   </div>

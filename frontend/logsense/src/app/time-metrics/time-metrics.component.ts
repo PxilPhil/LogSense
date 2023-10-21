@@ -49,8 +49,9 @@ export class TimeMetricsComponent implements OnInit, OnDestroy {
         labels: this.timeMetrics.name,
         datasets: [{
           data: (this.timeMetrics.total_running_time_minutes),
-          borderColor: "#2b26a8",
-          backgroundColor: "#7BE1DF",
+          borderColor: "#3e95cd",
+          backgroundColor: "rgba(62,149,205, 0.4)",
+          borderWidth: 1
         }]
       },
       options: {

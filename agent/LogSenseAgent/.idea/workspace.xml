@@ -5,7 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a3b0c86a-56b9-40a5-bdfe-abebb08d5502" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/single-processes/single-processes.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/single-processes/single-processes.component.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/time-metrics/time-metrics.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/time-metrics/time-metrics.component.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/time-metrics/time-metrics.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/time-metrics/time-metrics.component.ts" afterDir="false" />
     </list>

@@ -93,4 +93,6 @@ export class RamComponent implements OnInit {
     const values = [75, 90, 60]; // Beispielauslastung
     return {labels, values};
   }
+
+  protected readonly alert = alert;
 }
