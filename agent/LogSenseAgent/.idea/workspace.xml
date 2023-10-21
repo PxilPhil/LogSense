@@ -4,15 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a3b0c86a-56b9-40a5-bdfe-abebb08d5502" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../../backend/FastApiRest/data_analytics/trend_analysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/FastApiRest/data_analytics/event_detection.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/FastApiRest/data_analytics/involvement.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/FastApiRest/data_analytics/manipulation.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/FastApiRest/data_analytics/manipulation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/FastApiRest/data_analytics/requests.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/FastApiRest/data_analytics/requests.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/FastApiRest/test.http" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/FastApiRest/test.http" afterDir="false" />
-    </list>
+    <list default="true" id="a3b0c86a-56b9-40a5-bdfe-abebb08d5502" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -80,7 +72,7 @@
       <workItem from="1696936590139" duration="1306000" />
       <workItem from="1697448285504" duration="699000" />
       <workItem from="1697460563800" duration="756000" />
-      <workItem from="1697817718789" duration="1559000" />
+      <workItem from="1697817718789" duration="1560000" />
     </task>
     <servers />
   </component>

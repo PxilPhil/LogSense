@@ -8,7 +8,7 @@ from pandas import DataFrame
 from data_analytics import manipulation, stats
 from data_analytics.alerts import check_for_custom_alerts
 from data_analytics.anomaly_detection import detect_anomalies
-from data_analytics.change_detection import get_event_measurement_times, detect_events, detect_anomalies_alt
+from data_analytics.change_anomaly_detection import get_event_measurement_times, detect_events
 from data_analytics.forecasting import fit_linear_regression, predict_for_df
 from data_analytics.justification import justify_pc_data_points, justify_application_df
 from data_analytics.manipulation import determine_stability
@@ -120,13 +120,8 @@ def analyze_application_data(df, application_name):
         std: Standard deviation from mean, used for calculating "Stability".
         mean: Average of the values.
     """
-    # find events
-    print('Classic RAM:')
-    ram_event_points = get_event_measurement_times(df, 'ram')
-    print('CPU:')
-    cpu_event_points = detect_anomalies_alt(df, 'cpu')
-    print('RAM:')
-    new_ram_events = detect_anomalies_alt(df, 'ram')
+    # detect changes or events
+    ram_change_points = get_event_measurement_times(df, 'ram')
 
     # get stats
     std_ram = df['ram'].std()
@@ -140,16 +135,16 @@ def analyze_application_data(df, application_name):
     stability_cpu = determine_stability(cov_cpu)
 
     # find anomalies
-    anomaly_measurements_ram = detect_anomalies(df, 'ram')
-    anomaly_measurements_cpu = detect_anomalies(df, 'cpu')
+    anomalies_ram = detect_anomalies(df, 'ram')
+    anomalies_cpu = detect_anomalies(df, 'cpu')
 
-    ram_anomalies = justify_application_df(df, anomaly_measurements_ram, application_name, None, True)
-    ram_events_and_anomalies = justify_application_df(df, ram_event_points, application_name, ram_anomalies,
+    ram_anomalies = justify_application_df(df, anomalies_ram, application_name, None, True)
+    ram_events_and_anomalies = justify_application_df(df, ram_change_points, application_name, ram_anomalies,
                                                       False)
-    cpu_events_and_anomalies = justify_application_df(df, anomaly_measurements_ram, application_name, None,
+    cpu_events_and_anomalies = justify_application_df(df, anomalies_cpu, application_name, None,
                                                       False)
 
-    return df, ram_events_and_anomalies, cpu_events_and_anomalies, anomaly_measurements_ram, anomaly_measurements_cpu, std_ram, std_cpu, mean_ram, mean_cpu, cov_ram, cov_cpu, stability_ram, stability_cpu
+    return df, ram_events_and_anomalies, cpu_events_and_anomalies, anomalies_ram, anomalies_cpu, std_ram, std_cpu, mean_ram, mean_cpu, cov_ram, cov_cpu, stability_ram, stability_cpu
 
 
 def analyze_pc_data(df, pc_total_df):
@@ -199,21 +194,27 @@ def analyze_pc_data(df, pc_total_df):
 
     # detect changes / events
     ram_change_points = get_event_measurement_times(pc_total_df, 'ram')
-
+    cpu_change_points = get_event_measurement_times(df, 'cpu')
 
     # justifies events and anomalies
-    ram_anomalies = justify_pc_data_points(pc_total_df, anomaly_measurements_ram, None, 1, True)  # TODO: change pc_id
-    ram_event_justifications = justify_pc_data_points(pc_total_df, ram_change_points, ram_anomalies, 1,
-                                                      False)  # TODO: change pc_id
-    cpu_event_anomaly_justifications = justify_pc_data_points(pc_total_df, anomaly_measurements_cpu,
-                                                              ram_event_justifications, 1, False)  # TODO: change pc_id
+    ram_anomalies = justify_pc_data_points(pc_total_df, anomaly_measurements_ram, None, 1, True)
+    ram_events = justify_pc_data_points(pc_total_df, ram_change_points, ram_anomalies, 1, False)
+
+    ram_anomaly_events = ram_anomalies + ram_events
+
+    cpu_anomalies = justify_pc_data_points(pc_total_df, anomaly_measurements_cpu,
+                                           ram_anomaly_events, 1, True)
+    cpu_events = justify_pc_data_points(pc_total_df, cpu_change_points,
+                                        ram_anomaly_events + cpu_anomalies, 1, False)
+
+    cpu_anomaly_events = cpu_anomalies + cpu_events
 
     cov_ram = (std_ram / mean_ram) * 100  # stands for coefficient_of_variation
     cov_cpu = (std_cpu / mean_cpu) * 100  # stands for coefficient_of_variation
     stability_ram = determine_stability(cov_ram)
     stability_cpu = determine_stability(cov_cpu)
 
-    return pc_total_df, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu, ram_event_justifications, cpu_event_anomaly_justifications, cov_ram, cov_cpu, stability_ram, stability_cpu
+    return pc_total_df, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu, ram_anomaly_events, cpu_anomaly_events, cov_ram, cov_cpu, stability_ram, stability_cpu
 
 
 def analyze_trends():
@@ -223,7 +224,8 @@ def analyze_trends():
     """
 
 
-def check_for_alerts(user_id: int, custom_alert_list: List[CustomAlert], pc_df: DataFrame, start, end) -> List[AlertNotification]:
+def check_for_alerts(user_id: int, custom_alert_list: List[CustomAlert], pc_df: DataFrame, start, end) -> List[
+    AlertNotification]:
     """
     Checks for alerts that have appeared in a specified timeframe
     :return:

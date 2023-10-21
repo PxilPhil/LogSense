@@ -42,18 +42,11 @@ def detect_events(df: DataFrame, column: str) -> list:  # should not be used for
     return change_points
 
 
-def detect_anomalies_alt(df, column):
+def detect_anomalies(df, column):
     df_values = df[column].values.reshape(-1, 1)  # Reshape the data
     clf = IsolationForest(contamination=0.1, random_state=None)
     clf.fit(df_values)
-
-    # Predict inliers and outliers
     predicted_labels = clf.predict(df_values)
-
-    # Anomalies are where predicted_labels == -1
     anomaly_indices = np.where(predicted_labels == -1)[0]
-
     anomaly_measurement_times = df['measurement_time'].iloc[anomaly_indices].tolist()
-    print('------------------')
-    print(anomaly_measurement_times)
     return anomaly_measurement_times
