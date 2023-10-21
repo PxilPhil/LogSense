@@ -16,8 +16,8 @@
           <span class="txt-16">Line Chart</span>
         </div>
         <div class="form-check mar-left-12">
-          <input checked class="form-check-input" id="predictions" type="checkbox" value="">
-          <span class="txt-16">Predictions</span>
+          <input class="form-check-input" id="predictions" type="checkbox" [(ngModel)]="showAll" (change)="loadTimeMetrics()">
+          <span class="txt-16">Show Everything</span>
         </div>
       </div>
     </div>
