@@ -7,8 +7,7 @@ from pandas import DataFrame
 
 from data_analytics import manipulation, stats
 from data_analytics.alerts import check_for_custom_alerts
-from data_analytics.anomaly_detection import detect_anomalies
-from data_analytics.change_anomaly_detection import get_event_measurement_times, detect_events
+from data_analytics.change_anomaly_detection import get_event_measurement_times, detect_events, detect_anomalies
 from data_analytics.forecasting import fit_linear_regression, predict_for_df
 from data_analytics.justification import justify_pc_data_points, justify_application_df
 from data_analytics.manipulation import determine_stability
