@@ -11,6 +11,7 @@ from data_analytics.change_anomaly_detection import get_event_measurement_times,
 from data_analytics.forecasting import fit_linear_regression, predict_for_df
 from data_analytics.justification import justify_pc_data_points, justify_application_df
 from data_analytics.manipulation import determine_stability
+from data_analytics.stats import calculate_trend_statistics
 from model.alerts import CustomAlert, AlertNotification
 from model.data import AllocationClass
 from model.pc import ForecastData
@@ -166,11 +167,6 @@ def analyze_pc_data(df, pc_total_df):
         std: Standard deviation from mean, used for calculating "Stability".
         mean: Average of the values.
     """
-    # get stats
-    std_ram = pc_total_df['ram'].std()
-    mean_ram = pc_total_df['ram'].mean()
-    std_cpu = pc_total_df['cpu'].std()
-    mean_cpu = pc_total_df['cpu'].mean()
     # get allocation percentage for ram
     latest_total_ram = pc_total_df.at[pc_total_df.index.max(), 'ram']
     allocation_map_ram = stats.calc_allocation(latest_total_ram, 'ram', df)
@@ -208,12 +204,10 @@ def analyze_pc_data(df, pc_total_df):
 
     cpu_anomaly_events = cpu_anomalies + cpu_events
 
-    cov_ram = (std_ram / mean_ram) * 100  # stands for coefficient_of_variation
-    cov_cpu = (std_cpu / mean_cpu) * 100  # stands for coefficient_of_variation
-    stability_ram = determine_stability(cov_ram)
-    stability_cpu = determine_stability(cov_cpu)
+    # get stats
+    statistic_data = calculate_trend_statistics(pc_total_df)
 
-    return pc_total_df, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu, ram_anomaly_events, cpu_anomaly_events, cov_ram, cov_cpu, stability_ram, stability_cpu
+    return pc_total_df, allocation_list_ram, allocation_list_cpu, ram_anomaly_events, cpu_anomaly_events, statistic_data
 
 
 def analyze_trends():

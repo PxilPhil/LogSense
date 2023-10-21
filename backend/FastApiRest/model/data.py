@@ -82,21 +82,23 @@ class AllocationClass(BaseModel):
     name: str
     allocation: float
 
+class StatisticData(BaseModel):
+    average_ram: float
+    median_ram: float
+    average_cpu: float
+    median_cpu: float
+    stability: str
+    message: str
 
 class PCData(BaseModel):
     pc_id: int
     start: str
     end: str
-    standard_deviation_ram: float
-    mean_ram: float
-    standard_deviation_cpu: float
-    mean_cpu: float
-    cov_ram: float
-    cov_cpu: float
-    stability_ram: str
-    stability_cpu: str
     time_series_list: List[PCTimeSeriesData]
     allocation_list_ram: List[AllocationClass]
     allocation_list_cpu: List[AllocationClass]
     ram_events_and_anomalies: List[Justification]
     cpu_events_and_anomalies: List[Justification]
+    statistic_data: StatisticData
+
+

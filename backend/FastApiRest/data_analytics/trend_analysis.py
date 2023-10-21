@@ -13,13 +13,6 @@ def determine_event_ranges():
     """
 
 
-def time_changes_detection():
-    """
-    This algorithm looks at changes & differences between timeframes
-    :return:
-    """
-
-
 def application_change_detection():
     """
     This algorithm looks at changes & differences between applications

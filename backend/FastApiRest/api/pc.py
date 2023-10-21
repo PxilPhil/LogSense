@@ -13,7 +13,7 @@ from data_analytics import requests
 from exceptions.DataBaseInsertExcepion import DataBaseInsertException
 from exceptions.InvalidParametersException import InvalidParametersException
 from model.pc import PCItem, ForecastResult, ForecastData, DISKS, Network, PCSpecs, PCMetrics
-from model.data import PCData
+from model.data import PCData, StatisticData
 
 pc = APIRouter()
 
@@ -83,7 +83,7 @@ def get_pc_data(pc_id: int, start: str, end: str):
     df, application_data_list = get_latest_application_data(pc_id, 1, None)
     if df is None or total_df is None:
         raise InvalidParametersException()
-    pc_total_df, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu, ram_events_anomalies, cpu_events_anomalies, cov_ram, cov_cpu, stability_ram, stability_cpu = requests.analyze_pc_data(
+    pc_total_df, allocation_list_ram, allocation_list_cpu, ram_anomaly_events, cpu_anomaly_events, statistic_data = requests.analyze_pc_data(
         df, total_df)
 
 
@@ -91,19 +91,12 @@ def get_pc_data(pc_id: int, start: str, end: str):
         pc_id=pc_id,
         start=start,
         end=end,
-        standard_deviation_ram=std_ram,
-        mean_ram=mean_ram,
-        standard_deviation_cpu=std_cpu,
-        mean_cpu=mean_cpu,
-        cov_ram=cov_ram,
-        cov_cpu=cov_cpu,
-        stability_ram=stability_ram,
-        stability_cpu=stability_cpu,
         time_series_list=total_data_list,
         allocation_list_ram=allocation_list_ram,
         allocation_list_cpu=allocation_list_cpu,
-        ram_events_and_anomalies=ram_events_anomalies,
-        cpu_events_and_anomalies=cpu_events_anomalies
+        ram_events_and_anomalies=ram_anomaly_events,
+        cpu_events_and_anomalies=cpu_anomaly_events,
+        statistic_data=statistic_data
     )
 
     print(pc_data)
