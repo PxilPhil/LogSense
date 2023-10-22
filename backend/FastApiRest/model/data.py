@@ -44,32 +44,9 @@ class AlertData(BaseModel):  # basically AnomalyData (EventData) but includes cu
 
 
 class PCTimeSeriesData(BaseModel):
-    id: int
-    state_id: int
-    pc_id: int
     measurement_time: datetime
-    free_disk_space: float
-    read_bytes_disks: float
-    reads_disks: int
-    write_bytes_disks: float
-    writes_disks: int
-    partition_major_faults: int
-    partition_minor_faults: int
-    available_memory: float
-    names_power_source: str
-    charging_power_sources: bool
-    discharging_power_sources: bool
-    power_online_power_sources: bool
-    remaining_capacity_percent_power_sources: float
-    context_switches_processor: int
-    interrupts_processor: int
     ram: float
     cpu: float
-    context_switches: int
-    major_faults: int
-    open_files: int
-    thread_count: int
-
     # method to parse a dictionary and create a PCTimeSeriesData object
     @classmethod
     def from_dict(cls, data):
