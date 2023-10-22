@@ -12,6 +12,7 @@ from data_analytics.forecasting import fit_linear_regression, predict_for_df
 from data_analytics.justification import justify_pc_data_points, justify_application_df
 from data_analytics.manipulation import determine_stability
 from data_analytics.stats import calculate_trend_statistics
+from data_analytics.trend_analysis import determine_event_ranges
 from model.alerts import CustomAlert, AlertNotification
 from model.data import AllocationClass
 from model.pc import ForecastData
@@ -123,28 +124,25 @@ def analyze_application_data(df, application_name):
     # detect changes or events
     ram_change_points = get_event_measurement_times(df, 'ram')
 
-    # get stats
-    std_ram = df['ram'].std()
-    mean_ram = df['ram'].mean()
-    std_cpu = df['cpu'].std()
-    mean_cpu = df['cpu'].mean()
-
-    cov_ram = (std_ram / mean_ram) * 100  # stands for coefficient_of_variation
-    cov_cpu = (std_cpu / mean_cpu) * 100  # stands for coefficient_of_variation
-    stability_ram = determine_stability(cov_ram)
-    stability_cpu = determine_stability(cov_cpu)
-
     # find anomalies
     anomalies_ram = detect_anomalies(df, 'ram')
     anomalies_cpu = detect_anomalies(df, 'cpu')
 
-    ram_anomalies = justify_application_df(df, anomalies_ram, application_name, None, True)
-    ram_events_and_anomalies = justify_application_df(df, ram_change_points, application_name, ram_anomalies,
+    # get justifications for events and anomalies
+    ram_anomaly_justifications = justify_application_df(df, anomalies_ram, application_name, None, True)
+    ram_events_and_anomalies = justify_application_df(df, ram_change_points, application_name,
+                                                      ram_anomaly_justifications,
                                                       False)
     cpu_events_and_anomalies = justify_application_df(df, anomalies_cpu, application_name, None,
                                                       False)
 
-    return df, ram_events_and_anomalies, cpu_events_and_anomalies, anomalies_ram, anomalies_cpu, std_ram, std_cpu, mean_ram, mean_cpu, cov_ram, cov_cpu, stability_ram, stability_cpu
+    # get stats
+    statistic_data = calculate_trend_statistics(df)
+
+    # look at data ranges
+    determine_event_ranges(df, ram_change_points)
+
+    return df, ram_events_and_anomalies, cpu_events_and_anomalies, statistic_data
 
 
 def analyze_pc_data(df, pc_total_df):

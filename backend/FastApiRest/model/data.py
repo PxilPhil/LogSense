@@ -83,6 +83,10 @@ class AllocationClass(BaseModel):
     allocation: float
 
 class StatisticData(BaseModel):
+    latest_ram: float
+    latest_cpu : float
+    oldest_ram: float
+    oldest_cpu: float
     average_ram: float
     median_ram: float
     average_cpu: float

@@ -5,7 +5,7 @@ from sklearn.ensemble import IsolationForest
 
 from model.data import Justification
 
-penalty_value = 0.3  # value used for "penalizing" the pelting model for overfitting, decrease to detect more insignicant events and vice versa -> sensitivity in other words
+penalty_value = 0.5  # value used for "penalizing" the pelting model for overfitting, decrease to detect more insignicant events and vice versa -> sensitivity in other words
 
 """
     Change detection works well for RAM but not for things like cpu
