@@ -20,6 +20,10 @@
   position: absolute;
   transform: translate(48px, 136px);
   padding: 8px 16px;
+  width: max-content;
+  .lower {
+    white-space: normal;
+  }
 }
 
 .test {
@@ -45,25 +49,6 @@
   }
 }
 
-@include media-breakpoint-down(lg) {
-  .test .group {
-    width: 100% !important;
-    flex-direction: column;
-    .second {
-      margin: 0 0 24px 0;
-    }
-    .third {
-      margin: 0;
-    }
-  }
-}
-
-@include media-breakpoint-down(xl) {
-  .hidden {
-    transform: translate(-262px, 196px);
-  }
-}
-
 @include media-breakpoint-down(xxl) {
   .test {
     display: flex;
@@ -78,3 +63,36 @@
 
   }
 }
+
+
+@include media-breakpoint-down(xl) {
+  .hidden {
+    transform: translate(-262px, 196px);
+  }
+}
+
+@include media-breakpoint-down(lg) {
+  .test .group {
+    width: 100% !important;
+    flex-direction: column;
+    .second {
+      margin: 0 0 24px 0;
+    }
+    .third {
+      margin: 0;
+    }
+  }
+}
+
+
+@include media-breakpoint-down(sm) {
+  .hidden {
+    width: fit-content;
+    transform: translate(-162px, 200px) !important;
+    .lower {
+      white-space: nowrap;
+    }
+  }
+}
+
+

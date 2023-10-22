@@ -52,6 +52,8 @@ export class CpuComponent implements OnInit {
   ];
   selectedTime = this.times[0];
 
+  showAllProcesses: boolean = false;
+
   constructor(private cpuService: CpuService, private pcDataService: PCDataService, private datePipe: DatePipe) {}
 
   ngOnInit() {
@@ -61,6 +63,14 @@ export class CpuComponent implements OnInit {
     this.usageChart();
   }
 
+  showAll() {
+    if(this.showAllProcesses) {
+      //TODO: load processes
+    } else {
+
+    }
+    this.showAllProcesses = !this.showAllProcesses;
+  }
   usageChart(): void {
     const data = this.getData();
     const usage = new Chart("usage", {

@@ -101,6 +101,18 @@ h3 {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.link {
+  font-family: $font-family;
+
+  color: $blue;
+  text-decoration: underline;
+}
+.link:hover {
+  color: $cyan;
+  text-decoration: underline;
+}
+
 //Borders, Shadows, etc
 $shadow: 0 0 5px 0 rgba(0, 0, 0, 0.25);
 $lil-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.20);
