@@ -19,34 +19,12 @@ from model.pc import ForecastData
 
 warnings.filterwarnings("ignore")
 
-"""
-    Documentation Comments:
-    Events:
-    Rework event detection to make threshold dependent on things like variance
-    Formula for threshold: mean + (multiplier * std_dev)
-    Alternatives to percentual detection include online/offline change point detection algorithms (ChangeFinder/Ruptures)
-    
-    Predictions:
-    If possible save a trained model
-    Use exponential smoothing( Holt-Winters?), might be possible to use more powerful models than linear regression
-    -> Random Forest, Keep linear regression with Piecewise Linear Regression or time bucketing
-    
-    Anomalies:
-    We just assume a normal distribution of data
-    
-    Any other things we could implement?
-"""
-
-
-def preprocess_pc_data(df: DataFrame, state_id: int):
+def preprocess_pc_data(df: DataFrame):
     """
-    Preprocesses and analyzes data before inserting it into the database.
+    Preprocesses and groups data before inserting it into the database.
 
     Features:
         - Grouping the DataFrame by timestamp to create the total pc DataFrame.
-        - Detecting if an event has occured or not
-        - Find relevant applications to find out if events have occured in them
-        - Detecting events of relevant applications.
 
     Args:
         df (DataFrame): The DataFrame containing pc data to be inserted.
@@ -61,7 +39,7 @@ def preprocess_pc_data(df: DataFrame, state_id: int):
     return pc_total_df, event_list
 
 
-def forecast_disk_space(df, days):
+def forecast_disk_space(df: DataFrame, column: str, days):
     """
     Forecasts disk space allocation for a certain number of days.
 
@@ -80,11 +58,11 @@ def forecast_disk_space(df, days):
         last_timestamp: The timestamp where free disk space reaches 0 or less.
     """
     # read dataframe, elect only needed columns
-    df = df.filter(['measurement_time', 'free_disk_space'])
+    df = df.filter(['measurement_time', column])
     df = df.set_index(pd.to_datetime(df['measurement_time']).astype('int64') // 10 ** 6)
     # get latest timestamp, fit to model, extend dataframe by time input and predict values for it
     timestamp = df.index[-1]
-    LR = fit_linear_regression(df, 'free_disk_space')
+    LR = fit_linear_regression(df, column)
     df = manipulation.create_df_between(timestamp, days, 'D')
     df = predict_for_df(LR, df)
 
@@ -108,7 +86,11 @@ def analyze_application_data(df, application_name):
 
     Features:
         - Anomaly detection.
-        - Simple statistical math (standard deviation, mean).
+        - Change point detection
+        - Simple statistical math (standard deviation, mean, median).
+        - Calculate stability and trend statistics
+        - Justifications for why changes or anomalies have occurred
+
 
     Args:
         df (DataFrame): The DataFrame containing application data.
@@ -116,10 +98,9 @@ def analyze_application_data(df, application_name):
 
     Returns:
         df: The DataFrame containing application data.
-        event_list: The list of detected events
-        anomaly_list: The list of detected anomalies.
-        std: Standard deviation from mean, used for calculating "Stability".
-        mean: Average of the values.
+        ram_events_and_anomalies: The list of detected change points and anomalies for ram
+        cpu_events_and_anomalies: The list of detected change points and anomalies for cpu
+        statistic_data: Simple statistical data like mean, average, median, trend stats
     """
     # detect changes or events
     ram_change_points = get_event_measurement_times(df, 'ram')
@@ -150,8 +131,13 @@ def analyze_pc_data(df, pc_total_df):
     Analyzes pc data, called by the client when fetching pc data of a certain category (like RAM).
 
     Features:
-        - Calculating allocation of applications.
-        - Simple statistical math (standard deviation, mean).
+        - Anomaly detection.
+        - Application allocation calculation
+        - Change point detection
+        - Simple statistical math (standard deviation, mean, median).
+        - Calculate stability and trend statistics
+        - Justifications for why changes or anomalies have occurred
+
 
     Args:
         df (DataFrame): The DataFrame containing application data.
@@ -191,16 +177,12 @@ def analyze_pc_data(df, pc_total_df):
 
     # justifies events and anomalies
     ram_anomalies = justify_pc_data_points(pc_total_df, anomaly_measurements_ram, None, 1, True)
-    ram_events = justify_pc_data_points(pc_total_df, ram_change_points, ram_anomalies, 1, False)
-
-    ram_anomaly_events = ram_anomalies + ram_events
+    ram_anomaly_events = justify_pc_data_points(pc_total_df, ram_change_points, ram_anomalies, 1, False)
 
     cpu_anomalies = justify_pc_data_points(pc_total_df, anomaly_measurements_cpu,
                                            ram_anomaly_events, 1, True)
-    cpu_events = justify_pc_data_points(pc_total_df, cpu_change_points,
-                                        ram_anomaly_events + cpu_anomalies, 1, False)
-
-    cpu_anomaly_events = cpu_anomalies + cpu_events
+    cpu_anomaly_events = justify_pc_data_points(pc_total_df, cpu_change_points,
+                                                ram_anomaly_events + cpu_anomalies, 1, False)
 
     # get stats
     statistic_data = calculate_trend_statistics(pc_total_df)

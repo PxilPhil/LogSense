@@ -82,9 +82,10 @@ class AllocationClass(BaseModel):
     name: str
     allocation: float
 
+
 class StatisticData(BaseModel):
     latest_ram: float
-    latest_cpu : float
+    latest_cpu: float
     oldest_ram: float
     oldest_cpu: float
     average_ram: float
@@ -93,6 +94,7 @@ class StatisticData(BaseModel):
     median_cpu: float
     stability: str
     message: str
+
 
 class PCData(BaseModel):
     pc_id: int
@@ -104,5 +106,3 @@ class PCData(BaseModel):
     ram_events_and_anomalies: List[Justification]
     cpu_events_and_anomalies: List[Justification]
     statistic_data: StatisticData
-
-

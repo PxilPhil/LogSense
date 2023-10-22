@@ -9,27 +9,9 @@ from model.data import EventData, AnomalyData, Justification, StatisticData
 
 
 class ApplicationTimeSeriesData(BaseModel):
-    id: int
-    pcdata_id: int
     measurement_time: datetime
-    name: str
-    path: str
     cpu: float
     ram: int
-    state: str
-    user: str
-    context_switches: int
-    major_faults: int
-    bitness: int
-    commandline: str
-    current_Working_Directory: str
-    open_files: int
-    parent_process_id: int
-    thread_count: int
-    uptime: int
-    process_count_difference: int
-    moving_average_ram: float
-    moving_average_cpu: float
 
 
 class ApplicationData(BaseModel):
