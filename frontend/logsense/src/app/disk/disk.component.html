@@ -5,15 +5,13 @@
   </div>
   <h2 class="mar-left-64 mar-top-32">Usage</h2>
   <div class="pad-right-128 pad-left-64 mar-top-32 w-100">
-    <div class="grey-box w-100 wrapper">
-      <div class="wrap-select first">
+    <div class="grey-box w-100 wrap-chart-stats">
+      <div class="mar-bot-24">
+        <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24" (ngModelChange)="loadPCData()">
+          <option *ngFor="let elem of times" [ngValue]="elem">{{elem.time}}</option>
+        </select>
         <div>
-          <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24" (ngModelChange)="loadPCData()">
-            <option *ngFor="let elem of times" [ngValue]="elem">{{elem.time}}</option>
-          </select>
-        </div>
-        <div class="chart">
-          <canvas class="white-bg" id="disk"></canvas>
+          <canvas class="white-bg w-100" id="disk"></canvas>
         </div>
         <div class="flex-center mar-top-12">
           <div class="form-check">
@@ -30,7 +28,7 @@
           </div>
         </div>
       </div>
-      <div class="stats second">
+      <div class="stats">
         <h3 class="mar-bot-24">Statistics ({{selectedTime.time}})</h3>
         <div class="white-bg">
           <div class="align-general nowrap">
