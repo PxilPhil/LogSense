@@ -49,7 +49,6 @@ export class ApplicationTimeSeriesData {
   commandLine: string = "";
   current_Working_Directory: string = "";
   open_files: number = 0;
-  parent_process_id: number = 0;
   thread_count: number = 0;
   uptime: number = 0;
   process_count_difference: number = 0;

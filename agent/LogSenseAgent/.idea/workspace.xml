@@ -6,10 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="a3b0c86a-56b9-40a5-bdfe-abebb08d5502" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/model/TimeMetrics.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/model/TimeMetrics.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/services/time-metrics.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/services/time-metrics.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/time-metrics/time-metrics.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/time-metrics/time-metrics.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.scss" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.scss" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,6 +72,14 @@
       <workItem from="1696936590139" duration="1306000" />
       <workItem from="1697448285504" duration="699000" />
       <workItem from="1697460563800" duration="756000" />
+      <workItem from="1697734072425" duration="620000" />
+      <workItem from="1697785458670" duration="632000" />
+      <workItem from="1697803036207" duration="1351000" />
+      <workItem from="1697882082347" duration="749000" />
+      <workItem from="1697969317096" duration="1410000" />
+      <workItem from="1697992034720" duration="648000" />
+      <workItem from="1698049083393" duration="671000" />
+      <workItem from="1698068640114" duration="659000" />
     </task>
     <servers />
   </component>
