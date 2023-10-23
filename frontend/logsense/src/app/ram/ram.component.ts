@@ -42,9 +42,19 @@ export class RamComponent implements OnInit {
   ];
   selectedTime: TimeModel = this.times[0];
 
+  showAllProcesses: boolean = false;
+
   constructor(private pcDataService: PCDataService, private  datePipe: DatePipe, private resourceService: ResourceMetricsService) {
   }
 
+  showAll() {
+    if(this.showAllProcesses) {
+      //TODO: load processes
+    } else {
+
+    }
+    this.showAllProcesses = !this.showAllProcesses;
+  }
   ngOnInit() {
     this.loadStats() // TODO: soboids den API Call gibt Stats lodn
     this.usageChart();
