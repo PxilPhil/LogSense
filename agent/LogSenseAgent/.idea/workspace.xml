@@ -5,7 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a3b0c86a-56b9-40a5-bdfe-abebb08d5502" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../backend/FastApiRest/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/FastApiRest/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.scss" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.scss" afterDir="false" />
     </list>
@@ -80,6 +82,7 @@
       <workItem from="1697969317096" duration="1410000" />
       <workItem from="1697992034720" duration="648000" />
       <workItem from="1698049083393" duration="671000" />
+      <workItem from="1698068640114" duration="622000" />
     </task>
     <servers />
   </component>

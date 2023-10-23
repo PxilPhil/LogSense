@@ -1,5 +1,5 @@
-@import "bootstrap";
 @import "../../styles.scss";
+@import "bootstrap";
 
 .white-bg {
   background-color: $white;
@@ -39,38 +39,6 @@
   margin: 0;
 }
 
-.part-link {
-  text-decoration: underline;
-  text-decoration-color: $dark-grey-2;
-}
-
-.part-link:hover {
-  color: $grey;
-  text-decoration-color: $grey;
-}
-/*.wrapper {
-  display: flex;
-  flex-direction: row;
-  //width: calc(100% - 96px);
-  justify-content: flex-end;
-  .wrap-select {
-    display: flex;
-    flex-direction: column;
-    //flex: 0 0 60%;
-    margin: 0 96px 0 0;
-    width: 100%;
-  }
-  .stats {
-    //width: fit-content !important;
-    //flex: 0 0 40%;
-  }
-}
-.chart {
-  min-height: 400px;
-  height: 100%;
-  //max-height: 500px;
-  width: auto !important;
-}*/
 .wrap-chart-stats {
   display: flex;
   flex-direction: column;
@@ -78,28 +46,6 @@
     width: fit-content;
   }
 }
-/*.wrap-select {
-  display: flex;
-  flex-direction: column;
-  //flex: 0 0 60%;
-  margin: 0 96px 0 0;
-  width: 100%;
-}
-
-.wrapper {
-  display: flex;
-  flex-direction: row;
-  width: calc(100% - 96px);
-  .first {
-    flex: 0 0 50%;
-    margin: 0 96px 0 0;
-    width: 100%;
-  }
-  .second {
-    flex: 0 0 50%;
-    width: 100%;
-  }
-}*/
 @include media-breakpoint-down(xxl) {
   .wrapper {
     display: flex;
