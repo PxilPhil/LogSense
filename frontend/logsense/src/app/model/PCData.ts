@@ -1,3 +1,13 @@
+export class TimeSeriesData {
+  measurement_time: string = "";
+  ram: number = 0;
+  cpu: number = 0;
+}
+
+export class TimeSeriesList {
+  time_series_list: TimeSeriesData[] = [];
+}
+
 export class PCData {
   pc_id: number = 0;
   start: string = "";

@@ -4,7 +4,8 @@ import {CPUGeneral, CPUStats} from "../model/Cpu";
 import {CpuService} from "../services/cpu.service";
 import {PCDataService} from "../services/pc-data.service";
 import {DatePipe} from "@angular/common";
-import {PCData} from "../model/PCData";
+import {PCData, TimeSeriesList} from "../model/PCData";
+import {ChartData} from "../ram/ram.component";
 
 export class CPUModel {
   cpuName: String = "AMD Ryzen 7 5800H";
@@ -27,6 +28,7 @@ export class ProcessModel {
   allocation: Number = 15;
 }
 
+
 @Component({
   selector: 'app-cpu',
   templateUrl: './cpu.component.html',
@@ -36,6 +38,10 @@ export class CpuComponent implements OnInit {
   //cpu: CPUModel = new CPUModel();
   cpuGeneral: CPUGeneral = new CPUGeneral();
   cpuStats: CPUStats = new CPUStats();
+  cpuData: ChartData = new ChartData();
+
+  cpuChart: Chart | undefined;
+
   notes: String[] = ["CPU Usage dropped 4%", "21 Anomalies detected", "5 Events registered"];
   processes: ProcessModel[] = [{name: "Chrome", allocation: 15}, {name: "Explorer", allocation: 10}, {
     name: "Intellij",
@@ -57,10 +63,10 @@ export class CpuComponent implements OnInit {
   constructor(private cpuService: CpuService, private pcDataService: PCDataService, private datePipe: DatePipe) {}
 
   ngOnInit() {
+    this.loadData();
     this.loadStats();
-    console.log(this.cpuStats);
     this.loadGeneralInfo();
-    this.usageChart();
+
   }
 
   showAll() {
@@ -72,13 +78,15 @@ export class CpuComponent implements OnInit {
     this.showAllProcesses = !this.showAllProcesses;
   }
   usageChart(): void {
-    const data = this.getData();
-    const usage = new Chart("usage", {
+    if(this.cpuChart) {
+      this.cpuChart.destroy();
+    }
+    this.cpuChart = new Chart("usage", {
       type: "line",
       data: {
-        labels: data.labels,
+        labels: this.cpuData.time,
         datasets: [{
-          data: data.values,
+          data: this.cpuData.value,
           borderColor: "#3e95cd",
           fill: false
         }]
@@ -125,12 +133,36 @@ export class CpuComponent implements OnInit {
 
   }
 
+  loadData() {
+    let dateNow = Date.now();
+    if(this.selectedTime.valueInMilliseconds!=0) {
+      this.pcDataService.getTimeSeriesData(1, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "").subscribe((data: TimeSeriesList) => {
+        this.transformData(data);
+        this.usageChart();
+      });
+    } else {
+      this.pcDataService.getTimeSeriesData(1, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "").subscribe((data: TimeSeriesList) => {
+        this.transformData(data);
+        this.usageChart();
+      });
+    }
+  }
+
+  transformData(timeSeriesData: TimeSeriesList) {
+    this.cpuData.time = [];
+    this.cpuData.value = [];
+    for (let dataPoint of timeSeriesData.time_series_list) {
+      this.cpuData.time.push(dataPoint.measurement_time);
+      this.cpuData.value.push(this.roundDecimal(this.convertBytesToGigaBytes(dataPoint.ram), 2));
+    }
+  }
+
+  convertBytesToGigaBytes(valueInBytes: number): number {
+    return (valueInBytes / 1000 / 1000 / 1000);
+  }
+
   roundDecimal(num: number, places: number): number{
     return Math.round((num + Number.EPSILON) * Math.pow(10, places)) / Math.pow(10, places);
   }
-  getData(): { labels: string[], values: number[] } {
-    const labels = ['Zeitpunkt 1', 'Zeitpunkt 2', 'Zeitpunkt 3']; // Beispiellabels
-    const values = [75, 90, 60]; // Beispielauslastung
-    return {labels, values};
-  }
+
 }
