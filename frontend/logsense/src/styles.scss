@@ -218,6 +218,10 @@ $border-1px: solid $black 1px;
   display: flex;
   justify-content: center;
 }
+.jus-end {
+  display: flex;
+  justify-content: flex-end;
+}
 .space-base {
   display: flex;
   justify-content: space-between;

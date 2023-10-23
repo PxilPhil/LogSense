@@ -63,8 +63,8 @@
     <app-alerts [alerts]="alerts"></app-alerts>
   </div>
   <div class="pad-left-64 pad-bot-64 pad-right-128 align-general mar-top-32 w-100">
-    <div class="wrapper">
-      <div class="first">
+    <div [ngClass]="{'show-all-true': showAllProcesses, 'wrapper': !showAllProcesses}">
+      <div [ngClass]="{'first-all': showAllProcesses, 'first': !showAllProcesses}">
         <h2 class="mar-bot-24">General</h2>
         <div class="grey-box">
           <div class="align-general">
@@ -104,7 +104,7 @@
           </div>
         </div>
       </div>
-      <div class="second">
+      <div [ngClass]="{'second-all': showAllProcesses, 'second': !showAllProcesses}">
         <h2 class="mar-bot-24">Processes</h2>
         <div class="grey-box">
           <div class="processes">
@@ -116,7 +116,8 @@
             <span [ngClass]="{'mar-bot-5': !last}"
                   class="txt-16 mar-bot-5 text-right">{{process.allocation}}%</span>
           </div>
-          <span class="link" (click)="showAll()">Show All</span>
+          <span class="link" (click)="showAll()" *ngIf="!showAllProcesses">Show All</span>
+          <span class="link" (click)="showAll()" *ngIf="showAllProcesses">Show Less</span>
         </div>
       </div>
     </div>
