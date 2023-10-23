@@ -30,7 +30,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
   selectedApplication: Application = new Application();
   latestApplicationMeasurement: ApplicationTimeSeriesData = new ApplicationTimeSeriesData();
   statistics: string[] = ["CPU Usage dropped 4%", "21 anomalies detected", "5 Events registered", "Rise of RAM usage of 90% detected"];
-  alerts: Alert[] = ["Abnormal RAM-Spikes detected", "Memory leak possible"];
+  alerts: string[] = ["Abnormal RAM-Spikes detected", "Memory leak possible"];
   isApplicationSelected = false;
   cpuChart: Chart | undefined;
   ramChart: Chart | undefined;
@@ -103,7 +103,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
 
   loadAlerts(): void {
     this.alertService.getAlerts().subscribe((data: Alert[]) => {
-      this.alerts = data;
+      //this.alerts = data;
     });
   }
 
@@ -236,7 +236,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     this.selectedApplication.time_series_data.forEach(cpuUsageMeasurement => {
       data.measurementTime.push(this.datePipe.transform(cpuUsageMeasurement.measurement_time, 'MM-dd HH:mm') ?? "");
       //console.log(cpuUsageMeasurement.cpu);
-      data.usage.push(this.roundDecimalNumber(cpuUsageMeasurement.cpu, 5));
+      data.usage.push(this.roundDecimalNumber(cpuUsageMeasurement.cpu*100, 3));
     });
     //console.log(data);
     return data;

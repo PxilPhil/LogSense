@@ -42,7 +42,7 @@ export class DiskComponent implements OnInit, OnDestroy {
 
 
   statistics: String[] = ["Disk usage dropped 4%", "21 anomalies detected", "5 Events registered", "Recent Rise of 15% detected"];
-  alerts: Alert[] = ["Some devices are at their workload limit", "Abnormal CPU-Spikes detected (21 Anomalies in the last 24 hours)"];
+  alerts: string[] = ["Some devices are at their workload limit", "Abnormal CPU-Spikes detected (21 Anomalies in the last 24 hours)"];
 
   isShowEventsChecked: boolean = true;
   isShowAnomaliesChecked: boolean = true;
@@ -102,7 +102,7 @@ export class DiskComponent implements OnInit, OnDestroy {
 
   loadAlerts(): void {
     this.alertService.getAlerts().subscribe((data: Alert[]) => {
-      this.alerts = data;
+      //this.alerts = data;
     });
   }
 

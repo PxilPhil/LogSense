@@ -1,5 +1,5 @@
 <router-outlet></router-outlet>
-<div class="anti-th pad-right-128">
+<div class="anti-th pad-bot-64 pad-right-128">
   <h1 class="mar-left-64 mar-top-48">Overview</h1>
   <div class=" mar-top-32 space-base pad-left-64">
     <div class="flex-center">
@@ -20,8 +20,9 @@
               <span class="txt-16 mar-left-24">{{client.uuid}}</span>
             </div>
           </div>
+
           <span class="txt-16">Power Sources:</span>
-          <div class="flex-row mar-left-12">
+          <div class="flex-row mar-left-12 lower">
             <div class="flex-col">
               <span class="txt-16">System Battery</span>
               <span class="txt-16">Remaining Capacity</span>
@@ -52,7 +53,7 @@
       <div class="grey-box mar-right-32 first">
         <div class="space-base">
           <span class="txt-22 mar-bot-5">CPU</span>
-          <span class="txt-16">{{cpu.average}}%</span>
+          <span class="txt-16">{{resourceMetrics.cpu_percentage_use}}%</span>
         </div>
         <div class="flex-row space-center">
           <div class="flex-col">
@@ -62,60 +63,58 @@
             <span class="txt-16 nowrap">Logical Processors</span>
           </div>
           <div class="flex-col mar-left-24 flex-end">
-            <span class="txt-16 text-right nowrap">{{cpu.cpuName}}</span>
-            <span class="txt-16 text-right nowrap">{{cpu.physicalPackages}}</span>
-            <span class="txt-16 text-right nowrap">{{cpu.physicalProcessors}}</span>
-            <span class="txt-16 text-right nowrap">{{cpu.logicalProcessors}}</span>
+            <span class="txt-16 text-right nowrap">{{resourceMetrics.processor_name}}</span>
+            <span class="txt-16 text-right nowrap">{{resourceMetrics.physical_package_count}}</span>
+            <span class="txt-16 text-right nowrap">{{resourceMetrics.physical_processor_count}}</span>
+            <span class="txt-16 text-right nowrap">{{resourceMetrics.logical_processor_count}}</span>
           </div>
         </div>
       </div>
-      <div class="grey-box mar-right-32 second">
-        <div class="space-base">
-          <span class="txt-22 mar-bot-5">RAM</span>
-          <span class="txt-16">{{ram.average}}%</span>
-        </div>
-        <div class="flex-row space-center">
-          <div class="flex-col">
-            <span class="txt-16 nowrap">Total Memory</span>
-            <span class="txt-16 nowrap">Free Memory</span>
-            <span class="txt-16 nowrap">Page Size</span>
+      <div class="group">
+        <div class="grey-box mar-right-32 second">
+          <div class="space-base">
+            <span class="txt-22 mar-bot-5">RAM</span>
+            <span class="txt-16">{{resourceMetrics.ram_percentage_in_use}}%</span>
           </div>
-          <div class="flex-col mar-left-24 flex-end">
-            <span class="txt-16 text-right nowrap">{{ram.totalMemory}}</span>
-            <span class="txt-16 text-right nowrap">{{ram.freeMemory}}</span>
-            <span class="txt-16 text-right nowrap">{{ram.pageSize}}</span>
+          <div class="flex-row space-center">
+            <div class="flex-col">
+              <span class="txt-16 nowrap">Total Memory</span>
+              <span class="txt-16 nowrap">Free Memory</span>
+              <span class="txt-16 nowrap">Page Size</span>
+            </div>
+            <div class="flex-col mar-left-24 flex-end">
+              <span class="txt-16 text-right nowrap">{{resourceMetrics.total_memory}} GB</span>
+              <span class="txt-16 text-right nowrap">{{resourceMetrics.free_memory}} GB</span>
+              <span class="txt-16 text-right nowrap">{{resourceMetrics.page_size}}</span>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="grey-box third">
-        <div class="space-base">
-          <span class="txt-22 mar-bot-5">Disk</span>
-          <span class="txt-16"><!--{{disk.average}}-->20%</span>
-        </div>
-        <div class="flex-row space-center">
-          <div class="flex-col">
-            <span class="txt-16 nowrap">Total Storage</span>
-            <span class="txt-16 nowrap">Free Storage</span>
+        <div class="grey-box third">
+          <div class="space-base">
+            <span class="txt-22 mar-bot-5">Disk</span>
+            <span class="txt-16">{{resourceMetrics.disk_percentage_in_use}}%</span>
           </div>
-          <div class="flex-col mar-left-24 flex-end">
-            <span class="txt-16 text-right nowrap"><!--{{disk.totalMemory}}-->1024 GB</span>
-            <span class="txt-16 text-right nowrap"><!--{{disk.free}}-->312.7 GB</span>
+          <div class="flex-row space-center">
+            <div class="flex-col">
+              <span class="txt-16 nowrap">Total Storage</span>
+              <span class="txt-16 nowrap">Free Storage</span>
+            </div>
+            <div class="flex-col mar-left-24 flex-end">
+              <span class="txt-16 text-right nowrap">{{resourceMetrics.total_disk_space}} GB</span>
+              <span class="txt-16 text-right nowrap">{{resourceMetrics.free_disk_space}} GB</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <app-time-metrics></app-time-metrics>
+  <div class="mar-bot-32">
+    <app-time-metrics></app-time-metrics>
+  </div>
 
-    <div class="pad-bot-64 pad-left-64 mar-top-32 w-100">
-      <h2 class="mar-bot-24">Alerts</h2>
-      <div class="grey-box w-100">
-        <div *ngFor="let alert of alerts; let last = last" [ngClass]="{'mar-bot-12': !last}"
-             class="alert-box flex-center">
-          <mat-icon class="icon-32 icon">warning</mat-icon>
-          <span class="mar-left-32 txt-16">{{alert}}</span>
-        </div>
-      </div>
-    </div>
+  <div class="pad-left-64">
+    <app-alerts [alerts]="alerts"></app-alerts>
+  </div>
+
 </div>
