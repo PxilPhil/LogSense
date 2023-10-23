@@ -103,7 +103,7 @@ timestamp|displayName
 Content-Disposition: form-data; name="files[]"; filename="file2.txt"
 
 ### get pc data ###
-GET http://localhost:8000/pc/1/data?start=2023-02-25 10:20:16&end=2023-07-25 12:33:01
+GET http://localhost:8000/pc/1/data?start=2023-07-25 10:20:16&end=2023-10-25 12:33:01
 
 ### get pc invalid data ###
 GET http://localhost:8000/pc/1/data/GPU?start=2023-07-25 10:20:16&end=2023-12-25 10:33:01
@@ -112,10 +112,10 @@ GET http://localhost:8000/pc/1/data/GPU?start=2023-07-25 10:20:16&end=2023-12-25
 GET http://localhost:8000/pc/1/time-metrics/?start=2022-08-25 10:20:16&end=2023-12-25 10:33:01
 
 ### get application time metrics
-GET http://localhost:8000/pc/1/application/java/time-metrics/?start=2023-07-25 10:20:16&end=2023-12-25 10:33:01
+GET http://localhost:8000/pc/1/application/jetbrains-toolbox/time-metrics/?start=2023-10-21 18:30:16&end=2023-10-22 18:30:01
 
 ### get application data
-GET http://localhost:8000/pc/1/application/chrome?start=2023-01-19 10:20:16&end=2023-11-01 10:33:01
+GET http://localhost:8000/pc/1/application/chrome?start=2023-07-25 10:20:16&end=2023-10-25 10:33:01
 
 ### get list of applications
 GET http://localhost:8000/pc/1/application/?start=2022-07-25 10:20:16&end=2023-12-25 10:33:01
@@ -124,7 +124,7 @@ GET http://localhost:8000/pc/1/application/?start=2022-07-25 10:20:16&end=2023-1
 GET http://localhost:8000/pc/1/data/forecast/30
 
 ### get alerts
-GET http://localhost:8000/alerts/1?start=2023-07-25 10:20:16&end=2023-09-25 10:33:01
+GET http://localhost:8000/alerts/1?start=2023-07-25 10:20:16&end=2023-11-25 10:33:01
 
 ### get all possible alerts
 GET http://localhost:8000/alerts/all/1

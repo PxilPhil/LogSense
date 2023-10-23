@@ -6,6 +6,8 @@ import {TimeModel} from "../disk/disk.component";
 import {ApiService} from '../services/api-service.service';
 import {PCData} from '../model/PCData';
 import {DiskData} from "../model/DiskData";
+import {ResourceMetricsModel} from "../model/ResourceMetrics";
+import {ResourceMetricsService} from "../services/resource-metrics.service";
 
 Chart.register(...registerables);
 
@@ -33,35 +35,49 @@ export class OverviewComponent implements OnInit {
 
   client: Client = new Client();
   runtime: String = "2h 30min";
-  cpu: CPUModel = new CPUModel();
+  resourceMetrics: ResourceMetricsModel = new ResourceMetricsModel();
+  /*cpu: CPUModel = new CPUModel();
   ram: RAMModel = new RAMModel();
-  disk: DiskData = new DiskData();
+  disk: DiskData = new DiskData();*/
   alerts: String[] = ["Abnormal RAM-Spikes detected", "Memory leak possible"];
-  selectedTime: TimeModel = {id: 1, time: "Last 24h", valueInMilliseconds: 86400000};
+  //selectedTime: TimeModel = {id: 1, time: "Last 24h", valueInMilliseconds: 86400000};
 
-  times = [
+  /*times = [
     {id: 1, time: "Last 24h"},
     {id: 2, time: "Last Week"},
     {id: 3, time: "Last Month"},
     {id: 4, time: "Last 6 Months"},
     {id: 5, time: "Last 12 Months"},
     {id: 6, time: "All Time"}
-  ];
+  ];*/
 
-  constructor(private apiService: ApiService) {
+  constructor(private resourceService: ResourceMetricsService) {
   }
 
   ngOnInit(): void {
-    console.log('init')
-
-    this.apiService.getPCData(1, 'RAM', '2023-07-25 10:20:16', '2023-08-25 10:20:16').subscribe(
-      (response: PCData) => {
-        console.log('Data:', response);
-      },
-      (error) => {
-        console.error('Error:', error);
-      }
-    );
+    this.loadResourceMetrics();
   }
+
+  loadResourceMetrics() {
+    this.resourceService.getResourceMetrics(1).subscribe((data: ResourceMetricsModel) => {
+      this.resourceMetrics = data;
+      this.resourceMetrics.cpu_percentage_use = this.roundDecimal(this.resourceMetrics.cpu_percentage_use, 2);
+      this.resourceMetrics.ram_percentage_in_use = this.roundDecimal(this.resourceMetrics.ram_percentage_in_use, 2);
+      this.resourceMetrics.disk_percentage_in_use = this.roundDecimal(this.resourceMetrics.disk_percentage_in_use, 2);
+      this.resourceMetrics.total_memory = this.roundDecimal(this.convertBytesToGigaBytes(this.resourceMetrics.total_memory),2);
+      this.resourceMetrics.free_memory = this.roundDecimal(this.convertBytesToGigaBytes(this.resourceMetrics.free_memory),2);
+      this.resourceMetrics.total_disk_space = this.roundDecimal(this.convertBytesToGigaBytes(this.resourceMetrics.total_disk_space),2);
+      this.resourceMetrics.free_disk_space = this.roundDecimal(this.convertBytesToGigaBytes(this.resourceMetrics.free_disk_space),2);
+    })
+  }
+
+  convertBytesToGigaBytes(valueInBytes: number): number {
+    return (valueInBytes / 1000 / 1000 / 1000);
+  }
+
+  roundDecimal(num: number, places: number): number{
+    return Math.round((num + Number.EPSILON) * Math.pow(10, places)) / Math.pow(10, places);
+  }
+
 
 }

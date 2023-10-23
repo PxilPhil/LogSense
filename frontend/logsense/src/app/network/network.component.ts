@@ -11,7 +11,7 @@ import {AlertService} from "../services/alert.service";
 })
 export class NetworkComponent implements OnInit {
   networkData: NetworkData = new NetworkData();
-  alerts: Alert[] = ["Some devices are at their workload limit", "Abnormal CPU-Spikes detected (21 Anomalies in the last 24 hours)"];
+  alerts: string[] = ["Some devices are at their workload limit", "Abnormal CPU-Spikes detected (21 Anomalies in the last 24 hours)"];
 
   constructor(private networkDataService: NetworkDataService, private alertService: AlertService) {
   }
@@ -29,7 +29,7 @@ export class NetworkComponent implements OnInit {
 
   loadAlerts(): void {
     this.alertService.getAlerts().subscribe((data: Alert[]) => {
-      this.alerts = data;
+      //this.alerts = data;
     });
   }
 }
