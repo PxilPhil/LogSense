@@ -18,25 +18,12 @@ class EventData(BaseModel):  # TODO: deprecated but kept in application to avoid
     application: str
     column: str
 
-class JustificationData(BaseModel):  # class containing explanation, justification and details about an event or anomaly
-    application: Optional[str]
-    timestamp: datetime
-    started: bool
-    stopped: bool
-    process_change: int
-    delta_ram: float
-    delta_cpu: float
-    warning: bool
 
-
-class Justification(BaseModel):  # class containing justification dat
+class Justification(BaseModel):  # class containing justification data
     timestamp: datetime
     till_timestamp: datetime
-    total_delta_ram: Optional[float]
-    total_delta_cpu: Optional[float]
-    pc_just_started: Optional[bool]
     is_anomaly: bool
-    justification_list: List[JustificationData]
+    justification_message: str
 
 
 class AnomalyData(BaseModel):  # anomaly data class returned when analyzing application data
@@ -57,32 +44,9 @@ class AlertData(BaseModel):  # basically AnomalyData (EventData) but includes cu
 
 
 class PCTimeSeriesData(BaseModel):
-    id: int
-    state_id: int
-    pc_id: int
     measurement_time: datetime
-    free_disk_space: float
-    read_bytes_disks: float
-    reads_disks: int
-    write_bytes_disks: float
-    writes_disks: int
-    partition_major_faults: int
-    partition_minor_faults: int
-    available_memory: float
-    names_power_source: str
-    charging_power_sources: bool
-    discharging_power_sources: bool
-    power_online_power_sources: bool
-    remaining_capacity_percent_power_sources: float
-    context_switches_processor: int
-    interrupts_processor: int
     ram: float
     cpu: float
-    context_switches: int
-    major_faults: int
-    open_files: int
-    thread_count: int
-
     # method to parse a dictionary and create a PCTimeSeriesData object
     @classmethod
     def from_dict(cls, data):
@@ -96,20 +60,26 @@ class AllocationClass(BaseModel):
     allocation: float
 
 
+class StatisticData(BaseModel):
+    latest_ram: float
+    latest_cpu: float
+    oldest_ram: float
+    oldest_cpu: float
+    average_ram: float
+    median_ram: float
+    average_cpu: float
+    median_cpu: float
+    stability: str
+    message: str
+
+
 class PCData(BaseModel):
     pc_id: int
     start: str
     end: str
-    standard_deviation_ram: float
-    mean_ram: float
-    standard_deviation_cpu: float
-    mean_cpu: float
-    cov_ram: float
-    cov_cpu: float
-    stability_ram: str
-    stability_cpu: str
     time_series_list: List[PCTimeSeriesData]
     allocation_list_ram: List[AllocationClass]
     allocation_list_cpu: List[AllocationClass]
     ram_events_and_anomalies: List[Justification]
     cpu_events_and_anomalies: List[Justification]
+    statistic_data: StatisticData

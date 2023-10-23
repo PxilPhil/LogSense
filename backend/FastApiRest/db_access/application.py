@@ -15,27 +15,11 @@ def get_application_between(pc_id: int, application_name, start, end):
     try:
         select_application_query = """
         SELECT
-            id,
-            pcdata_id,
             measurement_time,
             name,
-            path,
             cpu,
             ram,
-            state,
-            "user",
-            context_switches,
-            major_faults,
-            bitness,
-            commandline,
-            "current_Working_Directory",
-            open_files,
-            parent_process_id,
-            thread_count,
-            uptime,
-            process_count_difference,
-            AVG(ram) OVER (PARTITION BY name ORDER BY measurement_time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS moving_average_ram,
-            AVG(cpu) OVER (PARTITION BY name ORDER BY measurement_time ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS moving_average_cpu
+            process_count_difference
         FROM
             applicationdata
         WHERE

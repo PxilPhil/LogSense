@@ -15,7 +15,7 @@ application = APIRouter()
 
 
 @application.get("/{application_name}/", response_model=ApplicationData, tags=["Application"])
-def fetch_application(pc_id: int, application_name: str, start: str, end: str): #TODO: what does pc_id do here?
+def fetch_application(pc_id: int, application_name: str, start: str, end: str):  # TODO: what does pc_id do here?
     """
     Get Data to Application
 
@@ -31,21 +31,15 @@ def fetch_application(pc_id: int, application_name: str, start: str, end: str): 
         df, data_list = get_application_between(pc_id, application_name, start, end)
         if df is None:
             raise NotFoundException(code=500, detail="Application was not found.")
-        df, ram_events_and_anomalies, cpu_events_and_anomalies, anomaly_measurements_ram, anomaly_measurements_cpu, std_ram, std_cpu, mean_ram, mean_cpu, cov_ram, cov_cpu, stability_ram, stability_cpu = requests.analyze_application_data(df, application_name)
+        df, ram_events_and_anomalies, cpu_events_and_anomalies, statistic_data = requests.analyze_application_data(df,
+                                                                                                                   application_name)
         application_data = ApplicationData(
             pc=pc_id,
             application_name=application_name,
-            standard_deviation_ram=std_ram,
-            standard_deviation_cpu=std_cpu,
-            mean_ram=mean_ram,
-            mean_cpu=mean_cpu,
-            cov_ram=cov_ram,
-            cov_cpu=cov_cpu,
-            stability_ram=stability_ram,
-            stability_cpu=stability_cpu,
             time_series_data=data_list,
             cpu_events_and_anomalies=cpu_events_and_anomalies,
-            ram_events_and_anomalies=ram_events_and_anomalies
+            ram_events_and_anomalies=ram_events_and_anomalies,
+            statistic_data=statistic_data
         )
 
         return application_data
@@ -95,7 +89,7 @@ def fetch_application_list(pc_id: int, start: str, end: str):
         end=end,
         application_list=application_list
     )
-    #print(application_list_obj)
+    # print(application_list_obj)
     return application_list_obj
 
 

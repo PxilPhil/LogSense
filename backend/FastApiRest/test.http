@@ -47,8 +47,8 @@ Content-Type: application/json
 
 {
   "user_id": "1",
-  "hardware_uuid": "4C4C4544-0052-5210-8050-C8C04F385932",
-  "client_name": "Test Client"
+  "hardware_uuid": "D9ADB1E0-EC2F-91D9-F788-04421A983719",
+  "client_name": "philipp"
 }
 
 ### ADD PC with non excistent user ###
@@ -109,7 +109,7 @@ GET http://localhost:8000/pc/1/data?start=2023-07-25 10:20:16&end=2023-10-25 12:
 GET http://localhost:8000/pc/1/data/GPU?start=2023-07-25 10:20:16&end=2023-12-25 10:33:01
 
 ### get pc time metrics
-GET http://localhost:8000/pc/1/time-metrics/?start=2023-08-25 10:20:16&end=2023-12-25 10:33:01
+GET http://localhost:8000/pc/1/time-metrics/?start=2022-08-25 10:20:16&end=2023-12-25 10:33:01
 
 ### get application time metrics
 GET http://localhost:8000/pc/1/application/jetbrains-toolbox/time-metrics/?start=2023-10-21 18:30:16&end=2023-10-22 18:30:01

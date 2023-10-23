@@ -1,13 +1,13 @@
 from datetime import datetime, timedelta
 
 import numpy as np
-import pandas
+import pandas as pd
 from pandas import DataFrame
 
 from data_analytics.manipulation import get_justification_contained
 from db_access.application import get_relevant_application_data, get_application_between
 from db_access.pc import get_pc_data_at_measurement
-from model.data import Justification, JustificationData
+from model.data import Justification
 
 ram_relevancy_threshold = 0.05  # percentual threshold applications should have to be considered relevant
 cpu_relevancy_threshold = 0.05  # percentual threshold applications should have to be considered relevant
@@ -18,6 +18,31 @@ class ApplicationStat:  # class to store application data
         self.ram = ram
         self.cpu = cpu
         self.process_change = process_change  # same as event_headers (processes in applications were closed or opened marked with -1, 0 or 1)
+
+
+def perform_justification_processing(df: DataFrame):
+    """
+    Function to perform data manipulation and processing required for making justifications
+    :return:
+    """
+    # get the most important applications
+    important_applications = df.loc[df.groupby('name')['measurement_time'].idxmax()]
+
+    # find out process changes in applications
+    summary_df = df.groupby('name')['process_count_difference'].sum().reset_index()
+
+    # find out which applications were started or stopped
+    grouped = df.groupby('measurement_time')['name'].unique().reset_index()
+    grouped = grouped.sort_values(by='measurement_time')
+    first_names = set(grouped['name'].iloc[0])
+    grouped['added'] = grouped['name'].apply(lambda x: list(set(x) - first_names))
+    grouped['removed'] = grouped['name'].apply(lambda x: list(first_names - set(x)))
+
+    # put the data into array of string to make working with them easier
+    started = [name for name in np.concatenate(grouped['added']) if not pd.isna(name)]
+    stopped = [name for name in np.concatenate(grouped['removed']) if not pd.isna(name)]
+
+    return important_applications, summary_df, started, stopped
 
 
 def justify_pc_data_points(pc_total_df, significant_data_points: list, prior_justifications: list[Justification],
@@ -40,99 +65,33 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, prior_jus
             applications_df, application_data_list = get_relevant_application_data(pc_id, point, ram_relevancy,
                                                                                    cpu_relevancy_threshold)
             pc_just_started = False
+
             if applications_df['measurement_time'].nunique() <= 1:
                 pc_just_started = True
 
-            applications_dict = dict()
-            for index, row in applications_df.iterrows():
-                application_stat = ApplicationStat(
-                    ram=row['ram'],
-                    cpu=row['cpu'],
-                    process_change=row['process_count_difference']
-                )
-                applications_dict[row['measurement_time']] = {row['name']: application_stat}
-
             till_timestamp = applications_df['measurement_time'].min()
+
+            important_applications, summary_df, started, stopped = perform_justification_processing(applications_df)
+            message = create_justification_message(pc_just_started, None, None, important_applications, summary_df,
+                                                   started, stopped)
 
             justification = Justification(
                 timestamp=point,
                 till_timestamp=till_timestamp,
-                pc_just_started=pc_just_started,
-                total_delta_ram=None,
-                total_delta_cpu=None,
                 is_anomaly=should_tag_as_anomaly,
-                justification_list=[]
+                justification_message=message
             )
-            calc_deltas(pc_total_df, justification, point)
 
-            justify_data_point(justification, applications_dict, pc_just_started)
             justification_logs.append(justification)
-    print(justification_logs)
     return justification_logs
-
-
-def justify_data_point(lj: Justification, applications_dict, pc_just_started: bool):
-    """
-    Function to gather information on why an event was caused like an application closing, processes closing or similiar
-    :return:
-    """
-    last_application_dict = None
-    for timestamp, application_dict in applications_dict.items():  # looping through our Map<timestamp, Map<name, values>
-        for name, data in application_dict.items():  # looping through our Map<name, values>
-            if last_application_dict or pc_just_started:
-                started = False
-                stopped = False
-                process_change = 0
-                delta_ram = 0
-                delta_cpu = 0
-                warning = False
-                if (delta_ram > 0 > process_change and delta_cpu > 0) or (
-                        delta_ram < 0 < process_change and delta_cpu < 0):
-                    warning = True
-
-                if pc_just_started or name not in last_application_dict:  # application was started
-                    started = True
-                    delta_ram = data.ram
-                    delta_cpu = data.cpu
-                    process_change = data.process_change
-                elif name in last_application_dict and name not in last_application_dict:  # application was stopped
-                    stopped = True
-                    delta_ram = last_application_dict[name].ram
-                    delta_cpu = last_application_dict[name].cpu
-                    process_change = last_application_dict[name].process_change
-                else:  # default case: nothing happened or only processes were stopped or started
-                    delta_ram = data.ram - last_application_dict[name].ram
-                    delta_cpu = data.cpu - last_application_dict[name].cpu
-                    print(delta_cpu)
-                    process_change = data.process_change
-                    if not ((delta_ram < 0 < process_change and delta_cpu < 0) or (
-                            delta_ram > 0 > process_change and delta_cpu > 0)):
-                        warning = True
-
-                justification_data = JustificationData(
-                    application=name,
-                    timestamp=timestamp,
-                    started=started,
-                    stopped=stopped,
-                    process_change=process_change,
-                    delta_ram=delta_ram,
-                    delta_cpu=delta_cpu,
-                    warning=warning
-                )
-
-                lj.justification_list.append(justification_data)
-        last_application_dict = application_dict
 
 
 def justify_application_data_points(data_points: list, name: str, pc_id: int) -> list[
     Justification]:
     """
     Method to justify application data points without the application dataframe, mainly used for alerts
-    :param df:
     :param data_points:
     :param name:
-    :param prior_justifications:
-    :param should_tag_as_anomaly:
     :return:
     """
     justifications: list[Justification] = []
@@ -140,18 +99,19 @@ def justify_application_data_points(data_points: list, name: str, pc_id: int) ->
         start_point: datetime = point - timedelta(minutes=5)
         application_df, application_data_list = get_application_between(pc_id, name, start_point, point)
         # check application for justifications
-        justification_list = check_application(application_df, name, point)
+        total_delta_ram, total_delta_cpu = calc_deltas(application_df, point)
+
+        important_applications, summary_df, started, stopped = perform_justification_processing(application_df)
+
+        justification_message = create_justification_message(False, total_delta_ram, total_delta_cpu,
+                                                             important_applications, summary_df, started, stopped)
         justification = Justification(
             timestamp=point,
             till_timestamp=start_point,
-            total_delta_ram=None,
-            total_delta_cpu=None,
-            pc_just_started=None,
             is_anomaly=False,
-            justification_list=justification_list
+            justification_message=justification_message
         )
 
-        calc_deltas(application_df, justification, point)
         justifications.append(justification)
     return justifications
 
@@ -164,7 +124,6 @@ def justify_application_df(df: DataFrame, data_points: list, name: str,
     for point in data_points:
         till_timestamp_point = point - timedelta(minutes=5)
 
-
         existing_justification = get_justification_contained(point, prior_justifications)
         if existing_justification:
             justification_logs.append(existing_justification)
@@ -176,67 +135,63 @@ def justify_application_df(df: DataFrame, data_points: list, name: str,
             total_delta_cpu = time_window_rows.iloc[-1]['cpu'] - time_window_rows.iloc[0]['cpu']
 
             # check application for justifications
-            justification_list = check_application(time_window_rows, name, point)
+            important_applications, summary_df, started, stopped = perform_justification_processing(time_window_rows)
+
+            justification_message = create_justification_message(False, total_delta_ram, total_delta_cpu,
+                                                                 important_applications, summary_df, started, stopped)
 
             event_anomaly = Justification(
                 timestamp=point,
                 till_timestamp=till_timestamp_point,
-                total_delta_ram=total_delta_ram,
-                total_delta_cpu=total_delta_cpu,
-                pc_just_started=None,
                 is_anomaly=should_tag_as_anomaly,
-                justification_list=justification_list
+                justification_message=justification_message
             )
             justification_logs.append(event_anomaly)
 
     return justification_logs
 
 
-def check_application(time_window_rows, name: str, timestamp: datetime) -> list[
-    JustificationData]:  # checks application in order to get justfications
-    # go through the specified time window
-    justification_list = []
-
-    last_row = None
-    for index, row in time_window_rows.iterrows():
-        if last_row is not None:
-            warning = False
-            started=False
-            delta_ram = row['ram'] - last_row['ram']
-            delta_cpu = row['cpu'] - last_row['cpu']
-            process_change = row['process_count_difference']
-            if (delta_ram > 0 > process_change and delta_cpu > 0) or (
-                    delta_ram < 0 < process_change and delta_cpu < 0):
-                warning = True
-
-            time_difference = row['measurement_time'] - last_row['measurement_time']
-
-            # application has just started if its the only entry or iif the difference to the last row is more than two minutes
-            if (timestamp == index and len(time_window_rows)==1) or (time_difference>timedelta(minutes=2)):
-                started=True
-            justification_data = JustificationData(
-                application=name,
-                timestamp=row['measurement_time'],
-                started=started,
-                stopped=False,
-                process_change=process_change,
-                delta_ram=delta_ram,
-                delta_cpu=delta_cpu,
-                warning=warning
-            )
-
-            justification_list.append(justification_data)
-
-        last_row = row
-    return justification_list
-
-
-def calc_deltas(df: DataFrame, justification: Justification, point: datetime):
+def calc_deltas(df: DataFrame, point: datetime):
     if df is not None:
         total_ram = df.loc[df['measurement_time'] == point, 'ram'].iloc[0]
         total_cpu = df.loc[df['measurement_time'] == point, 'cpu'].iloc[0]
 
         total_delta_ram = total_ram - df.loc[df['measurement_time'] == df['measurement_time'].min(), 'ram'].iloc[0]
         total_delta_cpu = total_cpu - df.loc[df['measurement_time'] == df['measurement_time'].min(), 'cpu'].iloc[0]
-        justification.total_delta_ram = np.int64(total_delta_ram).item()
-        justification.total_delta_cpu = np.int64(total_delta_cpu).item()
+        return np.int64(total_delta_ram).item(), np.int64(total_delta_cpu).item()
+
+
+def format_application_info(row):
+    return f"Name: {row['name']}, RAM: {row['ram']}, CPU: {row['cpu']}\n"
+
+
+def create_justification_message(pc_just_started: bool, total_delta_ram, total_delta_cpu, important_applications,
+                                 summary_df, started, stopped) -> str:
+    message = "-General Information-\n"
+
+    # build initial part
+    if pc_just_started:
+        message = "PC just started\n"
+    if total_delta_ram:
+        message += f"Total Delta of RAM is {total_delta_ram}\n"
+    if total_delta_cpu:
+        message += f"Total Delta of CPU is {total_delta_cpu}\n"
+
+    # build application part
+    message = "Application with high impact:\n"
+    app_info = important_applications.apply(format_application_info, axis=1)
+    message += app_info.str.cat(sep="")
+
+    for name in started:
+        message += name + ' was started\n'
+
+    for name in stopped:
+        message += name + ' was stopped\n'
+
+    for index, row in summary_df.iterrows():
+        if row['process_count_difference'] > 0:
+            message += f"{row['name']} opened {row['process_count_difference']} processes\n"
+        elif row['process_count_difference'] < 0:
+            message += f"{row['name']} closed {row['process_count_difference']} processes\n"
+
+    return message
