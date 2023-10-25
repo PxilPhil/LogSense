@@ -102,11 +102,11 @@ timestamp|displayName
 --boundary
 Content-Disposition: form-data; name="files[]"; filename="file2.txt"
 
-### get pc data ###
-GET http://localhost:8000/pc/1/data?start=2023-02-25 10:20:16&end=2023-07-25 12:33:01
+### get ram pc timeseries data###
+GET http://localhost:8000/pc/1/ram?start=2023-02-25 10:20:16&end=2023-09-25 12:33:01
 
-### get pc invalid data ###
-GET http://localhost:8000/pc/1/data/GPU?start=2023-07-25 10:20:16&end=2023-12-25 10:33:01
+### get cpu pc timeseries data###
+GET http://localhost:8000/pc/1/cpu?start=2023-02-25 10:20:16&end=2023-09-25 12:33:01
 
 ### get pc time metrics
 GET http://localhost:8000/pc/1/time-metrics/?start=2022-08-25 10:20:16&end=2023-12-25 10:33:01

@@ -91,39 +91,14 @@ def get_pcs_by_userid(user_id):
         conn_pool.putconn(conn)
 
 
-def get_total_pc_application_data_between(pc_id, start, end):
+def get_ram_time_series(pc_id, start, end):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
         query = """
         SELECT
-        id,
-        state_id,
-        pc_id,
         measurement_time,
-        free_disk_space,
-        read_bytes_disks,
-        reads_disks,
-        write_bytes_disks,
-        writes_disks,
-        partition_major_faults,
-        partition_minor_faults,
-        available_memory,
-        names_power_source,
-        charging_power_sources,
-        discharging_power_sources,
-        power_online_power_sources,
-        remaining_capacity_percent_power_sources,
-        context_switches_processor,
-        interrupts_processor,
-        ram,
-        cpu,
-        context_switches,
-        major_faults,
-        open_files,
-        thread_count,
-        AVG(ram) OVER (ORDER BY measurement_time ROWS BETWEEN 5 PRECEDING AND CURRENT ROW) AS moving_average_ram,
-        AVG(cpu) OVER (ORDER BY measurement_time ROWS BETWEEN 5 PRECEDING AND CURRENT ROW) AS moving_average_cpu
+        ram as value
     FROM
         pcdata
     WHERE
@@ -147,6 +122,36 @@ def get_total_pc_application_data_between(pc_id, start, end):
     finally:
         conn_pool.putconn(conn)
 
+def get_cpu_time_series(pc_id, start, end):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        query = """
+        SELECT
+        measurement_time,
+        cpu AS value
+    FROM
+        pcdata
+    WHERE
+        pc_id = %s AND
+        measurement_time BETWEEN %s AND %s;
+        """
+
+        cursor.execute(query, (pc_id, start, end))
+        result = cursor.fetchall()
+
+        if result:
+            columns = [desc[0] for desc in cursor.description]
+            df = pd.DataFrame(result, columns=columns)
+            data_list = []
+            for _, row in df.iterrows():
+                data_list.append(PCTimeSeriesData(**row.to_dict()))
+            return df, data_list
+        return None, None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
 
 def get_free_disk_space_data(pc_id):
     conn = conn_pool.getconn()
@@ -440,7 +445,7 @@ def get_recent_pc_total_data(pc_id, limit):
         remaining_capacity_percent_power_sources,
         context_switches_processor,
         interrupts_processor,
-        ram,
+        ram AS value,
         cpu,
         context_switches,
         major_faults,

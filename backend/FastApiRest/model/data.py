@@ -45,10 +45,8 @@ class AlertData(BaseModel):  # basically AnomalyData (EventData) but includes cu
 
 class PCTimeSeriesData(BaseModel):
     measurement_time: datetime
-    ram: float
-    cpu: float
-    # method to parse a dictionary and create a PCTimeSeriesData object
-    @classmethod
+    value: float
+
     def from_dict(cls, data):
         # Convert the 'measurement_time' from string to a datetime object
         data['measurement_time'] = datetime.strptime(data['measurement_time'], "%Y-%m-%d %H:%M:%S.%f")
@@ -61,14 +59,8 @@ class AllocationClass(BaseModel):
 
 
 class StatisticData(BaseModel):
-    latest_ram: float
-    latest_cpu: float
-    oldest_ram: float
-    oldest_cpu: float
-    average_ram: float
-    median_ram: float
-    average_cpu: float
-    median_cpu: float
+    average: float
+    median: float
     stability: str
     message: str
 
@@ -78,8 +70,7 @@ class PCData(BaseModel):
     start: str
     end: str
     time_series_list: List[PCTimeSeriesData]
-    allocation_list_ram: List[AllocationClass]
-    allocation_list_cpu: List[AllocationClass]
-    ram_events_and_anomalies: List[Justification]
-    cpu_events_and_anomalies: List[Justification]
+    allocation_list: List[AllocationClass]
+    events_and_anomalies: List[Justification]
     statistic_data: StatisticData
+

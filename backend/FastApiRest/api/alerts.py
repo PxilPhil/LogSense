@@ -7,7 +7,7 @@ from starlette.responses import JSONResponse
 from data_analytics.justification import justify_pc_data_points, justify_application_data_points
 from data_analytics.requests import check_for_alerts
 from db_access.alerts import ingestCustomAlerts, getCustomAlerts
-from db_access.pc import get_total_pc_application_data_between
+from db_access.pc import get_ram_time_series
 from model.alerts import CustomAlerts, IngestCustomAlert, AlertNotification
 from model.data import Justification
 
@@ -24,7 +24,7 @@ def fetch_alerts(user_id: int, start: str, end: str):
     :param user_id:
     :return:
     """
-    pc_df, pc_data_list = get_total_pc_application_data_between(user_id, start, end)
+    pc_df, pc_data_list = get_ram_time_series(user_id, start, end)
     found_custom_alerts = getCustomAlerts(user_id)
     alert_notifications = check_for_alerts(user_id, found_custom_alerts.custom_alert_list, pc_df, start, end)
     return alert_notifications

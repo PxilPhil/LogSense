@@ -31,15 +31,15 @@ def fetch_application(pc_id: int, application_name: str, start: str, end: str): 
         df, data_list = get_application_between(pc_id, application_name, start, end)
         if df is None:
             raise NotFoundException(code=500, detail="Application was not found.")
-        df, ram_events_and_anomalies, cpu_events_and_anomalies, statistic_data = requests.analyze_application_data(df,
-                                                                                                                   application_name)
+        df, ram_events_and_anomalies, cpu_events_and_anomalies, ram_statistic_data, cpu_statistic_data = requests.analyze_application_data(df,application_name)
         application_data = ApplicationData(
             pc=pc_id,
             application_name=application_name,
             time_series_data=data_list,
             cpu_events_and_anomalies=cpu_events_and_anomalies,
             ram_events_and_anomalies=ram_events_and_anomalies,
-            statistic_data=statistic_data
+            ram_statistic_data=ram_statistic_data,
+            cpu_statistic_data=cpu_statistic_data
         )
 
         return application_data
