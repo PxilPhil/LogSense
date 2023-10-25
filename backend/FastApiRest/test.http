@@ -115,7 +115,7 @@ GET http://localhost:8000/pc/1/time-metrics/?start=2022-08-25 10:20:16&end=2023-
 GET http://localhost:8000/pc/1/application/java/time-metrics/?start=2023-07-25 10:20:16&end=2023-12-25 10:33:01
 
 ### get application data
-GET http://localhost:8000/pc/1/application/chrome?start=2023-01-19 10:20:16&end=2023-11-01 10:33:01
+GET http://localhost:8000/pc/1/application/java?start=2023-01-19 10:20:16&end=2023-11-01 10:33:01
 
 ### get list of applications
 GET http://localhost:8000/pc/1/application/?start=2022-07-25 10:20:16&end=2023-12-25 10:33:01
@@ -192,16 +192,16 @@ Content-Type: application/json
   "custom_alert_list": [
     {
       "user_id": 1,
-      "type": "Breaking threshold alert for PC RAM",
-      "message": "Breaking threshold alert for PC RAM",
+      "type": "Breaking threshold alert for Java",
+      "message": "Breaking threshold alert for Java",
       "severity_level": 5,
       "conditions": [
         {
-          "percentage_trigger_value": 0.05,
-          "absolute_trigger_value": 0.05,
+          "percentage_trigger_value": null,
+          "absolute_trigger_value": 400036821,
           "operator": ">",
-          "column": "cpu",
-          "application": "chrome",
+          "column": "ram",
+          "application": "java",
           "detect_via_moving_averages": true
         }
       ]
