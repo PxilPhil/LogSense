@@ -18,6 +18,7 @@ from model.pc import ForecastData
 
 warnings.filterwarnings("ignore")
 
+
 def preprocess_pc_data(df: DataFrame):
     """
     Preprocesses and groups data before inserting it into the database.
@@ -154,8 +155,9 @@ def analyze_pc_data(df, pc_total_df, column: str):
     if column == 'ram':
         latest_total_ram = pc_total_df.at[pc_total_df.index.max(), 'value']
         allocation_map = stats.calc_allocation(latest_total_ram, column, df)
-        allocation_list = [AllocationClass(name=key, allocation=value) for key, value in allocation_map.items()]  # convert map into list of our model object to send via json
-    elif column == 'cpu': # get allocation percentage for cpu, no calculation needed
+        allocation_list = [AllocationClass(name=key, allocation=value) for key, value in
+                           allocation_map.items()]  # convert map into list of our model object to send via json
+    elif column == 'cpu':  # get allocation percentage for cpu, no calculation needed
         allocation_list = []
         for index, row in df.iterrows():
             allocation_instance = AllocationClass(name=row['name'], allocation=row[column])
@@ -174,18 +176,10 @@ def analyze_pc_data(df, pc_total_df, column: str):
     anomalies = justify_pc_data_points(pc_total_df, anomaly_measurements, None, 1, True)
     events_and_anomalies = justify_pc_data_points(pc_total_df, change_points, anomalies, 1, False)
 
-
     # get stats
     statistic_data = calculate_trend_statistics(pc_total_df, 'value')
 
     return pc_total_df, allocation_list, events_and_anomalies, statistic_data
-
-
-def analyze_trends():
-    """
-    Analyzes application & pc trends, in order for that it groups data sets by date intervals
-    :return:
-    """
 
 
 def check_for_alerts(user_id: int, custom_alert_list: List[CustomAlert], pc_df: DataFrame, start, end) -> List[

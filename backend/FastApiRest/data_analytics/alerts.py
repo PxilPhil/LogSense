@@ -76,6 +76,8 @@ def check_for_custom_alerts(pc_id, df, custom_alerts: List[CustomAlert], start, 
                 selected_column = 'moving_average_' + condition.column
                 df[selected_column] = df[condition.column].rolling(window=5).mean()
                 df[selected_column].fillna(df[condition.column], inplace=True)
+            # check if any values of columns are needed to fetch
+
             # check conditions
             if condition.percentage_trigger_value and condition.column != "cpu":
                 filtered_df = check_percentage_trigger(df, condition, selected_column)
@@ -104,7 +106,6 @@ def create_alert_notifications(df, filtered_df, alert_notifications, alert, cond
         alert_notifications.append(alert_notification)
 
 
-# below code really hurts but no idea how to do it otherwise
 def check_percentage_trigger(df, condition: CustomCondition, selected_column):
     state_dict = select_recent_state()
     if condition.operator == '>':

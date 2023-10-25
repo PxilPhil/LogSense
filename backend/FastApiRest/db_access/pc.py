@@ -1,4 +1,5 @@
 import psycopg2.errorcodes
+from pandas import DataFrame
 
 from db_access import conn_pool
 import pandas as pd
@@ -91,6 +92,60 @@ def get_pcs_by_userid(user_id):
         conn_pool.putconn(conn)
 
 
+def get_total_pc_data(pc_id, start, end) -> DataFrame:
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        query = """
+        SELECT
+        id,
+        state_id,
+        pc_id,
+        measurement_time,
+        free_disk_space,
+        read_bytes_disks,
+        reads_disks,
+        write_bytes_disks,
+        writes_disks,
+        partition_major_faults,
+        partition_minor_faults,
+        available_memory,
+        names_power_source,
+        charging_power_sources,
+        discharging_power_sources,
+        power_online_power_sources,
+        remaining_capacity_percent_power_sources,
+        context_switches_processor,
+        interrupts_processor,
+        ram,
+        cpu,
+        context_switches,
+        major_faults,
+        open_files,
+        thread_count,
+        AVG(ram) OVER (ORDER BY measurement_time ROWS BETWEEN 5 PRECEDING AND CURRENT ROW) AS moving_average_ram,
+        AVG(cpu) OVER (ORDER BY measurement_time ROWS BETWEEN 5 PRECEDING AND CURRENT ROW) AS moving_average_cpu
+    FROM
+        pcdata
+    WHERE
+        pc_id = %s AND
+        measurement_time BETWEEN %s AND %s;
+        """
+
+        cursor.execute(query, (pc_id, start, end))
+        result = cursor.fetchall()
+
+        if result:
+            columns = [desc[0] for desc in cursor.description]
+            df = pd.DataFrame(result, columns=columns)
+            return df
+        return None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
+
+
 def get_ram_time_series(pc_id, start, end):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
@@ -122,6 +177,7 @@ def get_ram_time_series(pc_id, start, end):
     finally:
         conn_pool.putconn(conn)
 
+
 def get_cpu_time_series(pc_id, start, end):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
@@ -152,6 +208,7 @@ def get_cpu_time_series(pc_id, start, end):
         raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
+
 
 def get_free_disk_space_data(pc_id):
     conn = conn_pool.getconn()
@@ -554,7 +611,6 @@ def get_pc_data_at_measurement(ram_multiplier, timestamp: datetime, pc_id: int):
         conn_pool.putconn(conn)
 
 
-
 def resource_metrics(pc_id):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
@@ -635,6 +691,7 @@ def resource_metrics(pc_id):
     finally:
         conn_pool.putconn(conn)
 
+
 def select_total_running_time(start: datetime, end: datetime, pc_id: int):
     # TODO: Keep in mind that this might contain errors, in the worst case it cant be calculated via database operations
     conn = conn_pool.getconn()
@@ -697,6 +754,8 @@ ORDER BY
         raise InvalidParametersException()
     finally:
         conn_pool.putconn(conn)
+
+
 def select_total_running_time(start: datetime, end: datetime, pc_id: int):
     # TODO: Keep in mind that this might contain errors, in the worst case it cant be calculated via database operations
     conn = conn_pool.getconn()
