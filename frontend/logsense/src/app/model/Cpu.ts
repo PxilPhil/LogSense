@@ -1,21 +1,20 @@
-export class CpuData {
-  disks: DiskStore[] = [];
+import {PCTimeSeriesData} from "./PCData";
+
+export class CPUGeneral {
+  processor_name: string = "";
+  processor_identifier: string = "";
+  processor_id: string = "";
+  processor_vendor: string = "";
+  processor_bitness: number = 0;
+  physical_package_count: number = 0;
+  physical_processor_count: number = 0;
+  logical_processor_count: number = 0;
+  context_switches: number = 0;
+  interrupts: number = 0;
 }
 
-export class DiskStore {
-  id: number = 0;
-  cpuName: String = "AMD Ryzen 7 5800H";
-  identifier: String = "Intel64 Family 6 Model 165 Stepping 2";
-  processorID: String = "BFEBFBFF000A0652";
-  vendor: String = "GenuineIntel";
-  bitness: String = "64 Bit";
-  physicalPackages: Number = 1;
-  physicalProcessors: Number = 6;
-  logicalProcessors: Number = 12;
-  contextSwitches: String = "230431317";
-  interrupts: String = "185631654";
-  current: Number = 21; //%
-  average: Number = 48; //%
-  stability: String = "Low";
+export class CPUStats {
+  mean_cpu: number = 0;
+  stability_cpu: string = "";
+  cur_cpu: number = 0;
 }
-
