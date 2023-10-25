@@ -103,7 +103,8 @@ def analyze_application_data(df, application_name):
         statistic_data: Simple statistical data like mean, average, median, trend stats
     """
     # detect changes or events
-    ram_change_points = get_event_measurement_times(df, 'ram')
+    ram_change_points = get_event_measurement_times(df,
+                                                    'ram')  # only do it for ram since it makes no sense to do it for cpu
 
     # find anomalies
     anomalies_ram = detect_anomalies(df, 'ram')
@@ -121,8 +122,10 @@ def analyze_application_data(df, application_name):
     statistic_data_ram = calculate_trend_statistics(df, 'ram')
     statistic_data_cpu = calculate_trend_statistics(df, 'cpu')
 
-    # todo: look at data ranges
-    # determine_event_ranges(df, ram_change_points)
+    # todo: maybe do justifications with data ranges instead of a fixed time?
+    # determine event anomaly ranges and save statistics of them in justifications
+    determine_event_ranges(df, ram_events_and_anomalies, 'ram')
+    determine_event_ranges(df, cpu_events_and_anomalies, 'cpu')
 
     return df, ram_events_and_anomalies, cpu_events_and_anomalies, statistic_data_ram, statistic_data_cpu
 
@@ -178,6 +181,7 @@ def analyze_pc_data(df, pc_total_df, column: str):
 
     # get stats
     statistic_data = calculate_trend_statistics(pc_total_df, 'value')
+    determine_event_ranges(pc_total_df, events_and_anomalies, 'value')
 
     return pc_total_df, allocation_list, events_and_anomalies, statistic_data
 

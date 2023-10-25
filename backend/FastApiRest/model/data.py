@@ -24,6 +24,7 @@ class Justification(BaseModel):  # class containing justification data
     till_timestamp: datetime
     is_anomaly: bool
     justification_message: str
+    statistics: Optional[StatisticData] # contains statistics between this justification and the previous occured anomaly or event
 
 
 class AnomalyData(BaseModel):  # anomaly data class returned when analyzing application data
