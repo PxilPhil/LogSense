@@ -1,18 +1,16 @@
+from datetime import datetime
+
+import pandas as pd
 import psycopg2.errorcodes
 from pandas import DataFrame
 
 from db_access import conn_pool
-import pandas as pd
-from datetime import datetime
-
 from exceptions.DataBaseExcepion import DataBaseException
 from exceptions.InvalidParametersException import InvalidParametersException
 from exceptions.NotFoundExcepion import NotFoundException
 from model.data import PCTimeSeriesData
-from pydantic import BaseModel, create_model
-
-from model.pc import NetworkInterface, Connection, Disk, DiskPartition, PCState, PCSpecs, PCMetrics
 from model.pc import DISK, PARTITION, DISKS
+from model.pc import NetworkInterface, Connection, Disk, DiskPartition, PCSpecs, PCMetrics
 
 
 def add_pc(user_id, hardware_uuid, client_name):
@@ -227,6 +225,28 @@ def get_free_disk_space_data(pc_id):
         raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
+
+def get_disk_space_between(pc_id, start, end):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        query = "select measurement_time,free_disk_space AS value from pcdata where pc_id = %s AND measurement_time BETWEEN %s AND %s"
+        cursor.execute(query, (pc_id, start, end))
+        result = cursor.fetchall()
+
+        if result:
+            columns = [desc[0] for desc in cursor.description]
+            df = pd.DataFrame(result, columns=columns)
+            data_list = []
+            for _, row in df.iterrows():
+                data_list.append(PCTimeSeriesData(**row.to_dict()))
+                return df, data_list
+            return None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
+
 
 
 def get_latest_moving_avg(pc_id: int):  # returns moving avg of the last 5 columns for the total pc

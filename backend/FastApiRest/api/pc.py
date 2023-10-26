@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 
 import pandas as pd
 from fastapi import APIRouter, HTTPException, Body
@@ -13,7 +14,7 @@ from data_analytics import requests
 from exceptions.DataBaseInsertExcepion import DataBaseInsertException
 from exceptions.InvalidParametersException import InvalidParametersException
 from model.pc import PCItem, ForecastResult, ForecastData, DISKS, Network, PCSpecs, PCMetrics
-from model.data import PCData, StatisticData
+from model.data import PCData, StatisticData, PCTimeSeriesData
 
 pc = APIRouter()
 
@@ -134,8 +135,26 @@ def get_pc_cpu(pc_id: int, start: str, end: str):
     print(pc_data)
     return pc_data
 
+@pc.get('/{pc_id}/disk', response_model=List[PCTimeSeriesData], tags=["PC"])
+def get_pc_disk_space(pc_id: int, start: str, end: str):
+    """
+    Get data from PCs by ID and for a defined type like RAM or CPU
 
-@pc.get('/{pc_id}/disk', response_model=DISKS, tags=["PC"])
+    Args:
+        user_id (str): The user ID to filter PCs.
+
+    Returns:
+        dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
+        :param start:
+        :param end:
+    """
+    df, disk_space_list = db_access.pc.get_disk_space_between(pc_id, start, end)
+    print(df)
+    return disk_space_list
+
+
+
+@pc.get('/{pc_id}/disks-partitions', response_model=DISKS, tags=["PC"])
 def get_pc_disks(pc_id: int):
     """
     Get data from PCs by ID and for a defined type like RAM or CPU
