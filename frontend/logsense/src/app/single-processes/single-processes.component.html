@@ -35,7 +35,6 @@
                   <span class="txt-16 nowrap">Path</span>
                   <span class="txt-16 nowrap">Working Directory</span>
                   <span class="txt-16 nowrap">Command Line</span>
-                  <span class="txt-16 nowrap">Parent Process ID</span>
                   <span class="txt-16 nowrap">User</span>
                   <span class="txt-16 nowrap">Bitness</span>
                 </div>
@@ -44,7 +43,6 @@
                   <span class="txt-16 nowrap">{{latestApplicationMeasurement.path}}</span>
                   <span class="txt-16 nowrap">{{latestApplicationMeasurement.current_Working_Directory}}</span>
                   <span class="txt-16 nowrap">{{latestApplicationMeasurement.commandLine}}</span>
-                  <span class="txt-16 nowrap">{{latestApplicationMeasurement.parent_process_id}}</span>
                   <span class="txt-16 nowrap">{{latestApplicationMeasurement.user}}</span>
                   <span class="txt-16 nowrap">{{latestApplicationMeasurement.bitness}}</span>
                 </div>
@@ -63,7 +61,7 @@
               <span class="txt-22">CPU</span>
             </div>
             <div>
-              <span class="txt-22">{{roundDecimalNumber(selectedApplication.mean_cpu, 2)}}%</span>
+              <span class="txt-22">{{roundDecimalNumber(selectedApplication.mean_cpu*100, 2)}}%</span>
             </div>
           </div>
           <div class="chart-container mar-top-16">
@@ -118,14 +116,7 @@
         </div>
       </div>
       <div [ngClass]="{'w-100': !isApplicationSelected, 'mar-top-32 w-100': isApplicationSelected}">
-        <h2 class="mar-bot-24 mar-bot">Alerts</h2>
-        <div class="grey-box w-100">
-          <div *ngFor="let alert of alerts; let last = last" [ngClass]="{'mar-bot-12': !last}"
-               class="alert-box flex-center">
-            <mat-icon class="icon-32 icon">warning</mat-icon>
-            <span class="mar-left-32 txt-16">{{alert}}</span>
-          </div>
-        </div>
+        <app-alerts [alerts]="alerts"></app-alerts>
       </div>
     </div>
   </div>

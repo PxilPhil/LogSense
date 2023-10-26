@@ -5,7 +5,7 @@
   </div>
   <h2 class="mar-left-64 mar-top-32">Usage</h2>
   <div class="pad-right-128 pad-left-64 mar-top-32 w-100">
-    <div class="grey-box flex-start w-100">
+    <div class="grey-box wrap-chart-stats w-100">
       <div class="mar-right-96">
         <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24">
           <option *ngFor="let elem of times" [ngValue]="elem">{{elem.time}}</option>
@@ -20,13 +20,9 @@
             <input checked class="form-check-input" id="anomalies" type="checkbox" value="">
             <span class="txt-16">Show Anomalies</span>
           </div>
-          <div class="form-check mar-left-12">
-            <input class="form-check-input" id="outlyers" type="checkbox" value="">
-            <span class="txt-16">Show Outlyers</span>
-          </div>
         </div>
       </div>
-      <div>
+      <div class="stats mar-top-24">
         <h3 class="mar-bot-24">Statistics ({{selectedTime.time}})</h3>
         <div class="white-bg">
           <div class="align-general">
@@ -43,18 +39,26 @@
           </div>
 
           <div class="boxes mar-top-12">
-            <div class="white-box txt-16">Current
+            <div class="white-box txt-16">
+              <span class="jus-center">
+                Current
+              </span>
               <div class="value">
                 {{ram.current}}%
               </div>
             </div>
-            <div class="white-box txt-16 mar-left-12">
-              Average
+            <div class="white-box txt-16 sec">
+               <span class="jus-center">
+                Average
+              </span>
               <div class="value">
                 {{ram.average}}%
               </div>
             </div>
-            <div class="white-box txt-16 mar-left-12">Stability
+            <div class="white-box txt-16">
+              <span class="jus-center">
+                Stability
+              </span>
               <div class="value">
                 {{ram.stability}}
               </div>
@@ -67,30 +71,28 @@
       </div>
     </div>
   </div>
-  <div class="pad-bot-64 pad-left-64 pad-right-128 align-general mar-top-32 wrapper">
-    <div class="mar-right-96 first">
-      <h2 class="mar-bot-24">Processes</h2>
-      <div class="grey-box align-general space-center">
-        <div class="align-txt">
-          <span class="txt-16 bold mar-bot-12">Name</span>
-          <span *ngFor="let process of ram.processes; let last = last" [ngClass]="{'mar-bot-5': !last}"
-                class="txt-16">{{process.name}}</span>
-        </div>
-        <div class="align-txt mar-left-32">
-          <span class="txt-16 bold mar-bot-12">CPU Allocation</span>
-          <span *ngFor="let process of ram.processes; let last = last" [ngClass]="{'mar-bot-5': !last}"
-                class="txt-16 mar-bot-5 text-right">{{process.allocation}}%</span>
-        </div>
+
+  <div class="pad-bot-64 pad-left-64 pad-right-128 align-general mar-top-32" [ngClass]="{'show-all-true': showAllProcesses, 'wrapper': !showAllProcesses}">
+    <div [ngClass]="{'first-all': showAllProcesses, 'first': !showAllProcesses}">
+      <div>
+        <app-alerts [alerts]="ram.alerts"></app-alerts>
       </div>
     </div>
-    <div class="second">
-      <h2 class="mar-bot-24 mar-bot">Alerts</h2>
-      <div class="grey-box w-100">
-        <div *ngFor="let alert of ram.alerts; let last = last" [ngClass]="{'mar-bot-12': !last}"
-             class="alert-box flex-center">
-          <mat-icon class="icon-32 icon">warning</mat-icon>
-          <span class="mar-left-32 txt-16">{{alert}}</span>
+
+    <div [ngClass]="{'second-all': showAllProcesses, 'second': !showAllProcesses}">
+      <h2 class="mar-bot-24">Processes</h2>
+      <div class="grey-box">
+        <div class="processes">
+          <span class="txt-16 bold mar-bot-12">Name</span>
+          <span class="txt-16 bold mar-bot-12 nowrap">CPU Allocation</span>
         </div>
+        <div class="processes" *ngFor="let process of ram.processes; let last = last">
+          <span class="txt-16 nowrap mar-bot-5">{{process.name}}</span>
+          <span [ngClass]="{'mar-bot-5': !last}"
+                class="txt-16 mar-bot-5 text-right">{{process.allocation}}%</span>
+        </div>
+        <span class="link" (click)="showAll()" *ngIf="!showAllProcesses">Show All</span>
+        <span class="link" (click)="showAll()" *ngIf="showAllProcesses">Show Less</span>
       </div>
     </div>
   </div>

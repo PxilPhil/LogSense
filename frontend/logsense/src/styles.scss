@@ -96,6 +96,23 @@ h3 {
 .nowrap {
   white-space: nowrap;
 }
+
+.overflow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.link {
+  font-family: $font-family;
+
+  color: $blue;
+  text-decoration: underline;
+}
+.link:hover {
+  color: $cyan;
+  text-decoration: underline;
+}
+
 //Borders, Shadows, etc
 $shadow: 0 0 5px 0 rgba(0, 0, 0, 0.25);
 $lil-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.20);
@@ -196,6 +213,15 @@ $border-1px: solid $black 1px;
   display: flex;
   flex-direction: column;
 }
+
+.jus-center {
+  display: flex;
+  justify-content: center;
+}
+.jus-end {
+  display: flex;
+  justify-content: flex-end;
+}
 .space-base {
   display: flex;
   justify-content: space-between;
@@ -231,8 +257,8 @@ button:focus-visible {
   color: $cyan;
 }
 .icon-32 {
-  height: 32px;
-  width: 32px;
+  height: 32px !important;
+  width: 32px !important;
   font-size: 32px;
   color: $black;
 }

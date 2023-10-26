@@ -12,7 +12,6 @@ import {DatePipe} from "@angular/common";
 })
 export class TimeMetricsComponent implements OnInit, OnDestroy {
 
-  selectedTime: TimeModel = {id: 1, time: "Last 24h", valueInMilliseconds: 86400000};
   times = [
     {id: 1, time: "Last 24h", valueInMilliseconds: 86400000},
     {id: 2, time: "Last Week", valueInMilliseconds: 604800000},
@@ -21,9 +20,11 @@ export class TimeMetricsComponent implements OnInit, OnDestroy {
     {id: 5, time: "Last 12 Months", valueInMilliseconds: 31556952000},
     {id: 6, time: "All Time", valueInMilliseconds: 0}
   ];
+  selectedTime: TimeModel = this.times[0];
 
   timeMetricsChart: Chart | undefined;
   timeMetrics: TimeMetrics = new TimeMetrics();
+  showAll: boolean = false;
 
   constructor(private timeService: TimeMetricsService, private datePipe: DatePipe) {
   }
@@ -48,8 +49,9 @@ export class TimeMetricsComponent implements OnInit, OnDestroy {
         labels: this.timeMetrics.name,
         datasets: [{
           data: (this.timeMetrics.total_running_time_minutes),
-          borderColor: "#2b26a8",
-          backgroundColor: "#7BE1DF",
+          borderColor: "#3e95cd",
+          backgroundColor: "rgba(62,149,205, 0.4)",
+          borderWidth: 1
         }]
       },
       options: {
@@ -83,11 +85,16 @@ export class TimeMetricsComponent implements OnInit, OnDestroy {
     let dateNow = Date.now();
     this.timeMetrics.name = [];
     this.timeMetrics.total_running_time_minutes = [];
+    var i = 0;
     if(this.selectedTime.valueInMilliseconds!=0) {
       this.timeService.getTimeMetrics(1,this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: TimeMetricsModel) => {
         for (let entry of data.data) {
           this.timeMetrics.name.push(entry.name);
           this.timeMetrics.total_running_time_minutes.push(Math.round((entry.total_running_time_seconds/60/60 + Number.EPSILON) * 100) / 100); //seconds to hrs
+          i++;
+          if(!this.showAll && i >= 10) {
+            break;
+          }
         }
         this.timeChart();
       });
@@ -96,6 +103,10 @@ export class TimeMetricsComponent implements OnInit, OnDestroy {
         for (let entry of data.data) {
           this.timeMetrics.name.push(entry.name);
           this.timeMetrics.total_running_time_minutes.push(Math.round((entry.total_running_time_seconds/60/60 + Number.EPSILON) * 100) / 100); //seconds to hours
+          i++;
+          if(!this.showAll && i >= 10) {
+            break;
+          }
         }
         this.timeChart();
       });

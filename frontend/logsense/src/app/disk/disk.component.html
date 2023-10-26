@@ -5,15 +5,13 @@
   </div>
   <h2 class="mar-left-64 mar-top-32">Usage</h2>
   <div class="pad-right-128 pad-left-64 mar-top-32 w-100">
-    <div class="grey-box w-100 wrapper">
-      <div class="wrap-select first">
+    <div class="grey-box w-100 wrap-chart-stats">
+      <div class="mar-bot-24">
+        <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24" (ngModelChange)="loadPCData()">
+          <option *ngFor="let elem of times" [ngValue]="elem">{{elem.time}}</option>
+        </select>
         <div>
-          <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24" (ngModelChange)="loadPCData()">
-            <option *ngFor="let elem of times" [ngValue]="elem">{{elem.time}}</option>
-          </select>
-        </div>
-        <div class="chart">
-          <canvas class="white-bg" id="disk"></canvas>
+          <canvas class="white-bg w-100" id="disk"></canvas>
         </div>
         <div class="flex-center mar-top-12">
           <div class="form-check">
@@ -30,7 +28,7 @@
           </div>
         </div>
       </div>
-      <div class="stats second">
+      <div class="stats">
         <h3 class="mar-bot-24">Statistics ({{selectedTime.time}})</h3>
         <div class="white-bg">
           <div class="align-general nowrap">
@@ -71,17 +69,8 @@
       </div>
     </div>
   </div>
-  <div class="pad-left-64 pad-right-128 mar-top-32 w-100">
-    <div class="w-100">
-      <h2 class="mar-bot-24">Alerts</h2>
-      <div class="grey-box w-100">
-        <div *ngFor="let alert of alerts; let last = last" [ngClass]="{'mar-bot-12': !last}"
-             class="alert-box flex-center">
-          <mat-icon class="icon-32">warning</mat-icon>
-          <span class="mar-left-32 txt-16">{{alert}}</span>
-        </div>
-      </div>
-    </div>
+  <div class="pad-left-64 pad-right-128 mar-top-32">
+    <app-alerts [alerts]="alerts"></app-alerts>
   </div>
   <div class="pad-bot-64 pad-left-64 pad-right-128 mar-top-32 w-100">
     <h2 class="mar-bot-24">Disk Stores</h2>
@@ -102,13 +91,13 @@
           <td class="cell txt-16">{{diskStore.name}}</td>
           <td class="cell txt-16">{{diskStore.model}}</td>
           <td class="cell txt-16">{{roundDecimalNumber(convertBytesToGigaBytes(diskStore.size), 3)}} GB</td>
-          <td (click)="openDialog(i)" class="cell txt-16 part-link">See Partitions</td>
+          <td (click)="openDialog(i)" class="cell txt-16">
+            <span class="link">See Partitions</span>
+          </td>
         </tr>
         </tbody>
       </table>
     </div>
   </div>
-
-  <!--Modal-->
 
 </div>
