@@ -153,7 +153,7 @@ export class CpuComponent implements OnInit {
     this.cpuData.value = [];
     for (let dataPoint of timeSeriesData.time_series_list) {
       this.cpuData.time.push(dataPoint.measurement_time);
-      this.cpuData.value.push(this.roundDecimal(this.convertBytesToGigaBytes(dataPoint.ram), 2));
+      this.cpuData.value.push(this.roundDecimal(this.convertBytesToGigaBytes(dataPoint.value), 2));
     }
   }
 

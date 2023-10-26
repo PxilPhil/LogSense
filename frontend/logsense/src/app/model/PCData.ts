@@ -1,11 +1,37 @@
 export class TimeSeriesData {
   measurement_time: string = "";
-  ram: number = 0;
-  cpu: number = 0;
+  value: number = 0;
 }
 
 export class TimeSeriesList {
   time_series_list: TimeSeriesData[] = [];
+}
+
+export class Process {
+  name: string = "";
+  allocation: number = 0;
+}
+
+export class ProcessList {
+  allocation_list: Process[] = [];
+}
+
+export class EventList {
+  events_and_anomalies: EventData[] = [];
+}
+export class EventData {
+  timestamp: string = "";
+  //till_timestamp: string = "";
+  is_anomaly: boolean = false;
+  justification_message: string = "";
+  statistics: StatisticData = new StatisticData();
+}
+
+export class StatisticData {
+  average: number = 0;
+  median: number = 0;
+  stability: string = "";
+  message: string = "";
 }
 
 export class PCData {
