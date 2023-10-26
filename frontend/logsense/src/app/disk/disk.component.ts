@@ -53,7 +53,7 @@ export class DiskComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.loadPCData();
+    //this.loadPCData();
     //this.loadAlerts()   //TODO: insert again when endpoint is implemented
   }
 
