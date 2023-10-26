@@ -86,7 +86,7 @@ def insert_running_pcdata(state_id, running_df_dict, pc_total_df, event_list):
 
         applications = []
         for index, row in running_df_dict["application"].iterrows():
-            # print(index)
+            print(index)
             # print(row[index])
             # print(row['residentSetSize'])
             timestamp = datetime.fromtimestamp(index / 1000)
@@ -113,9 +113,29 @@ def insert_running_pcdata(state_id, running_df_dict, pc_total_df, event_list):
             )
             applications.append(application_data)
 
+        print('applications')
+        print(applications)
         application_data_query = """
-            INSERT INTO applicationdata 
-            (PcData_ID, PC_id, measurement_time, name, path, cpu, ram, state, "user", context_switches, major_faults, bitness, commandline, "current_Working_Directory", open_Files, parent_Process_ID, thread_count, uptime, process_count_difference)
+            INSERT INTO applicationdata (
+    pcdata_id,
+    pc_id,
+    measurement_time,
+    name,
+    path,
+    cpu,
+    ram,
+    state,
+    "user",
+    context_switches,
+    major_faults,
+    bitness,
+    commandline,
+    "current_Working_Directory",
+    open_files,
+    parent_process_id,
+    thread_count,
+    uptime,
+    process_count_difference)
             VALUES %s;
         """
         psycopg2.extras.execute_values(cursor, application_data_query, applications)
