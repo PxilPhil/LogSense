@@ -6,9 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="a3b0c86a-56b9-40a5-bdfe-abebb08d5502" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/FastApiRest/api/data.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/FastApiRest/api/data.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/FastApiRest/db_access/data.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/FastApiRest/db_access/data.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/FastApiRest/test.http" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/FastApiRest/test.http" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -85,8 +83,9 @@
       <workItem from="1697992034720" duration="648000" />
       <workItem from="1698049083393" duration="671000" />
       <workItem from="1698068640114" duration="659000" />
-      <workItem from="1698310413172" duration="2125000" />
-      <workItem from="1698316138899" duration="948000" />
+      <workItem from="1698078871549" duration="1086000" />
+      <workItem from="1698128511953" duration="17000" />
+      <workItem from="1698308090140" duration="644000" />
     </task>
     <servers />
   </component>

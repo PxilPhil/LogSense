@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {ProcessModel} from "../cpu/cpu.component";
 import {Chart} from "chart.js";
 import {TimeModel} from "../disk/disk.component";
-import {PCData} from "../model/PCData";
+import {PCData, TimeSeriesList} from "../model/PCData";
 import {PCDataService} from "../services/pc-data.service";
 import {DatePipe} from "@angular/common";
 import {RamStats} from "../model/Ram";
@@ -14,13 +14,18 @@ export class RAMModel {
   pageSize: Number = 4.096; //KB
   current: Number = 21; //%
   average: Number = 48; //%
-  stability: String = "Low";
+  stability: String = "TODO";
   stats: String[] = ["RAM Usage dropped 4%", "21 anomalies detected", "5 Events registered", "Recent Rise of 15% detected"];
   processes: ProcessModel[] = [{name: "Chrome", allocation: 15}, {name: "Explorer", allocation: 10}, {
     name: "Intellij",
     allocation: 48
   }];
   alerts: String[] = ["Some devices are at their workload limit", "Abnormal CPU-Spikes detected (21 Anomalies in the last 24 hours)"];
+}
+
+export class ChartData {
+  time: string[] = [];
+  value: number[] = [];
 }
 
 @Component({
@@ -30,6 +35,11 @@ export class RAMModel {
 })
 export class RamComponent implements OnInit {
   ram: RAMModel = new RAMModel();
+
+  timeSeriesData: TimeSeriesList = new TimeSeriesList();
+  ramData: ChartData =  new ChartData();
+
+  ramChart: Chart | undefined;
 
   ramStats: RamStats = new RamStats();
   times = [
@@ -56,18 +66,20 @@ export class RamComponent implements OnInit {
     this.showAllProcesses = !this.showAllProcesses;
   }
   ngOnInit() {
-    this.loadStats() // TODO: soboids den API Call gibt Stats lodn
-    this.usageChart();
+    //this.loadStats() // TODO: soboids den API Call gibt Stats lodn
+    this.loadData();
   }
 
   usageChart(): void {
-    const data = this.getData();
-    const usage = new Chart("ram", {
+    if(this.ramChart) {
+      this.ramChart.destroy();
+    }
+    this.ramChart = new Chart("ram", {
       type: "line",
       data: {
-        labels: data.labels,
+        labels: this.ramData.time,
         datasets: [{
-          data: data.values,
+          data: this.ramData.value,
           borderColor: "#3e95cd",
           fill: false
         }]
@@ -81,6 +93,18 @@ export class RamComponent implements OnInit {
         plugins: {
           legend: {
             display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                let label = context.dataset.label || '';
+                if (label) {
+                  label += ' ';
+                }
+                label += context.parsed.y + ' MB';
+                return label;
+              }
+            }
           }
         }
       },
@@ -98,11 +122,38 @@ export class RamComponent implements OnInit {
       //this.resourceService.getResourceMetrics(1)
     }*/
   }
-  getData(): { labels: string[], values: number[] } {
-    const labels = ['Zeitpunkt 1', 'Zeitpunkt 2', 'Zeitpunkt 3']; // Beispiellabels
-    const values = [75, 90, 60]; // Beispielauslastung
-    return {labels, values};
+  loadData() {
+    let dateNow = Date.now();
+    if(this.selectedTime.valueInMilliseconds!=0) {
+      this.pcDataService.getTimeSeriesData(1, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "").subscribe((data: TimeSeriesList) => {
+        this.timeSeriesData = data;
+        this.transformData();
+        this.usageChart();
+      });
+    } else {
+      this.pcDataService.getTimeSeriesData(1, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "").subscribe((data: TimeSeriesList) => {
+        this.timeSeriesData = data;
+        this.transformData();
+        this.usageChart();
+      });
+    }
   }
 
-  protected readonly alert = alert;
+  transformData() {
+    this.ramData.time = [];
+    this.ramData.value = [];
+    for (let dataPoint of this.timeSeriesData.time_series_list) {
+      this.ramData.time.push(dataPoint.measurement_time);
+      this.ramData.value.push(this.roundDecimal(this.convertBytesToGigaBytes(dataPoint.ram), 2));
+    }
+  }
+
+  convertBytesToGigaBytes(valueInBytes: number): number {
+    return (valueInBytes / 1000 / 1000 / 1000);
+  }
+
+  roundDecimal(num: number, places: number): number{
+    return Math.round((num + Number.EPSILON) * Math.pow(10, places)) / Math.pow(10, places);
+  }
+
 }

@@ -17,4 +17,5 @@ export class CpuService {
     const url: string = `http://127.0.0.1:8000/pc/general_specs/${pc_id}`;
     return this.httpClient.get<CPUGeneral>(url);
   }
+
 }
