@@ -15,10 +15,24 @@ def get_application_between(pc_id: int, application_name, start, end):
     try:
         select_application_query = """
         SELECT
+id,
+            pcdata_id,
             measurement_time,
             name,
+            path,
             cpu,
             ram,
+            state,
+            "user",
+            context_switches,
+            major_faults,
+            bitness,
+            commandline,
+            "current_Working_Directory",
+            open_files,
+            parent_process_id,
+            thread_count,
+            uptime,
             process_count_difference
         FROM
             applicationdata

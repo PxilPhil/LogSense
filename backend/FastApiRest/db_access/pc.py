@@ -1,17 +1,16 @@
-import psycopg2.errorcodes
-
-from db_access import conn_pool
-import pandas as pd
 from datetime import datetime
 
+import pandas as pd
+import psycopg2.errorcodes
+from pandas import DataFrame
+
+from db_access import conn_pool
 from exceptions.DataBaseExcepion import DataBaseException
 from exceptions.InvalidParametersException import InvalidParametersException
 from exceptions.NotFoundExcepion import NotFoundException
 from model.data import PCTimeSeriesData
-from pydantic import BaseModel, create_model
-
-from model.pc import NetworkInterface, Connection, Disk, DiskPartition, PCState, PCSpecs, PCMetrics
 from model.pc import DISK, PARTITION, DISKS
+from model.pc import NetworkInterface, Connection, Disk, DiskPartition, PCSpecs, PCMetrics
 
 
 def add_pc(user_id, hardware_uuid, client_name):
@@ -91,7 +90,7 @@ def get_pcs_by_userid(user_id):
         conn_pool.putconn(conn)
 
 
-def get_total_pc_application_data_between(pc_id, start, end):
+def get_total_pc_data(pc_id, start, end) -> DataFrame:
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
@@ -137,6 +136,67 @@ def get_total_pc_application_data_between(pc_id, start, end):
         if result:
             columns = [desc[0] for desc in cursor.description]
             df = pd.DataFrame(result, columns=columns)
+            return df
+        return None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
+
+
+def get_ram_time_series(pc_id, start, end):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        query = """
+        SELECT
+        measurement_time,
+        ram as value
+    FROM
+        pcdata
+    WHERE
+        pc_id = %s AND
+        measurement_time BETWEEN %s AND %s;
+        """
+
+        cursor.execute(query, (pc_id, start, end))
+        result = cursor.fetchall()
+
+        if result:
+            columns = [desc[0] for desc in cursor.description]
+            df = pd.DataFrame(result, columns=columns)
+            data_list = []
+            for _, row in df.iterrows():
+                data_list.append(PCTimeSeriesData(**row.to_dict()))
+            return df, data_list
+        return None, None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
+
+
+def get_cpu_time_series(pc_id, start, end):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        query = """
+        SELECT
+        measurement_time,
+        cpu AS value
+    FROM
+        pcdata
+    WHERE
+        pc_id = %s AND
+        measurement_time BETWEEN %s AND %s;
+        """
+
+        cursor.execute(query, (pc_id, start, end))
+        result = cursor.fetchall()
+
+        if result:
+            columns = [desc[0] for desc in cursor.description]
+            df = pd.DataFrame(result, columns=columns)
             data_list = []
             for _, row in df.iterrows():
                 data_list.append(PCTimeSeriesData(**row.to_dict()))
@@ -165,6 +225,28 @@ def get_free_disk_space_data(pc_id):
         raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
+
+def get_disk_space_between(pc_id, start, end):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        query = "select measurement_time,free_disk_space AS value from pcdata where pc_id = %s AND measurement_time BETWEEN %s AND %s"
+        cursor.execute(query, (pc_id, start, end))
+        result = cursor.fetchall()
+
+        if result:
+            columns = [desc[0] for desc in cursor.description]
+            df = pd.DataFrame(result, columns=columns)
+            data_list = []
+            for _, row in df.iterrows():
+                data_list.append(PCTimeSeriesData(**row.to_dict()))
+                return df, data_list
+            return None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
+
 
 
 def get_latest_moving_avg(pc_id: int):  # returns moving avg of the last 5 columns for the total pc
@@ -440,7 +522,7 @@ def get_recent_pc_total_data(pc_id, limit):
         remaining_capacity_percent_power_sources,
         context_switches_processor,
         interrupts_processor,
-        ram,
+        ram AS value,
         cpu,
         context_switches,
         major_faults,
@@ -549,7 +631,6 @@ def get_pc_data_at_measurement(ram_multiplier, timestamp: datetime, pc_id: int):
         conn_pool.putconn(conn)
 
 
-
 def resource_metrics(pc_id):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
@@ -630,6 +711,7 @@ def resource_metrics(pc_id):
     finally:
         conn_pool.putconn(conn)
 
+
 def select_total_running_time(start: datetime, end: datetime, pc_id: int):
     # TODO: Keep in mind that this might contain errors, in the worst case it cant be calculated via database operations
     conn = conn_pool.getconn()
@@ -692,6 +774,8 @@ ORDER BY
         raise InvalidParametersException()
     finally:
         conn_pool.putconn(conn)
+
+
 def select_total_running_time(start: datetime, end: datetime, pc_id: int):
     # TODO: Keep in mind that this might contain errors, in the worst case it cant be calculated via database operations
     conn = conn_pool.getconn()

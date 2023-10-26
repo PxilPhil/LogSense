@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 
 import pandas as pd
 from fastapi import APIRouter, HTTPException, Body
@@ -13,7 +14,7 @@ from data_analytics import requests
 from exceptions.DataBaseInsertExcepion import DataBaseInsertException
 from exceptions.InvalidParametersException import InvalidParametersException
 from model.pc import PCItem, ForecastResult, ForecastData, DISKS, Network, PCSpecs, PCMetrics
-from model.data import PCData, StatisticData
+from model.data import PCData, StatisticData, PCTimeSeriesData
 
 pc = APIRouter()
 
@@ -65,8 +66,8 @@ def add_pc_api(data: PCItem = Body(...)):
     return {'pc_id': pc_id}
 
 
-@pc.get('/{pc_id}/data', response_model=PCData, tags=["PC"])
-def get_pc_data(pc_id: int, start: str, end: str):
+@pc.get('/{pc_id}/ram', response_model=PCData, tags=["PC"])
+def get_pc_ram(pc_id: int, start: str, end: str):
     """
     Get data from PCs by ID and for a defined type like RAM or CPU
 
@@ -78,24 +79,21 @@ def get_pc_data(pc_id: int, start: str, end: str):
         :param start:
         :param end:
     """
-    total_df, total_data_list = db_access.pc.get_total_pc_application_data_between(pc_id, start, end)
+    ram_df, time_series = db_access.pc.get_ram_time_series(pc_id, start, end)
 
     df, application_data_list = get_latest_application_data(pc_id, 1, None)
-    if df is None or total_df is None:
+    if df is None or ram_df is None:
         raise InvalidParametersException()
-    pc_total_df, allocation_list_ram, allocation_list_cpu, ram_anomaly_events, cpu_anomaly_events, statistic_data = requests.analyze_pc_data(
-        df, total_df)
-
+    pc_total_df, allocation_list, events_and_anomalies, statistic_data = requests.analyze_pc_data(
+        df, ram_df, 'ram')
 
     pc_data = PCData(
         pc_id=pc_id,
         start=start,
         end=end,
-        time_series_list=total_data_list,
-        allocation_list_ram=allocation_list_ram,
-        allocation_list_cpu=allocation_list_cpu,
-        ram_events_and_anomalies=ram_anomaly_events,
-        cpu_events_and_anomalies=cpu_anomaly_events,
+        time_series_list=time_series,
+        allocation_list=allocation_list,
+        events_and_anomalies=events_and_anomalies,
         statistic_data=statistic_data
     )
 
@@ -103,7 +101,60 @@ def get_pc_data(pc_id: int, start: str, end: str):
     return pc_data
 
 
-@pc.get('/{pc_id}/disk', response_model=DISKS, tags=["PC"])
+@pc.get('/{pc_id}/cpu', response_model=PCData, tags=["PC"])
+def get_pc_cpu(pc_id: int, start: str, end: str):
+    """
+    Get data from PCs by ID and for a defined type like RAM or CPU
+
+    Args:
+        user_id (str): The user ID to filter PCs.
+
+    Returns:
+        dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
+        :param start:
+        :param end:
+    """
+    cpu_df, time_series = db_access.pc.get_cpu_time_series(pc_id, start, end)
+
+    df, application_data_list = get_latest_application_data(pc_id, 1, None)
+    if df is None or cpu_df is None:
+        raise InvalidParametersException()
+    pc_total_df, allocation_list, events_and_anomalies, statistic_data = requests.analyze_pc_data(
+        df, cpu_df, 'cpu')
+
+    pc_data = PCData(
+        pc_id=pc_id,
+        start=start,
+        end=end,
+        time_series_list=time_series,
+        allocation_list=allocation_list,
+        events_and_anomalies=events_and_anomalies,
+        statistic_data=statistic_data
+    )
+
+    print(pc_data)
+    return pc_data
+
+@pc.get('/{pc_id}/disk', response_model=List[PCTimeSeriesData], tags=["PC"])
+def get_pc_disk_space(pc_id: int, start: str, end: str):
+    """
+    Get data from PCs by ID and for a defined type like RAM or CPU
+
+    Args:
+        user_id (str): The user ID to filter PCs.
+
+    Returns:
+        dict: A dictionary with a 'pcs' key containing a list of PCs filtered by user ID.
+        :param start:
+        :param end:
+    """
+    df, disk_space_list = db_access.pc.get_disk_space_between(pc_id, start, end)
+    print(df)
+    return disk_space_list
+
+
+
+@pc.get('/{pc_id}/disks-partitions', response_model=DISKS, tags=["PC"])
 def get_pc_disks(pc_id: int):
     """
     Get data from PCs by ID and for a defined type like RAM or CPU
@@ -175,7 +226,7 @@ def forecast_free_disk_space(pc_id: int, days: int):
         df = get_free_disk_space_data(pc_id)
         if df is None:
             raise InvalidParametersException()
-        data_list, final_timestamp = requests.forecast_disk_space(df, days)
+        data_list, final_timestamp = requests.forecast_disk_space(df, 'free_disk_space', days)
         forecast_result = ForecastResult(
             pc=pc_id,
             days=days,
@@ -203,6 +254,7 @@ def get_pc_by_user_id(pc_id: str):
     specs = db_access.pc.general_specs(pc_id)
     return specs
 
+
 @pc.get('/resource_metrics/{pc_id}', response_model=PCMetrics, tags=["PC"])
 def get_pc_by_user_id(pc_id: str):
     """
@@ -218,7 +270,8 @@ def get_pc_by_user_id(pc_id: str):
     metrics = db_access.pc.resource_metrics(pc_id)
     return metrics
 
+
 @pc.get('/{pc_id}/time-metrics/', response_model=dict, tags=["PC"])
-def get_pc_time_metrics(pc_id: int, start: datetime, end:datetime):
+def get_pc_time_metrics(pc_id: int, start: datetime, end: datetime):
     time_metrics_dict = select_total_running_time(start, end, pc_id)
     return time_metrics_dict

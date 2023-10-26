@@ -102,20 +102,24 @@ timestamp|displayName
 --boundary
 Content-Disposition: form-data; name="files[]"; filename="file2.txt"
 
-### get pc data ###
-GET http://localhost:8000/pc/1/data?start=2023-07-25 10:20:16&end=2023-10-25 12:33:01
+### get ram pc timeseries data###
+GET http://localhost:8000/pc/1/ram?start=2023-02-25 10:20:16&end=2023-12-25 12:33:01
 
-### get pc invalid data ###
-GET http://localhost:8000/pc/1/data/GPU?start=2023-07-25 10:20:16&end=2023-12-25 10:33:01
+### get cpu pc timeseries data###
+GET http://localhost:8000/pc/1/cpu?start=2023-02-25 10:20:16&end=2023-12-25 12:33:01
+
+### get disks timeseries data
+GET http://localhost:8000/pc/1/disk?start=2023-02-25 10:20:16&end=2023-12-25 12:33:01
 
 ### get pc time metrics
 GET http://localhost:8000/pc/1/time-metrics/?start=2022-08-25 10:20:16&end=2023-12-25 10:33:01
 
+
 ### get application time metrics
-GET http://localhost:8000/pc/1/application/jetbrains-toolbox/time-metrics/?start=2023-10-21 18:30:16&end=2023-10-22 18:30:01
+GET http://localhost:8000/pc/1/application/java/time-metrics/?start=2023-07-25 10:20:16&end=2023-12-25 10:33:01
 
 ### get application data
-GET http://localhost:8000/pc/1/application/chrome?start=2023-07-25 10:20:16&end=2023-10-25 10:33:01
+GET http://localhost:8000/pc/1/application/java?start=2023-01-19 10:20:16&end=2023-11-01 10:33:01
 
 ### get list of applications
 GET http://localhost:8000/pc/1/application/?start=2022-07-25 10:20:16&end=2023-12-25 10:33:01
@@ -124,7 +128,7 @@ GET http://localhost:8000/pc/1/application/?start=2022-07-25 10:20:16&end=2023-1
 GET http://localhost:8000/pc/1/data/forecast/30
 
 ### get alerts
-GET http://localhost:8000/alerts/1?start=2023-07-25 10:20:16&end=2023-11-25 10:33:01
+GET http://localhost:8000/alerts/1?start=2023-07-25 10:20:16&end=2023-09-25 10:33:01
 
 ### get all possible alerts
 GET http://localhost:8000/alerts/all/1
@@ -178,7 +182,7 @@ Content-Type: application/json
 GET http://localhost:8000/pc/1/application/Adobe Desktop Service/bucket/?start=2023-07-25 10:20:16&end=2023-07-25 10:33:01&bucket_value=5 minutes
 
 ### get disks
-GET http://localhost:8000/pc/1/disk
+GET http://localhost:8000/pc/1/disks-partitions
 
 ### get network interfaces and connections
 GET http://localhost:8000/pc/1/network
@@ -192,16 +196,16 @@ Content-Type: application/json
   "custom_alert_list": [
     {
       "user_id": 1,
-      "type": "Breaking threshold alert for PC RAM",
-      "message": "Breaking threshold alert for PC RAM",
+      "type": "Breaking threshold alert for Java",
+      "message": "Breaking threshold alert for Java",
       "severity_level": 5,
       "conditions": [
         {
-          "percentage_trigger_value": 0.05,
-          "absolute_trigger_value": 0.05,
+          "percentage_trigger_value": null,
+          "absolute_trigger_value": 400036821,
           "operator": ">",
-          "column": "cpu",
-          "application": "chrome",
+          "column": "ram",
+          "application": "java",
           "detect_via_moving_averages": true
         }
       ]

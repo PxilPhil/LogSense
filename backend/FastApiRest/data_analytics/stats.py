@@ -1,6 +1,5 @@
 from pandas import DataFrame
 
-from data_analytics.manipulation import determine_stability
 from model.data import StatisticData
 
 
@@ -11,7 +10,7 @@ def calc_allocation(latest_total_value, column, df):  # ONLY PASS THE MOST CURRE
     return allocation_map
 
 
-def calculate_trend_statistics(df: DataFrame) -> StatisticData:
+def calculate_trend_statistics(df: DataFrame, column: str) -> StatisticData:
     """
     Calculates statistics for the trend of a graph like:
     Median
@@ -23,44 +22,37 @@ def calculate_trend_statistics(df: DataFrame) -> StatisticData:
     """
 
     # calculate the stability of data
-    std_ram = df['ram'].std()
-    mean_ram = df['ram'].mean()
-    std_cpu = df['cpu'].std()
-    mean_cpu = df['cpu'].mean()
-    cov_ram = (std_ram / mean_ram) * 100  # stands for coefficient_of_variation
-    cov_cpu = (std_cpu / mean_cpu) * 100  # stands for coefficient_of_variation
+    std = df[column].std()
+    mean = df[column].mean()
+    cov = (std / mean) * 100  # stands for coefficient_of_variation
 
-    # calculate changes that occurred for ram and cpu data from the start to end
+    # calculate changes that occurred from start to end
     recent_row = df.loc[df['measurement_time'].idxmax()]
     oldest_row = df.loc[df['measurement_time'].idxmin()]
-    ram_ratio = (recent_row['ram'] / oldest_row['ram']) - 1
-    cpu_ratio = (recent_row['cpu'] / oldest_row['cpu']) - 1
-    ram_delta = recent_row['ram'] - oldest_row['ram']
-    cpu_delta = recent_row['cpu'] - oldest_row['cpu']
+    change = ((recent_row[column] - oldest_row[column]) / oldest_row[column]) * 100
+    delta = recent_row[column] - oldest_row[column]
 
-    stability = f"RAM Stability: {determine_stability(cov_ram)}\n CPU Stability: {determine_stability(cov_cpu)}\n"
-    message = create_statistics_message(ram_ratio, ram_delta, cpu_ratio, cpu_delta)
+    stability = f"Stability: {determine_stability(cov)}\n"
+    message = create_statistics_message(change, delta, column)
 
     statistic_data = StatisticData(
-        latest_ram=recent_row['ram'],
-        latest_cpu=recent_row['cpu'],
-        oldest_ram=oldest_row['ram'],
-        oldest_cpu=oldest_row['cpu'],
-        average_ram=df['ram'].mean(),
-        median_ram=df['ram'].median(),
-        average_cpu=df['cpu'].mean(),
-        median_cpu=df['cpu'].median(),
+        average=df[column].mean(),
+        median=df[column].median(),
         stability=stability,
         message=message
     )
     return statistic_data
 
 
-def create_statistics_message(ram_ratio, ram_delta, cpu_ratio, cpu_delta):
+def create_statistics_message(change, delta, column: str):
     # this is a method to make a message displayed to the user when requesting statistical values
-    message = ""
-    if ram_ratio and ram_delta:
-        message += f"RAM has changed by {ram_ratio} ({ram_delta / 1000} MB)\n"
-    if cpu_ratio and cpu_delta:
-        message += f"CPU has changed by {cpu_ratio} ({cpu_delta * 100} %)\n"
+    message = f"{column} has changed by {round(change, 2)} % ({delta})\n"
     return message
+
+
+def determine_stability(cov):  # common rule of thumb is that cv < 15% is considered stable and < 30% medium
+    if cov < 15:
+        return 'High'
+    elif cov < 30:
+        return 'Medium'
+    return 'Low'

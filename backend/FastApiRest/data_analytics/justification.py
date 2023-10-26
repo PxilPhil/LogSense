@@ -79,7 +79,8 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, prior_jus
                 timestamp=point,
                 till_timestamp=till_timestamp,
                 is_anomaly=should_tag_as_anomaly,
-                justification_message=message
+                justification_message=message,
+                statistics=None
             )
 
             justification_logs.append(justification)
@@ -109,7 +110,8 @@ def justify_application_data_points(data_points: list, name: str, pc_id: int) ->
             timestamp=point,
             till_timestamp=start_point,
             is_anomaly=False,
-            justification_message=justification_message
+            justification_message=justification_message,
+            statistics=None
         )
 
         justifications.append(justification)
@@ -144,7 +146,8 @@ def justify_application_df(df: DataFrame, data_points: list, name: str,
                 timestamp=point,
                 till_timestamp=till_timestamp_point,
                 is_anomaly=should_tag_as_anomaly,
-                justification_message=justification_message
+                justification_message=justification_message,
+                statistics=None
             )
             justification_logs.append(event_anomaly)
 

@@ -10,7 +10,6 @@ from data_analytics.alerts import check_for_custom_alerts
 from data_analytics.change_anomaly_detection import get_event_measurement_times, detect_events, detect_anomalies
 from data_analytics.forecasting import fit_linear_regression, predict_for_df
 from data_analytics.justification import justify_pc_data_points, justify_application_df
-from data_analytics.manipulation import determine_stability
 from data_analytics.stats import calculate_trend_statistics
 from data_analytics.trend_analysis import determine_event_ranges
 from model.alerts import CustomAlert, AlertNotification
@@ -18,6 +17,7 @@ from model.data import AllocationClass
 from model.pc import ForecastData
 
 warnings.filterwarnings("ignore")
+
 
 def preprocess_pc_data(df: DataFrame):
     """
@@ -103,7 +103,8 @@ def analyze_application_data(df, application_name):
         statistic_data: Simple statistical data like mean, average, median, trend stats
     """
     # detect changes or events
-    ram_change_points = get_event_measurement_times(df, 'ram')
+    ram_change_points = get_event_measurement_times(df,
+                                                    'ram')  # only do it for ram since it makes no sense to do it for cpu
 
     # find anomalies
     anomalies_ram = detect_anomalies(df, 'ram')
@@ -118,15 +119,18 @@ def analyze_application_data(df, application_name):
                                                       False)
 
     # get stats
-    statistic_data = calculate_trend_statistics(df)
+    statistic_data_ram = calculate_trend_statistics(df, 'ram')
+    statistic_data_cpu = calculate_trend_statistics(df, 'cpu')
 
-    # look at data ranges
-    determine_event_ranges(df, ram_change_points)
+    # todo: maybe do justifications with data ranges instead of a fixed time?
+    # determine event anomaly ranges and save statistics of them in justifications
+    determine_event_ranges(df, ram_events_and_anomalies, 'ram')
+    determine_event_ranges(df, cpu_events_and_anomalies, 'cpu')
 
-    return df, ram_events_and_anomalies, cpu_events_and_anomalies, statistic_data
+    return df, ram_events_and_anomalies, cpu_events_and_anomalies, statistic_data_ram, statistic_data_cpu
 
 
-def analyze_pc_data(df, pc_total_df):
+def analyze_pc_data(df, pc_total_df, column: str):
     """
     Analyzes pc data, called by the client when fetching pc data of a certain category (like RAM).
 
@@ -143,58 +147,43 @@ def analyze_pc_data(df, pc_total_df):
         df (DataFrame): The DataFrame containing application data.
         pc_total_df (DataFrame): The DataFrame containing total pc data.
         column (str): Column which should be analyzed like RAM (deprecated).
-
     Returns:
         pc_total_df: The DataFrame containing total pc data.
         anomaly_list: The list of detected anomalies
         allocation_list: The list of allocations (which application makes up how much percent of RAM/CPU usage).
         std: Standard deviation from mean, used for calculating "Stability".
         mean: Average of the values.
-    """
-    # get allocation percentage for ram
-    latest_total_ram = pc_total_df.at[pc_total_df.index.max(), 'ram']
-    allocation_map_ram = stats.calc_allocation(latest_total_ram, 'ram', df)
-    allocation_list_ram = [AllocationClass(name=key, allocation=value) for key, value in
-                           allocation_map_ram.items()]  # convert map into list of our model object to send via json
 
-    # get allocation percentage for cpu, no calculation needed
-    allocation_list_cpu = []
-    for index, row in df.iterrows():
-        allocation_instance = AllocationClass(name=row['name'], allocation=row['cpu'])
-        allocation_list_cpu.append(allocation_instance)
+    """
+    if column == 'ram':
+        latest_total_ram = pc_total_df.at[pc_total_df.index.max(), 'value']
+        allocation_map = stats.calc_allocation(latest_total_ram, column, df)
+        allocation_list = [AllocationClass(name=key, allocation=value) for key, value in
+                           allocation_map.items()]  # convert map into list of our model object to send via json
+    elif column == 'cpu':  # get allocation percentage for cpu, no calculation needed
+        allocation_list = []
+        for index, row in df.iterrows():
+            allocation_instance = AllocationClass(name=row['name'], allocation=row[column])
+            allocation_list.append(allocation_instance)
 
     # sort allocations by impact
-    allocation_list_cpu = sorted(allocation_list_cpu, key=lambda cpu: cpu.allocation, reverse=True)
-    allocation_list_ram = sorted(allocation_list_ram, key=lambda ram: ram.allocation, reverse=True)
+    allocation_list = sorted(allocation_list, key=lambda ram: ram.allocation, reverse=True)
 
     # detect anomalies
-    anomaly_measurements_ram = detect_anomalies(pc_total_df, 'ram')
-    anomaly_measurements_cpu = detect_anomalies(pc_total_df, 'cpu')
+    anomaly_measurements = detect_anomalies(pc_total_df, 'value')
 
     # detect changes / events
-    ram_change_points = get_event_measurement_times(pc_total_df, 'ram')
-    cpu_change_points = get_event_measurement_times(df, 'cpu')
+    change_points = get_event_measurement_times(pc_total_df, 'value')
 
     # justifies events and anomalies
-    ram_anomalies = justify_pc_data_points(pc_total_df, anomaly_measurements_ram, None, 1, True)
-    ram_anomaly_events = justify_pc_data_points(pc_total_df, ram_change_points, ram_anomalies, 1, False)
-
-    cpu_anomalies = justify_pc_data_points(pc_total_df, anomaly_measurements_cpu,
-                                           ram_anomaly_events, 1, True)
-    cpu_anomaly_events = justify_pc_data_points(pc_total_df, cpu_change_points,
-                                                ram_anomaly_events + cpu_anomalies, 1, False)
+    anomalies = justify_pc_data_points(pc_total_df, anomaly_measurements, None, 1, True)
+    events_and_anomalies = justify_pc_data_points(pc_total_df, change_points, anomalies, 1, False)
 
     # get stats
-    statistic_data = calculate_trend_statistics(pc_total_df)
+    statistic_data = calculate_trend_statistics(pc_total_df, 'value')
+    determine_event_ranges(pc_total_df, events_and_anomalies, 'value')
 
-    return pc_total_df, allocation_list_ram, allocation_list_cpu, ram_anomaly_events, cpu_anomaly_events, statistic_data
-
-
-def analyze_trends():
-    """
-    Analyzes application & pc trends, in order for that it groups data sets by date intervals
-    :return:
-    """
+    return pc_total_df, allocation_list, events_and_anomalies, statistic_data
 
 
 def check_for_alerts(user_id: int, custom_alert_list: List[CustomAlert], pc_df: DataFrame, start, end) -> List[

@@ -71,7 +71,7 @@ def ingest_data(files: list[UploadFile], stateId: int):
         pcdata = df_map["resources"]
         application_data = df_map["application"]
 
-        pc_total_df, event_list = requests.preprocess_pc_data(df_map["application"], stateId)
+        pc_total_df, event_list = requests.preprocess_pc_data(df_map["application"])
 
         #error here
         pcdata_id = insert_running_pcdata(stateId, df_map, pc_total_df, event_list)

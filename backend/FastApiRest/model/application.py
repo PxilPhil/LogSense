@@ -20,7 +20,8 @@ class ApplicationData(BaseModel):
     time_series_data: List[ApplicationTimeSeriesData]
     cpu_events_and_anomalies: List[Justification]
     ram_events_and_anomalies: List[Justification]
-    statistic_data: StatisticData
+    cpu_statistic_data: StatisticData
+    ram_statistic_data: StatisticData
 
 
 class ApplicationListObject(BaseModel):
