@@ -5,51 +5,26 @@ import warnings
 
 from pandas import DataFrame
 
-from data_analytics import involvement, manipulation, custom_alerts, stats
+from data_analytics import manipulation, stats
 from data_analytics.alerts import check_for_custom_alerts
-from data_analytics.anomaly_detection import detect_anomalies
-from data_analytics.change_detection import get_event_measurement_times, detect_events
+from data_analytics.change_anomaly_detection import get_event_measurement_times, detect_events, detect_anomalies
 from data_analytics.forecasting import fit_linear_regression, predict_for_df
 from data_analytics.justification import justify_pc_data_points, justify_application_df
-from data_analytics.manipulation import determine_stability
-from db_access.alerts import getCustomAlerts
-from db_access.data import get_moving_avg_of_application
-from db_access.pc import get_latest_moving_avg
-from db_access.helper import get_pcid_by_stateid
+from data_analytics.stats import calculate_trend_statistics
+from data_analytics.trend_analysis import determine_event_ranges
 from model.alerts import CustomAlert, AlertNotification
 from model.data import AllocationClass
 from model.pc import ForecastData
 
 warnings.filterwarnings("ignore")
 
-"""
-    Documentation Comments:
-    Events:
-    Rework event detection to make threshold dependent on things like variance
-    Formula for threshold: mean + (multiplier * std_dev)
-    Alternatives to percentual detection include online/offline change point detection algorithms (ChangeFinder/Ruptures)
-    
-    Predictions:
-    If possible save a trained model
-    Use exponential smoothing( Holt-Winters?), might be possible to use more powerful models than linear regression
-    -> Random Forest, Keep linear regression with Piecewise Linear Regression or time bucketing
-    
-    Anomalies:
-    We just assume a normal distribution of data
-    
-    Any other things we could implement?
-"""
 
-
-def preprocess_pc_data(df: DataFrame, state_id: int):
+def preprocess_pc_data(df: DataFrame):
     """
-    Preprocesses and analyzes data before inserting it into the database.
+    Preprocesses and groups data before inserting it into the database.
 
     Features:
         - Grouping the DataFrame by timestamp to create the total pc DataFrame.
-        - Detecting if an event has occured or not
-        - Find relevant applications to find out if events have occured in them
-        - Detecting events of relevant applications.
 
     Args:
         df (DataFrame): The DataFrame containing pc data to be inserted.
@@ -64,7 +39,7 @@ def preprocess_pc_data(df: DataFrame, state_id: int):
     return pc_total_df, event_list
 
 
-def forecast_disk_space(df, days):
+def forecast_disk_space(df: DataFrame, column: str, days):
     """
     Forecasts disk space allocation for a certain number of days.
 
@@ -83,11 +58,11 @@ def forecast_disk_space(df, days):
         last_timestamp: The timestamp where free disk space reaches 0 or less.
     """
     # read dataframe, elect only needed columns
-    df = df.filter(['measurement_time', 'free_disk_space'])
+    df = df.filter(['measurement_time', column])
     df = df.set_index(pd.to_datetime(df['measurement_time']).astype('int64') // 10 ** 6)
     # get latest timestamp, fit to model, extend dataframe by time input and predict values for it
     timestamp = df.index[-1]
-    LR = fit_linear_regression(df, 'free_disk_space')
+    LR = fit_linear_regression(df, column)
     df = manipulation.create_df_between(timestamp, days, 'D')
     df = predict_for_df(LR, df)
 
@@ -111,7 +86,11 @@ def analyze_application_data(df, application_name):
 
     Features:
         - Anomaly detection.
-        - Simple statistical math (standard deviation, mean).
+        - Change point detection
+        - Simple statistical math (standard deviation, mean, median).
+        - Calculate stability and trend statistics
+        - Justifications for why changes or anomalies have occurred
+
 
     Args:
         df (DataFrame): The DataFrame containing application data.
@@ -119,108 +98,96 @@ def analyze_application_data(df, application_name):
 
     Returns:
         df: The DataFrame containing application data.
-        event_list: The list of detected events
-        anomaly_list: The list of detected anomalies.
-        std: Standard deviation from mean, used for calculating "Stability".
-        mean: Average of the values.
+        ram_events_and_anomalies: The list of detected change points and anomalies for ram
+        cpu_events_and_anomalies: The list of detected change points and anomalies for cpu
+        statistic_data: Simple statistical data like mean, average, median, trend stats
     """
-    # find events
-    ram_event_points = get_event_measurement_times(df, 'ram')
-    # get stats
-    std_ram = df['ram'].std()
-    mean_ram = df['ram'].mean()
-    std_cpu = df['cpu'].std()
-    mean_cpu = df['cpu'].mean()
-
-    cov_ram = (std_ram / mean_ram) * 100  # stands for coefficient_of_variation
-    cov_cpu = (std_cpu / mean_cpu) * 100  # stands for coefficient_of_variation
-    stability_ram = determine_stability(cov_ram)
-    stability_cpu = determine_stability(cov_cpu)
+    # detect changes or events
+    ram_change_points = get_event_measurement_times(df,
+                                                    'ram')  # only do it for ram since it makes no sense to do it for cpu
 
     # find anomalies
-    anomaly_measurements_ram = detect_anomalies(df, 'ram')
-    anomaly_measurements_cpu = detect_anomalies(df, 'cpu')
+    anomalies_ram = detect_anomalies(df, 'ram')
+    anomalies_cpu = detect_anomalies(df, 'cpu')
 
-    ram_anomalies = justify_application_df(df, anomaly_measurements_ram, application_name, None, True)
-    ram_events_and_anomalies = justify_application_df(df, ram_event_points, application_name, ram_anomalies,
+    # get justifications for events and anomalies
+    ram_anomaly_justifications = justify_application_df(df, anomalies_ram, application_name, None, True)
+    ram_events_and_anomalies = justify_application_df(df, ram_change_points, application_name,
+                                                      ram_anomaly_justifications,
                                                       False)
-    cpu_events_and_anomalies = justify_application_df(df, anomaly_measurements_ram, application_name, None,
+    cpu_events_and_anomalies = justify_application_df(df, anomalies_cpu, application_name, None,
                                                       False)
 
-    return df, ram_events_and_anomalies, cpu_events_and_anomalies, anomaly_measurements_ram, anomaly_measurements_cpu, std_ram, std_cpu, mean_ram, mean_cpu, cov_ram, cov_cpu, stability_ram, stability_cpu
+    # get stats
+    statistic_data_ram = calculate_trend_statistics(df, 'ram')
+    statistic_data_cpu = calculate_trend_statistics(df, 'cpu')
+
+    # todo: maybe do justifications with data ranges instead of a fixed time?
+    # determine event anomaly ranges and save statistics of them in justifications
+    determine_event_ranges(df, ram_events_and_anomalies, 'ram')
+    determine_event_ranges(df, cpu_events_and_anomalies, 'cpu')
+
+    return df, ram_events_and_anomalies, cpu_events_and_anomalies, statistic_data_ram, statistic_data_cpu
 
 
-def analyze_pc_data(df, pc_total_df):
+def analyze_pc_data(df, pc_total_df, column: str):
     """
     Analyzes pc data, called by the client when fetching pc data of a certain category (like RAM).
 
     Features:
-        - Calculating allocation of applications.
-        - Simple statistical math (standard deviation, mean).
+        - Anomaly detection.
+        - Application allocation calculation
+        - Change point detection
+        - Simple statistical math (standard deviation, mean, median).
+        - Calculate stability and trend statistics
+        - Justifications for why changes or anomalies have occurred
+
 
     Args:
         df (DataFrame): The DataFrame containing application data.
         pc_total_df (DataFrame): The DataFrame containing total pc data.
         column (str): Column which should be analyzed like RAM (deprecated).
-
     Returns:
         pc_total_df: The DataFrame containing total pc data.
         anomaly_list: The list of detected anomalies
         allocation_list: The list of allocations (which application makes up how much percent of RAM/CPU usage).
         std: Standard deviation from mean, used for calculating "Stability".
         mean: Average of the values.
-    """
-    # get stats
-    std_ram = pc_total_df['ram'].std()
-    mean_ram = pc_total_df['ram'].mean()
-    std_cpu = pc_total_df['cpu'].std()
-    mean_cpu = pc_total_df['cpu'].mean()
-    # get allocation percentage for ram
-    latest_total_ram = pc_total_df.at[pc_total_df.index.max(), 'ram']
-    allocation_map_ram = stats.calc_allocation(latest_total_ram, 'ram', df)
-    allocation_list_ram = [AllocationClass(name=key, allocation=value) for key, value in
-                           allocation_map_ram.items()]  # convert map into list of our model object to send via json
 
-    # get allocation percentage for cpu, no calculation needed
-    allocation_list_cpu = []
-    for index, row in df.iterrows():
-        allocation_instance = AllocationClass(name=row['name'], allocation=row['cpu'])
-        allocation_list_cpu.append(allocation_instance)
+    """
+    if column == 'ram':
+        latest_total_ram = pc_total_df.at[pc_total_df.index.max(), 'value']
+        allocation_map = stats.calc_allocation(latest_total_ram, column, df)
+        allocation_list = [AllocationClass(name=key, allocation=value) for key, value in
+                           allocation_map.items()]  # convert map into list of our model object to send via json
+    elif column == 'cpu':  # get allocation percentage for cpu, no calculation needed
+        allocation_list = []
+        for index, row in df.iterrows():
+            allocation_instance = AllocationClass(name=row['name'], allocation=row[column])
+            allocation_list.append(allocation_instance)
 
     # sort allocations by impact
-    allocation_list_cpu = sorted(allocation_list_cpu, key=lambda cpu: cpu.allocation, reverse=True)
-    allocation_list_ram = sorted(allocation_list_ram, key=lambda ram: ram.allocation, reverse=True)
+    allocation_list = sorted(allocation_list, key=lambda ram: ram.allocation, reverse=True)
 
     # detect anomalies
-    anomaly_measurements_ram = detect_anomalies(pc_total_df, 'ram')
-    anomaly_measurements_cpu = detect_anomalies(pc_total_df, 'cpu')
+    anomaly_measurements = detect_anomalies(pc_total_df, 'value')
 
     # detect changes / events
-    ram_change_points = get_event_measurement_times(pc_total_df, 'ram')
+    change_points = get_event_measurement_times(pc_total_df, 'value')
 
     # justifies events and anomalies
-    ram_anomalies = justify_pc_data_points(pc_total_df, anomaly_measurements_ram, None, 1, True)  # TODO: change pc_id
-    ram_event_justifications = justify_pc_data_points(pc_total_df, ram_change_points, ram_anomalies, 1,
-                                                      False)  # TODO: change pc_id
-    cpu_event_anomaly_justifications = justify_pc_data_points(pc_total_df, anomaly_measurements_cpu,
-                                                              ram_event_justifications, 1, False)  # TODO: change pc_id
+    anomalies = justify_pc_data_points(pc_total_df, anomaly_measurements, None, 1, True)
+    events_and_anomalies = justify_pc_data_points(pc_total_df, change_points, anomalies, 1, False)
 
-    cov_ram = (std_ram / mean_ram) * 100  # stands for coefficient_of_variation
-    cov_cpu = (std_cpu / mean_cpu) * 100  # stands for coefficient_of_variation
-    stability_ram = determine_stability(cov_ram)
-    stability_cpu = determine_stability(cov_cpu)
+    # get stats
+    statistic_data = calculate_trend_statistics(pc_total_df, 'value')
+    determine_event_ranges(pc_total_df, events_and_anomalies, 'value')
 
-    return pc_total_df, allocation_list_ram, allocation_list_cpu, std_ram, mean_ram, std_cpu, mean_cpu, ram_event_justifications, cpu_event_anomaly_justifications, cov_ram, cov_cpu, stability_ram, stability_cpu
+    return pc_total_df, allocation_list, events_and_anomalies, statistic_data
 
 
-def analyze_trends():
-    """
-    Analyzes application & pc trends, in order for that it groups data sets by date intervals
-    :return:
-    """
-
-
-def check_for_alerts(user_id: int, custom_alert_list: List[CustomAlert], pc_df: DataFrame, start, end) -> List[AlertNotification]:
+def check_for_alerts(user_id: int, custom_alert_list: List[CustomAlert], pc_df: DataFrame, start, end) -> List[
+    AlertNotification]:
     """
     Checks for alerts that have appeared in a specified timeframe
     :return:
