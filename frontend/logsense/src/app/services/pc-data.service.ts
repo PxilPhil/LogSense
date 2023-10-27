@@ -3,6 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {PCData, TimeSeriesList} from "../model/PCData";
 import {RAMModel} from "../model/Ram";
+import {CPUModel} from "../model/Cpu";
 
 @Injectable({
   providedIn: 'root'
@@ -27,4 +28,8 @@ export class PCDataService {
     return this.httpClient.get<RAMModel>(url);
   }
 
+  getCPUData(pc_id: number, start: string, end: string):Observable<CPUModel> {
+    const url: string = `http://localhost:8000/pc/${pc_id}/cpu?start=${start}&end=${end}`;
+    return this.httpClient.get<CPUModel>(url);
+  }
 }

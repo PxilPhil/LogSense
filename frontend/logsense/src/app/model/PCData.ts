@@ -19,6 +19,12 @@ export class ProcessList {
 export class EventList {
   events_and_anomalies: EventData[] = [];
 }
+export class EventChartData {
+  time: string = "";
+  value: number = 0;
+  msg: string = "";
+}
+
 export class EventData {
   timestamp: string = "";
   //till_timestamp: string = "";

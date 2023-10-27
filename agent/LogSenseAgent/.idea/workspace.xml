@@ -6,9 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="a3b0c86a-56b9-40a5-bdfe-abebb08d5502" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/app.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/cpu/cpu.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/cpu/cpu.component.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/cpu/cpu.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/cpu/cpu.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/model/Cpu.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/model/Cpu.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/model/PCData.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/model/PCData.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/model/Ram.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/model/Ram.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/overview/overview.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/overview/overview.component.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/ram/ram.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/ram/ram.component.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/ram/ram.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/ram/ram.component.ts" afterDir="false" />
@@ -92,7 +94,8 @@
       <workItem from="1698078871549" duration="1086000" />
       <workItem from="1698128511953" duration="17000" />
       <workItem from="1698308090140" duration="644000" />
-      <workItem from="1698332714797" duration="625000" />
+      <workItem from="1698332714797" duration="626000" />
+      <workItem from="1698395157869" duration="1221000" />
     </task>
     <servers />
   </component>

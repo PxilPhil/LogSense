@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {Chart, registerables} from 'chart.js';
-import {CPUModel} from "../cpu/cpu.component";
+import {CPUModel} from "../model/Cpu";
 import {RAMModel} from "../model/Ram";
 import {TimeModel} from "../disk/disk.component";
 import {ApiService} from '../services/api-service.service';

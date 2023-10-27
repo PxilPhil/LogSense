@@ -26,7 +26,8 @@ import {HttpClientModule} from '@angular/common/http';
 import {MatDividerModule} from "@angular/material/divider";
 import { CustomAlertsComponent } from './custom-alerts/custom-alerts.component';
 import { TimeMetricsComponent } from './time-metrics/time-metrics.component';
-import { AlertsComponent } from './alerts/alerts.component'; // Import HttpClientModule
+import { AlertsComponent } from './alerts/alerts.component';
+import {MatRadioModule} from "@angular/material/radio"; // Import HttpClientModule
 
 @NgModule({
   declarations: [
@@ -58,7 +59,8 @@ import { AlertsComponent } from './alerts/alerts.component'; // Import HttpClien
         MatInputModule,
         MatDialogModule,
         HttpClientModule,
-        MatDividerModule
+        MatDividerModule,
+        MatRadioModule
     ],
   providers: [DatePipe],
   bootstrap: [AppComponent]

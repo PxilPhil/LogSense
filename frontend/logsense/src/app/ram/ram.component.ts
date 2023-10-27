@@ -55,7 +55,7 @@ export class RamComponent implements OnInit {
   ];
   selectedTime: TimeModel = this.times[0];
 
-  showAllProcesses: boolean = false;
+  showAllProcesses: boolean = true;
 
   constructor(private pcDataService: PCDataService, private  datePipe: DatePipe, private resourceService: ResourceMetricsService) {
   }
@@ -157,7 +157,7 @@ export class RamComponent implements OnInit {
     this.ramData.time = [];
     this.ramData.value = [];
     for (let dataPoint of this.ram.time_series_list) {
-      this.ramData.time.push(dataPoint.measurement_time);
+      this.ramData.time.push(this.datePipe.transform(dataPoint.measurement_time, 'MM-dd HH:mm:ss')??"");
       this.ramData.value.push(this.roundDecimal(this.convertBytesToGigaBytes(dataPoint.value), 2));
     }
     this.ram.allocation_list.forEach((value, index) => {

@@ -88,8 +88,9 @@
         </div>
         <div class="processes" *ngFor="let process of displayedProcesses; let last = last">
           <span class="txt-16 nowrap mar-bot-5">{{process.name}}</span>
-          <span [ngClass]="{'mar-bot-5': !last}"
-                class="txt-16 mar-bot-5 text-right">{{process.allocation}}%</span>
+          <span *ngIf="process.allocation==0" class="txt-16 mar-bot-5 text-right">
+              < 0.01%</span>
+          <span *ngIf="process.allocation>0" class="txt-16 mar-bot-5 text-right">{{process.allocation}}%</span>
         </div>
         <span class="link" (click)="showAll()" *ngIf="!showAllProcesses">Show All</span>
         <span class="link" (click)="showAll()" *ngIf="showAllProcesses">Show Less</span>

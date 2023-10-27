@@ -15,9 +15,19 @@
         <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24" (change)="loadStats(); loadData();">
           <option *ngFor="let elem of times" [ngValue]="elem">{{elem.time}}</option>
         </select>
-        <canvas class="white-bg w-100" id="usage"></canvas>
+        <canvas *ngIf="cpuChart" class="white-bg w-100" id="usage"></canvas>
+        <canvas *ngIf="eventChart" class="white-bg w-100" id="events"></canvas>
+        <canvas *ngIf="anomalyChart" class="white-bg w-100" id="anomalies"></canvas>
         <div class="flex-center mar-top-12">
-          <div class="form-check">
+          <mat-radio-group
+            aria-labelledby="example-radio-group-label"
+            class="example-radio-group"
+            [(ngModel)]="checked" (change)="reloadChart()">
+            <mat-radio-button class="example-radio-button" *ngFor="let option of radioOptions" [value]="option">
+              {{option}}
+            </mat-radio-button>
+          </mat-radio-group>
+          <!--<div class="form-check">
             <input class="form-check-input" id="events" type="checkbox" value="">
             <span class="txt-16">Show Events</span>
           </div>
@@ -25,7 +35,7 @@
             <input checked class="form-check-input" id="anomalies" type="checkbox" value="">
             <span class="txt-16">Show Anomalies</span>
           </div>
-        </div>
+        </div>-->
       </div>
       <div class="stats">
         <h3 class="mar-bot-24">Statistics ({{selectedTime.time}})</h3>
@@ -111,10 +121,11 @@
             <span class="txt-16 bold mar-bot-12">Name</span>
             <span class="txt-16 bold mar-bot-12 nowrap">CPU Allocation</span>
           </div>
-          <div class="processes" *ngFor="let process of processes; let last = last">
+          <div class="processes" *ngFor="let process of displayedProcesses; let last = last">
             <span class="txt-16 nowrap mar-bot-5">{{process.name}}</span>
-            <span [ngClass]="{'mar-bot-5': !last}"
-                  class="txt-16 mar-bot-5 text-right">{{process.allocation}}%</span>
+            <span *ngIf="process.allocation==0" class="txt-16 mar-bot-5 text-right">
+              < 0.01%</span>
+            <span *ngIf="process.allocation>0" class="txt-16 mar-bot-5 text-right">{{process.allocation}}%</span>
           </div>
           <span class="link" (click)="showAll()" *ngIf="!showAllProcesses">Show All</span>
           <span class="link" (click)="showAll()" *ngIf="showAllProcesses">Show Less</span>
