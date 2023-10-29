@@ -30,6 +30,18 @@ export class ChartData {
   value: number[] = [];
 }
 
+export class ChartDataset {
+  type: string = "";
+  label?: string; // Die Beschriftung des Datensatzes
+  data: number[] = []; // Ein Array von Y-Werten
+  borderColor?: string; // Die Farbe der Linie
+  backgroundColor?: string; // Die Farbe des Bereichs unter der Linie
+  borderWidth?: number; // Die Linienbreite
+  fill?: boolean; // Ob der Bereich unter der Linie gefüllt werden soll
+  order?: number;
+  // Weitere Eigenschaften können hinzugefügt werden, je nach Bedarf
+}
+
 @Component({
   selector: 'app-ram',
   templateUrl: './ram.component.html',

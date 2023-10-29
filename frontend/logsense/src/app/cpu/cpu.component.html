@@ -15,9 +15,7 @@
         <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24" (change)="loadStats(); loadData();">
           <option *ngFor="let elem of times" [ngValue]="elem">{{elem.time}}</option>
         </select>
-        <canvas *ngIf="cpuChart" class="white-bg w-100" id="usage"></canvas>
-        <canvas *ngIf="eventChart" class="white-bg w-100" id="events"></canvas>
-        <canvas *ngIf="anomalyChart" class="white-bg w-100" id="anomalies"></canvas>
+        <canvas class="white-bg w-100" id="usage"></canvas>
         <div class="flex-center mar-top-12">
           <mat-radio-group
             aria-labelledby="example-radio-group-label"
@@ -37,7 +35,7 @@
           </div>
         </div>-->
       </div>
-      <div class="stats">
+      <div class="stats mar-top-24">
         <h3 class="mar-bot-24">Statistics ({{selectedTime.time}})</h3>
         <div class="white-bg">
           <span class="txt-16">{{cpuGeneral.processor_name}}</span>
@@ -69,10 +67,10 @@
     </div>
   </div>
 
-  <div class="mar-top-32 pad-left-64 pad-right-128">
+  <div class="mar-top-32">
     <app-alerts [alerts]="alerts"></app-alerts>
   </div>
-  <div class="pad-left-64 pad-bot-64 pad-right-128 align-general mar-top-32 w-100">
+  <div class="pad-bot-64 align-general mar-top-32 w-100">
     <div [ngClass]="{'show-all-true': showAllProcesses, 'wrapper': !showAllProcesses}">
       <div [ngClass]="{'first-all': showAllProcesses, 'first': !showAllProcesses}">
         <h2 class="mar-bot-24">General</h2>

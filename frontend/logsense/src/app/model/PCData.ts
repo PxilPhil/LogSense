@@ -27,7 +27,7 @@ export class EventChartData {
 
 export class EventData {
   timestamp: string = "";
-  //till_timestamp: string = "";
+  till_timestamp: string = "";
   is_anomaly: boolean = false;
   justification_message: string = "";
   statistics: StatisticData = new StatisticData();
