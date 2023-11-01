@@ -10,7 +10,7 @@ from data_analytics.alerts import check_for_custom_alerts
 from data_analytics.change_anomaly_detection import get_event_measurement_times, detect_events, detect_anomalies
 from data_analytics.forecasting import fit_linear_regression, predict_for_df
 from data_analytics.justification import justify_pc_data_points, justify_application_df
-from data_analytics.stats import calculate_trend_statistics
+from data_analytics.stats import calculate_trend_statistics, create_statistics_message, append_statistics_message
 from data_analytics.trend_analysis import determine_event_ranges
 from db_access.pc import get_ram_time_series_limited
 from model.alerts import CustomAlert, AlertNotification
@@ -124,8 +124,10 @@ def analyze_application_data(df, application_name):
                                                       False)
 
     # get stats
-    statistic_data_ram = calculate_trend_statistics(df, 'ram')
-    statistic_data_cpu = calculate_trend_statistics(df, 'cpu')
+    statistic_data_ram = calculate_trend_statistics(df, 'ram', 'RAM')
+    statistic_data_ram.message = append_statistics_message(statistic_data_ram.message, len(ram_change_points), len(anomalies_ram), len(df))
+    statistic_data_cpu = calculate_trend_statistics(df, 'cpu', 'CPU')
+    statistic_data_cpu.message = append_statistics_message(statistic_data_cpu.message, len(anomalies_cpu), len(anomalies_cpu), len(df))
 
     # determine event anomaly ranges and save statistics of them in justifications
     determine_event_ranges(df, ram_events_and_anomalies, 'ram')
@@ -134,7 +136,7 @@ def analyze_application_data(df, application_name):
     return df, ram_events_and_anomalies, cpu_events_and_anomalies, statistic_data_ram, statistic_data_cpu
 
 
-def analyze_pc_data(pc_id: int, df, pc_total_df, column: str):
+def analyze_pc_data(pc_id: int, df, pc_total_df, name: str):
     """
     Analyzes pc data, called by the client when fetching pc data of a certain category (like RAM).
 
@@ -160,15 +162,15 @@ def analyze_pc_data(pc_id: int, df, pc_total_df, column: str):
         :param pc_id:
 
     """
-    if column == 'ram':
+    if name == 'ram':
         latest_total_ram = pc_total_df.at[pc_total_df.index.max(), 'value']
-        allocation_map = stats.calc_allocation(latest_total_ram, column, df)
+        allocation_map = stats.calc_allocation(latest_total_ram, name, df)
         allocation_list = [AllocationClass(name=key, allocation=value) for key, value in
                            allocation_map.items()]  # convert map into list of our model object to send via json
-    elif column == 'cpu':  # get allocation percentage for cpu, no calculation needed
+    elif name == 'cpu':  # get allocation percentage for cpu, no calculation needed
         allocation_list = []
         for index, row in df.iterrows():
-            allocation_instance = AllocationClass(name=row['name'], allocation=row[column])
+            allocation_instance = AllocationClass(name=row['name'], allocation=row[name])
             allocation_list.append(allocation_instance)
 
     # sort allocations by impact
@@ -179,8 +181,8 @@ def analyze_pc_data(pc_id: int, df, pc_total_df, column: str):
     training_df = pc_total_df  # dataframe used to train the models
 
     # fetch more data if needed to avoid underfittng
-    if len(df.index) < 24:  # arbitrary value used
-        training_df, extended_list = get_ram_time_series_limited(pc_id, 50)
+    if len(df.index) < 50:  # arbitrary value used
+        training_df, extended_list = get_ram_time_series_limited(pc_id, 100)
 
     # detect anomalies
     anomaly_measurements = detect_anomalies(pc_total_df, training_df, 'value')
@@ -193,7 +195,9 @@ def analyze_pc_data(pc_id: int, df, pc_total_df, column: str):
     events_and_anomalies = justify_pc_data_points(pc_total_df, change_points, anomalies, 1, False)
 
     # get stats
-    statistic_data = calculate_trend_statistics(pc_total_df, 'value')
+    statistic_data = calculate_trend_statistics(pc_total_df, 'value', name)
+    statistic_data.message = append_statistics_message(statistic_data.message, len(change_points), len(anomaly_measurements), len(pc_total_df))
+
     determine_event_ranges(pc_total_df, events_and_anomalies, 'value')
 
     return pc_total_df, allocation_list, events_and_anomalies, statistic_data
