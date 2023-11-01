@@ -62,6 +62,7 @@ def getCustomAlerts(user_id: int) -> CustomAlerts:
         custom_alerts = CustomAlerts(
             custom_alert_list=[
                 CustomAlert(
+                    id=anomaly[0],
                     user_id=anomaly[1],
                     type=anomaly[2],
                     message=anomaly[4],
@@ -77,5 +78,25 @@ def getCustomAlerts(user_id: int) -> CustomAlerts:
         print(str(e))
         # Handle exceptions as needed.
         raise e  # DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
+
+
+def deleteCustomAlerts(alert_id: int):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        query = """
+            DELETE FROM anomaly WHERE id = %s
+        """
+        cursor.execute(query, (alert_id,))
+        conn.commit()
+        return True, "Delete successful!"
+    except psycopg2.DatabaseError as e:
+        if e.pgcode == "23503":
+            return False, "The specified ID was not found."
+        else:
+            return False, "An error occurred:"+ e.__str__()
+
     finally:
         conn_pool.putconn(conn)
