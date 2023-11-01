@@ -26,6 +26,7 @@ SELECT
     AVG(app.bitness) AS bitness,
     AVG(app.thread_count) AS thread_count,
     AVG(app.uptime) AS uptime,
+    AVG(app.open_files) AS open_files,
     SUM(app.process_count_difference) AS process_count_difference
 FROM
     applicationdata app

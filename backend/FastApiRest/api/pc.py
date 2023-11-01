@@ -67,7 +67,7 @@ def add_pc_api(data: PCItem = Body(...)):
 
 
 @pc.get('/{pc_id}/ram', response_model=PCData, tags=["PC"])
-def get_pc_ram(pc_id: int, start: str, end: str):
+def get_pc_ram(pc_id: int, start: str, end: str, bucket_value: str = '1 minutes'):
     """
     Get data from PCs by ID and for a defined type like RAM or CPU
 
@@ -79,7 +79,7 @@ def get_pc_ram(pc_id: int, start: str, end: str):
         :param start:
         :param end:
     """
-    ram_df, time_series = db_access.pc.get_ram_time_series_between(pc_id, start, end)
+    ram_df, time_series = db_access.pc.get_ram_time_series_between(pc_id, start, end, bucket_value)
 
     df, application_data_list = get_latest_application_data(pc_id, 1, None)
     if df is None or ram_df is None:
@@ -102,7 +102,7 @@ def get_pc_ram(pc_id: int, start: str, end: str):
 
 
 @pc.get('/{pc_id}/cpu', response_model=PCData, tags=["PC"])
-def get_pc_cpu(pc_id: int, start: str, end: str):
+def get_pc_cpu(pc_id: int, start: str, end: str, bucket_value: str = '1 minutes'):
     """
     Get data from PCs by ID and for a defined type like RAM or CPU
 
@@ -114,7 +114,7 @@ def get_pc_cpu(pc_id: int, start: str, end: str):
         :param start:
         :param end:
     """
-    cpu_df, time_series = db_access.pc.get_cpu_time_series_between(pc_id, start, end)
+    cpu_df, time_series = db_access.pc.get_cpu_time_series_between(pc_id, start, end, bucket_value)
 
     df, application_data_list = get_latest_application_data(pc_id, 1, None)
     if df is None or cpu_df is None:
