@@ -1,5 +1,5 @@
 import {Component, Inject, LOCALE_ID, OnInit} from '@angular/core';
-import {Chart} from "chart.js";
+import {Chart, ChartTypeRegistry, TooltipItem} from "chart.js";
 import {CPUGeneral, CPUModel, CPUStats} from "../model/Cpu";
 import {CpuService} from "../services/cpu.service";
 import {PCDataService} from "../services/pc-data.service";
@@ -106,14 +106,14 @@ export class CpuComponent implements OnInit {
       }
     }
   }
-  destroyCharts() {
+  destroyChart() {
     if(this.cpuChart) {
       this.cpuChart.destroy();
     }
   }
 
   showAnomalyChart() {
-    this.destroyCharts();
+    this.destroyChart();
     this.cpuChart = new Chart("usage", {
       data: {
         datasets: [{
@@ -145,22 +145,16 @@ export class CpuComponent implements OnInit {
           },
           tooltip: {
             callbacks: {
-              label: function (context) {
-                let label = context.dataset.label || '';
-                if (label) {
-                  label += ' ';
-                }
-                label += context.parsed.y + ' %';
-                return label;
-              }
+              label: (context) => this.getEventMsg(context)
             }
           }
         }
       }
     })
   }
+
   showAllChart() {
-    this.destroyCharts();
+    this.destroyChart();
     this.cpuChart = new Chart("usage", {
       data: {
         datasets: this.getEventDataSet(),
@@ -179,14 +173,7 @@ export class CpuComponent implements OnInit {
           },
           tooltip: {
             callbacks: {
-              label: function (context) {
-                let label = context.dataset.label || '';
-                if (label) {
-                  label += ' ';
-                }
-                label += context.parsed.y + ' %';
-                return label;
-              }
+              label: (context) => this.getEventMsg(context)
             }
           }
         }
@@ -194,6 +181,19 @@ export class CpuComponent implements OnInit {
     })
   }
 
+  getEventMsg(context: TooltipItem<keyof ChartTypeRegistry>): string[] {
+    let msg: string = "";
+    if(context.dataset.borderColor != "#3e95cd") {
+      this.cpu.events_and_anomalies.forEach((data, index) => {
+        if(Date.parse(context.label) <= Date.parse(data.timestamp) && Date.parse(context.label) >= Date.parse(data.till_timestamp)) {
+          msg = data.justification_message;
+        }
+      });
+    } else {
+      msg += context.parsed.y + "%";
+    }
+    return msg.split("\n");
+  }
   getEventDataSet() {
     let dataset: any[] = [{
       type: 'line',
@@ -216,22 +216,24 @@ export class CpuComponent implements OnInit {
   }
 
   getEvents(){
+    console.log("e1: " +  this.cpu.events_and_anomalies);
     let events: any[] = [];
     var success: boolean = false;
     var inEvent: boolean = false;
-
+    console.log(this.cpu);
     this.cpu.events_and_anomalies.forEach((event, eventIndex) => {
       if(!event.is_anomaly) {
         let tmpEvent: any[] = [];
         this.cpu.time_series_list.forEach((data, dataIndex) => {
-          if(data.measurement_time == event.timestamp) {
+          if(data.measurement_time == event.till_timestamp) {
+            console.log(data.measurement_time + "\n" + event.till_timestamp + "->" + event.timestamp);
             inEvent = true;
-            tmpEvent.push(data.value * 100);
-          } else if(data.measurement_time == event.till_timestamp) {
-            tmpEvent.push(data.value * 100);
+            tmpEvent.push(this.roundDecimal(data.value*100, 2));
+          } else if(data.measurement_time == event.timestamp) {
+            tmpEvent.push(this.roundDecimal(data.value*100, 2));
             inEvent = false;
           } else if(inEvent) {
-            tmpEvent.push(data.value * 100);
+            tmpEvent.push(this.roundDecimal(data.value*100, 2));
           } else {
             tmpEvent.push(null);
           }
@@ -254,7 +256,7 @@ export class CpuComponent implements OnInit {
       }
       success=false;
     })*/
-    console.log(events);
+    console.log("e1: " + this.cpu.events_and_anomalies);
     return events;
   }
 
@@ -279,7 +281,7 @@ export class CpuComponent implements OnInit {
   }
 
   usageChart(): void {
-    this.destroyCharts();
+    this.destroyChart();
     this.cpuChart = new Chart("usage", {
       type: "line",
       data: {
@@ -351,8 +353,6 @@ export class CpuComponent implements OnInit {
         this.cpu = data;
         this.transformData();
         this.showAll();
-
-          this.getEvents();
         this.reloadChart();
       });
     } else {
@@ -367,6 +367,8 @@ export class CpuComponent implements OnInit {
   }
 
   transformData() {
+    console.log("t1: " + this.cpu.events_and_anomalies);
+    this.cpu.time_series_list.reverse();
     this.cpuData.time = [];
     this.cpuData.value = [];
     for (let dataPoint of this.cpu.time_series_list) {;
@@ -376,6 +378,7 @@ export class CpuComponent implements OnInit {
     this.cpu.allocation_list.forEach((value, i) => {
       this.cpu.allocation_list[i].allocation = this.roundDecimal(this.cpu.allocation_list[i].allocation * 100, 2);
     });
+    console.log("t2: " + this.cpu.events_and_anomalies);
   }
 
   convertBytesToGigaBytes(valueInBytes: number): number {
