@@ -14,9 +14,9 @@ export class CPUGeneral {
 }
 
 export class CPUStats {
-  mean_cpu: number = 0;
-  stability_cpu: string = "";
-  cur_cpu: number = 0;
+  avg_cpu_usage_percentage_last_day: number = 0;
+  cpu_percentage_use: number = 0;
+  cpu_stability: string = "";
 }
 
 export class CPUModel {

@@ -26,15 +26,15 @@
         <h3 class="mar-bot-24">Statistics ({{selectedTime.time}})</h3>
         <div class="white-bg">
           <div class="align-general">
-            <div class="align-txt">
+            <div class="align-txt w-100">
               <span class="txt-16">Total Memory</span>
               <span class="txt-16">Free Memory</span>
               <span class="txt-16">Page Size</span>
             </div>
-            <div class="align-txt mar-left-32">
-              <!--<span class="txt-16">{{ram.totalMemory}}</span>
-              <span class="txt-16">{{ram.freeMemory}}</span>
-              <span class="txt-16">{{ram.pageSize}}</span>-->
+            <div class="align-txt mar-left-32 w-100">
+              <span class="txt-16 text-right">{{ramStats.total}} GB</span>
+              <span class="txt-16 text-right">{{ramStats.free}} GB</span>
+              <span class="txt-16 text-right">{{ramStats.page}} Byte</span>
             </div>
           </div>
 
@@ -44,7 +44,7 @@
                 Current
               </span>
               <div class="value">
-                <!--{{ram.current}}%-->
+                {{ramStats.cur}}%
               </div>
             </div>
             <div class="white-box txt-16 sec">
@@ -52,7 +52,7 @@
                 Average
               </span>
               <div class="value">
-                {{ram.statistic_data.average}}%
+                {{ramStats.avg}}%
               </div>
             </div>
             <div class="white-box txt-16">
@@ -60,7 +60,7 @@
                 Stability
               </span>
               <div class="value">
-                {{ram.statistic_data.message}}
+                {{ramStats.stability}}
               </div>
             </div>
           </div>

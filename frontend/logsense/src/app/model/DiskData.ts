@@ -1,4 +1,7 @@
+import {TimeSeriesData} from "./PCData";
+
 export class DiskData {
+  time_series_data: TimeSeriesData[] = [];
   disks: DiskStore[] = [];
 }
 

@@ -43,19 +43,19 @@
             <div class="white-box txt-16">
               <span class="jus-center">Current</span>
               <div class="value">
-                {{cpuStats.cur_cpu}}%
+                {{cpuStats.cpu_percentage_use}}%
               </div>
             </div>
             <div class="white-box txt-16 sec">
               <span class="jus-center">Average</span>
               <div class="value">
-                {{cpuStats.mean_cpu}}%
+                {{cpuStats.avg_cpu_usage_percentage_last_day}}%
               </div>
             </div>
             <div class="white-box txt-16">
               <span class="jus-center">Stability</span>
               <div class="value nowrap">
-                {{cpuStats.stability_cpu}}
+                {{cpuStats.cpu_stability}}
               </div>
             </div>
           </div>
@@ -131,4 +131,5 @@
       </div>
     </div>
   </div>
+</div>
 </div>

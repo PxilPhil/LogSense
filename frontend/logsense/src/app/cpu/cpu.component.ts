@@ -8,6 +8,8 @@ import {PCData, Process, TimeSeriesList} from "../model/PCData";
 import {ChartData, ChartDataset} from "../ram/ram.component";
 import _default from "chart.js/dist/core/core.interaction";
 import index = _default.modes.index;
+import {ResourceMetricsService} from "../services/resource-metrics.service";
+import {ResourceMetricsModel} from "../model/ResourceMetrics";
 
 /*export class CPUModel {
   cpuName: String = "AMD Ryzen 7 5800H";
@@ -64,7 +66,7 @@ export class CpuComponent implements OnInit {
   checked: String = "";
   radioOptions: String[] = ["Show None", "Show Anomalies", "Show Events and Anomalies"];
 
-  constructor(private cpuService: CpuService, private pcDataService: PCDataService, private datePipe: DatePipe, @Inject(LOCALE_ID) public locale: string) {}
+  constructor(private cpuService: CpuService, private pcDataService: PCDataService, private datePipe: DatePipe, @Inject(LOCALE_ID) public locale: string, private statService: ResourceMetricsService) {}
 
   ngOnInit() {
     this.loadData();
@@ -326,24 +328,11 @@ export class CpuComponent implements OnInit {
   }
 
   loadStats() {
-    let pcData: PCData = new PCData();
-    let dateNow = Date.now();
-    if(this.selectedTime.valueInMilliseconds != 0) {
-      this.pcDataService.getPcData(1, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "").subscribe((data: PCData) => {
-        pcData = data;
-        this.cpuStats.mean_cpu = this.roundDecimal(pcData.mean_cpu, 2);
-        this.cpuStats.stability_cpu = pcData.stability_cpu;
-        this.cpuStats.cur_cpu = this.roundDecimal(pcData.time_series_list[0].cpu, 2);
-      });
-    } else {
-      this.pcDataService.getPcData(1, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "").subscribe((data: PCData) => {
-        pcData = data;
-        this.cpuStats.mean_cpu = this.roundDecimal(pcData.mean_cpu, 2);
-        this.cpuStats.stability_cpu = pcData.stability_cpu;
-        this.cpuStats.cur_cpu = this.roundDecimal(pcData.time_series_list[0].cpu, 2);
-      });
-    }
-
+    this.statService.getResourceMetrics(1).subscribe((data: ResourceMetricsModel) => {
+      this.cpuStats.avg_cpu_usage_percentage_last_day = this.roundDecimal(data.avg_cpu_usage_percentage_last_day, 2);
+      this.cpuStats.cpu_stability = data.cpu_stability;
+      this.cpuStats.cpu_percentage_use = this.roundDecimal(data.cpu_percentage_use, 2);
+    });
   }
 
   loadData() {

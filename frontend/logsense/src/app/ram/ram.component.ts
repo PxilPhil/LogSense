@@ -9,6 +9,7 @@ import {RAMModel, RamStats} from "../model/Ram";
 import {ResourceMetricsService} from "../services/resource-metrics.service";
 import _default from "chart.js/dist/core/core.interaction";
 import index = _default.modes.index;
+import {ResourceMetricsModel} from "../model/ResourceMetrics";
 
 /*export class RAMModel {
   totalMemory: Number = 17.02; //GB
@@ -69,7 +70,7 @@ export class RamComponent implements OnInit {
 
   showAllProcesses: boolean = true;
 
-  constructor(private pcDataService: PCDataService, private  datePipe: DatePipe, private resourceService: ResourceMetricsService) {
+  constructor(private statsService: ResourceMetricsService, private pcDataService: PCDataService, private  datePipe: DatePipe, private resourceService: ResourceMetricsService) {
   }
 
   showAll() {
@@ -90,7 +91,7 @@ export class RamComponent implements OnInit {
     this.showAllProcesses = !this.showAllProcesses;
   }
   ngOnInit() {
-    //this.loadStats() // TODO: soboids den API Call gibt Stats lodn
+    this.loadStats();
     this.loadData();
   }
 
@@ -134,17 +135,15 @@ export class RamComponent implements OnInit {
       },
     });
   }
-
   loadStats() {
-    /*let pcData: PCData = new PCData();
-    let dateNow = Date.now();
-    if(this.selectedTime.valueInMilliseconds != 0) {
-      this.pcDataService.getPcData(1, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "").subscribe((data: PCData) => {
-        pcData = data;
-        this.ramStats.stability = pcData.stability_ram;
-      });
-      //this.resourceService.getResourceMetrics(1)
-    }*/
+    this.statsService.getResourceMetrics(1).subscribe((data: ResourceMetricsModel) => {
+      this.ramStats.avg = this.roundDecimal(data.avg_ram_usage_percentage_last_day, 2);
+      this.ramStats.cur = this.roundDecimal(data.ram_percentage_in_use, 2);
+      this.ramStats.stability = data.ram_stability;
+      this.ramStats.free = this.roundDecimal(this.convertBytesToGigaBytes(data.free_memory), 2);
+      this.ramStats.page = data.page_size;
+      this.ramStats.total = this.roundDecimal(this.convertBytesToGigaBytes(data.total_memory), 2);
+    });
   }
   loadData() {
     let dateNow = Date.now();

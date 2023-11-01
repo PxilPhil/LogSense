@@ -106,14 +106,13 @@ Content-Disposition: form-data; name="files[]"; filename="file2.txt"
 GET http://localhost:8000/pc/1/ram?start=2023-02-25 10:20:16&end=2023-12-25 12:33:01
 
 ### get cpu pc timeseries data###
-GET http://localhost:8000/pc/1/cpu?start=2023-02-25 10:20:16&end=2023-12-25 12:33:01
+GET http://localhost:8000/pc/1/cpu?start=2023-10-30 21:58:16&end=2023-10-31 21:58:16
 
 ### get disks timeseries data
 GET http://localhost:8000/pc/1/disk?start=2023-02-25 10:20:16&end=2023-12-25 12:33:01
 
 ### get pc time metrics
 GET http://localhost:8000/pc/1/time-metrics/?start=2022-08-25 10:20:16&end=2023-12-25 10:33:01
-
 
 ### get application time metrics
 GET http://localhost:8000/pc/1/application/java/time-metrics/?start=2023-07-25 10:20:16&end=2023-12-25 10:33:01
@@ -128,7 +127,7 @@ GET http://localhost:8000/pc/1/application/?start=2022-07-25 10:20:16&end=2023-1
 GET http://localhost:8000/pc/1/data/forecast/30
 
 ### get alerts
-GET http://localhost:8000/alerts/1?start=2023-07-25 10:20:16&end=2023-09-25 10:33:01
+GET http://localhost:8000/alerts/1?start=2023-07-25 10:20:16&end=2023-10-25 10:33:01
 
 ### get all possible alerts
 GET http://localhost:8000/alerts/all/1
@@ -138,20 +137,20 @@ GET http://localhost:8000/alerts/justify/1
 Content-Type: application/json
 
     [
-      "2023-08-02T16:51:12.816000",
-      "2023-08-02T16:52:55.264000",
-      "2023-08-02T16:54:28.269000",
-      "2023-08-02T16:56:02.418000",
-      "2023-08-02T16:57:33.203000",
-      "2023-08-02T16:59:05.950000",
-      "2023-08-02T17:00:45.167000",
-      "2023-08-02T17:02:12.057000",
-      "2023-08-02T17:03:34.686000",
-      "2023-08-02T17:04:59.088000",
-      "2023-08-02T17:06:18.701000",
-      "2023-08-02T17:25:59.911000",
-      "2023-08-02T17:27:42.133000",
-      "2023-08-02T17:29:20.280000"
+      "2023-10-29T16:51:12.816000",
+      "2023-10-29T16:52:55.264000",
+      "2023-10-29T16:54:28.269000",
+      "2023-10-29T16:56:02.418000",
+      "2023-10-29T16:57:33.203000",
+      "2023-10-29T16:59:05.950000",
+      "2023-10-29T17:00:45.167000",
+      "2023-10-29T17:02:12.057000",
+      "2023-10-29T17:03:34.686000",
+      "2023-10-29T17:04:59.088000",
+      "2023-10-29T17:06:18.701000",
+      "2023-10-29T17:25:59.911000",
+      "2023-10-29T17:27:42.133000",
+      "2023-10-29T17:29:20.280000"
     ]
 
 
