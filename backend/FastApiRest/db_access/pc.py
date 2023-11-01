@@ -240,8 +240,8 @@ def get_disk_space_between(pc_id, start, end):
             data_list = []
             for _, row in df.iterrows():
                 data_list.append(PCTimeSeriesData(**row.to_dict()))
-                return df, data_list
-            return None
+            return df, data_list
+        return None, None
     except psycopg2.DatabaseError as e:
         raise DataBaseException()
     finally:
