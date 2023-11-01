@@ -4,6 +4,7 @@ import pandas as pd
 import psycopg2.errorcodes
 from pandas import DataFrame
 
+from data_analytics.stats import determine_stability
 from db_access import conn_pool
 from exceptions.DataBaseExcepion import DataBaseException
 from exceptions.InvalidParametersException import InvalidParametersException
@@ -755,6 +756,25 @@ def resource_metrics(pc_id):
 
         total_disk_space = disk_row[0]
 
+        cursor.execute("""
+             SELECT                 
+                AVG(cpu) AS avg_cpu_usage_percentage_last_day,
+                STDDEV(cpu) AS cpu_stability,
+                AVG(ram) AS avg_ram_usage_percentage_last_day,
+                STDDEV(ram) AS ram_stability
+             FROM pcdata
+             WHERE pc_id = %s AND measurement_time >= NOW() - INTERVAL '1 day';
+         """, (pc_id,))
+        avg_row = cursor.fetchone()
+        if avg_row is None:
+            return None
+
+        avg_cpu_usage_percent_last_day = avg_row[0]
+        cpu_stability_str = determine_stability(avg_row[1])
+        avg_ram_usage_percent_last_day = avg_row[2]
+        ram_stability_str = determine_stability(avg_row[3])
+
+
         total_memory = total_memory_size
         free_memory = total_memory - ram_usage
         cpu_percentage_use = cpu_usage * 100
@@ -764,6 +784,10 @@ def resource_metrics(pc_id):
 
         # Create a PCMetrics instance with the retrieved values
         pc_metrics = PCMetrics(
+            avg_cpu_usage_percentage_last_day = avg_cpu_usage_percent_last_day,
+            cpu_stability = cpu_stability_str,
+            avg_ram_usage_percentage_last_day = avg_ram_usage_percent_last_day,
+            ram_stability = ram_stability_str,
             cpu_percentage_use=cpu_percentage_use,
             processor_name=processor_name,
             physical_package_count=physical_package_count,

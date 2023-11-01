@@ -150,12 +150,16 @@ class PCSpecs(BaseModel):
     interrupts: int
 
 class PCMetrics(BaseModel):
+    avg_cpu_usage_percentage_last_day: float
     cpu_percentage_use: float
+    cpu_stability: str
     processor_name: str
     physical_package_count: int
     physical_processor_count: int
     logical_processor_count: int
+    avg_ram_usage_percentage_last_day: float
     ram_percentage_in_use: float
+    ram_stability: str
     total_memory: int
     free_memory: int
     page_size: int
