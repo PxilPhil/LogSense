@@ -132,7 +132,7 @@ CREATE TABLE IF NOT EXISTS applicationdata_anomaly (
 
 CREATE TABLE IF NOT EXISTS networkInterface (
   id bigserial PRIMARY KEY,
-  pcdata_id bigint,
+  pcdata_id bigint, -- no reference on hyper tables
   name varchar,
   display_name varchar,
   ipv4_address varchar,
@@ -147,7 +147,7 @@ CREATE TABLE IF NOT EXISTS networkInterface (
 
 CREATE TABLE IF NOT EXISTS Connection (
     id bigserial PRIMARY KEY,
-    pcdata_id bigint,
+    pcdata_id bigint,  -- no reference on hyper tables
     localAddress varchar,
     localPort int,
     foreignAddress varchar,
