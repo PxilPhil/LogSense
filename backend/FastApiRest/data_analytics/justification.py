@@ -66,24 +66,25 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, prior_jus
                                                                                    cpu_relevancy_threshold)
             pc_just_started = False
 
-            if applications_df['measurement_time'].nunique() <= 1:
-                pc_just_started = True
+            if applications_df is not None:
+                if applications_df['measurement_time'].nunique() <= 1:
+                    pc_just_started = True
 
-            till_timestamp = applications_df['measurement_time'].min()
+                till_timestamp = applications_df['measurement_time'].min()
 
-            important_applications, summary_df, started, stopped = perform_justification_processing(applications_df)
-            message = create_justification_message(pc_just_started, None, None, important_applications, summary_df,
-                                                   started, stopped)
+                important_applications, summary_df, started, stopped = perform_justification_processing(applications_df)
+                message = create_justification_message(pc_just_started, None, None, important_applications, summary_df,
+                                                       started, stopped)
 
-            justification = Justification(
-                timestamp=point,
-                till_timestamp=till_timestamp,
-                is_anomaly=should_tag_as_anomaly,
-                justification_message=message,
-                statistics=None
-            )
+                justification = Justification(
+                    timestamp=point,
+                    till_timestamp=till_timestamp,
+                    is_anomaly=should_tag_as_anomaly,
+                    justification_message=message,
+                    statistics=None
+                )
 
-            justification_logs.append(justification)
+                justification_logs.append(justification)
     return justification_logs
 
 

@@ -144,27 +144,33 @@ def get_total_pc_data(pc_id, start, end) -> DataFrame:
         conn_pool.putconn(conn)
 
 
-def get_ram_time_series_between(pc_id, start, end):
+def get_ram_time_series_between(pc_id, start, end, bucket_value: str = '1 minutes'):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
         query = """
         SELECT
-        measurement_time,
-        ram as value
+        time_bucket(%s, measurement_time) AS bucket_time,
+        AVG(ram) as value
     FROM
         pcdata
     WHERE
         pc_id = %s AND
-        measurement_time BETWEEN %s AND %s;
+        measurement_time BETWEEN %s AND %s
+    GROUP BY
+        bucket_time
+    ORDER BY
+        bucket_time;
         """
 
-        cursor.execute(query, (pc_id, start, end))
+        cursor.execute(query, (bucket_value, pc_id, start, end))
         result = cursor.fetchall()
 
         if result:
             columns = [desc[0] for desc in cursor.description]
             df = pd.DataFrame(result, columns=columns)
+            df = df.rename(columns={'bucket_time': 'measurement_time'})
+            df['value'] = df['value'].astype(float)
             data_list = []
             for _, row in df.iterrows():
                 data_list.append(PCTimeSeriesData(**row.to_dict()))
@@ -176,27 +182,33 @@ def get_ram_time_series_between(pc_id, start, end):
         conn_pool.putconn(conn)
 
 
-def get_cpu_time_series_between(pc_id, start, end):
+def get_cpu_time_series_between(pc_id, start, end, bucket_value: str = '1 minutes'):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
         query = """
         SELECT
-        measurement_time,
-        cpu AS value
+        time_bucket(%s, measurement_time) AS bucket_time,
+        AVG(cpu) as value
     FROM
         pcdata
     WHERE
         pc_id = %s AND
-        measurement_time BETWEEN %s AND %s;
+        measurement_time BETWEEN %s AND %s
+    GROUP BY
+        bucket_time
+    ORDER BY
+        bucket_time;
         """
 
-        cursor.execute(query, (pc_id, start, end))
+        cursor.execute(query, (bucket_value, pc_id, start, end))
         result = cursor.fetchall()
 
         if result:
             columns = [desc[0] for desc in cursor.description]
             df = pd.DataFrame(result, columns=columns)
+            df = df.rename(columns={'bucket_time': 'measurement_time'})
+            df['value'] = df['value'].astype(float)
             data_list = []
             for _, row in df.iterrows():
                 data_list.append(PCTimeSeriesData(**row.to_dict()))
