@@ -15,7 +15,7 @@ application = APIRouter()
 
 
 @application.get("/{application_name}/", response_model=ApplicationData, tags=["Application"])
-def fetch_application(pc_id: int, application_name: str, start: str, end: str):  # TODO: what does pc_id do here?
+def fetch_application(pc_id: int, application_name: str, start: str, end: str, bucket_value: str = '1 minutes'):
     """
     Get Data to Application
 
@@ -28,7 +28,7 @@ def fetch_application(pc_id: int, application_name: str, start: str, end: str): 
         dict: A dictionary with PC ID, Application Name, Start, and End values
     """
     try:
-        df, data_list = get_application_between(pc_id, application_name, start, end)
+        df, data_list = get_application_between(pc_id, application_name, start, end, bucket_value)
         if df is None:
             raise NotFoundException(code=500, detail="Application was not found.")
         df, ram_events_and_anomalies, cpu_events_and_anomalies, ram_statistic_data, cpu_statistic_data = requests.analyze_application_data(df,application_name)

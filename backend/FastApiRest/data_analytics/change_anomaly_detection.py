@@ -26,6 +26,7 @@ def get_event_measurement_times(predicted_df: DataFrame, training_df: DataFrame,
 
 def detect_events(df: DataFrame, column: str) -> list:  # should not be used for data with very high variance like cpu usage
     df_values = df[column].values.reshape(-1, 1)
+    print(df_values)
     detector = rpt.Pelt(model="rbf").fit(df_values)
     change_points = detector.predict(pen=penalty_value)  # data points where significant change was detected
     change_points = np.array(change_points) - 1

@@ -9,47 +9,48 @@ from exceptions.DataBaseExcepion import DataBaseException
 from model.application import ApplicationTimeSeriesData
 
 
-def get_application_between(pc_id: int, application_name, start, end):
+def get_application_between(pc_id: int, application_name, start, end, bucket_value: str = '1 minutes'):
+    print('bucket_value')
+    print(bucket_value)
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
         select_application_query = """
-        SELECT
-id,
-            pcdata_id,
-            measurement_time,
-            name,
-            path,
-            cpu,
-            ram,
-            state,
-            "user",
-            context_switches,
-            major_faults,
-            bitness,
-            commandline,
-            "current_Working_Directory",
-            open_files,
-            parent_process_id,
-            thread_count,
-            uptime,
-            process_count_difference
-        FROM
-            applicationdata
-        WHERE
-            pc_id = %s AND
-            name = %s AND
-            measurement_time BETWEEN %s AND %s
-        ORDER BY
-            measurement_time;
+SELECT
+    time_bucket(%s, measurement_time) AS bucket_time,
+    mode() WITHIN GROUP (ORDER BY name) AS name,
+    AVG(app.cpu) AS cpu,
+    AVG(app.ram) AS ram,
+    AVG(app.context_switches) AS context_switches,
+    AVG(app.major_faults) AS major_faults,
+    AVG(app.bitness) AS bitness,
+    AVG(app.thread_count) AS thread_count,
+    AVG(app.uptime) AS uptime,
+    SUM(app.process_count_difference) AS process_count_difference
+FROM
+    applicationdata app
+WHERE
+    pc_id = %s AND
+    name = %s AND
+    measurement_time BETWEEN %s AND %s
+GROUP BY
+    bucket_time
+ORDER BY
+    bucket_time;
+
         """
 
-        cursor.execute(select_application_query, (pc_id, application_name, start, end))
+        cursor.execute(select_application_query, (bucket_value, pc_id, application_name, start, end))
         result = cursor.fetchall()
 
         if result:
             columns = [desc[0] for desc in cursor.description]
             df = pd.DataFrame(result, columns=columns)
+            df = df.rename(columns={'bucket_time': 'measurement_time'})
+            # clearly define types
+            df['ram'] = df['ram'].astype(float)
+            df['cpu'] = df['cpu'].astype(float)
+
             application_list = []
             for _, row in df.iterrows():
                 # Convert the 'measurement_time' from string to a datetime object
