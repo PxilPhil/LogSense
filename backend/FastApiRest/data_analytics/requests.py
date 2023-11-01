@@ -12,12 +12,15 @@ from data_analytics.forecasting import fit_linear_regression, predict_for_df
 from data_analytics.justification import justify_pc_data_points, justify_application_df
 from data_analytics.stats import calculate_trend_statistics
 from data_analytics.trend_analysis import determine_event_ranges
+from db_access.pc import get_ram_time_series_limited
 from model.alerts import CustomAlert, AlertNotification
 from model.data import AllocationClass
 from model.pc import ForecastData
 
 warnings.filterwarnings("ignore")
 
+
+# todo: our current approach doing on request is pretty stupid, please change it
 
 def preprocess_pc_data(df: DataFrame):
     """
@@ -102,13 +105,15 @@ def analyze_application_data(df, application_name):
         cpu_events_and_anomalies: The list of detected change points and anomalies for cpu
         statistic_data: Simple statistical data like mean, average, median, trend stats
     """
+    # in order to prevent underfitting, we need to fetch more data if we have too little
+
     # detect changes or events
-    ram_change_points = get_event_measurement_times(df,
+    ram_change_points = get_event_measurement_times(df, df,
                                                     'ram')  # only do it for ram since it makes no sense to do it for cpu
 
     # find anomalies
-    anomalies_ram = detect_anomalies(df, 'ram')
-    anomalies_cpu = detect_anomalies(df, 'cpu')
+    anomalies_ram = detect_anomalies(df, df, 'ram')
+    anomalies_cpu = detect_anomalies(df, df, 'cpu')
 
     # get justifications for events and anomalies
     ram_anomaly_justifications = justify_application_df(df, anomalies_ram, application_name, None, True)
@@ -122,7 +127,6 @@ def analyze_application_data(df, application_name):
     statistic_data_ram = calculate_trend_statistics(df, 'ram')
     statistic_data_cpu = calculate_trend_statistics(df, 'cpu')
 
-    # todo: maybe do justifications with data ranges instead of a fixed time?
     # determine event anomaly ranges and save statistics of them in justifications
     determine_event_ranges(df, ram_events_and_anomalies, 'ram')
     determine_event_ranges(df, cpu_events_and_anomalies, 'cpu')
@@ -130,7 +134,7 @@ def analyze_application_data(df, application_name):
     return df, ram_events_and_anomalies, cpu_events_and_anomalies, statistic_data_ram, statistic_data_cpu
 
 
-def analyze_pc_data(df, pc_total_df, column: str):
+def analyze_pc_data(pc_id: int, df, pc_total_df, column: str):
     """
     Analyzes pc data, called by the client when fetching pc data of a certain category (like RAM).
 
@@ -153,6 +157,7 @@ def analyze_pc_data(df, pc_total_df, column: str):
         allocation_list: The list of allocations (which application makes up how much percent of RAM/CPU usage).
         std: Standard deviation from mean, used for calculating "Stability".
         mean: Average of the values.
+        :param pc_id:
 
     """
     if column == 'ram':
@@ -169,11 +174,19 @@ def analyze_pc_data(df, pc_total_df, column: str):
     # sort allocations by impact
     allocation_list = sorted(allocation_list, key=lambda ram: ram.allocation, reverse=True)
 
+    anomaly_measurements = []
+    change_points = []
+    training_df = pc_total_df  # dataframe used to train the models
+
+    # fetch more data if needed to avoid underfittng
+    if len(df.index) < 24:  # arbitrary value used
+        training_df, extended_list = get_ram_time_series_limited(pc_id, 50)
+
     # detect anomalies
-    anomaly_measurements = detect_anomalies(pc_total_df, 'value')
+    anomaly_measurements = detect_anomalies(pc_total_df, training_df, 'value')
 
     # detect changes / events
-    change_points = get_event_measurement_times(pc_total_df, 'value')
+    change_points = get_event_measurement_times(pc_total_df, training_df, 'value')
 
     # justifies events and anomalies
     anomalies = justify_pc_data_points(pc_total_df, anomaly_measurements, None, 1, True)

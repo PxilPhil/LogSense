@@ -7,7 +7,7 @@ from starlette.responses import JSONResponse
 from data_analytics.justification import justify_pc_data_points, justify_application_data_points
 from data_analytics.requests import check_for_alerts
 from db_access.alerts import ingestCustomAlerts, getCustomAlerts
-from db_access.pc import get_ram_time_series, get_total_pc_data
+from db_access.pc import get_ram_time_series_between, get_total_pc_data
 from model.alerts import CustomAlerts, IngestCustomAlert, AlertNotification
 from model.data import Justification
 

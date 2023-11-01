@@ -144,7 +144,7 @@ def get_total_pc_data(pc_id, start, end) -> DataFrame:
         conn_pool.putconn(conn)
 
 
-def get_ram_time_series(pc_id, start, end):
+def get_ram_time_series_between(pc_id, start, end):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
@@ -176,7 +176,7 @@ def get_ram_time_series(pc_id, start, end):
         conn_pool.putconn(conn)
 
 
-def get_cpu_time_series(pc_id, start, end):
+def get_cpu_time_series_between(pc_id, start, end):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
@@ -207,6 +207,69 @@ def get_cpu_time_series(pc_id, start, end):
     finally:
         conn_pool.putconn(conn)
 
+def get_ram_time_series_limited(pc_id: int, limit: int):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        query = """
+        SELECT
+        measurement_time,
+        ram as value
+    FROM
+        pcdata
+    WHERE
+        pc_id = %s
+    ORDER BY measurement_time desc
+        LIMIT %s
+        """
+
+        cursor.execute(query, (pc_id, limit))
+        result = cursor.fetchall()
+
+        if result:
+            columns = [desc[0] for desc in cursor.description]
+            df = pd.DataFrame(result, columns=columns)
+            data_list = []
+            for _, row in df.iterrows():
+                data_list.append(PCTimeSeriesData(**row.to_dict()))
+            return df, data_list
+        return None, None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
+
+def get_cpu_time_series_limted(pc_id: int, limit: int):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        query = """
+        SELECT
+        measurement_time,
+        cpu as value
+    FROM
+        pcdata
+    WHERE
+        pc_id = %s
+    ORDER BY measurement_time desc
+        LIMIT %s
+        """
+
+        cursor.execute(query, (pc_id, limit))
+        result = cursor.fetchall()
+
+        if result:
+            columns = [desc[0] for desc in cursor.description]
+            df = pd.DataFrame(result, columns=columns)
+            data_list = []
+            for _, row in df.iterrows():
+                data_list.append(PCTimeSeriesData(**row.to_dict()))
+            return df, data_list
+        return None, None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
 
 def get_free_disk_space_data(pc_id):
     conn = conn_pool.getconn()
