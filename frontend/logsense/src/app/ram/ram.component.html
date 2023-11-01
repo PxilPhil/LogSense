@@ -7,7 +7,7 @@
   <div class="pad-right-128 pad-left-64 mar-top-32 w-100">
     <div class="grey-box wrap-chart-stats w-100">
       <div class="mar-right-96">
-        <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24">
+        <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24" (change)="loadData()">
           <option *ngFor="let elem of times" [ngValue]="elem">{{elem.time}}</option>
         </select>
         <canvas class="white-bg w-100" id="ram"></canvas>

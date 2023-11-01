@@ -11,7 +11,7 @@ from model.data import EventData, AnomalyData, Justification, StatisticData
 class ApplicationTimeSeriesData(BaseModel):
     measurement_time: datetime
     cpu: float
-    ram: int
+    ram: float
 
 
 class ApplicationData(BaseModel):

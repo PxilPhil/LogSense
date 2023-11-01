@@ -61,7 +61,7 @@ class AllocationClass(BaseModel):
 
 class StatisticData(BaseModel):
     average: float
-    median: float
+    current: float
     stability: str
     message: str
 

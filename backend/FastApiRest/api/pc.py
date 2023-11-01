@@ -79,13 +79,13 @@ def get_pc_ram(pc_id: int, start: str, end: str):
         :param start:
         :param end:
     """
-    ram_df, time_series = db_access.pc.get_ram_time_series(pc_id, start, end)
+    ram_df, time_series = db_access.pc.get_ram_time_series_between(pc_id, start, end)
 
     df, application_data_list = get_latest_application_data(pc_id, 1, None)
     if df is None or ram_df is None:
         raise InvalidParametersException()
     pc_total_df, allocation_list, events_and_anomalies, statistic_data = requests.analyze_pc_data(
-        df, ram_df, 'ram')
+        pc_id, df, ram_df, 'ram')
 
     pc_data = PCData(
         pc_id=pc_id,
@@ -114,12 +114,12 @@ def get_pc_cpu(pc_id: int, start: str, end: str):
         :param start:
         :param end:
     """
-    cpu_df, time_series = db_access.pc.get_cpu_time_series(pc_id, start, end)
+    cpu_df, time_series = db_access.pc.get_cpu_time_series_between(pc_id, start, end)
 
     df, application_data_list = get_latest_application_data(pc_id, 1, None)
     if df is None or cpu_df is None:
         raise InvalidParametersException()
-    pc_total_df, allocation_list, events_and_anomalies, statistic_data = requests.analyze_pc_data(
+    pc_total_df, allocation_list, events_and_anomalies, statistic_data = requests.analyze_pc_data(pc_id,
         df, cpu_df, 'cpu')
 
     pc_data = PCData(

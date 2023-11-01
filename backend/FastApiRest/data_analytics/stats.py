@@ -10,7 +10,7 @@ def calc_allocation(latest_total_value, column, df):  # ONLY PASS THE MOST CURRE
     return allocation_map
 
 
-def calculate_trend_statistics(df: DataFrame, column: str) -> StatisticData:
+def calculate_trend_statistics(df: DataFrame, column: str, name: str) -> StatisticData:
     """
     Calculates statistics for the trend of a graph like:
     Median
@@ -33,22 +33,26 @@ def calculate_trend_statistics(df: DataFrame, column: str) -> StatisticData:
     delta = recent_row[column] - oldest_row[column]
 
     stability = f"Stability: {determine_stability(cov)}\n"
-    message = create_statistics_message(change, delta, column)
+    message = create_statistics_message(change, delta, name)
 
     statistic_data = StatisticData(
         average=df[column].mean(),
-        median=df[column].median(),
+        current=recent_row[column],
         stability=stability,
         message=message
     )
     return statistic_data
 
 
-def create_statistics_message(change, delta, column: str):
+def create_statistics_message(change, delta, name: str):
     # this is a method to make a message displayed to the user when requesting statistical values
-    message = f"{column} has changed by {round(change, 2)} % ({delta})\n"
+    message = f"{name} Usage has changed by {round(change, 2)} % ({delta})\n"
     return message
 
+def append_statistics_message(message, event_amount, anomaly_amount, data_amount):
+    message += f"{event_amount} Events detected \n {anomaly_amount} Anomalies detected \n"
+    message += f"{data_amount} Datapoints fetched \n"
+    return message
 
 def determine_stability(cov):  # common rule of thumb is that cv < 15% is considered stable and < 30% medium
     if cov < 15:

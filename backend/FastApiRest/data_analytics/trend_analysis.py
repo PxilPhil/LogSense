@@ -22,7 +22,7 @@ def determine_event_ranges(df: DataFrame, anomalies_events: list[Justification],
             selected_rows = df[(df['measurement_time'] >= last_timestamp) & (df['measurement_time'] <= anomaly_event.timestamp)]
             print(f"{last_timestamp}+{anomaly_event.timestamp}")
             if not selected_rows.empty:
-                anomaly_event.statistics = calculate_trend_statistics(selected_rows, column)
+                anomaly_event.statistics = calculate_trend_statistics(selected_rows, column, column)
         last_timestamp = anomaly_event.timestamp
 
 def application_change_detection():
