@@ -89,9 +89,6 @@ export class OverviewComponent implements OnInit {
       this.alerts=data;
     })
 
-    console.log('alertServicee')
-    console.log(this.alerts)
-
   }
 
 

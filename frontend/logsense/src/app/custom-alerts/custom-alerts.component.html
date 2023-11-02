@@ -8,14 +8,8 @@
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
       </form>
-      <div class="choose-alert txt-16">
-          text
-      </div>
-      <div class="choose-alert txt-16">
-        text
-      </div>
-      <div class="choose-alert txt-16">
-        text
+      <div class="choose-alert txt-16" *ngFor="let userAlert of userAlerts">
+          <div (click)="selectUserAlert(userAlert)" >{{userAlert.type}}</div>
       </div>
     </div>
     <div class="mar-left-64 w-100">
@@ -26,51 +20,52 @@
               <mat-icon class="icon-48">warning</mat-icon>
             </div>
             <div class="w-100">
-              <input type="text" class="w-100" placeholder="idk">
+              <input [(ngModel)]="selectedUserAlert.type" type="text" class="w-100" placeholder="Alert name">
             </div>
           </div>
           <div class="flex-col mar-bot-12">
             <span class="txt-16">Message</span>
-            <input>
+            <input [(ngModel)]="selectedUserAlert.message">
           </div>
           <div class="flex-row mar-bot-24">
             <span class="txt-16 mar-right-24">Severity Level</span>
-            <select>
-              <option *ngFor="let sev of severity" [ngValue]="sev">{{sev}}</option>
+            <select [(ngModel)]="selectedUserAlert.severity_level">
+              <option *ngFor="let value of [1, 2, 3, 4, 5]" [ngValue]="value">{{value}}</option>
             </select>
           </div>
           <span class="txt-22 mar-bot-12">Conditions</span>
           <div class="flex-center mar-bot-24">
             <span class="txt-16 mar-right-24 label">Column:</span>
-            <input class="input">
+            <input class="input" [(ngModel)]="selectedUserAlert.conditions[0].column" >
           </div>
           <div class="flex-center mar-bot-24">
             <span class="txt-16 mar-right-24 label">Application:</span>
-            <input class="input">
+            <input class="input" [(ngModel)]="selectedUserAlert.conditions[0].application" >
           </div>
           <div class="flex-center mar-bot-24">
             <span class="txt-16 mar-right-24 label">Percentual Value:</span>
-            <input class="input">
+            <input class="input" [(ngModel)]="selectedUserAlert.conditions[0].percentage_trigger_value" >
           </div>
           <div class="flex-center mar-bot-24">
             <span class="txt-16 mar-right-24 label">Absolute Value:</span>
-            <input class="input">
+            <input class="input" [(ngModel)]="selectedUserAlert.conditions[0].absolute_trigger_value">
           </div>
           <div class="flex-center mar-bot-24">
             <span class="txt-16 mar-right-24 label">Operator:</span>
-            <select>
+            <select [(ngModel)]="selectedUserAlert.conditions[0].operator">
               <option *ngFor="let op of operator" [ngValue]="op">{{op}}</option>
             </select>
           </div>
           <div class="flex-center mar-bot-24">
             <span class="txt-16 mar-right-24 label">Detection by:</span>
-            <select>
+            <select [(ngModel)]="detection_selected">
               <option *ngFor="let det of detection" [ngValue]="det">{{det}}</option>
             </select>
           </div>
           <div class="jus-end w-100">
-            <button class="default-btn mar-right-32">Discard</button>
-            <button class="default-btn">Save</button>
+            <button *ngIf="selected_from_database==true" (click)="deleteUserAlert()" class="default-btn mar-right-32">Delete</button>
+            <button (click)="discardSelection()" class="default-btn mar-right-32">Discard</button>
+            <button (click)="postUserAlert()"class="default-btn">  {{ selected_from_database ? 'Update' : 'Save' }}</button>
           </div>
         </div>
       </div>
