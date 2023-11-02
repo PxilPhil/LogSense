@@ -74,8 +74,8 @@
 
   <div class="pad-bot-64 pad-left-64 pad-right-128 align-general mar-top-32" [ngClass]="{'show-all-true': showAllProcesses, 'wrapper': !showAllProcesses}">
     <div [ngClass]="{'first-all': showAllProcesses, 'first': !showAllProcesses}">
-      <div>
-        <app-alerts></app-alerts>
+      <div class="mar-top-32">
+        <app-alerts [alerts]="alerts"></app-alerts>
       </div>
     </div>
 

@@ -30,7 +30,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
   selectedApplication: Application = new Application();
   latestApplicationMeasurement: ApplicationTimeSeriesData = new ApplicationTimeSeriesData();
   statistics: string[] = ["CPU Usage dropped 4%", "21 anomalies detected", "5 Events registered", "Rise of RAM usage of 90% detected"];
-  alerts: string[] = ["Abnormal RAM-Spikes detected", "Memory leak possible"];
+  alerts: Alert[] = [];
   isApplicationSelected = false;
   cpuChart: Chart | undefined;
   ramChart: Chart | undefined;
@@ -45,7 +45,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadApplicationNameList();
-    //this.loadAlerts();  //TODO: insert again when endpoint is implemented
+    this.loadAlerts();
   }
 
   ngOnDestroy() {
@@ -101,11 +101,13 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
   }
 
 
+  /*
   loadAlerts(): void {
     this.alertService.getAlerts().subscribe((data: Alert[]) => {
       //this.alerts = data;
     });
   }
+  */
 
   loadApplicationData(applicationName: string): void {
     this.isApplicationSelected = true;
@@ -265,6 +267,11 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
 
   roundDecimalNumber(decimalNumber: number, places: number): number {
     return Math.round((decimalNumber + Number.EPSILON) * Math.pow(10, places)) / Math.pow(10, places);
+  }
+
+  loadAlerts() {
+    //is it fine to just get data like this?
+    this.alerts = this.alertService.getStoredAlerts(this.selectedApplication.application_name, undefined);
   }
 
   protected readonly onchange = onchange;

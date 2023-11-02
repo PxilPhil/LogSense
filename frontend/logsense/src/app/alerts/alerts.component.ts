@@ -1,4 +1,5 @@
 import {Component, Input} from '@angular/core';
+import {Alert} from "../model/Alert";
 
 @Component({
   selector: 'app-alerts',
@@ -6,7 +7,7 @@ import {Component, Input} from '@angular/core';
   styleUrls: ['./alerts.component.scss']
 })
 export class AlertsComponent {
-  @Input() alerts: String[] = [];
+  @Input() alerts: Alert[] = [];
     //["Some devices are at their workload limit", "Abnormal CPU-Spikes detected (21 Anomalies in the last 24 hours)"];
 
 }
