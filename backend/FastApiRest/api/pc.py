@@ -67,7 +67,7 @@ def add_pc_api(data: PCItem = Body(...)):
 
 
 @pc.get('/{pc_id}/ram', response_model=PCData, tags=["PC"])
-def get_pc_ram(pc_id: int, start: str, end: str, bucket_value: str = '1 minutes'):
+def get_pc_ram(pc_id: int, start: str, end: str, bucket_value: str = '1 minute'):
     """
     Get data from PCs by ID and for a defined type like RAM or CPU
 
