@@ -3,13 +3,16 @@ import {Chart} from "chart.js";
 import {MatDialog} from "@angular/material/dialog";
 import {PartDialogComponent} from "../part-dialog/part-dialog.component";
 import {DiskDataService} from "../services/disk.service";
-import {DiskData} from "../model/DiskData";
+import {DiskData, DiskStore} from "../model/DiskData";
 import {Alert} from "../model/Alert";
 import {AlertService} from "../services/alert.service";
 import {PCDataService} from "../services/pc-data.service";
 import {PCData, PCTimeSeriesData, TimeSeriesData} from "../model/PCData";
 import {DatePipe} from "@angular/common";
 import {ChartData} from "../ram/ram.component";
+import {ResourceMetricsService} from "../services/resource-metrics.service";
+import {ResourceMetricsModel} from "../model/ResourceMetrics";
+import {DiskForecastData} from "../model/DiskForecastData";
 
 export interface TimeModel {
   id: Number;
@@ -39,8 +42,9 @@ export class DiskComponent implements OnInit, OnDestroy {
 
   diskChart: Chart | undefined;
   diskChartData: ChartData = new ChartData();
-  diskTotal: string = "platzhalter"; // TODO
-  diskFree: string = "platzhalter";
+  forecastData: ChartData = new ChartData();
+  diskTotal: number = 0;
+  diskFree: number = 0;
 
 
   statistics: String[] = ["Disk usage dropped 4%", "21 anomalies detected", "5 Events registered", "Recent Rise of 15% detected"];
@@ -50,12 +54,15 @@ export class DiskComponent implements OnInit, OnDestroy {
   isShowAnomaliesChecked: boolean = true;
   isShowPredictionsChecked: boolean = false;
 
-  constructor(public dialog: MatDialog, private diskDataService: DiskDataService, private pcDataService: PCDataService, private alertService: AlertService, private datePipe: DatePipe) {
-    this.loadDiskData();  //only load diskStores and partitions on startup or on refresh
+  constructor(private statService: ResourceMetricsService, public dialog: MatDialog, private diskDataService: DiskDataService, private pcDataService: PCDataService, private alertService: AlertService, private datePipe: DatePipe) {
   }
 
   ngOnInit() {
     this.loadPCData();
+    this.loadStats();
+    this.loadDiskStores();  //only load diskStores and partitions on startup or on refresh
+    this.loadForecast();
+    console.log(this.diskData);
     //this.loadAlerts()   //TODO: insert again when endpoint is implemented
   }
 
@@ -69,9 +76,16 @@ export class DiskComponent implements OnInit, OnDestroy {
     console.log(event);
   }
 
-  loadDiskData() {
-    this.diskDataService.getDiskData(1 /* TODO: get dynamic pc id */).subscribe((data: DiskData) => {
-      this.diskData = data;
+  loadStats() {
+    this.statService.getResourceMetrics(1).subscribe((data: ResourceMetricsModel) => {
+      this.diskTotal = this.roundDecimalNumber(this.convertBytesToGigaBytes(data.total_disk_space), 2);
+      this.diskFree = this.roundDecimalNumber(this.convertBytesToGigaBytes(data.free_disk_space), 2);
+    });
+  }
+
+  loadDiskStores() {
+    this.diskDataService.getDiskStores(1 /* TODO: get dynamic pc id */).subscribe((data: DiskData) => {
+      this.diskData.disks = data.disks;
     });
   }
 
@@ -92,6 +106,17 @@ export class DiskComponent implements OnInit, OnDestroy {
         this.diskUsageChart();
       });
     }
+  }
+  loadForecast() {
+    this.diskDataService.getForecastedFreeDiskSpace(1, 30).subscribe((data: DiskForecastData) => {
+      for (let dataPoint of data.data_list) {
+        if(Date.parse(data.final_timestamp)>Date.parse(dataPoint.datetime)) {
+          this.forecastData.time.push(this.datePipe.transform(dataPoint.datetime, "MM-dd HH:mm:ss")??"");
+          this.forecastData.value.push(this.convertBytesToGigaBytes(dataPoint.LinearRegression));
+        }
+      }
+      //this.diskForecastChart(); TODO: finsih Forecastchart
+    });
   }
   transformData() {
     this.diskChartData.time = [];
@@ -116,8 +141,55 @@ export class DiskComponent implements OnInit, OnDestroy {
     });
   }
 
+  diskForecastChart() {
+    console.log(this.diskChartData);
+    console.log(this.forecastData);
+    if(this.diskChart) {
+      this.diskChart.destroy();
+    }
+    this.diskChart = new Chart("disk", {
+      data: {
+        datasets:[{
+          type: "line",
+          data: this.diskChartData.value,
+          backgroundColor: 'rgba(62, 149, 205, 0.5)',
+          borderColor: '#3e95cd'
+        }, {
+          type: "line",
+          data: this.forecastData.value,
+          backgroundColor: '#e82546',
+          borderColor: '#e82546'
+        }],
+        labels: this.diskChartData.time.concat(this.forecastData.time)
+      },options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
+      }
+    })
+  }
+  getDiskDataForForecast() {
+
+  }
+  getForecastData() {
+    var tmp: any[] = [];
+    for (let i = 0; i < this.diskChartData.time.length; i++) {
+      tmp.push(null);
+    }
+    for (var data of this.forecastData.value) {
+      tmp.push(data);
+    }
+    return tmp;
+  }
   diskUsageChart(): void {
-    console.log(this.pcData);
     if (this.diskChart) {
       this.diskChart.destroy();
     }

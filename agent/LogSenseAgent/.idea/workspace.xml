@@ -6,11 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="a3b0c86a-56b9-40a5-bdfe-abebb08d5502" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../backend/FastApiRest/test.http" beforeDir="false" afterPath="$PROJECT_DIR$/../../backend/FastApiRest/test.http" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/cpu/cpu.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/cpu/cpu.component.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/cpu/cpu.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/cpu/cpu.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/model/Cpu.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/model/Cpu.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/model/ResourceMetrics.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/model/ResourceMetrics.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/disk/disk.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/model/DiskForecastData.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/model/DiskForecastData.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/logsense/src/app/services/disk.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/logsense/src/app/services/disk.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,6 +97,7 @@
       <workItem from="1698828737200" duration="872000" />
       <workItem from="1698840226604" duration="618000" />
       <workItem from="1698868638961" duration="658000" />
+      <workItem from="1698936031319" duration="623000" />
     </task>
     <servers />
   </component>

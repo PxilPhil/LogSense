@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {DiskData} from "../model/DiskData";
+import {DiskData, DiskStore} from "../model/DiskData";
 import {DiskForecastData} from "../model/DiskForecastData";
 import {TimeSeriesData} from "../model/PCData";
 
@@ -13,8 +13,8 @@ export class DiskDataService {
   constructor(private httpClient: HttpClient) {
   }
 
-  getDiskData(pc_id: number): Observable<DiskData> {
-    const url: string = `http://localhost:8000/pc/${pc_id}/disk`;
+  getDiskStores(pc_id: number): Observable<DiskData> {
+    const url: string = `http://localhost:8000/pc/${pc_id}/disks-partitions`;
     return this.httpClient.get<DiskData>(url);
   }
 
