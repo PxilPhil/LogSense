@@ -760,7 +760,7 @@ def resource_metrics(pc_id):
              SELECT                 
                 AVG(cpu) AS avg_cpu_usage_percentage_last_day,
                 STDDEV(cpu) AS cpu_stability,
-                AVG(ram) AS avg_ram_usage_percentage_last_day,
+                AVG(ram) AS avg_ram_usage_last_day,
                 STDDEV(ram) AS ram_stability
              FROM pcdata
              WHERE pc_id = %s AND measurement_time >= NOW() - INTERVAL '1 day';
@@ -769,9 +769,9 @@ def resource_metrics(pc_id):
         if avg_row is None:
             return None
 
-        avg_cpu_usage_percent_last_day = avg_row[0]
+        avg_cpu_usage_percent_last_day = avg_row[0] * 100
         cpu_stability_str = determine_stability(avg_row[1])
-        avg_ram_usage_percent_last_day = avg_row[2]
+        avg_ram_usage_percent_last_day = (avg_row[2]/total_memory_size)*100
         ram_stability_str = determine_stability(avg_row[3])
 
 
