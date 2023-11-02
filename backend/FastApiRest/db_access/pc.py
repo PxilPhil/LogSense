@@ -183,7 +183,7 @@ def get_ram_time_series_between(pc_id, start, end, bucket_value: str = '1 minute
         conn_pool.putconn(conn)
 
 
-def get_cpu_time_series_between(pc_id, start, end, bucket_value: str = '1 minutes'):
+def get_cpu_time_series_between(pc_id, start, end, bucket_value: str = '1 minute'):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
