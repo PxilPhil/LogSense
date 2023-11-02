@@ -10,6 +10,8 @@ import {ResourceMetricsService} from "../services/resource-metrics.service";
 import _default from "chart.js/dist/core/core.interaction";
 import index = _default.modes.index;
 import {ResourceMetricsModel} from "../model/ResourceMetrics";
+import {Alert} from "../model/Alert";
+import {AlertService} from "../services/alert.service";
 
 /*export class RAMModel {
   totalMemory: Number = 17.02; //GB
@@ -67,10 +69,10 @@ export class RamComponent implements OnInit {
     {id: 6, time: "All Time", valueInMilliseconds: 0}
   ];
   selectedTime: TimeModel = this.times[0];
-
+  alerts: Alert[] = []
   showAllProcesses: boolean = true;
 
-  constructor(private statsService: ResourceMetricsService, private pcDataService: PCDataService, private  datePipe: DatePipe, private resourceService: ResourceMetricsService) {
+  constructor(private alertService: AlertService, private statsService: ResourceMetricsService, private pcDataService: PCDataService, private  datePipe: DatePipe, private resourceService: ResourceMetricsService) {
   }
 
   showAll() {
@@ -93,6 +95,7 @@ export class RamComponent implements OnInit {
   ngOnInit() {
     this.loadStats();
     this.loadData();
+    this.loadAlerts();
   }
 
   usageChart(): void {
@@ -182,6 +185,12 @@ export class RamComponent implements OnInit {
 
   roundDecimal(num: number, places: number): number{
     return Math.round((num + Number.EPSILON) * Math.pow(10, places)) / Math.pow(10, places);
+  }
+
+  loadAlerts() {
+    this.alerts = this.alertService.getStoredAlerts(undefined, ['ram']);
+    console.log(this.alerts)
+
   }
 
 }

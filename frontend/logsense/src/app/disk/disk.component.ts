@@ -44,7 +44,7 @@ export class DiskComponent implements OnInit, OnDestroy {
 
 
   statistics: String[] = ["Disk usage dropped 4%", "21 anomalies detected", "5 Events registered", "Recent Rise of 15% detected"];
-  alerts: string[] = ["Some devices are at their workload limit", "Abnormal CPU-Spikes detected (21 Anomalies in the last 24 hours)"];
+  alerts: Alert[] = [];
 
   isShowEventsChecked: boolean = true;
   isShowAnomaliesChecked: boolean = true;
@@ -56,7 +56,7 @@ export class DiskComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadPCData();
-    //this.loadAlerts()   //TODO: insert again when endpoint is implemented
+    this.loadAlerts();
   }
 
   ngOnDestroy() {
@@ -110,11 +110,13 @@ export class DiskComponent implements OnInit, OnDestroy {
     return new PCTimeSeriesData();
   }
 */
+  /*
   loadAlerts(): void {
     this.alertService.getAlerts().subscribe((data: Alert[]) => {
       //this.alerts = data;
     });
   }
+  */
 
   diskUsageChart(): void {
     console.log(this.pcData);
@@ -185,5 +187,10 @@ export class DiskComponent implements OnInit, OnDestroy {
 
   roundDecimalNumber(decimalNumber: number, places: number): number {
     return Math.round((decimalNumber + Number.EPSILON) * Math.pow(10, places)) / Math.pow(10, places);
+  }
+
+  loadAlerts() {
+    //is it fine to just get data like this?
+    this.alerts = this.alertService.getStoredAlerts(undefined, ['free_disk_space', 'read_bytes_disk', 'reads_disks', 'write_bytes_disks', 'writes_disks']);
   }
 }
