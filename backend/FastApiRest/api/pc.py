@@ -211,7 +211,7 @@ def get_pc_by_user_id(pc_id: int, start: int, end: int):
 
 
 @pc.get('/{pc_id}/data/forecast/{days}', response_model=ForecastResult, tags=["PC"])
-def forecast_free_disk_space(pc_id: int, days: int):
+def forecast_no_disk_space(pc_id: int, days: int):
     """
     Forecasts free disk space data for a certain PC in daily interevals
 
@@ -226,10 +226,38 @@ def forecast_free_disk_space(pc_id: int, days: int):
         df = get_free_disk_space_data(pc_id)
         if df is None:
             raise InvalidParametersException()
-        data_list, final_timestamp = requests.forecast_disk_space(df, 'free_disk_space', days)
+        data_list, final_timestamp = requests.determine_full_disk_space(df, 'free_disk_space', days)
         forecast_result = ForecastResult(
             pc=pc_id,
             days=days,
+            final_timestamp=final_timestamp,
+            data_list=data_list
+        )
+        print(forecast_result)
+        return forecast_result
+    except Exception as e:
+        raise InvalidParametersException()
+
+@pc.get('/{pc_id}/data/forecast/', response_model=ForecastResult, tags=["PC"])
+def forecast_free_disk_space(pc_id: int, start: str, end: str, bucket_value: str):
+    """
+    Forecasts free disk space data for a certain PC in daily interevals
+
+    Args:
+        user_id (str): The pc ID to filter PCs.
+
+    Returns:
+        dict: A dictionary with a measurement time and the forecasted free disk space at that time.
+        :param days:
+    """
+    try:
+        df = get_free_disk_space_data(pc_id)
+        if df is None:
+            raise InvalidParametersException()
+        data_list, final_timestamp = requests.forecast_disk_space(df, 'free_disk_space', start, end, bucket_value)
+        forecast_result = ForecastResult(
+            pc=pc_id,
+            days=30,
             final_timestamp=final_timestamp,
             data_list=data_list
         )

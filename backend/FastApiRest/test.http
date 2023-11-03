@@ -124,7 +124,10 @@ GET http://localhost:8000/pc/1/application/chrome?start=2023-01-19 10:20:16&end=
 GET http://localhost:8000/pc/1/application/?start=2022-07-25 10:20:16&end=2023-12-25 10:33:01
 
 ### get forecast of available disk space
-GET http://localhost:8000/pc/1/data/forecast/30
+GET http://localhost:8000/pc/1/data/forecast/100
+
+### get forecast of available disk space with buckeeting and without days
+GET http://localhost:8000/pc/1/data/forecast/?start=2022-08-25 10:20:16&end=2023-12-25 10:33:01&bucket_value=5H
 
 ### get alerts
 GET http://localhost:8000/alerts/1?start=2023-07-25 10:20:16&end=2023-11-25 10:33:01

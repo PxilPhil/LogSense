@@ -13,13 +13,6 @@ ram_relevancy_threshold = 0.05  # percentual threshold applications should have 
 cpu_relevancy_threshold = 0.05  # percentual threshold applications should have to be considered relevant
 
 
-class ApplicationStat:  # class to store application data
-    def __init__(self, ram: int, cpu: int, process_change: int):
-        self.ram = ram
-        self.cpu = cpu
-        self.process_change = process_change  # same as event_headers (processes in applications were closed or opened marked with -1, 0 or 1)
-
-
 def perform_justification_processing(df: DataFrame):
     """
     Function to perform data manipulation and processing required for making justifications
