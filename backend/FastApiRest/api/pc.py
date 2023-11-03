@@ -135,7 +135,7 @@ def get_pc_cpu(pc_id: int, start: str, end: str, bucket_value: str = '1 minute')
     print(pc_data)
     return pc_data
 
-@pc.get('/{pc_id}/disk', response_model=List[PCTimeSeriesData], tags=["PC"])
+@pc.get('/{pc_id}/disk', response_model=PCData, tags=["PC"])
 def get_pc_disk_space(pc_id: int, start: str, end: str):
     """
     Get data from PCs by ID and for a defined type like RAM or CPU
