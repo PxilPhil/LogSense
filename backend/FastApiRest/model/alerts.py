@@ -17,6 +17,7 @@ class CustomCondition(BaseModel):
 
 
 class CustomAlert(BaseModel):
+    id: int
     user_id: int
     type: str
     message: str

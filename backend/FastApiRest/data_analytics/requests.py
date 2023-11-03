@@ -117,9 +117,9 @@ def analyze_application_data(df, application_name):
 
     # get justifications for events and anomalies
     ram_anomaly_justifications = justify_application_df(df, anomalies_ram, application_name, None, True)
-    ram_events_and_anomalies = justify_application_df(df, ram_change_points, application_name,
-                                                      ram_anomaly_justifications,
-                                                      False)
+    ram_event_justifications = justify_application_df(df, ram_change_points, application_name, ram_anomaly_justifications,False)
+    ram_events_and_anomalies = ram_anomaly_justifications + ram_event_justifications
+
     cpu_events_and_anomalies = justify_application_df(df, anomalies_cpu, application_name, None,
                                                       False)
 
@@ -190,9 +190,17 @@ def analyze_pc_data(pc_id: int, df, pc_total_df, name: str):
     # detect changes / events
     change_points = get_event_measurement_times(pc_total_df, training_df, 'value')
 
+    print('----------------------------------------')
+    print(anomaly_measurements)
+    print(change_points)
+
+
     # justifies events and anomalies
     anomalies = justify_pc_data_points(pc_total_df, anomaly_measurements, None, 1, True)
-    events_and_anomalies = justify_pc_data_points(pc_total_df, change_points, anomalies, 1, False)
+    events = justify_pc_data_points(pc_total_df, change_points, anomalies, 1, False)
+    events_and_anomalies = anomalies+events
+
+
 
     # get stats
     statistic_data = calculate_trend_statistics(pc_total_df, 'value', name)

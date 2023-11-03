@@ -20,7 +20,7 @@ from exceptions.DataBaseInsertExcepion import DataBaseInsertException
 from model.alerts import CustomAlerts, CustomAlert, IngestCustomAlert, CustomAlertDBObject, CustomCondition
 
 
-def ingestCustomAlerts(alerts: CustomAlerts):
+def ingestCustomAlerts(alert: CustomAlert):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
@@ -29,9 +29,9 @@ def ingestCustomAlerts(alerts: CustomAlerts):
             VALUES %s RETURNING id
         """
         alert_tuples = []
-        for alert in alerts.custom_alert_list:
-            conditions_json = json.dumps([condition.dict() for condition in alert.conditions])
-            alert_tuples.append((alert.user_id, alert.type, alert.severity_level, alert.message, conditions_json))
+
+        conditions_json = json.dumps([condition.dict() for condition in alert.conditions])
+        alert_tuples.append((alert.user_id, alert.type, alert.severity_level, alert.message, conditions_json))
         psycopg2.extras.execute_values(cursor, insert_query, alert_tuples)
 
         anomaly_id = cursor.fetchone()[0]
@@ -53,7 +53,7 @@ def getCustomAlerts(user_id: int) -> CustomAlerts:
                     type,
                     severity_level,
                     message,
-                    condition::text 
+                    condition::text
                     FROM anomaly WHERE user_id = %s;"""
         cursor.execute(query, (user_id,))
 
@@ -62,6 +62,7 @@ def getCustomAlerts(user_id: int) -> CustomAlerts:
         custom_alerts = CustomAlerts(
             custom_alert_list=[
                 CustomAlert(
+                    id=anomaly[0],
                     user_id=anomaly[1],
                     type=anomaly[2],
                     message=anomaly[4],
@@ -77,5 +78,24 @@ def getCustomAlerts(user_id: int) -> CustomAlerts:
         print(str(e))
         # Handle exceptions as needed.
         raise e  # DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
+
+def deleteCustomAlerts(alert_id: int):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        query = """
+            DELETE FROM anomaly WHERE id = %s
+        """
+        cursor.execute(query, (alert_id,))
+        conn.commit()
+        return True, "Delete successful!"
+    except psycopg2.DatabaseError as e:
+        if e.pgcode == "23503":
+            return False, "The specified ID was not found."
+        else:
+            return False, "An error occurred:"+ e.__str__()
+
     finally:
         conn_pool.putconn(conn)

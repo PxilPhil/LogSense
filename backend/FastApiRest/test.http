@@ -106,7 +106,7 @@ Content-Disposition: form-data; name="files[]"; filename="file2.txt"
 GET http://localhost:8000/pc/1/ram?start=2023-10-30 11:52:42&end=2023-11-11 15:20:12
 
 ### get cpu pc timeseries data###
-GET http://localhost:8000/pc/1/cpu?start=2023-10-30 11:52:42&end=2023-11-11 15:20:12
+GET http://localhost:8000/pc/1/cpu?start=2023-11-01 11:52:42&end=2023-11-11 15:20:12
 
 ### get disks timeseries data
 GET http://localhost:8000/pc/1/disk?start=2023-01-19 10:20:16&end=2023-11-11 10:33:01
@@ -128,6 +128,9 @@ GET http://localhost:8000/pc/1/data/forecast/30
 
 ### get alerts
 GET http://localhost:8000/alerts/1?start=2023-07-25 10:20:16&end=2023-11-25 10:33:01
+
+### delete
+DELETE http://localhost:8000/alerts/1
 
 ### get all possible alerts
 GET http://localhost:8000/alerts/all/1
@@ -177,32 +180,31 @@ GET http://localhost:8000/pc/1/disks-partitions
 
 ### get network interfaces and connections
 GET http://localhost:8000/pc/1/network
-###
-GET http://localhost:8000/alerts?user_id=1
+### delete alerts
+DELETE http://localhost:8000/alerts/350
 ###
 POST http://localhost:8000/alerts
 Content-Type: application/json
 
 {
-  "custom_alert_list": [
+  "id": 1,
+  "user_id": 1,
+  "type": "aaa",
+  "message": "bbb",
+  "severity_level": 5,
+  "conditions": [
     {
-      "user_id": 1,
-      "type": "Breaking threshold alert for Java",
-      "message": "Breaking threshold alert for Java",
-      "severity_level": 5,
-      "conditions": [
-        {
-          "percentage_trigger_value": null,
-          "absolute_trigger_value": 400036821,
-          "operator": ">",
-          "column": "ram",
-          "application": "java",
-          "detect_via_moving_averages": true
-        }
-      ]
+      "percentage_trigger_value": null,
+      "absolute_trigger_value": 400036821,
+      "operator": ">",
+      "column": "ram",
+      "application": "java",
+      "detect_via_moving_averages": true
     }
   ]
 }
+
+
 
 ###
 GET http://127.0.0.1:8000/pc/general_specs/1
