@@ -145,7 +145,7 @@ def get_total_pc_data(pc_id, start, end) -> DataFrame:
         conn_pool.putconn(conn)
 
 
-def get_ram_time_series_between(pc_id, start, end, bucket_value: str = '1 minute'):
+def get_ram_time_series_between(pc_id, start, end, bucket_value: str = '1 minutes'):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
@@ -183,7 +183,7 @@ def get_ram_time_series_between(pc_id, start, end, bucket_value: str = '1 minute
         conn_pool.putconn(conn)
 
 
-def get_cpu_time_series_between(pc_id, start, end, bucket_value: str = '1 minute'):
+def get_cpu_time_series_between(pc_id, start, end, bucket_value: str = '1 minutes'):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:

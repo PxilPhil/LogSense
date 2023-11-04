@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException, Body
 from starlette.responses import JSONResponse
 
 import db_access.pc
+from data_analytics.stats import determine_stability
 from db_access.data import select_total_running_time
 from db_access.pc import get_pcs, get_pcs_by_userid, add_pc, get_free_disk_space_data, \
     get_recent_disk_and_partition
@@ -67,7 +68,7 @@ def add_pc_api(data: PCItem = Body(...)):
 
 
 @pc.get('/{pc_id}/ram', response_model=PCData, tags=["PC"])
-def get_pc_ram(pc_id: int, start: str, end: str, bucket_value: str = '1 minute'):
+def get_pc_ram(pc_id: int, start: str, end: str, bucket_value: str = '1 minutes'):
     """
     Get data from PCs by ID and for a defined type like RAM or CPU
 
@@ -102,7 +103,7 @@ def get_pc_ram(pc_id: int, start: str, end: str, bucket_value: str = '1 minute')
 
 
 @pc.get('/{pc_id}/cpu', response_model=PCData, tags=["PC"])
-def get_pc_cpu(pc_id: int, start: str, end: str, bucket_value: str = '1 minute'):
+def get_pc_cpu(pc_id: int, start: str, end: str, bucket_value: str = '1 minutes'):
     """
     Get data from PCs by ID and for a defined type like RAM or CPU
 
@@ -150,7 +151,24 @@ def get_pc_disk_space(pc_id: int, start: str, end: str):
     """
     df, disk_space_list = db_access.pc.get_disk_space_between(pc_id, start, end)
     print(df)
-    return disk_space_list
+    stats = StatisticData(
+        average=df["value"].mean(),
+        current=df["value"].iloc[-1],
+        stability=determine_stability(df["value"].std()),
+        message=""
+
+    )
+    pc_data = PCData(
+        pc_id=pc_id,
+        start=start,
+        end=end,
+        time_series_list=disk_space_list,
+        statistic_data=stats,
+        allocation_list=[],
+        events_and_anomalies=[]
+    )
+
+    return pc_data
 
 
 

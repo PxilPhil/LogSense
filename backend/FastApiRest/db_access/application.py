@@ -299,47 +299,47 @@ def select_total_running_time_application(start: datetime, end: datetime, applic
     cursor = conn.cursor()
     try:
         total_running_time_query = """
-WITH app_with_lead AS (
-    SELECT
-        id,
-        pcdata_id,
-        pc_id,
-        name,
-        path,
-        measurement_time,
-        ram,
-        cpu,
-        LEAD(measurement_time) OVER (PARTITION BY pc_id, name ORDER BY measurement_time) AS next_measurement_time
-    FROM
-        applicationdata
-    WHERE
-        pc_id = %s AND
-        name LIKE %s
-)
-SELECT
-    name,
-    SUM(
-        CASE
-            WHEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time) >= 30 AND EXTRACT(EPOCH FROM next_measurement_time - measurement_time) <= 90 THEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time)
-            ELSE 0
-        END
-    ) AS total_running_time_seconds
-FROM
-    app_with_lead
-WHERE
-    next_measurement_time IS NOT NULL
-    AND measurement_time BETWEEN %s AND %s
-GROUP BY
-    name
-HAVING
-    SUM(
-        CASE
-            WHEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time) >= 30 AND EXTRACT(EPOCH FROM next_measurement_time - measurement_time) <= 90 THEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time)
-            ELSE 0
-        END
-    ) > 0
-ORDER BY
-    SUM(ram) DESC, SUM(cpu) DESC;
+        WITH app_with_lead AS (
+            SELECT
+                id,
+                pcdata_id,
+                pc_id,
+                name,
+                path,
+                measurement_time,
+                ram,
+                cpu,
+                LEAD(measurement_time) OVER (PARTITION BY pc_id, name ORDER BY measurement_time) AS next_measurement_time
+            FROM
+                applicationdata
+            WHERE
+                pc_id = %s AND
+                name LIKE %s
+        )
+        SELECT
+            name,
+            SUM(
+                CASE
+                    WHEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time) >= 30 AND EXTRACT(EPOCH FROM next_measurement_time - measurement_time) <= 90 THEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time)
+                    ELSE 0
+                END
+            ) AS total_running_time_seconds
+        FROM
+            app_with_lead
+        WHERE
+            next_measurement_time IS NOT NULL
+            AND measurement_time BETWEEN %s AND %s
+        GROUP BY
+            name
+        HAVING
+            SUM(
+                CASE
+                    WHEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time) >= 30 AND EXTRACT(EPOCH FROM next_measurement_time - measurement_time) <= 90 THEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time)
+                    ELSE 0
+                END
+            ) > 0
+        ORDER BY
+            SUM(ram) DESC, SUM(cpu) DESC;
         """
 
         cursor.execute(total_running_time_query, (pc_id, application_name, start, end))
