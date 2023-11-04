@@ -63,9 +63,18 @@ def get_all_alerts(user_id: int):
     500: {"description": "Internal server error"}
 })
 def add_custom_alert(alert: CustomAlert):
+    # make every "empty" into null
+    for condition in alert.conditions:
+        if condition.absolute_trigger_value == "":
+            condition.absolute_trigger_value = None
+        if condition.percentage_trigger_value == "":
+            condition.percentage_trigger_value = None
+        if condition.application == "":
+            condition.application = None
+    if (condition.percentage_trigger_value == None and condition.absolute_trigger_value == None) or condition.column == None or condition.column == "":
+        return JSONResponse(content={"detail": "Alert had no meaningful trigger values", "anomaly_id": 0}, status_code=404)
     anomaly_id = ingestCustomAlerts(alert)
-    return JSONResponse(content={"detail": "anomalies inserted successfully", "anomaly_id": anomaly_id},
-                        status_code=200)
+    return JSONResponse(content={"detail": "Alert inserted successfully", "anomaly_id": anomaly_id}, status_code=200)
 
 # 3 - delete
 @alerts.delete("/{alert_id}", tags=["Alerts"], responses={
