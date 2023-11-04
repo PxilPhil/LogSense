@@ -47,7 +47,7 @@ def get_pcs():
     cursor = conn.cursor()
     try:
         query = """
-            SELECT u.Name AS username, u.EMail AS email, pc.hardware_uuid, pc.client_name, pc.manufacturer, pc.model
+            SELECT pc.id, u.Name AS username, u.EMail AS email, pc.hardware_uuid, pc.client_name, pc.manufacturer, pc.model
             FROM logSenseUser u
             JOIN PC pc ON u.ID = pc.USER_ID;
         """
@@ -56,8 +56,8 @@ def get_pcs():
 
         pcs = []
         for row in rows:
-            pc = {'user_name': row[0], 'email': row[1], 'hardware_uuid': row[2], 'client_name': row[3],
-                  'manufacturer': row[4], 'model': row[5]}
+            pc = {'id': row[0], 'user_name': row[1], 'email': row[2], 'hardware_uuid': row[3], 'client_name': row[4],
+                  'manufacturer': row[5], 'model': row[6]}
             pcs.append(pc)
         return pcs
     except psycopg2.DatabaseError as e:
@@ -71,7 +71,7 @@ def get_pcs_by_userid(user_id):
     cursor = conn.cursor()
     try:
         query = """
-            SELECT pc.hardware_uuid, pc.client_name, pc.manufacturer, pc.model
+            SELECT pc.id, pc.hardware_uuid, pc.client_name, pc.manufacturer, pc.model
             FROM PC pc
             WHERE pc.USER_ID = %s;
     
@@ -81,7 +81,7 @@ def get_pcs_by_userid(user_id):
 
         pcs = []
         for row in rows:
-            pc = {'hardware_uuid': row[0], 'client_name': row[1], 'manufacturer': row[2], 'model': row[3]}
+            pc = {'id': row[0], 'hardware_uuid': row[1], 'client_name': row[2], 'manufacturer': row[3], 'model': row[4]}
             pcs.append(pc)
         return pcs
     except psycopg2.DatabaseError as e:
