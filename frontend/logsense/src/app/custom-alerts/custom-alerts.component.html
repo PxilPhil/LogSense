@@ -33,22 +33,25 @@
               <option *ngFor="let value of [1, 2, 3, 4, 5]" [ngValue]="value">{{value}}</option>
             </select>
           </div>
-          <span class="txt-22 mar-bot-12">Conditions</span>
-          <div class="flex-center mar-bot-24">
+          <div class="flex-row mar-bot-24">
             <span class="txt-16 mar-right-24 label">Column:</span>
-            <input class="input" [(ngModel)]="selectedUserAlert.conditions[0].column" >
+            <select [(ngModel)]="selectedUserAlert.conditions[0].column">
+              <option *ngFor="let column of columns" [ngValue]="column">{{column}}</option>
+            </select>
           </div>
-          <div class="flex-center mar-bot-24">
+          <div class="flex-row mar-bot-24">
             <span class="txt-16 mar-right-24 label">Application:</span>
-            <input class="input" [(ngModel)]="selectedUserAlert.conditions[0].application" >
+            <select [(ngModel)]="selectedUserAlert.conditions[0].application">
+              <option *ngFor="let application of applications" [ngValue]="application">{{application}}</option>
+            </select>
           </div>
           <div class="flex-center mar-bot-24">
             <span class="txt-16 mar-right-24 label">Percentual Value:</span>
-            <input class="input" [(ngModel)]="selectedUserAlert.conditions[0].percentage_trigger_value" >
+            <input class="input" [(ngModel)]="selectedUserAlert.conditions[0].percentage_trigger_value" type="number">
           </div>
           <div class="flex-center mar-bot-24">
             <span class="txt-16 mar-right-24 label">Absolute Value:</span>
-            <input class="input" [(ngModel)]="selectedUserAlert.conditions[0].absolute_trigger_value">
+            <input class="input" [(ngModel)]="selectedUserAlert.conditions[0].absolute_trigger_value" type="number">
           </div>
           <div class="flex-center mar-bot-24">
             <span class="txt-16 mar-right-24 label">Operator:</span>
@@ -67,6 +70,7 @@
             <button (click)="discardSelection()" class="default-btn mar-right-32">Discard</button>
             <button (click)="postUserAlert()"class="default-btn">  {{ selected_from_database ? 'Update' : 'Save' }}</button>
           </div>
+          <div class="flex-center mar-bot-24" style="color: red" *ngIf="error_occured">Error ocurred</div>
         </div>
       </div>
     </div>

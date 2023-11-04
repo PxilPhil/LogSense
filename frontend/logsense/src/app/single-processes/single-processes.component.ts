@@ -120,6 +120,8 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
         this.setData();
         this.cpuUsageChart();
         this.ramUsageChart();
+        this.loadAlerts();
+
       });
     } else {
       this.applicationService.getApplicationByApplicationName(1, applicationName, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: Application) => {
@@ -129,6 +131,8 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
         this.setData();
         this.cpuUsageChart();
         this.ramUsageChart();
+        this.loadAlerts();
+
       });
     }
 
@@ -271,6 +275,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
 
   loadAlerts() {
     //is it fine to just get data like this?
+    console.log(this.selectedApplication.application_name)
     this.alerts = this.alertService.getStoredAlerts(this.selectedApplication.application_name, undefined);
   }
 

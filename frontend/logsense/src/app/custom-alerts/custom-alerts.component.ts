@@ -2,6 +2,9 @@ import {Component, OnInit} from '@angular/core';
 import {AlertService} from "../services/alert.service";
 import {UserAlert} from "../model/Alert";
 import {switchMap} from "rxjs";
+import { catchError } from 'rxjs/operators';
+import {ApplicationService} from "../services/application.service";
+import {DatePipe} from "@angular/common";
 
 @Component({
   selector: 'app-custom-alerts',
@@ -13,8 +16,11 @@ export class CustomAlertsComponent implements OnInit{
 
   operator: string[] = ["<", "=", ">"];
   detection: string[] = ["Data Point", "Moving Averages"];
+  applications: string [] = []
+  columns: string[] = ["cpu", "ram", "free_disk_space", "partition_major_faults", "partition_minor_faults", "available_memory", "open_files"]
   detection_selected: string = "Moving Averages" //todo: maybe do this in a different way
   selected_from_database = false
+  error_occured = false
 
   userAlerts: UserAlert[] = []
   selectedUserAlert: UserAlert = {
@@ -25,20 +31,21 @@ export class CustomAlertsComponent implements OnInit{
     severity_level: 1,
     conditions: [
       {
-        percentage_trigger_value: null,
+        percentage_trigger_value: 0.05,
         absolute_trigger_value: 1000,
         operator: ">",
-        column: "ram",
-        application: "exampleApp",
+        column: "",
+        application: "",
         detect_via_moving_averages: true,
       }
     ],
   };
 
-  constructor(private alertService: AlertService) {}
+  constructor(private alertService: AlertService, private applicationService: ApplicationService, private datePipe: DatePipe) {}
 
   ngOnInit() {
     this.loadUserAlerts();
+    this.loadApplicationNames();
   }
 
   loadUserAlerts() {
@@ -48,6 +55,7 @@ export class CustomAlertsComponent implements OnInit{
   }
 
   selectUserAlert(userAlert: UserAlert) {
+    this.error_occured = false;
     this.selectedUserAlert = { ...userAlert };
     this.selected_from_database = true;
     if (this.selectedUserAlert.conditions[0].detect_via_moving_averages) {
@@ -58,25 +66,44 @@ export class CustomAlertsComponent implements OnInit{
   }
 
   postUserAlert() {
+    this.error_occured = false;
+
+    //convert % value into floating points
+
+
     if (this.selected_from_database) {
       this.alertService
         .deleteUserAlert(this.selectedUserAlert.id)
         .pipe(
-          switchMap(() => this.alertService.postUserAlert(this.selectedUserAlert))
+          switchMap(() => this.alertService.postUserAlert(this.selectedUserAlert)),
+          catchError((error) => {
+            console.error("Error in postUserAlert:", error);
+            this.error_occured = true; // Set the error flag
+            return [];
+          })
         )
         .subscribe(() => {
-          this.discardSelection()
+          this.discardSelection();
           this.loadUserAlerts();
         });
     } else {
-      this.alertService.postUserAlert(this.selectedUserAlert).subscribe(() => {
-        this.discardSelection()
-        this.loadUserAlerts();
-      });
+      this.alertService.postUserAlert(this.selectedUserAlert)
+        .pipe(
+          catchError((error) => {
+            console.error("Error in postUserAlert:", error);
+            this.error_occured = true; // Set the error flag
+            return [];
+          })
+        )
+        .subscribe(() => {
+          this.discardSelection();
+          this.loadUserAlerts();
+        });
     }
   }
 
   deleteUserAlert() {
+    this.error_occured = false;
     if (this.selected_from_database) {
       this.alertService.deleteUserAlert(this.selectedUserAlert.id).subscribe(() => {
         this.discardSelection();
@@ -86,6 +113,7 @@ export class CustomAlertsComponent implements OnInit{
   }
 
   discardSelection() {
+    this.error_occured = false;
     this.selected_from_database = false;
     this.selectedUserAlert = {
       id: 1,
@@ -95,14 +123,36 @@ export class CustomAlertsComponent implements OnInit{
       severity_level: 1,
       conditions: [
         {
-          percentage_trigger_value: null,
+          percentage_trigger_value: 0.05,
           absolute_trigger_value: 1000,
           operator: ">",
-          column: "ram",
-          application: "exampleApp",
+          column: "",
+          application: "",
           detect_via_moving_averages: true,
         }
       ],
     };
+  }
+
+  private loadApplicationNames() {
+    this.applicationService.getApplicationNameList(1, this.datePipe.transform(Date.now() - Date.now(), 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(Date.now(), 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe(data => {
+      this.applications=data.application_list;
+      console.log(this.applications)
+    })
+  }
+
+  convertPercentageToDecimal(percentageValue: string): number | null {
+    percentageValue = percentageValue.trim();
+
+    if (percentageValue.endsWith('%')) {
+      const percentage = parseFloat(percentageValue.slice(0, -1));
+
+      if (!isNaN(percentage)) {
+        // Convert the percentage to a decimal by dividing by 100
+        return percentage / 100;
+      }
+    }
+
+    return null;
   }
 }

@@ -40,7 +40,7 @@ export class AlertService { // service used to get alerts from the api and then 
     return this.alerts.filter((alert) => {
       if (application_name && columns && columns.length > 0) {
         return alert.application === application_name && columns.includes(alert.column);
-      } else if (application_name && columns && columns.length === 0) {
+      } else if (application_name) {
         return alert.application === application_name;
       } else if (!application_name && columns && columns.length > 0) {
         return columns.includes(alert.column);
