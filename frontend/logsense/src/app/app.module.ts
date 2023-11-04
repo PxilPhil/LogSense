@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
-import {CommonModule, DatePipe} from "@angular/common";
+import {CommonModule, DatePipe, NgOptimizedImage} from "@angular/common";
 
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
@@ -27,7 +27,8 @@ import {MatDividerModule} from "@angular/material/divider";
 import { CustomAlertsComponent } from './custom-alerts/custom-alerts.component';
 import { TimeMetricsComponent } from './time-metrics/time-metrics.component';
 import { AlertsComponent } from './alerts/alerts.component';
-import {MatRadioModule} from "@angular/material/radio"; // Import HttpClientModule
+import {MatRadioModule} from "@angular/material/radio";
+import { PcSelectionComponent } from './pc-selection/pc-selection.component'; // Import HttpClientModule
 
 @NgModule({
   declarations: [
@@ -46,22 +47,24 @@ import {MatRadioModule} from "@angular/material/radio"; // Import HttpClientModu
     PartDialogComponent,
     CustomAlertsComponent,
     TimeMetricsComponent,
-    AlertsComponent
+    AlertsComponent,
+    PcSelectionComponent
   ],
-    imports: [
-        BrowserModule,
-        AppRoutingModule,
-        CommonModule,
-        BrowserAnimationsModule,
-        MatIconModule,
-        MatFormFieldModule,
-        FormsModule,
-        MatInputModule,
-        MatDialogModule,
-        HttpClientModule,
-        MatDividerModule,
-        MatRadioModule
-    ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    CommonModule,
+    BrowserAnimationsModule,
+    MatIconModule,
+    MatFormFieldModule,
+    FormsModule,
+    MatInputModule,
+    MatDialogModule,
+    HttpClientModule,
+    MatDividerModule,
+    MatRadioModule,
+    NgOptimizedImage
+  ],
   providers: [DatePipe],
   bootstrap: [AppComponent]
 })

@@ -1,0 +1,15 @@
+<router-outlet></router-outlet>
+<div class="anti-th pad-bot-64 pad-right-128">
+  <h1 class="mar-left-64 mar-top-48">PC Selection</h1>
+  <div class="pad-left-64 mar-top-24 flex-container">
+    <div *ngFor="let pc of userPcs" class="grey-box mar-right-24 mar-bot-24 flex-item">
+      <div class="logsense-icon">
+        <img ngSrc="./assets/LogSenseIcon.svg" height="124" width="124" alt="PC">
+      </div>
+      <div class="pc-info">
+        <span class="txt-22">{{pc.client_name}}</span><br>
+        <span class="txt-16 mar-right-24">{{pc.hardware_uuid}}</span>
+      </div>
+    </div>
+  </div>
+</div>
