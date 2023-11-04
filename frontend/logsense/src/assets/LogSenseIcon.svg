@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84.4 63.12">
+  <rect x="14.83" y=".5" width="54.4" height="32.68" rx="2.72" ry="2.72" style="fill: none; stroke: #231f20; stroke-miterlimit: 10;"/>
+  <circle cx="24.36" cy="24.87" r="1.7" style="fill: none; stroke: #231f20; stroke-miterlimit: 10; stroke-width: .8px;"/>
+  <circle cx="35.74" cy="14.16" r="1.7" style="fill: none; stroke: #231f20; stroke-miterlimit: 10; stroke-width: .8px;"/>
+  <circle cx="50.32" cy="18.54" r="1.7" style="fill: none; stroke: #231f20; stroke-miterlimit: 10; stroke-width: .8px;"/>
+  <circle cx="60.87" cy="10" r="1.7" style="fill: none; stroke: #231f20; stroke-miterlimit: 10; stroke-width: .8px;"/>
+  <line x1="25.55" y1="23.65" x2="34.35" y2="15.15" style="fill: none; stroke: #231f20; stroke-miterlimit: 10; stroke-width: .8px;"/>
+  <line x1="37.44" y1="14.8" x2="48.62" y2="18.03" style="fill: none; stroke: #231f20; stroke-miterlimit: 10; stroke-width: .8px;"/>
+  <line x1="52.02" y1="17.61" x2="59.74" y2="11.26" style="fill: none; stroke: #231f20; stroke-miterlimit: 10; stroke-width: .8px;"/>
+  <line x1="12.42" y1="35.88" x2="71.63" y2="35.88" style="fill: none; stroke: #231f20; stroke-miterlimit: 10; stroke-width: 1.4px;"/>
+</svg>
