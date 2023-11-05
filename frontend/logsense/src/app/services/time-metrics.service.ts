@@ -19,5 +19,4 @@ export class TimeMetricsService {
     const url: string = `http://localhost:8000/pc/${pc_id}/application/${app_name}/time-metrics/?start=${start}&end=${end}`;
     return this.httpClient.get<TimeMetrics>(url);
   }
-
 }

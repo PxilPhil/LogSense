@@ -4,4 +4,5 @@ export class PC {
   client_name: string = "";
   manufacturer: string | null = "";
   model: string | null = "";
+  selectedForDisplay: boolean = false;
 }
