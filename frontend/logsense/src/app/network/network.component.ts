@@ -3,6 +3,7 @@ import {NetworkDataService} from "../services/network.service";
 import {NetworkData} from "../model/NetworkData";
 import {Alert} from "../model/Alert";
 import {AlertService} from "../services/alert.service";
+import {SelectedPcService} from "../services/selected-pc.service";
 
 @Component({
   selector: 'app-network',
@@ -12,25 +13,29 @@ import {AlertService} from "../services/alert.service";
 export class NetworkComponent implements OnInit {
   networkData: NetworkData = new NetworkData();
 
-  constructor(private networkDataService: NetworkDataService, private alertService: AlertService) {
+  pcId: number = 0;
+  showPcIdAlert: boolean = true;
+
+  constructor(private networkDataService: NetworkDataService, private alertService: AlertService, private selectedPcService: SelectedPcService) {
   }
 
   ngOnInit() {
+    this.getSelectedPcId();
     this.loadNetworkData();
-    //this.loadAlerts();    //TODO: insert again when endpoint is implemented
   }
 
   loadNetworkData() {
-    this.networkDataService.getNetworkData(1 /* TODO get dynamic pc id */).subscribe((data: NetworkData) => {
+    this.networkDataService.getNetworkData(this.pcId).subscribe((data: NetworkData) => {
       this.networkData = data;
     });
   }
 
-  /*
-  loadAlerts(): void {
-    this.alertService.getAlerts().subscribe((data: Alert[]) => {
-      //this.alerts = data;
-    });
+  getSelectedPcId() {
+    if (this.selectedPcService.getSelectedPcId() != null) {
+      this.pcId = this.selectedPcService.getSelectedPcId()!;
+      this.showPcIdAlert = false;
+    } else {
+      this.showPcIdAlert = true;
+    }
   }
-  */
 }

@@ -5,6 +5,7 @@ import {switchMap} from "rxjs";
 import { catchError } from 'rxjs/operators';
 import {ApplicationService} from "../services/application.service";
 import {DatePipe} from "@angular/common";
+import {SelectedPcService} from "../services/selected-pc.service";
 
 @Component({
   selector: 'app-custom-alerts',
@@ -41,9 +42,13 @@ export class CustomAlertsComponent implements OnInit{
     ],
   };
 
-  constructor(private alertService: AlertService, private applicationService: ApplicationService, private datePipe: DatePipe) {}
+  pcId: number = 0;
+  showPcIdAlert: boolean = true;
+
+  constructor(private alertService: AlertService, private applicationService: ApplicationService, private selectedPcService: SelectedPcService, private datePipe: DatePipe) {}
 
   ngOnInit() {
+    this.getSelectedPcId();
     this.loadUserAlerts();
     this.loadApplicationNames();
   }
@@ -135,7 +140,7 @@ export class CustomAlertsComponent implements OnInit{
   }
 
   private loadApplicationNames() {
-    this.applicationService.getApplicationNameList(1, this.datePipe.transform(Date.now() - Date.now(), 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(Date.now(), 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe(data => {
+    this.applicationService.getApplicationNameList(this.pcId, this.datePipe.transform(Date.now() - Date.now(), 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(Date.now(), 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe(data => {
       this.applications=data.application_list;
       console.log(this.applications)
     })
@@ -154,5 +159,14 @@ export class CustomAlertsComponent implements OnInit{
     }
 
     return null;
+  }
+
+  getSelectedPcId() {
+    if (this.selectedPcService.getSelectedPcId() != null) {
+      this.pcId = this.selectedPcService.getSelectedPcId()!;
+      this.showPcIdAlert = false;
+    } else {
+      this.showPcIdAlert = true;
+    }
   }
 }

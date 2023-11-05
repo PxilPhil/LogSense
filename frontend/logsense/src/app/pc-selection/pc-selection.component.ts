@@ -1,6 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {PC} from "../model/PC";
 import {PcService} from "../services/pc.service";
+import {SelectedPcService} from "../services/selected-pc.service";
+import _default from "chart.js/dist/plugins/plugin.legend";
+import onHover = _default.defaults.onHover;
 
 @Component({
     selector: 'app-pc-selection',
@@ -12,13 +15,12 @@ export class PcSelectionComponent implements OnInit {
     newHardwareUUID: string = "";
     newClientName: string = "";
 
-    constructor(private pcService: PcService) {
+    constructor(private pcService: PcService, private selectedPcService: SelectedPcService) {
     }
 
     ngOnInit(): void {
         this.pcService.getPCsOfUser(1 /* TODO: exchange with id of the user that is logged in */).subscribe((userPCs) => {
             this.userPcs = userPCs.pcs;
-            this.userPcs.at(0)!.selectedForDisplay = true;
         });
     }
 
@@ -29,6 +31,7 @@ export class PcSelectionComponent implements OnInit {
             }
         });
         selectedPc.selectedForDisplay = true;
+        this.setSelectedPcId(selectedPc.id);
     }
 
     addPC() {
@@ -39,7 +42,17 @@ export class PcSelectionComponent implements OnInit {
         };
 
         this.pcService.addPCToUser(userPC).subscribe((response) => {
-            console.log(response.pc_id);
+            this.pcService.getPCsOfUser(1 /* TODO: exchange with id of the user that is logged in */).subscribe((userPCs) => {
+                this.userPcs = userPCs.pcs;
+            });
         });
+    }
+
+    removePc(pcId: number) {
+        //TODO: add when api endpoint is implemented
+    }
+
+    setSelectedPcId(selectedPcId: number) {
+        this.selectedPcService.setSelectedPcId(selectedPcId);
     }
 }

@@ -10,6 +10,7 @@ import {PCDataService} from "../services/pc-data.service";
 import {PCData, PCTimeSeriesData, TimeSeriesData} from "../model/PCData";
 import {DatePipe} from "@angular/common";
 import {ChartData} from "../ram/ram.component";
+import {SelectedPcService} from "../services/selected-pc.service";
 
 export interface TimeModel {
   id: Number;
@@ -50,11 +51,15 @@ export class DiskComponent implements OnInit, OnDestroy {
   isShowAnomaliesChecked: boolean = true;
   isShowPredictionsChecked: boolean = false;
 
-  constructor(public dialog: MatDialog, private diskDataService: DiskDataService, private pcDataService: PCDataService, private alertService: AlertService, private datePipe: DatePipe) {
+  pcId: number = 0;
+  showPcIdAlert: boolean = true;
+
+  constructor(public dialog: MatDialog, private diskDataService: DiskDataService, private pcDataService: PCDataService, private alertService: AlertService, private selectedPcService: SelectedPcService, private datePipe: DatePipe) {
     this.loadDiskData();  //only load diskStores and partitions on startup or on refresh
   }
 
   ngOnInit() {
+    this.getSelectedPcId();
     this.loadPCData();
     this.loadAlerts();
   }
@@ -70,7 +75,7 @@ export class DiskComponent implements OnInit, OnDestroy {
   }
 
   loadDiskData() {
-    this.diskDataService.getDiskData(1 /* TODO: get dynamic pc id */).subscribe((data: DiskData) => {
+    this.diskDataService.getDiskData(this.pcId).subscribe((data: DiskData) => {
       this.diskData = data;
     });
   }
@@ -78,14 +83,14 @@ export class DiskComponent implements OnInit, OnDestroy {
   loadPCData() {
     let dateNow = Date.now();
     if(this.selectedTime.valueInMilliseconds == 0) {
-      this.diskDataService.getDiskTimeseriesData(1 /* TODO: get dynamic pc id */, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: TimeSeriesData[]) => {
+      this.diskDataService.getDiskTimeseriesData(this.pcId, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: TimeSeriesData[]) => {
         this.diskData.time_series_data = data;
         this.transformData();
         //this.latestPCDataMeasurement = this.getLatestPCDataMeasurement();
         this.diskUsageChart();
       });
     } else {
-      this.diskDataService.getDiskTimeseriesData(1 /* TODO: get dynamic pc id */, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: TimeSeriesData[]) => {
+      this.diskDataService.getDiskTimeseriesData(this.pcId, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: TimeSeriesData[]) => {
         this.diskData.time_series_data = data;
         this.transformData();
         //this.latestPCDataMeasurement = this.getLatestPCDataMeasurement();
@@ -192,5 +197,14 @@ export class DiskComponent implements OnInit, OnDestroy {
   loadAlerts() {
     //is it fine to just get data like this?
     this.alerts = this.alertService.getStoredAlerts(undefined, ['free_disk_space', 'read_bytes_disk', 'reads_disks', 'write_bytes_disks', 'writes_disks']);
+  }
+
+  getSelectedPcId() {
+    if (this.selectedPcService.getSelectedPcId() != null) {
+      this.pcId = this.selectedPcService.getSelectedPcId()!;
+      this.showPcIdAlert = false;
+    } else {
+      this.showPcIdAlert = true;
+    }
   }
 }

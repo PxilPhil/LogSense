@@ -1,4 +1,7 @@
 <div class="anti-th">
+  <c-alert *ngIf="showPcIdAlert" color="danger" class="mar-left-64 mar-top-24 mar-right-128">
+    <div>No PC is selected. Please select one here: <a cAlertLink [routerLink]="['/pc_selection']">PC Selection</a></div>
+  </c-alert>
   <h1 class="mar-left-64 mar-top-48">Network</h1>
   <div class="pad-left-64 pad-right-128 mar-top-32 w-100">
     <h2 class="mar-bot-24">Network Interfaces</h2>
@@ -35,7 +38,7 @@
       </table>
     </div>
   </div>
-  <div class="pad-left-64 pad-right-128 mar-top-32 w-100">
+  <div class="pad-left-64 pad-right-128 mar-top-32 mar-bot-64 w-100">
     <h2 class="mar-bot-24">Connections</h2>
     <div class="grey-box">
       <table class="table txt-16">

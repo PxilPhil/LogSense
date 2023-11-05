@@ -3,8 +3,9 @@
   <h1 class="mar-left-64 mar-top-48">PC Selection</h1>
   <div class="pad-left-64 mar-top-24 flex-container">
     <div *ngFor="let pc of userPcs" class="grey-box mar-right-24 mar-bot-24 flex-item">
-      <div class="selection_checkbox">
-        <input type="checkbox" class="form-check-input" [checked]="pc.selectedForDisplay" (change)="selectPC(pc)">
+      <div class="interactions">
+        <mat-icon (click)="removePc(pc.id)" class="icon mar-right-12">delete_outline</mat-icon>
+        <input type="checkbox" class="form-check-input" [checked]="pc.selectedForDisplay" (change)="selectPC(pc)" [disabled]="pc.selectedForDisplay">
       </div>
       <div class="logsense-icon">
         <img ngSrc="./assets/LogSenseIcon.svg" height="124" width="124" alt="PC">
