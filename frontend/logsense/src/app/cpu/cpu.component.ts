@@ -12,6 +12,7 @@ import {ResourceMetricsService} from "../services/resource-metrics.service";
 import {ResourceMetricsModel} from "../model/ResourceMetrics";
 import {Alert} from "../model/Alert";
 import {AlertService} from "../services/alert.service";
+import {SelectedPcService} from "../services/selected-pc.service";
 
 /*export class CPUModel {
   cpuName: String = "AMD Ryzen 7 5800H";
@@ -48,6 +49,9 @@ export class CpuComponent implements OnInit {
   displayedProcesses: Process[] = [];
   cpuChart: Chart | undefined;
 
+  pcId: number = 0;
+  showPcIdAlert: boolean = true;
+
   notes: String[] = ["CPU Usage dropped 4%", "21 Anomalies detected", "5 Events registered"];
   processes: ProcessModel[] = [{name: "Chrome", allocation: 15}, {name: "Explorer", allocation: 10}, {
     name: "Intellij",
@@ -68,9 +72,10 @@ export class CpuComponent implements OnInit {
   checked: String = "";
   radioOptions: String[] = ["Show None", "Show Anomalies", "Show Events and Anomalies"];
 
-  constructor(private alertService: AlertService, private cpuService: CpuService, private pcDataService: PCDataService, private datePipe: DatePipe, @Inject(LOCALE_ID) public locale: string, private statService: ResourceMetricsService) {}
+  constructor(private alertService: AlertService, private cpuService: CpuService, private pcDataService: PCDataService, private datePipe: DatePipe, @Inject(LOCALE_ID) public locale: string, private statService: ResourceMetricsService, private selectedPcService: SelectedPcService) {}
 
   ngOnInit() {
+    this.getSelectedPcId();
     this.loadData();
     this.loadStats();
     this.loadGeneralInfo();
@@ -325,13 +330,13 @@ export class CpuComponent implements OnInit {
   }
 
   loadGeneralInfo() {
-    this.cpuService.getGeneral(1).subscribe((data: CPUGeneral) => {
+    this.cpuService.getGeneral(this.pcId).subscribe((data: CPUGeneral) => {
       this.cpuGeneral = data;
     })
   }
 
   loadStats() {
-    this.statService.getResourceMetrics(1).subscribe((data: ResourceMetricsModel) => {
+    this.statService.getResourceMetrics(this.pcId).subscribe((data: ResourceMetricsModel) => {
       this.cpuStats.avg_cpu_usage_percentage_last_day = this.roundDecimal(data.avg_cpu_usage_percentage_last_day, 2);
       this.cpuStats.cpu_stability = data.cpu_stability;
       this.cpuStats.cpu_percentage_use = this.roundDecimal(data.cpu_percentage_use, 2);
@@ -341,14 +346,14 @@ export class CpuComponent implements OnInit {
   loadData() {
     let dateNow = Date.now();
     if(this.selectedTime.valueInMilliseconds!=0) {
-      this.pcDataService.getCPUData(1, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "").subscribe((data: CPUModel) => {
+      this.pcDataService.getCPUData(this.pcId, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "").subscribe((data: CPUModel) => {
         this.cpu = data;
         this.transformData();
         this.showAll();
         this.reloadChart();
       });
     } else {
-      this.pcDataService.getCPUData(1, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "").subscribe((data: CPUModel) => {
+      this.pcDataService.getCPUData(this.pcId, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "").subscribe((data: CPUModel) => {
         this.cpu = data;
         this.transformData();
         this.showAll();
@@ -386,4 +391,12 @@ export class CpuComponent implements OnInit {
     this.alerts = this.alertService.getStoredAlerts(undefined, ['cpu']);
   }
 
+  getSelectedPcId() {
+    if (this.selectedPcService.getSelectedPcId() != null) {
+      this.pcId = this.selectedPcService.getSelectedPcId()!;
+      this.showPcIdAlert = false;
+    } else {
+      this.showPcIdAlert = true;
+    }
+  }
 }

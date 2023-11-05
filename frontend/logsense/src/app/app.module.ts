@@ -24,49 +24,51 @@ import {MatDialogModule} from "@angular/material/dialog";
 import {PartDialogComponent} from './part-dialog/part-dialog.component';
 import {HttpClientModule} from '@angular/common/http';
 import {MatDividerModule} from "@angular/material/divider";
-import { CustomAlertsComponent } from './custom-alerts/custom-alerts.component';
-import { TimeMetricsComponent } from './time-metrics/time-metrics.component';
-import { AlertsComponent } from './alerts/alerts.component';
+import {CustomAlertsComponent} from './custom-alerts/custom-alerts.component';
+import {TimeMetricsComponent} from './time-metrics/time-metrics.component';
+import {AlertsComponent} from './alerts/alerts.component';
 import {MatRadioModule} from "@angular/material/radio";
-import { PcSelectionComponent } from './pc-selection/pc-selection.component'; // Import HttpClientModule
+import {PcSelectionComponent} from './pc-selection/pc-selection.component';
+import {AlertModule} from "@coreui/angular"; // Import HttpClientModule
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    MainPageComponent,
-    ToolbarComponent,
-    HeaderComponent,
-    OverviewComponent,
-    DashboardComponent,
-    LoginComponent,
-    CpuComponent,
-    SingleProcessesComponent,
-    RamComponent,
-    DiskComponent,
-    NetworkComponent,
-    PartDialogComponent,
-    CustomAlertsComponent,
-    TimeMetricsComponent,
-    AlertsComponent,
-    PcSelectionComponent
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    CommonModule,
-    BrowserAnimationsModule,
-    MatIconModule,
-    MatFormFieldModule,
-    FormsModule,
-    MatInputModule,
-    MatDialogModule,
-    HttpClientModule,
-    MatDividerModule,
-    MatRadioModule,
-    NgOptimizedImage
-  ],
-  providers: [DatePipe],
-  bootstrap: [AppComponent]
+    declarations: [
+        AppComponent,
+        MainPageComponent,
+        ToolbarComponent,
+        HeaderComponent,
+        OverviewComponent,
+        DashboardComponent,
+        LoginComponent,
+        CpuComponent,
+        SingleProcessesComponent,
+        RamComponent,
+        DiskComponent,
+        NetworkComponent,
+        PartDialogComponent,
+        CustomAlertsComponent,
+        TimeMetricsComponent,
+        AlertsComponent,
+        PcSelectionComponent
+    ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        CommonModule,
+        BrowserAnimationsModule,
+        MatIconModule,
+        MatFormFieldModule,
+        FormsModule,
+        MatInputModule,
+        MatDialogModule,
+        HttpClientModule,
+        MatDividerModule,
+        MatRadioModule,
+        NgOptimizedImage,
+        AlertModule
+    ],
+    providers: [DatePipe],
+    bootstrap: [AppComponent]
 })
 export class AppModule {
 }

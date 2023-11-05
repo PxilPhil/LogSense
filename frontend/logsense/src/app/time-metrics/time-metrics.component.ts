@@ -1,9 +1,10 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Chart} from "chart.js";
 import {TimeModel} from "../disk/disk.component";
 import {TimeMetrics, TimeMetricsModel} from "../model/TimeMetrics";
 import {TimeMetricsService} from "../services/time-metrics.service";
 import {DatePipe} from "@angular/common";
+import {SelectedPcService} from "../services/selected-pc.service";
 
 @Component({
   selector: 'app-time-metrics',
@@ -25,6 +26,8 @@ export class TimeMetricsComponent implements OnInit, OnDestroy {
   timeMetricsChart: Chart | undefined;
   timeMetrics: TimeMetrics = new TimeMetrics();
   showAll: boolean = false;
+
+  @Input('pcId') pcId: number = 0;
 
   constructor(private timeService: TimeMetricsService, private datePipe: DatePipe) {
   }
@@ -87,7 +90,7 @@ export class TimeMetricsComponent implements OnInit, OnDestroy {
     this.timeMetrics.total_running_time_minutes = [];
     var i = 0;
     if(this.selectedTime.valueInMilliseconds!=0) {
-      this.timeService.getTimeMetrics(1,this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: TimeMetricsModel) => {
+      this.timeService.getTimeMetrics(this.pcId,this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: TimeMetricsModel) => {
         for (let entry of data.data) {
           this.timeMetrics.name.push(entry.name);
           this.timeMetrics.total_running_time_minutes.push(Math.round((entry.total_running_time_seconds/60/60 + Number.EPSILON) * 100) / 100); //seconds to hrs
@@ -99,7 +102,7 @@ export class TimeMetricsComponent implements OnInit, OnDestroy {
         this.timeChart();
       });
     } else {
-      this.timeService.getTimeMetrics(1,this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: TimeMetricsModel) => {
+      this.timeService.getTimeMetrics(this.pcId,this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: TimeMetricsModel) => {
         for (let entry of data.data) {
           this.timeMetrics.name.push(entry.name);
           this.timeMetrics.total_running_time_minutes.push(Math.round((entry.total_running_time_seconds/60/60 + Number.EPSILON) * 100) / 100); //seconds to hours

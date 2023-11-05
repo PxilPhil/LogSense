@@ -1,5 +1,8 @@
 <router-outlet></router-outlet>
 <div class="anti-th pad-bot-64 pad-right-128">
+  <c-alert *ngIf="showPcIdAlert" color="danger" class="mar-left-64 mar-top-24">
+    <div>No PC is selected. Please select one here: <a cAlertLink [routerLink]="['/pc_selection']">PC Selection</a></div>
+  </c-alert>
   <h1 class="mar-left-64 mar-top-48">Overview</h1>
   <div class=" mar-top-32 space-base pad-left-64">
     <div class="flex-center">
@@ -110,7 +113,7 @@
   </div>
 
   <div class="mar-bot-32">
-    <app-time-metrics></app-time-metrics>
+    <app-time-metrics [pcId]="pcId"></app-time-metrics>
   </div>
 
   <div class="pad-left-64">
