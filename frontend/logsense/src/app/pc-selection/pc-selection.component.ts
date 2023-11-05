@@ -2,6 +2,8 @@ import {Component, OnInit} from '@angular/core';
 import {PC} from "../model/PC";
 import {PcService} from "../services/pc.service";
 import {SelectedPcService} from "../services/selected-pc.service";
+import _default from "chart.js/dist/plugins/plugin.legend";
+import onHover = _default.defaults.onHover;
 
 @Component({
     selector: 'app-pc-selection',
@@ -44,6 +46,10 @@ export class PcSelectionComponent implements OnInit {
                 this.userPcs = userPCs.pcs;
             });
         });
+    }
+
+    removePc(pcId: number) {
+        //TODO: add when api endpoint is implemented
     }
 
     setSelectedPcId(selectedPcId: number) {

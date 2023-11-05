@@ -97,6 +97,4 @@ export class OverviewComponent implements OnInit {
             this.showPcIdAlert = true;
         }
     }
-
-    protected readonly PcSelectionComponent = PcSelectionComponent;
 }
