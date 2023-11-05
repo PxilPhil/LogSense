@@ -21,7 +21,6 @@ class EventData(BaseModel):  # TODO: deprecated but kept in application to avoid
 
 class Justification(BaseModel):  # class containing justification data
     timestamp: datetime
-    value: float
     till_timestamp: datetime
     is_anomaly: bool
     justification_message: str
