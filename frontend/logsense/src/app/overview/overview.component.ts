@@ -4,30 +4,16 @@ import {CPUModel} from "../model/Cpu";
 import {RAMModel} from "../model/Ram";
 import {TimeModel} from "../disk/disk.component";
 import {ApiService} from '../services/api-service.service';
-import {PCData} from '../model/PCData';
+import {ClientDetails, PCData} from '../model/PCData';
 import {DiskData} from "../model/DiskData";
 import {ResourceMetricsModel} from "../model/ResourceMetrics";
 import {ResourceMetricsService} from "../services/resource-metrics.service";
 import {AlertService} from "../services/alert.service";
 import {DatePipe} from "@angular/common";
 import {Alert} from "../model/Alert";
+import {PCDataService} from "../services/pc-data.service";
 
 Chart.register(...registerables);
-
-export class PowerSourceModel {
-  systemBattery: String = "PowerSourceName";
-  remainingCapacity: Number = 75; //%
-  charging: Boolean = true;
-  discharging: Boolean = false;
-  powerOnLine: Boolean = true;
-}
-
-export class Client {
-  manufacturer: String = "Acer";
-  model: String = "Nitro AN517-52";
-  uuid: String = "E4A2D298-F59B-EA11-80D6-089798A075FA";
-  powerSources: PowerSourceModel = new PowerSourceModel();
-}
 
 @Component({
   selector: 'app-overview',
@@ -36,7 +22,7 @@ export class Client {
 })
 export class OverviewComponent implements OnInit {
 
-  client: Client = new Client();
+  client: ClientDetails = new ClientDetails();
   runtime: String = "2h 30min";
   resourceMetrics: ResourceMetricsModel = new ResourceMetricsModel();
   /*cpu: CPUModel = new CPUModel();
@@ -54,14 +40,21 @@ export class OverviewComponent implements OnInit {
     {id: 6, time: "All Time"}
   ];*/
 
-  constructor(private resourceService: ResourceMetricsService, private alertService: AlertService, private datePipe: DatePipe) {
+  constructor(private pcDataService: PCDataService, private resourceService: ResourceMetricsService, private alertService: AlertService, private datePipe: DatePipe) {
   }
 
   ngOnInit(): void {
     this.loadResourceMetrics();
+    this.loadClientDetails();
     this.loadAlerts();
   }
 
+  loadClientDetails() {
+    this.pcDataService.getClientDetails(1).subscribe((data: ClientDetails)=> {
+      this.client = data;
+      this.client.remaining_capacity=this.roundDecimal(this.client.remaining_capacity*100, 2);
+    })
+  }
   loadResourceMetrics() {
     this.resourceService.getResourceMetrics(1).subscribe((data: ResourceMetricsModel) => {
       this.resourceMetrics = data;

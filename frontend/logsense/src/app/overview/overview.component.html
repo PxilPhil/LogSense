@@ -3,46 +3,54 @@
   <h1 class="mar-left-64 mar-top-48">Overview</h1>
   <div class=" mar-top-32 space-base pad-left-64">
     <div class="flex-center">
-      <h2 class="mar-0-imp">{{client.manufacturer}} {{client.model}}</h2>
+      <h2>{{client.manufacturer}} {{client.model}}</h2>
       <div class="flex-center">
         <mat-icon class="info-icon icon-hov mar-left-12">info_outline</mat-icon>
         <div class="white-box hidden">
           <span class="txt-22">Details</span>
-          <div class="flex-row mar-bot-12 mar-top-12">
-            <div class="flex-col">
+          <div class="flex-col mar-bot-12 mar-top-12">
+            <div class="flex-row">
               <span class="txt-16">Manufacturer</span>
-              <span class="txt-16">Model</span>
-              <span class="txt-16">Hardware UUID</span>
-            </div>
-            <div class="flex-col">
               <span class="txt-16 mar-left-24">{{client.manufacturer}}</span>
+            </div>
+            <div class="flex-row">
+              <span class="txt-16">Model</span>
               <span class="txt-16 mar-left-24">{{client.model}}</span>
-              <span class="txt-16 mar-left-24">{{client.uuid}}</span>
+            </div>
+            <div class="flex-row">
+              <span class="txt-16">Hardware UUID</span>
+              <span class="txt-16 mar-left-24">{{client.hardware_uuid}}</span>
             </div>
           </div>
 
           <span class="txt-16">Power Sources:</span>
-          <div class="flex-row mar-left-12 lower">
-            <div class="flex-col">
+          <div class="flex-col mar-left-12 lower">
+            <div class="flex-row space-center">
               <span class="txt-16">System Battery</span>
-              <span class="txt-16">Remaining Capacity</span>
-              <span class="txt-16">Charging</span>
-              <span class="txt-16">Discharging</span>
-              <span class="txt-16">Power On Line</span>
+              <span class="txt-16 mar-left-24">{{client.system_battery}}</span>
             </div>
-            <div class="flex-col">
-              <span class="txt-16 mar-left-24">{{client.powerSources.systemBattery}}</span>
-              <span class="txt-16 mar-left-24">{{client.powerSources.remainingCapacity}}</span>
-              <span class="txt-16 mar-left-24">{{client.powerSources.charging}}</span>
-              <span class="txt-16 mar-left-24">{{client.powerSources.discharging}}</span>
-              <span class="txt-16 mar-left-24">{{client.powerSources.powerOnLine}}</span>
+            <div class="flex-row space-center">
+              <span class="txt-16">Remaining Capacity</span>
+              <span class="txt-16 mar-left-24">{{client.remaining_capacity}}%</span>
+            </div>
+            <div class="flex-row space-center">
+              <span class="txt-16 ">Charging</span>
+              <span class="txt-16 mar-left-24">{{client.charging}}</span>
+            </div>
+            <div class="flex-row space-center">
+              <span class="txt-16">Discharging</span>
+              <span class="txt-16 mar-left-24">{{client.discharging}}</span>
+            </div>
+            <div class="flex-row space-center">
+              <span class="txt-16">Power On Line</span>
+              <span class="txt-16 mar-left-24">{{client.power_on_line}}</span>
             </div>
           </div>
         </div>
       </div>
     </div>
     <div>
-      <span class="txt-16">running for: {{runtime}}</span>
+      <span class="txt-16 red">running for: {{runtime}}</span>
     </div>
   </div>
 

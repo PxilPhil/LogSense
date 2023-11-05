@@ -94,3 +94,14 @@ export class PCTimeSeriesData {
   open_files: number = 0;
   thread_count: number = 0;
 }
+
+export class ClientDetails {
+  manufacturer: string = "";
+  model: string = "";
+  hardware_uuid: string = "";
+  system_battery: string = "";
+  remaining_capacity: number = 0; //%
+  charging: boolean = false;
+  discharging: boolean = false;
+  power_on_line: boolean = false;
+}
