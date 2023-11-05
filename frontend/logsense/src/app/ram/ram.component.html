@@ -26,15 +26,15 @@
         <h3 class="mar-bot-24">Statistics ({{selectedTime.time}})</h3>
         <div class="white-bg">
           <div class="align-general">
-            <div class="align-txt">
+            <div class="align-txt w-100">
               <span class="txt-16">Total Memory</span>
               <span class="txt-16">Free Memory</span>
               <span class="txt-16">Page Size</span>
             </div>
-            <div class="align-txt mar-left-32">
-              <span class="txt-16">{{ram.totalMemory}}</span>
-              <span class="txt-16">{{ram.freeMemory}}</span>
-              <span class="txt-16">{{ram.pageSize}}</span>
+            <div class="align-txt mar-left-32 w-100">
+              <span class="txt-16 text-right">{{ramStats.total}} GB</span>
+              <span class="txt-16 text-right">{{ramStats.free}} GB</span>
+              <span class="txt-16 text-right">{{ramStats.page}} Byte</span>
             </div>
           </div>
 
@@ -44,7 +44,7 @@
                 Current
               </span>
               <div class="value">
-                {{ram.current}}%
+                {{ramStats.cur}}%
               </div>
             </div>
             <div class="white-box txt-16 sec">
@@ -52,7 +52,7 @@
                 Average
               </span>
               <div class="value">
-                {{ram.average}}%
+                {{ramStats.avg}}%
               </div>
             </div>
             <div class="white-box txt-16">
@@ -60,12 +60,12 @@
                 Stability
               </span>
               <div class="value">
-                {{ram.stability}}
+                {{ramStats.stability}}
               </div>
             </div>
           </div>
           <div class="align-notes mar-top-16">
-            <span *ngFor="let stat of ram.stats" class="txt-16 mar-bot-5">{{stat}}</span>
+            <!--<span *ngFor="let stat of ram.stats" class="txt-16 mar-bot-5">{{stat}}</span>-->
           </div>
         </div>
       </div>
@@ -74,8 +74,8 @@
 
   <div class="pad-bot-64 pad-left-64 pad-right-128 align-general mar-top-32" [ngClass]="{'show-all-true': showAllProcesses, 'wrapper': !showAllProcesses}">
     <div [ngClass]="{'first-all': showAllProcesses, 'first': !showAllProcesses}">
-      <div>
-        <app-alerts [alerts]="ram.alerts"></app-alerts>
+      <div class="mar-top-32">
+        <app-alerts [alerts]="alerts"></app-alerts>
       </div>
     </div>
 
@@ -86,10 +86,11 @@
           <span class="txt-16 bold mar-bot-12">Name</span>
           <span class="txt-16 bold mar-bot-12 nowrap">CPU Allocation</span>
         </div>
-        <div class="processes" *ngFor="let process of ram.processes; let last = last">
+        <div class="processes" *ngFor="let process of displayedProcesses; let last = last">
           <span class="txt-16 nowrap mar-bot-5">{{process.name}}</span>
-          <span [ngClass]="{'mar-bot-5': !last}"
-                class="txt-16 mar-bot-5 text-right">{{process.allocation}}%</span>
+          <span *ngIf="process.allocation==0" class="txt-16 mar-bot-5 text-right">
+              < 0.01%</span>
+          <span *ngIf="process.allocation>0" class="txt-16 mar-bot-5 text-right">{{process.allocation}}%</span>
         </div>
         <span class="link" (click)="showAll()" *ngIf="!showAllProcesses">Show All</span>
         <span class="link" (click)="showAll()" *ngIf="showAllProcesses">Show Less</span>

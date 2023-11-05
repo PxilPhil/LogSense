@@ -1,13 +1,16 @@
 import {Component, OnInit} from '@angular/core';
 import {Chart, registerables} from 'chart.js';
-import {CPUModel} from "../cpu/cpu.component";
-import {RAMModel} from "../ram/ram.component";
+import {CPUModel} from "../model/Cpu";
+import {RAMModel} from "../model/Ram";
 import {TimeModel} from "../disk/disk.component";
 import {ApiService} from '../services/api-service.service';
 import {PCData} from '../model/PCData';
 import {DiskData} from "../model/DiskData";
 import {ResourceMetricsModel} from "../model/ResourceMetrics";
 import {ResourceMetricsService} from "../services/resource-metrics.service";
+import {AlertService} from "../services/alert.service";
+import {DatePipe} from "@angular/common";
+import {Alert} from "../model/Alert";
 
 Chart.register(...registerables);
 
@@ -39,7 +42,7 @@ export class OverviewComponent implements OnInit {
   /*cpu: CPUModel = new CPUModel();
   ram: RAMModel = new RAMModel();
   disk: DiskData = new DiskData();*/
-  alerts: String[] = ["Abnormal RAM-Spikes detected", "Memory leak possible"];
+  alerts: Alert[] = []
   //selectedTime: TimeModel = {id: 1, time: "Last 24h", valueInMilliseconds: 86400000};
 
   /*times = [
@@ -51,11 +54,12 @@ export class OverviewComponent implements OnInit {
     {id: 6, time: "All Time"}
   ];*/
 
-  constructor(private resourceService: ResourceMetricsService) {
+  constructor(private resourceService: ResourceMetricsService, private alertService: AlertService, private datePipe: DatePipe) {
   }
 
   ngOnInit(): void {
     this.loadResourceMetrics();
+    this.loadAlerts();
   }
 
   loadResourceMetrics() {
@@ -77,6 +81,14 @@ export class OverviewComponent implements OnInit {
 
   roundDecimal(num: number, places: number): number{
     return Math.round((num + Number.EPSILON) * Math.pow(10, places)) / Math.pow(10, places);
+  }
+
+  loadAlerts() {
+    // TODO: add data pipe here
+    this.alertService.getAlerts(1, this.datePipe.transform(Date.now() - Date.now(), 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(Date.now(), 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe(data => {
+      this.alerts=data;
+    })
+
   }
 
 
