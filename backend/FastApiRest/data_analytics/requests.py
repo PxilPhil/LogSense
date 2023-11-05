@@ -57,6 +57,8 @@ def forecast_disk_space(df, column, start, end, bucket_value):
         data_list: A list of forecasted free disk space values with a timestamp.
         last_timestamp: The timestamp where free disk space reaches 0 or less.
     """
+    #todo: change point detection?
+
     # Convert start and end dates to datetime objects
     start_date = pd.to_datetime(start)
     end_date = pd.to_datetime(end)
@@ -85,7 +87,7 @@ def forecast_disk_space(df, column, start, end, bucket_value):
     return data_list, last_timestamp
 
 
-def determine_full_disk_space(df: DataFrame, column: str, days):
+def determine_full_disk_space(df: DataFrame, column: str, max_days):
     """
     Forecasts disk space allocation for a certain number of days.
 
@@ -97,31 +99,43 @@ def determine_full_disk_space(df: DataFrame, column: str, days):
 
     Args:
         df (DataFrame): The DataFrame containing free disk space values.
-        days (int): The number of days data should be forecasted for.
+        max_days (int): The number of days data should be forecasted for.
 
     Returns:
         data_list: A list of forecasted free disk space values with a timestamp.
         last_timestamp: The timestamp where free disk space reaches 0 or less.
     """
+    #todo: change point detection?
+
+    last_timestamp = None  # timestamp when free disk space reaches zero or below
+    total_days = 0
+    current_days = 10
+    data_list = []
+
     # read dataframe, elect only needed columns
     df = df.filter(['measurement_time', column])
     df = df.set_index(pd.to_datetime(df['measurement_time']).astype('int64') // 10 ** 6)
     # get latest timestamp, fit to model, extend dataframe by time input and predict values for it
     timestamp = df.index[-1]
     LR = fit_linear_regression(df, column)
-    df = manipulation.create_df_between(timestamp, days, 'D')
-    df = predict_for_df(LR, df)
 
-    # convert timestamps to datetime
-    df['datetime'] = pd.to_datetime(df.index, unit='ms')
-    data_list = []
-    for _, row in df.iterrows():
-        data_list.append(ForecastData(**row.to_dict()))
-    last_timestamp = None  # timestamp when free disk space reaches zero or below
-    # find out if and when LinearRegression is less than 0 (free disk space running out)
-    no_disk_space_rows = df[df['LinearRegression'] <= 0]
-    if not no_disk_space_rows.empty:
-        last_timestamp = no_disk_space_rows['datetime'].iloc[0]
+    while last_timestamp is None and total_days < max_days:
+        prediction_df = manipulation.create_df_between(timestamp, current_days, 'D')
+        prediction_df = predict_for_df(LR, prediction_df)
+
+        # convert timestamps to datetime
+        prediction_df['datetime'] = pd.to_datetime(prediction_df.index, unit='ms')
+        # find out if and when LinearRegression is less than 0 (free disk space running out)
+        no_disk_space_rows = prediction_df[prediction_df['LinearRegression'] <= 0]
+        total_days = total_days + current_days
+
+        for _, row in prediction_df.iterrows():
+            data_list.append(ForecastData(**row.to_dict()))
+
+        if not no_disk_space_rows.empty:
+            last_timestamp = no_disk_space_rows['datetime'].iloc[0]
+        else:
+            timestamp = int((pd.Timestamp(prediction_df['datetime'].iloc[-1]) + pd.DateOffset(days=1)).timestamp() * 1000)
 
     return data_list, last_timestamp
 
