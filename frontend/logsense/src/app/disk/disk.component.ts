@@ -7,8 +7,9 @@ import {DiskData} from "../model/DiskData";
 import {Alert} from "../model/Alert";
 import {AlertService} from "../services/alert.service";
 import {PCDataService} from "../services/pc-data.service";
-import {PCData, PCTimeSeriesData} from "../model/PCData";
+import {PCData, PCTimeSeriesData, TimeSeriesData} from "../model/PCData";
 import {DatePipe} from "@angular/common";
+import {ChartData} from "../ram/ram.component";
 
 export interface TimeModel {
   id: Number;
@@ -37,12 +38,13 @@ export class DiskComponent implements OnInit, OnDestroy {
   latestPCDataMeasurement: PCTimeSeriesData = new PCTimeSeriesData();
 
   diskChart: Chart | undefined;
+  diskChartData: ChartData = new ChartData();
   diskTotal: string = "platzhalter"; // TODO
   diskFree: string = "platzhalter";
 
 
   statistics: String[] = ["Disk usage dropped 4%", "21 anomalies detected", "5 Events registered", "Recent Rise of 15% detected"];
-  alerts: string[] = ["Some devices are at their workload limit", "Abnormal CPU-Spikes detected (21 Anomalies in the last 24 hours)"];
+  alerts: Alert[] = [];
 
   isShowEventsChecked: boolean = true;
   isShowAnomaliesChecked: boolean = true;
@@ -53,8 +55,8 @@ export class DiskComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    //this.loadPCData();
-    //this.loadAlerts()   //TODO: insert again when endpoint is implemented
+    this.loadPCData();
+    this.loadAlerts();
   }
 
   ngOnDestroy() {
@@ -76,22 +78,30 @@ export class DiskComponent implements OnInit, OnDestroy {
   loadPCData() {
     let dateNow = Date.now();
     if(this.selectedTime.valueInMilliseconds == 0) {
-      this.pcDataService.getPcData(1 /* TODO: get dynamic pc id */, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: PCData) => {
-        this.pcData = data;
-        this.latestPCDataMeasurement = this.getLatestPCDataMeasurement();
+      this.diskDataService.getDiskTimeseriesData(1 /* TODO: get dynamic pc id */, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: TimeSeriesData[]) => {
+        this.diskData.time_series_data = data;
+        this.transformData();
+        //this.latestPCDataMeasurement = this.getLatestPCDataMeasurement();
         this.diskUsageChart();
       });
     } else {
-      this.pcDataService.getPcData(1 /* TODO: get dynamic pc id */, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: PCData) => {
-        this.pcData = data;
-        this.latestPCDataMeasurement = this.getLatestPCDataMeasurement();
+      this.diskDataService.getDiskTimeseriesData(1 /* TODO: get dynamic pc id */, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: TimeSeriesData[]) => {
+        this.diskData.time_series_data = data;
+        this.transformData();
+        //this.latestPCDataMeasurement = this.getLatestPCDataMeasurement();
         this.diskUsageChart();
       });
     }
-
   }
-
-  getLatestPCDataMeasurement(): PCTimeSeriesData {
+  transformData() {
+    this.diskChartData.time = [];
+    this.diskChartData.value = [];
+    for (let dataPoint of this.diskData.time_series_data) {;
+      this.diskChartData.time.push(this.datePipe.transform(dataPoint.measurement_time, 'MM-dd HH:mm:ss')??"");
+      this.diskChartData.value.push(this.convertBytesToGigaBytes(dataPoint.value));
+    }
+  }
+  /*getLatestPCDataMeasurement(): PCTimeSeriesData {
     if (this.pcData.time_series_list.length > 0) {
       return this.pcData.time_series_list.reduce((previous, current) => {
         return (current.measurement_time > previous.measurement_time) ? current : previous;
@@ -99,25 +109,26 @@ export class DiskComponent implements OnInit, OnDestroy {
     }
     return new PCTimeSeriesData();
   }
-
+*/
+  /*
   loadAlerts(): void {
     this.alertService.getAlerts().subscribe((data: Alert[]) => {
       //this.alerts = data;
     });
   }
+  */
 
   diskUsageChart(): void {
     console.log(this.pcData);
     if (this.diskChart) {
       this.diskChart.destroy();
     }
-    const data = this.getDiskData();
     this.diskChart = new Chart("disk", {
       type: "line",
       data: {
-        labels: data.measurementTimes,
+        labels: this.diskChartData.time,
         datasets: [{
-          data: data.diskUsages,
+          data: this.diskChartData.value,
           borderColor: "#3e95cd",
           fill: false
         }]
@@ -176,5 +187,10 @@ export class DiskComponent implements OnInit, OnDestroy {
 
   roundDecimalNumber(decimalNumber: number, places: number): number {
     return Math.round((decimalNumber + Number.EPSILON) * Math.pow(10, places)) / Math.pow(10, places);
+  }
+
+  loadAlerts() {
+    //is it fine to just get data like this?
+    this.alerts = this.alertService.getStoredAlerts(undefined, ['free_disk_space', 'read_bytes_disk', 'reads_disks', 'write_bytes_disks', 'writes_disks']);
   }
 }

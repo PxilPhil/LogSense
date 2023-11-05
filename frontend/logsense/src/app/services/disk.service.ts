@@ -3,6 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {DiskData} from "../model/DiskData";
 import {DiskForecastData} from "../model/DiskForecastData";
+import {TimeSeriesData} from "../model/PCData";
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,11 @@ export class DiskDataService {
   getDiskData(pc_id: number): Observable<DiskData> {
     const url: string = `http://localhost:8000/pc/${pc_id}/disk`;
     return this.httpClient.get<DiskData>(url);
+  }
+
+  getDiskTimeseriesData(pc_id: number, start: string, end: string): Observable<TimeSeriesData[]> {
+    const url: string = `http://localhost:8000/pc/${pc_id}/disk?start=${start}&end=${end}`;
+    return this.httpClient.get<TimeSeriesData[]>(url);
   }
 
   getForecastedFreeDiskSpace(pc_id: number, days: number): Observable<DiskForecastData> {

@@ -8,6 +8,7 @@ import {RamComponent} from "./ram/ram.component";
 import {DiskComponent} from "./disk/disk.component";
 import {NetworkComponent} from "./network/network.component";
 import {CustomAlertsComponent} from "./custom-alerts/custom-alerts.component";
+import {PcSelectionComponent} from "./pc-selection/pc-selection.component";
 
 const routes: Routes = [
   {path: '', component: OverviewComponent},
@@ -18,7 +19,8 @@ const routes: Routes = [
   {path: 'ram', component: RamComponent},
   {path: 'disk', component: DiskComponent},
   {path: 'network', component: NetworkComponent},
-  {path: 'alerts', component: CustomAlertsComponent}
+  {path: 'alerts', component: CustomAlertsComponent},
+  {path: 'pc_selection', component: PcSelectionComponent}
 ];
 
 @NgModule({

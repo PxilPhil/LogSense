@@ -4,7 +4,7 @@
         <div *ngFor="let alert of alerts; let last = last" [ngClass]="{'mar-bot-12': !last}"
              class="alert-box flex-center">
             <mat-icon class="icon-32">warning</mat-icon>
-            <span class="mar-left-32 txt-16">{{alert}}</span>
+            <span class="mar-left-32 txt-16">{{alert.message}} ({{alert.detected_alert_list.length}} Instances) </span>
         </div>
     </div>
 </div>

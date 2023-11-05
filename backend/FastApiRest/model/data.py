@@ -5,9 +5,6 @@ from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
-from model.pc import Connection, NetworkInterface, Disk
-
-
 # TODO: Keep in mind to return AlertData to user instead of respective classes used for saving data
 
 

@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 
 from db_access import conn_pool
 from exceptions.InvalidParametersException import InvalidParametersException
@@ -6,7 +7,7 @@ import pandas as pd
 import psycopg2
 
 from exceptions.DataBaseExcepion import DataBaseException
-from model.application import ApplicationTimeSeriesData
+from model.application import ApplicationTimeSeriesData, TimeMetricData, TimeMetricDataList, ApplicationInfo
 
 
 def get_application_between(pc_id: int, application_name, start, end, bucket_value: str = '1 minutes'):
@@ -346,8 +347,62 @@ def select_total_running_time_application(start: datetime, end: datetime, applic
         results = cursor.fetchall()
 
         if results:
-            result_dict = {'data': [{'name': row[0], 'total_running_time_seconds': float(row[1])} for row in results]}
-            return result_dict
+            data_time = []
+            for row in results:
+                data_time.append(TimeMetricData(name= row[0], total_running_time_seconds= float(row[1])))
+            result_class= TimeMetricDataList(data = data_time)
+            return result_class
+        else:
+            return None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    except KeyError as e:
+        raise InvalidParametersException()
+    finally:
+        conn_pool.putconn(conn)
+
+
+def select_info_application(application_name, pc_id, start, end):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        query = """
+        SELECT
+            MAX (parent_process_id) as process_id,
+            MAX (path) as path,
+            MAX ("current_Working_Directory") AS working_directory,
+            MAX (commandline) AS command_line,
+            MAX ("user") AS windows_user_name,
+            MAX (bitness) as bitness,
+            MIN (state) as state,
+            SUM (major_faults) as major_faults,
+            SUM (context_switches) as context_switches,
+            AVG (thread_count) AS threads,
+            AVG (open_Files) AS open_files
+        FROM applicationdata
+        WHERE pc_id = %s AND name = %s 
+        AND measurement_time BETWEEN %s AND %s
+        GROUP BY name
+        """
+
+        cursor.execute(query, (pc_id, application_name, start, end))
+        result = cursor.fetchone()
+
+        if result:
+            app_info = ApplicationInfo(
+                process_id = result[0],
+                path = result[1],
+                working_directory= result[2],
+                command_line= result[3],
+                windows_user_name= result[4],
+                bitness= result[5],
+                state= result[6],
+                major_faults= result[7],
+                context_switches= result[8],
+                threads= int(result[9]),
+                open_files= int(result[10])
+            )
+            return app_info
         else:
             return None
     except psycopg2.DatabaseError as e:
