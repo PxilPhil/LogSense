@@ -137,6 +137,16 @@ class Disk(BaseModel):
     disk_partition_list: List[DiskPartition] = []
 
 
+class PCDetails(BaseModel):
+    manufacturer: Optional[str]
+    model: Optional[str]
+    hardware_uuid: str
+    system_battery: str
+    remaining_capacity: float
+    charging: bool
+    discharging: bool
+    power_on_line: bool
+
 class PCSpecs(BaseModel):
     processor_name: str
     processor_identifier: str

@@ -10,7 +10,7 @@ from exceptions.DataBaseExcepion import DataBaseException
 from exceptions.InvalidParametersException import InvalidParametersException
 from exceptions.NotFoundExcepion import NotFoundException
 from model.data import PCTimeSeriesData
-from model.pc import DISK, PARTITION, DISKS
+from model.pc import DISK, PARTITION, DISKS, PCDetails
 from model.pc import NetworkInterface, Connection, Disk, DiskPartition, PCSpecs, PCMetrics
 
 
@@ -929,6 +929,54 @@ ORDER BY
         if results:
             result_dict = {'data': [{'name': row[0], 'total_running_time_seconds': float(row[1])} for row in results]}
             return result_dict
+        else:
+            return None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    except KeyError as e:
+        raise InvalidParametersException()
+    finally:
+        conn_pool.putconn(conn)
+
+
+def details(pc_id: str):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        total_running_time_query = """
+            SELECT 
+            remaining_capacity_percent_power_sources, 
+            names_power_source, 
+            charging_power_sources, 
+            discharging_power_sources, 
+            power_online_power_sources
+            FROM pcdata
+            WHERE pc_id = %s
+            ORDER BY measurement_time DESC
+            LIMIT 1;
+            """
+        cursor.execute(total_running_time_query, (pc_id,))
+        results = cursor.fetchone()
+
+        total_running_time_query = """
+            SELECT manufacturer, model, hardware_UUID FROM PC WHERE ID = %s;
+            """
+        cursor.execute(total_running_time_query, (pc_id,))
+        results1 = cursor.fetchone()
+
+        if results and results1:
+
+            details = PCDetails(
+                manufacturer = results1[0],
+                model = results1[1],
+                hardware_uuid = results1[2],
+                system_battery = results[1],
+                remaining_capacity = results[0],
+                charging = results[2],
+                discharging = results[3],
+                power_on_line = results[4]
+            )
+            return details
         else:
             return None
     except psycopg2.DatabaseError as e:

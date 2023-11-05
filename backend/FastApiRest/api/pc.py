@@ -14,7 +14,7 @@ from db_access.application import get_latest_application_data
 from data_analytics import requests
 from exceptions.DataBaseInsertExcepion import DataBaseInsertException
 from exceptions.InvalidParametersException import InvalidParametersException
-from model.pc import PCItem, ForecastResult, ForecastData, DISKS, Network, PCSpecs, PCMetrics
+from model.pc import PCItem, ForecastResult, ForecastData, DISKS, Network, PCSpecs, PCMetrics, PCDetails
 from model.data import PCData, StatisticData, PCTimeSeriesData
 
 pc = APIRouter()
@@ -272,6 +272,20 @@ def get_pc_by_user_id(pc_id: str):
     specs = db_access.pc.general_specs(pc_id)
     return specs
 
+
+@pc.get('/details/{pc_id}', response_model=PCDetails, tags=["PC"])
+def get_pc_by_user_id(pc_id: str):
+    """
+    Get details of PC by user ID.
+
+    Args:
+        pc_id (str): The user ID to filter PCs.
+
+    Returns:
+    """
+
+    specs = db_access.pc.details(pc_id)
+    return specs
 
 @pc.get('/resource_metrics/{pc_id}', response_model=PCMetrics, tags=["PC"])
 def get_pc_by_user_id(pc_id: str):
