@@ -20,7 +20,7 @@ from exceptions.DataBaseInsertExcepion import DataBaseInsertException
 from model.alerts import CustomAlerts, CustomAlert, IngestCustomAlert, CustomAlertDBObject, CustomCondition
 
 
-def ingestCustomAlerts(alerts: CustomAlerts):
+def ingestCustomAlerts(alert: CustomAlert):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
@@ -29,9 +29,9 @@ def ingestCustomAlerts(alerts: CustomAlerts):
             VALUES %s RETURNING id
         """
         alert_tuples = []
-        for alert in alerts.custom_alert_list:
-            conditions_json = json.dumps([condition.dict() for condition in alert.conditions])
-            alert_tuples.append((alert.user_id, alert.type, alert.severity_level, alert.message, conditions_json))
+
+        conditions_json = json.dumps([condition.dict() for condition in alert.conditions])
+        alert_tuples.append((alert.user_id, alert.type, alert.severity_level, alert.message, conditions_json))
         psycopg2.extras.execute_values(cursor, insert_query, alert_tuples)
 
         anomaly_id = cursor.fetchone()[0]
@@ -53,7 +53,7 @@ def getCustomAlerts(user_id: int) -> CustomAlerts:
                     type,
                     severity_level,
                     message,
-                    condition::text 
+                    condition::text
                     FROM anomaly WHERE user_id = %s;"""
         cursor.execute(query, (user_id,))
 

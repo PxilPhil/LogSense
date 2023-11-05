@@ -13,13 +13,6 @@ ram_relevancy_threshold = 0.05  # percentual threshold applications should have 
 cpu_relevancy_threshold = 0.05  # percentual threshold applications should have to be considered relevant
 
 
-class ApplicationStat:  # class to store application data
-    def __init__(self, ram: int, cpu: int, process_change: int):
-        self.ram = ram
-        self.cpu = cpu
-        self.process_change = process_change  # same as event_headers (processes in applications were closed or opened marked with -1, 0 or 1)
-
-
 def perform_justification_processing(df: DataFrame):
     """
     Function to perform data manipulation and processing required for making justifications
@@ -58,9 +51,7 @@ def justify_pc_data_points(pc_total_df, significant_data_points: list, prior_jus
 
     for point in significant_data_points:
         existing_justification = get_justification_contained(point, prior_justifications)
-        if existing_justification:
-            justification_logs.append(existing_justification)
-        else:
+        if existing_justification is None:
             ram_relevancy = get_pc_data_at_measurement(ram_relevancy_threshold, point, pc_id)
             applications_df, application_data_list = get_relevant_application_data(pc_id, point, ram_relevancy,
                                                                                    cpu_relevancy_threshold)
@@ -128,9 +119,7 @@ def justify_application_df(df: DataFrame, data_points: list, name: str,
         till_timestamp_point = point - timedelta(minutes=5)
 
         existing_justification = get_justification_contained(point, prior_justifications)
-        if existing_justification:
-            justification_logs.append(existing_justification)
-        else:
+        if existing_justification is None:
             # select all rows in the specified time window
             time_window_rows = df[
                 (df['measurement_time'] >= till_timestamp_point) & (df['measurement_time'] <= point)]

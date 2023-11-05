@@ -42,7 +42,50 @@ def preprocess_pc_data(df: DataFrame):
     return pc_total_df, event_list
 
 
-def forecast_disk_space(df: DataFrame, column: str, days):
+def forecast_disk_space(df, column, start, end, bucket_value):
+    """
+    Forecasts disk space allocation between a start and end date with a bucket_value.
+
+    Args:
+        prediction_df (DataFrame): The DataFrame containing free disk space values.
+        column (str): The column in the DataFrame to be used for forecasting.
+        start (str): The start date in the format 'YYYY-MM-DD HH:MM:SS'.
+        end (str): The end date in the format 'YYYY-MM-DD HH:MM:SS'.
+        bucket_value (str): The frequency for prediction (e.g., '1Min' for 1 minute, '5Min' for 5 minutes).
+
+    Returns:
+        data_list: A list of forecasted free disk space values with a timestamp.
+        last_timestamp: The timestamp where free disk space reaches 0 or less.
+    """
+    # Convert start and end dates to datetime objects
+    start_date = pd.to_datetime(start)
+    end_date = pd.to_datetime(end)
+
+    # Create a DataFrame with the specified frequency (bucket_value) between start and end dates
+    date_range = pd.date_range(start=start_date, end=end_date, freq=bucket_value)
+    prediction_df = pd.DataFrame({'datetime': date_range})
+    prediction_df['measurement_time'] = prediction_df['datetime'].astype('int64') // 10 ** 6
+
+    # Fit the linear regression model using the existing data
+    LR = fit_linear_regression(df, column)
+
+    # Predict values for the created DataFrame
+    prediction_df = predict_for_df(LR, prediction_df, column)
+
+    data_list = []
+    for _, row in prediction_df.iterrows():
+        data_list.append(ForecastData(**row.to_dict()))
+
+    last_timestamp = None  # timestamp when free disk space reaches zero or below
+    # Find out if and when Linear Regression is less than or equal to 0 (free disk space running out)
+    no_disk_space_rows = prediction_df[prediction_df[column] <= 0]
+    if not no_disk_space_rows.empty:
+        last_timestamp = no_disk_space_rows['datetime'].iloc[0]
+
+    return data_list, last_timestamp
+
+
+def determine_full_disk_space(df: DataFrame, column: str, days):
     """
     Forecasts disk space allocation for a certain number of days.
 
@@ -117,9 +160,9 @@ def analyze_application_data(df, application_name):
 
     # get justifications for events and anomalies
     ram_anomaly_justifications = justify_application_df(df, anomalies_ram, application_name, None, True)
-    ram_events_and_anomalies = justify_application_df(df, ram_change_points, application_name,
-                                                      ram_anomaly_justifications,
-                                                      False)
+    ram_event_justifications = justify_application_df(df, ram_change_points, application_name, ram_anomaly_justifications,False)
+    ram_events_and_anomalies = ram_anomaly_justifications + ram_event_justifications
+
     cpu_events_and_anomalies = justify_application_df(df, anomalies_cpu, application_name, None,
                                                       False)
 
@@ -190,9 +233,17 @@ def analyze_pc_data(pc_id: int, df, pc_total_df, name: str):
     # detect changes / events
     change_points = get_event_measurement_times(pc_total_df, training_df, 'value')
 
+    print('----------------------------------------')
+    print(anomaly_measurements)
+    print(change_points)
+
+
     # justifies events and anomalies
     anomalies = justify_pc_data_points(pc_total_df, anomaly_measurements, None, 1, True)
-    events_and_anomalies = justify_pc_data_points(pc_total_df, change_points, anomalies, 1, False)
+    events = justify_pc_data_points(pc_total_df, change_points, anomalies, 1, False)
+    events_and_anomalies = anomalies+events
+
+
 
     # get stats
     statistic_data = calculate_trend_statistics(pc_total_df, 'value', name)

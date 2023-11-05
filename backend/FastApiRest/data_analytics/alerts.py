@@ -35,16 +35,17 @@ def check_for_custom_alerts(pc_id, df, custom_alerts, start, end):
             if condition.application:
                 df, application_data_list = get_application_between(pc_id, condition.application, start, end)
 
-            # check values should be detected with moving averages
-            if condition.detect_via_moving_averages:
-                selected_column = 'moving_average_' + condition.column
-                print(condition.column)
-                df[selected_column] = df[condition.column].rolling(window=5).mean()
-                df[selected_column].fillna(df[condition.column], inplace=True)
+            # check if data frame is none (no data has been found)
+            if df is not None:
+                # check values should be detected with moving averages
+                if condition.detect_via_moving_averages:
+                    selected_column = 'moving_average_' + condition.column
+                    print(condition.column)
+                    df[selected_column] = df[condition.column].rolling(window=5).mean()
+                    df[selected_column].fillna(df[condition.column], inplace=True)
 
-            filtered_df = apply_condition(df, condition, selected_column)
-
-            create_alert_notifications(filtered_df, alert_notifications, alert, condition)
+                filtered_df = apply_condition(df, condition, selected_column)
+                create_alert_notifications(filtered_df, alert_notifications, alert, condition)
 
     return alert_notifications
 
