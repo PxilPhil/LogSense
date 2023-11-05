@@ -3,7 +3,7 @@ import {Chart} from "chart.js";
 import {MatDialog} from "@angular/material/dialog";
 import {PartDialogComponent} from "../part-dialog/part-dialog.component";
 import {DiskDataService} from "../services/disk.service";
-import {DiskData, DiskStore} from "../model/DiskData";
+import {DiskData, DiskInfo, DiskStore} from "../model/DiskData";
 import {Alert} from "../model/Alert";
 import {AlertService} from "../services/alert.service";
 import {PCDataService} from "../services/pc-data.service";
@@ -37,8 +37,9 @@ export class DiskComponent implements OnInit, OnDestroy {
   selectedTime = this.times[0];
 
   diskData: DiskData = new DiskData();
+  diskInfo: DiskInfo = new DiskInfo();
   pcData: PCData = new PCData();
-  latestPCDataMeasurement: PCTimeSeriesData = new PCTimeSeriesData();
+  //latestPCDataMeasurement: PCTimeSeriesData = new PCTimeSeriesData();
 
   diskChart: Chart | undefined;
   diskChartData: ChartData = new ChartData();
@@ -50,8 +51,6 @@ export class DiskComponent implements OnInit, OnDestroy {
   statistics: String[] = ["Disk usage dropped 4%", "21 anomalies detected", "5 Events registered", "Recent Rise of 15% detected"];
   alerts: Alert[] = [];
 
-  isShowEventsChecked: boolean = true;
-  isShowAnomaliesChecked: boolean = true;
   isShowPredictionsChecked: boolean = false;
 
   constructor(private statService: ResourceMetricsService, public dialog: MatDialog, private diskDataService: DiskDataService, private pcDataService: PCDataService, private alertService: AlertService, private datePipe: DatePipe) {
@@ -84,26 +83,26 @@ export class DiskComponent implements OnInit, OnDestroy {
   }
 
   loadDiskStores() {
-    this.diskDataService.getDiskStores(1 /* TODO: get dynamic pc id */).subscribe((data: DiskData) => {
-      this.diskData.disks = data.disks;
+    this.diskDataService.getDiskStores(1 /* TODO: get dynamic pc id */).subscribe((data: DiskInfo) => {
+      this.diskInfo.disks = data.disks;
     });
   }
 
   loadPCData() {
     let dateNow = Date.now();
     if(this.selectedTime.valueInMilliseconds == 0) {
-      this.diskDataService.getDiskTimeseriesData(1 /* TODO: get dynamic pc id */, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: TimeSeriesData[]) => {
-        this.diskData.time_series_data = data;
+      this.diskDataService.getDiskTimeseriesData(1 /* TODO: get dynamic pc id */, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: DiskData) => {
+        this.diskData = data;
         this.transformData();
         //this.latestPCDataMeasurement = this.getLatestPCDataMeasurement();
-        this.diskUsageChart();
+        this.reloadChart();
       });
     } else {
-      this.diskDataService.getDiskTimeseriesData(1 /* TODO: get dynamic pc id */, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: TimeSeriesData[]) => {
-        this.diskData.time_series_data = data;
+      this.diskDataService.getDiskTimeseriesData(1 /* TODO: get dynamic pc id */, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: DiskData) => {
+        this.diskData = data;
         this.transformData();
         //this.latestPCDataMeasurement = this.getLatestPCDataMeasurement();
-        this.diskUsageChart();
+        this.reloadChart();
       });
     }
   }
@@ -121,7 +120,7 @@ export class DiskComponent implements OnInit, OnDestroy {
   transformData() {
     this.diskChartData.time = [];
     this.diskChartData.value = [];
-    for (let dataPoint of this.diskData.time_series_data) {;
+    for (let dataPoint of this.diskData.time_series_list) {;
       this.diskChartData.time.push(this.datePipe.transform(dataPoint.measurement_time, 'MM-dd HH:mm:ss')??"");
       this.diskChartData.value.push(this.convertBytesToGigaBytes(dataPoint.value));
     }
@@ -158,7 +157,7 @@ export class DiskComponent implements OnInit, OnDestroy {
           borderColor: '#3e95cd'
         }, {
           type: "line",
-          data: this.forecastData.value,
+          data: this.getForecastData(),
           backgroundColor: '#e82546',
           borderColor: '#e82546'
         }],
@@ -245,12 +244,16 @@ export class DiskComponent implements OnInit, OnDestroy {
 
   openDialog(diskListIndex: number) {
     this.dialog.open(PartDialogComponent, {
-      data: this.diskData.disks.at(diskListIndex)!.partitions
+      data: this.diskInfo.disks.at(diskListIndex)!.partitions
     });
   }
 
   reloadChart() {
-    this.diskUsageChart();
+    if(this.isShowPredictionsChecked) {
+      this.diskForecastChart();
+    } else {
+      this.diskUsageChart();
+    }
   }
 
   convertBytesToGigaBytes(valueInBytes: number): number {
