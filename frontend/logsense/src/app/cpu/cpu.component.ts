@@ -354,7 +354,6 @@ export class CpuComponent implements OnInit {
         this.cpu = data;
         this.transformData();
         this.showAll();
-
         this.reloadChart();
       });
     }
