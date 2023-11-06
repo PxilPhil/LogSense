@@ -26,9 +26,11 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     {id: 6, time: "All Time", valueInMilliseconds: 0}
   ];
   selectedTime = this.times[0];
+
   applicationNameList: ApplicationNames = new ApplicationNames();
   selectedApplication: Application = new Application();
-  latestApplicationMeasurement: ApplicationTimeSeriesData = new ApplicationTimeSeriesData();
+
+  //latestApplicationMeasurement: ApplicationTimeSeriesData = new ApplicationTimeSeriesData();
   statistics: string[] = ["CPU Usage dropped 4%", "21 anomalies detected", "5 Events registered", "Rise of RAM usage of 90% detected"];
   alerts: Alert[] = [];
   isApplicationSelected = false;
@@ -113,19 +115,19 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     this.isApplicationSelected = true;
     let dateNow = Date.now();
     if(this.selectedTime.valueInMilliseconds != 0) {
-      this.applicationService.getApplicationByApplicationName(1, applicationName, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: Application) => {
+      this.applicationService.getApplicationByApplicationName(1, applicationName, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", 5).subscribe((data: Application) => {
         this.selectedApplication = data;
-        //console.log(data);
-        this.latestApplicationMeasurement = this.getLatestApplicationMeasurementOfSelectedApplication();
+        console.log(data);
+        //this.latestApplicationMeasurement = this.getLatestApplicationMeasurementOfSelectedApplication();
         this.setData();
         this.cpuUsageChart();
         this.ramUsageChart();
       });
     } else {
-      this.applicationService.getApplicationByApplicationName(1, applicationName, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: Application) => {
+      this.applicationService.getApplicationByApplicationName(1, applicationName, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", 5).subscribe((data: Application) => {
         this.selectedApplication = data;
-        //console.log(data);
-        this.latestApplicationMeasurement = this.getLatestApplicationMeasurementOfSelectedApplication();
+        console.log(data);
+        //this.latestApplicationMeasurement = this.getLatestApplicationMeasurementOfSelectedApplication();
         this.setData();
         this.cpuUsageChart();
         this.ramUsageChart();

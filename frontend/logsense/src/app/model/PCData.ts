@@ -35,7 +35,7 @@ export class EventData {
 
 export class StatisticData {
   average: number = 0;
-  median: number = 0;
+  current: number = 0;
   stability: string = "";
   message: string = "";
 }

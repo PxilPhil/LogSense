@@ -39,19 +39,19 @@
                   <span class="txt-16 nowrap">Bitness</span>
                 </div>
                 <div class="align-txt mar-left-24">
-                  <span class="txt-16 nowrap">{{latestApplicationMeasurement.id}}</span>
-                  <span class="txt-16 nowrap">{{latestApplicationMeasurement.path}}</span>
-                  <span class="txt-16 nowrap">{{latestApplicationMeasurement.current_Working_Directory}}</span>
-                  <span class="txt-16 nowrap">{{latestApplicationMeasurement.commandLine}}</span>
-                  <span class="txt-16 nowrap">{{latestApplicationMeasurement.user}}</span>
-                  <span class="txt-16 nowrap">{{latestApplicationMeasurement.bitness}}</span>
+                  <span class="txt-16 nowrap">{{selectedApplication.info.process_id}}</span>
+                  <span class="txt-16 nowrap">{{selectedApplication.info.path}}</span>
+                  <span class="txt-16 nowrap">{{selectedApplication.info.major_faults}}</span>
+                  <span class="txt-16 nowrap">{{selectedApplication.info.command_line}}</span>
+                  <span class="txt-16 nowrap">{{selectedApplication.info.windows_user_name}}</span>
+                  <span class="txt-16 nowrap">{{selectedApplication.info.bitness}}</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
         <div>
-          <span class="txt-16">running for: {{formatUpTime(latestApplicationMeasurement.uptime)}}</span>
+          <span class="txt-16">running for: {{formatUpTime(selectedApplication.run_time_in_seconds.total_running_time_seconds)}}</span>
         </div>
       </div>
       <div *ngIf="isApplicationSelected" class="grey-box cpu-ram-container w-100 mar-top-24">
@@ -61,7 +61,7 @@
               <span class="txt-22">CPU</span>
             </div>
             <div>
-              <span class="txt-22">{{roundDecimalNumber(selectedApplication.mean_cpu*100, 2)}}%</span>
+              <span class="txt-22">{{roundDecimalNumber(selectedApplication.cpu_statistic_data.average*100, 2)}}%</span>
             </div>
           </div>
           <div class="chart-container mar-top-16">
@@ -74,7 +74,7 @@
               <span class="txt-22">RAM</span>
             </div>
             <div>
-              <span class="txt-22">{{roundDecimalNumber(convertBytesToMegaBytes(selectedApplication.mean_ram), 2)}}
+              <span class="txt-22">{{roundDecimalNumber(convertBytesToMegaBytes(selectedApplication.ram_statistic_data.average), 2)}}
                 MB</span>
             </div>
           </div>
@@ -96,11 +96,11 @@
                 <span class="txt-16">Open Files</span>
               </div>
               <div class="align-txt mar-left-24">
-                <span class="txt-16 nowrap text-right">{{latestApplicationMeasurement.state}}</span>
-                <span class="txt-16 nowrap text-right">{{latestApplicationMeasurement.major_faults}}</span>
-                <span class="txt-16 nowrap text-right">{{latestApplicationMeasurement.context_switches}}</span>
-                <span class="txt-16 nowrap text-right">{{latestApplicationMeasurement.thread_count}}</span>
-                <span class="txt-16 nowrap text-right">{{latestApplicationMeasurement.open_files}}</span>
+                <span class="txt-16 nowrap text-right">{{selectedApplication.info.state}}</span>
+                <span class="txt-16 nowrap text-right">{{selectedApplication.info.major_faults}}</span>
+                <span class="txt-16 nowrap text-right">{{selectedApplication.info.context_switches}}</span>
+                <span class="txt-16 nowrap text-right">{{selectedApplication.info.threads}}</span>
+                <span class="txt-16 nowrap text-right">{{selectedApplication.info.open_files}}</span>
               </div>
             </div>
           </div>

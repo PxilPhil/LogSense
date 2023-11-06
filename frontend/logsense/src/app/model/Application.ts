@@ -1,57 +1,38 @@
+import {EventData, Process, StatisticData} from "./PCData";
+import {TimeMetrics} from "./TimeMetrics";
+
 export class Application {
   pc: number = 0;
   application_name: string = "";
-  standard_deviation_ram: number = 0;
-  standard_deviation_cpu: number = 0;
-  mean_ram: number = 0;
-  mean_cpu: number = 0;
   time_series_data: ApplicationTimeSeriesData[] = [];
-  event_list: [
-    {
-      timestamp: Date;
-      anomaly_type: number;
-      change: number;
-      application: string;
-      column: string;
-    }
-  ] = [
-    {
-      timestamp: new Date(), anomaly_type: 0, change: 0, application: "", column: ""
-    }
-  ];
-  anomaly_list: [
-    {
-      timestamp: Date;
-      severity: number;
-      application: string;
-      column: string
-    }
-  ] = [
-    {
-      timestamp: new Date(), severity: 0, application: "", column: ""
-    }
-  ];
+  cpu_events_and_anomalies: EventData[] = [];
+  ram_events_and_anomalies: EventData[] = [];
+  cpu_statistic_data: StatisticData = new StatisticData();
+  ram_statistic_data: StatisticData = new StatisticData();
+  run_time_in_seconds: AppTime = new AppTime();
+  info: ApplicationInfo = new ApplicationInfo();
 }
 
-export class ApplicationTimeSeriesData {
-  id: number = 0;
-  pcdata_id: number = 0;
-  measurement_time: Date = new Date();
+export class AppTime {
   name: string = "";
-  path: string = "";
+  total_running_time_seconds: number = 0;
+}
+export class ApplicationTimeSeriesData {
+  measurement_time: string = "";
   cpu: number = 0;
   ram: number = 0;
-  state: string = "";
-  user: string = "";
-  context_switches: number = 0;
-  major_faults: number = 0;
+}
+
+export class ApplicationInfo {
+  process_id: number = 0;
+  path: string = "";
+  working_directory: string = "";
+  command_line: string = "";
+  windows_user_name: string = "";
   bitness: number = 0;
-  commandLine: string = "";
-  current_Working_Directory: string = "";
+  state: string = "";
+  major_faults: number = 0;
+  context_switches: number = 0;
+  threads: number = 0;
   open_files: number = 0;
-  thread_count: number = 0;
-  uptime: number = 0;
-  process_count_difference: number = 0;
-  rolling_avg_ram: number = 0;
-  rolling_avg_cpu: number = 0;
 }

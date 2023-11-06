@@ -17,8 +17,8 @@ export class ApplicationService {
     return this.httpClient.get<ApplicationNames>(url);
   }
 
-  getApplicationByApplicationName(pc_id: number, application_name: string, start: string, end: string): Observable<Application> {
-    const url: string = `http://localhost:8000/pc/${pc_id}/application/${application_name}?start=${start}&end=${end}`;
+  getApplicationByApplicationName(pc_id: number, application_name: string, start: string, end: string, bucket: number): Observable<Application> {
+    const url: string = `http://localhost:8000/pc/${pc_id}/application/${application_name}?start=${start}&end=${end}&bucket_value=${bucket}minutes`;
     return this.httpClient.get<Application>(url);
   }
 }
