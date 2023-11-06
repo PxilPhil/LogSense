@@ -8,8 +8,8 @@ from model.data import Justification
 
 
 class CustomCondition(BaseModel):
-    percentage_trigger_value: Optional[float] = None
-    absolute_trigger_value: Optional[float] = None
+    percentage_trigger_value: Optional[float] | str = None # has to be str for json
+    absolute_trigger_value: Optional[float] | str = None # has to be str for json
     operator: str
     column: str
     application: Optional[str] = None
@@ -17,6 +17,7 @@ class CustomCondition(BaseModel):
 
 
 class CustomAlert(BaseModel):
+    id: int
     user_id: int
     type: str
     message: str

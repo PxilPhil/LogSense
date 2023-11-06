@@ -6,6 +6,7 @@ import {DatePipe} from "@angular/common";
 import {Application, ApplicationTimeSeriesData} from "../model/Application";
 import {AlertService} from "../services/alert.service";
 import {Alert} from "../model/Alert";
+import {SelectedPcService} from "../services/selected-pc.service";
 
 export class ChartData {
   measurementTime: string[] = [];
@@ -42,10 +43,14 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
   cpuData: ChartData = {measurementTime: [], usage: []};
   ramData: ChartData = {measurementTime: [], usage: []};
 
-  constructor(private applicationService: ApplicationService, private alertService: AlertService, private datePipe: DatePipe) {
+  pcId: number = 0;
+  showPcIdAlert: boolean = true;
+
+  constructor(private applicationService: ApplicationService, private alertService: AlertService, private selectedPcService: SelectedPcService, private datePipe: DatePipe) {
   }
 
   ngOnInit() {
+    this.getSelectedPcId();
     this.loadApplicationNameList();
     this.loadAlerts();
   }
@@ -69,7 +74,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     this.runningApps = [];
     let dateNow = Date.now();
     if(this.selectedTime.valueInMilliseconds!=0) {
-      this.applicationService.getApplicationNameList(1, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: ApplicationNames) => {
+      this.applicationService.getApplicationNameList(this.pcId, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: ApplicationNames) => {
         this.applicationNameList = data;
         for (let app of this.applicationNameList.application_list) {
           this.runningApps.push(app);
@@ -77,7 +82,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
         this.displayedApps = this.applicationNameList.application_list;
       });
     } else {
-      this.applicationService.getApplicationNameList(1, this.datePipe.transform(dateNow-dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: ApplicationNames) => {
+      this.applicationService.getApplicationNameList(this.pcId, this.datePipe.transform(dateNow-dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: ApplicationNames) => {
         this.applicationNameList = data;
         for (let app of this.applicationNameList.application_list) {
           this.runningApps.push(app);
@@ -122,6 +127,8 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
         this.setData();
         this.cpuUsageChart();
         this.ramUsageChart();
+        this.loadAlerts();
+
       });
     } else {
       this.applicationService.getApplicationByApplicationName(1, applicationName, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", 5).subscribe((data: Application) => {
@@ -131,6 +138,8 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
         this.setData();
         this.cpuUsageChart();
         this.ramUsageChart();
+        this.loadAlerts();
+
       });
     }
 
@@ -273,9 +282,19 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
 
   loadAlerts() {
     //is it fine to just get data like this?
+    console.log(this.selectedApplication.application_name)
     this.alerts = this.alertService.getStoredAlerts(this.selectedApplication.application_name, undefined);
   }
 
   protected readonly onchange = onchange;
+
+  getSelectedPcId() {
+    if (this.selectedPcService.getSelectedPcId() != null) {
+      this.pcId = this.selectedPcService.getSelectedPcId()!;
+      this.showPcIdAlert = false;
+    } else {
+      this.showPcIdAlert = true;
+    }
+  }
 }
 

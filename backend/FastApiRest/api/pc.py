@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException, Body
 from starlette.responses import JSONResponse
 
 import db_access.pc
+from data_analytics.stats import determine_stability
 from db_access.data import select_total_running_time
 from db_access.pc import get_pcs, get_pcs_by_userid, add_pc, get_free_disk_space_data, \
     get_recent_disk_and_partition
@@ -13,7 +14,7 @@ from db_access.application import get_latest_application_data
 from data_analytics import requests
 from exceptions.DataBaseInsertExcepion import DataBaseInsertException
 from exceptions.InvalidParametersException import InvalidParametersException
-from model.pc import PCItem, ForecastResult, ForecastData, DISKS, Network, PCSpecs, PCMetrics
+from model.pc import PCItem, ForecastResult, ForecastData, DISKS, Network, PCSpecs, PCMetrics, PCDetails
 from model.data import PCData, StatisticData, PCTimeSeriesData
 
 pc = APIRouter()
@@ -67,7 +68,7 @@ def add_pc_api(data: PCItem = Body(...)):
 
 
 @pc.get('/{pc_id}/ram', response_model=PCData, tags=["PC"])
-def get_pc_ram(pc_id: int, start: str, end: str):
+def get_pc_ram(pc_id: int, start: str, end: str, bucket_value: str = '1 minutes'):
     """
     Get data from PCs by ID and for a defined type like RAM or CPU
 
@@ -79,13 +80,13 @@ def get_pc_ram(pc_id: int, start: str, end: str):
         :param start:
         :param end:
     """
-    ram_df, time_series = db_access.pc.get_ram_time_series(pc_id, start, end)
+    ram_df, time_series = db_access.pc.get_ram_time_series_between(pc_id, start, end, bucket_value)
 
     df, application_data_list = get_latest_application_data(pc_id, 1, None)
     if df is None or ram_df is None:
         raise InvalidParametersException()
     pc_total_df, allocation_list, events_and_anomalies, statistic_data = requests.analyze_pc_data(
-        df, ram_df, 'ram')
+        pc_id, df, ram_df, 'ram')
 
     pc_data = PCData(
         pc_id=pc_id,
@@ -102,7 +103,7 @@ def get_pc_ram(pc_id: int, start: str, end: str):
 
 
 @pc.get('/{pc_id}/cpu', response_model=PCData, tags=["PC"])
-def get_pc_cpu(pc_id: int, start: str, end: str):
+def get_pc_cpu(pc_id: int, start: str, end: str, bucket_value: str = '1 minutes'):
     """
     Get data from PCs by ID and for a defined type like RAM or CPU
 
@@ -114,12 +115,12 @@ def get_pc_cpu(pc_id: int, start: str, end: str):
         :param start:
         :param end:
     """
-    cpu_df, time_series = db_access.pc.get_cpu_time_series(pc_id, start, end)
+    cpu_df, time_series = db_access.pc.get_cpu_time_series_between(pc_id, start, end, bucket_value)
 
     df, application_data_list = get_latest_application_data(pc_id, 1, None)
     if df is None or cpu_df is None:
         raise InvalidParametersException()
-    pc_total_df, allocation_list, events_and_anomalies, statistic_data = requests.analyze_pc_data(
+    pc_total_df, allocation_list, events_and_anomalies, statistic_data = requests.analyze_pc_data(pc_id,
         df, cpu_df, 'cpu')
 
     pc_data = PCData(
@@ -135,7 +136,7 @@ def get_pc_cpu(pc_id: int, start: str, end: str):
     print(pc_data)
     return pc_data
 
-@pc.get('/{pc_id}/disk', response_model=List[PCTimeSeriesData], tags=["PC"])
+@pc.get('/{pc_id}/disk', response_model=PCData, tags=["PC"])
 def get_pc_disk_space(pc_id: int, start: str, end: str):
     """
     Get data from PCs by ID and for a defined type like RAM or CPU
@@ -150,7 +151,24 @@ def get_pc_disk_space(pc_id: int, start: str, end: str):
     """
     df, disk_space_list = db_access.pc.get_disk_space_between(pc_id, start, end)
     print(df)
-    return disk_space_list
+    stats = StatisticData(
+        average=df["value"].mean(),
+        current=df["value"].iloc[-1],
+        stability=determine_stability(df["value"].std()),
+        message=""
+
+    )
+    pc_data = PCData(
+        pc_id=pc_id,
+        start=start,
+        end=end,
+        time_series_list=disk_space_list,
+        statistic_data=stats,
+        allocation_list=[],
+        events_and_anomalies=[]
+    )
+
+    return pc_data
 
 
 
@@ -211,7 +229,7 @@ def get_pc_by_user_id(pc_id: int, start: int, end: int):
 
 
 @pc.get('/{pc_id}/data/forecast/{days}', response_model=ForecastResult, tags=["PC"])
-def forecast_free_disk_space(pc_id: int, days: int):
+def forecast_no_disk_space(pc_id: int, days: int):
     """
     Forecasts free disk space data for a certain PC in daily interevals
 
@@ -226,10 +244,38 @@ def forecast_free_disk_space(pc_id: int, days: int):
         df = get_free_disk_space_data(pc_id)
         if df is None:
             raise InvalidParametersException()
-        data_list, final_timestamp = requests.forecast_disk_space(df, 'free_disk_space', days)
+        data_list, final_timestamp = requests.determine_full_disk_space(df, 'free_disk_space', days)
         forecast_result = ForecastResult(
             pc=pc_id,
             days=days,
+            final_timestamp=final_timestamp,
+            data_list=data_list
+        )
+        print(forecast_result)
+        return forecast_result
+    except Exception as e:
+        raise InvalidParametersException()
+
+@pc.get('/{pc_id}/data/forecast/', response_model=ForecastResult, tags=["PC"])
+def forecast_free_disk_space(pc_id: int, start: str, end: str, bucket_value: str):
+    """
+    Forecasts free disk space data for a certain PC in daily interevals
+
+    Args:
+        user_id (str): The pc ID to filter PCs.
+
+    Returns:
+        dict: A dictionary with a measurement time and the forecasted free disk space at that time.
+        :param days:
+    """
+    try:
+        df = get_free_disk_space_data(pc_id)
+        if df is None:
+            raise InvalidParametersException()
+        data_list, final_timestamp = requests.forecast_disk_space(df, 'free_disk_space', start, end, bucket_value)
+        forecast_result = ForecastResult(
+            pc=pc_id,
+            days=30,
             final_timestamp=final_timestamp,
             data_list=data_list
         )
@@ -254,6 +300,20 @@ def get_pc_by_user_id(pc_id: str):
     specs = db_access.pc.general_specs(pc_id)
     return specs
 
+
+@pc.get('/details/{pc_id}', response_model=PCDetails, tags=["PC"])
+def get_pc_by_user_id(pc_id: str):
+    """
+    Get details of PC by user ID.
+
+    Args:
+        pc_id (str): The user ID to filter PCs.
+
+    Returns:
+    """
+
+    specs = db_access.pc.details(pc_id)
+    return specs
 
 @pc.get('/resource_metrics/{pc_id}', response_model=PCMetrics, tags=["PC"])
 def get_pc_by_user_id(pc_id: str):

@@ -1,7 +1,7 @@
 from typing import List
 
 from db_access.application import get_latest_application_data, get_application_between
-from db_access.pc import select_recent_state, get_recent_pc_total_data, get_ram_time_series
+from db_access.pc import select_recent_state, get_recent_pc_total_data, get_ram_time_series_between
 from model.alerts import CustomAlerts, CustomAlert, CustomCondition
 from data_analytics import manipulation
 
@@ -37,8 +37,8 @@ def process_degree_trigger(condition, pc_id, df):
                                                                      df.index[-1])
             print(recent_app_df)
         else:
-            recent_pc_df, recent_pc_list = get_ram_time_series(pc_id, condition.start_date,
-                                                               df.index[-1])
+            recent_pc_df, recent_pc_list = get_ram_time_series_between(pc_id, condition.start_date,
+                                                                       df.index[-1])
             print(recent_pc_df)
     elif condition.lookback_time:
         # slope calculated via delta-y divided by delta-x

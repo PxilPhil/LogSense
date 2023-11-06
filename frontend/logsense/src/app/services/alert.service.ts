@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable, tap} from 'rxjs';
-import {Alert} from "../model/Alert";
+import {Alert, UserAlert, UserAlertRoot} from "../model/Alert";
 
 @Injectable({
   providedIn: 'root'
@@ -20,15 +20,27 @@ export class AlertService { // service used to get alerts from the api and then 
       })
     );
   }
-  getStoredAlerts(application_name?: string, columns?: string[]): Alert[] {
-    console.log('called')
-    console.log(this.alerts)
-    console.log(columns)
 
+  getAllUserAlerts(user_id: number): Observable<UserAlertRoot> {
+    const url: string = `http://localhost:8000/alerts/all/${user_id}`;
+    return this.httpClient.get<UserAlertRoot>(url);
+  }
+
+  postUserAlert(userAlert: UserAlert): Observable<any> {
+    const url: string = `http://localhost:8000/alerts/`;
+    return this.httpClient.post(url, userAlert); //todo: api requires array, remove later if it's fixed in the api
+  }
+
+  deleteUserAlert(id: number): Observable<any> {
+    const url: string = `http://localhost:8000/alerts/${id}`
+    return this.httpClient.delete(url);
+  }
+
+  getStoredAlerts(application_name?: string, columns?: string[]): Alert[] {
     return this.alerts.filter((alert) => {
       if (application_name && columns && columns.length > 0) {
         return alert.application === application_name && columns.includes(alert.column);
-      } else if (application_name && columns && columns.length === 0) {
+      } else if (application_name) {
         return alert.application === application_name;
       } else if (!application_name && columns && columns.length > 0) {
         return columns.includes(alert.column);

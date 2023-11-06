@@ -1,0 +1,41 @@
+.logsense-icon {
+  margin-right: 12px;
+}
+
+.pc-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.flex-item {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  max-width: 90%; /* Adjust width as needed */
+  position: relative;
+}
+
+.interactions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 12px;
+}
+
+.icon {
+  color: #707070;
+}
+
+.icon:hover {
+  color: #2b26a8;
+}
+.icon:active {
+  color: #41bcb8;
+}
+
+

@@ -1,5 +1,8 @@
 <router-outlet></router-outlet>
 <div class="anti-th">
+  <c-alert *ngIf="showPcIdAlert" color="danger" class="mar-left-64 mar-top-24 mar-right-128">
+    <div>No PC is selected. Please select one here: <a cAlertLink [routerLink]="['/pc_selection']">PC Selection</a></div>
+  </c-alert>
   <div class="mar-left-64 mar-top-48 space-base mar-right-128">
     <div>
       <h1>CPU</h1>

@@ -4,12 +4,13 @@ import pandas as pd
 import psycopg2.errorcodes
 from pandas import DataFrame
 
+from data_analytics.stats import determine_stability
 from db_access import conn_pool
 from exceptions.DataBaseExcepion import DataBaseException
 from exceptions.InvalidParametersException import InvalidParametersException
 from exceptions.NotFoundExcepion import NotFoundException
 from model.data import PCTimeSeriesData
-from model.pc import DISK, PARTITION, DISKS
+from model.pc import DISK, PARTITION, DISKS, PCDetails
 from model.pc import NetworkInterface, Connection, Disk, DiskPartition, PCSpecs, PCMetrics
 
 
@@ -47,7 +48,7 @@ def get_pcs():
     cursor = conn.cursor()
     try:
         query = """
-            SELECT u.Name AS username, u.EMail AS email, pc.hardware_uuid, pc.client_name, pc.manufacturer, pc.model
+            SELECT pc.id, u.Name AS username, u.EMail AS email, pc.hardware_uuid, pc.client_name, pc.manufacturer, pc.model
             FROM logSenseUser u
             JOIN PC pc ON u.ID = pc.USER_ID;
         """
@@ -56,8 +57,8 @@ def get_pcs():
 
         pcs = []
         for row in rows:
-            pc = {'user_name': row[0], 'email': row[1], 'hardware_uuid': row[2], 'client_name': row[3],
-                  'manufacturer': row[4], 'model': row[5]}
+            pc = {'id': row[0], 'user_name': row[1], 'email': row[2], 'hardware_uuid': row[3], 'client_name': row[4],
+                  'manufacturer': row[5], 'model': row[6]}
             pcs.append(pc)
         return pcs
     except psycopg2.DatabaseError as e:
@@ -71,7 +72,7 @@ def get_pcs_by_userid(user_id):
     cursor = conn.cursor()
     try:
         query = """
-            SELECT pc.hardware_uuid, pc.client_name, pc.manufacturer, pc.model
+            SELECT pc.id, pc.hardware_uuid, pc.client_name, pc.manufacturer, pc.model
             FROM PC pc
             WHERE pc.USER_ID = %s;
     
@@ -81,7 +82,7 @@ def get_pcs_by_userid(user_id):
 
         pcs = []
         for row in rows:
-            pc = {'hardware_uuid': row[0], 'client_name': row[1], 'manufacturer': row[2], 'model': row[3]}
+            pc = {'id': row[0], 'hardware_uuid': row[1], 'client_name': row[2], 'manufacturer': row[3], 'model': row[4]}
             pcs.append(pc)
         return pcs
     except psycopg2.DatabaseError as e:
@@ -144,7 +145,82 @@ def get_total_pc_data(pc_id, start, end) -> DataFrame:
         conn_pool.putconn(conn)
 
 
-def get_ram_time_series(pc_id, start, end):
+def get_ram_time_series_between(pc_id, start, end, bucket_value: str = '1 minutes'):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        query = """
+        SELECT
+        time_bucket(%s, measurement_time) AS bucket_time,
+        AVG(ram) as value
+    FROM
+        pcdata
+    WHERE
+        pc_id = %s AND
+        measurement_time BETWEEN %s AND %s
+    GROUP BY
+        bucket_time
+    ORDER BY
+        bucket_time;
+        """
+
+        cursor.execute(query, (bucket_value, pc_id, start, end))
+        result = cursor.fetchall()
+
+        if result:
+            columns = [desc[0] for desc in cursor.description]
+            df = pd.DataFrame(result, columns=columns)
+            df = df.rename(columns={'bucket_time': 'measurement_time'})
+            df['value'] = df['value'].astype(float)
+            data_list = []
+            for _, row in df.iterrows():
+                data_list.append(PCTimeSeriesData(**row.to_dict()))
+            return df, data_list
+        return None, None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
+
+
+def get_cpu_time_series_between(pc_id, start, end, bucket_value: str = '1 minutes'):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        query = """
+        SELECT
+        time_bucket(%s, measurement_time) AS bucket_time,
+        AVG(cpu) as value
+    FROM
+        pcdata
+    WHERE
+        pc_id = %s AND
+        measurement_time BETWEEN %s AND %s
+    GROUP BY
+        bucket_time
+    ORDER BY
+        bucket_time;
+        """
+
+        cursor.execute(query, (bucket_value, pc_id, start, end))
+        result = cursor.fetchall()
+
+        if result:
+            columns = [desc[0] for desc in cursor.description]
+            df = pd.DataFrame(result, columns=columns)
+            df = df.rename(columns={'bucket_time': 'measurement_time'})
+            df['value'] = df['value'].astype(float)
+            data_list = []
+            for _, row in df.iterrows():
+                data_list.append(PCTimeSeriesData(**row.to_dict()))
+            return df, data_list
+        return None, None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    finally:
+        conn_pool.putconn(conn)
+
+def get_ram_time_series_limited(pc_id: int, limit: int):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
@@ -155,11 +231,12 @@ def get_ram_time_series(pc_id, start, end):
     FROM
         pcdata
     WHERE
-        pc_id = %s AND
-        measurement_time BETWEEN %s AND %s;
+        pc_id = %s
+    ORDER BY measurement_time desc
+        LIMIT %s
         """
 
-        cursor.execute(query, (pc_id, start, end))
+        cursor.execute(query, (pc_id, limit))
         result = cursor.fetchall()
 
         if result:
@@ -175,23 +252,23 @@ def get_ram_time_series(pc_id, start, end):
     finally:
         conn_pool.putconn(conn)
 
-
-def get_cpu_time_series(pc_id, start, end):
+def get_cpu_time_series_limted(pc_id: int, limit: int):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
         query = """
         SELECT
         measurement_time,
-        cpu AS value
+        cpu as value
     FROM
         pcdata
     WHERE
-        pc_id = %s AND
-        measurement_time BETWEEN %s AND %s;
+        pc_id = %s
+    ORDER BY measurement_time desc
+        LIMIT %s
         """
 
-        cursor.execute(query, (pc_id, start, end))
+        cursor.execute(query, (pc_id, limit))
         result = cursor.fetchall()
 
         if result:
@@ -206,7 +283,6 @@ def get_cpu_time_series(pc_id, start, end):
         raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
-
 
 def get_free_disk_space_data(pc_id):
     conn = conn_pool.getconn()
@@ -240,8 +316,8 @@ def get_disk_space_between(pc_id, start, end):
             data_list = []
             for _, row in df.iterrows():
                 data_list.append(PCTimeSeriesData(**row.to_dict()))
-                return df, data_list
-            return None
+            return df, data_list
+        return None, None
     except psycopg2.DatabaseError as e:
         raise DataBaseException()
     finally:
@@ -680,6 +756,25 @@ def resource_metrics(pc_id):
 
         total_disk_space = disk_row[0]
 
+        cursor.execute("""
+             SELECT                 
+                AVG(cpu) AS avg_cpu_usage_percentage_last_day,
+                STDDEV(cpu) AS cpu_stability,
+                AVG(ram) AS avg_ram_usage_last_day,
+                STDDEV(ram) AS ram_stability
+             FROM pcdata
+             WHERE pc_id = %s AND measurement_time >= NOW() - INTERVAL '1 day';
+         """, (pc_id,))
+        avg_row = cursor.fetchone()
+        if avg_row is None:
+            return None
+
+        avg_cpu_usage_percent_last_day = avg_row[0] * 100
+        cpu_stability_str = determine_stability(avg_row[1])
+        avg_ram_usage_percent_last_day = (avg_row[2]/total_memory_size)*100
+        ram_stability_str = determine_stability(avg_row[3])
+
+
         total_memory = total_memory_size
         free_memory = total_memory - ram_usage
         cpu_percentage_use = cpu_usage * 100
@@ -689,6 +784,10 @@ def resource_metrics(pc_id):
 
         # Create a PCMetrics instance with the retrieved values
         pc_metrics = PCMetrics(
+            avg_cpu_usage_percentage_last_day = avg_cpu_usage_percent_last_day,
+            cpu_stability = cpu_stability_str,
+            avg_ram_usage_percentage_last_day = avg_ram_usage_percent_last_day,
+            ram_stability = ram_stability_str,
             cpu_percentage_use=cpu_percentage_use,
             processor_name=processor_name,
             physical_package_count=physical_package_count,
@@ -830,6 +929,54 @@ ORDER BY
         if results:
             result_dict = {'data': [{'name': row[0], 'total_running_time_seconds': float(row[1])} for row in results]}
             return result_dict
+        else:
+            return None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    except KeyError as e:
+        raise InvalidParametersException()
+    finally:
+        conn_pool.putconn(conn)
+
+
+def details(pc_id: str):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        total_running_time_query = """
+            SELECT 
+            remaining_capacity_percent_power_sources, 
+            names_power_source, 
+            charging_power_sources, 
+            discharging_power_sources, 
+            power_online_power_sources
+            FROM pcdata
+            WHERE pc_id = %s
+            ORDER BY measurement_time DESC
+            LIMIT 1;
+            """
+        cursor.execute(total_running_time_query, (pc_id,))
+        results = cursor.fetchone()
+
+        total_running_time_query = """
+            SELECT manufacturer, model, hardware_UUID FROM PC WHERE ID = %s;
+            """
+        cursor.execute(total_running_time_query, (pc_id,))
+        results1 = cursor.fetchone()
+
+        if results and results1:
+
+            details = PCDetails(
+                manufacturer = results1[0],
+                model = results1[1],
+                hardware_uuid = results1[2],
+                system_battery = results[1],
+                remaining_capacity = results[0],
+                charging = results[2],
+                discharging = results[3],
+                power_on_line = results[4]
+            )
+            return details
         else:
             return None
     except psycopg2.DatabaseError as e:

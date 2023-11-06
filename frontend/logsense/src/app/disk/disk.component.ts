@@ -13,6 +13,7 @@ import {ChartData} from "../ram/ram.component";
 import {ResourceMetricsService} from "../services/resource-metrics.service";
 import {ResourceMetricsModel} from "../model/ResourceMetrics";
 import {DiskForecastData} from "../model/DiskForecastData";
+import {SelectedPcService} from "../services/selected-pc.service";
 
 export interface TimeModel {
   id: Number;
@@ -46,17 +47,19 @@ export class DiskComponent implements OnInit, OnDestroy {
   forecastData: ChartData = new ChartData();
   diskTotal: number = 0;
   diskFree: number = 0;
-
+  pcId: number = 0;
+  showPcIdAlert: boolean = true;
 
   statistics: String[] = ["Disk usage dropped 4%", "21 anomalies detected", "5 Events registered", "Recent Rise of 15% detected"];
   alerts: Alert[] = [];
 
   isShowPredictionsChecked: boolean = false;
 
-  constructor(private statService: ResourceMetricsService, public dialog: MatDialog, private diskDataService: DiskDataService, private pcDataService: PCDataService, private alertService: AlertService, private datePipe: DatePipe) {
+  constructor(private statService: ResourceMetricsService, public dialog: MatDialog, private diskDataService: DiskDataService, private pcDataService: PCDataService, private alertService: AlertService, private datePipe: DatePipe, private selectedPcService: SelectedPcService) {  //only load diskStores and partitions on startup or on refresh
   }
 
   ngOnInit() {
+    this.getSelectedPcId();
     this.loadPCData();
     this.loadStats();
     this.loadDiskStores();  //only load diskStores and partitions on startup or on refresh
@@ -267,5 +270,14 @@ export class DiskComponent implements OnInit, OnDestroy {
   loadAlerts() {
     //is it fine to just get data like this?
     this.alerts = this.alertService.getStoredAlerts(undefined, ['free_disk_space', 'read_bytes_disk', 'reads_disks', 'write_bytes_disks', 'writes_disks']);
+  }
+
+  getSelectedPcId() {
+    if (this.selectedPcService.getSelectedPcId() != null) {
+      this.pcId = this.selectedPcService.getSelectedPcId()!;
+      this.showPcIdAlert = false;
+    } else {
+      this.showPcIdAlert = true;
+    }
   }
 }
