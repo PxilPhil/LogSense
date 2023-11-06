@@ -35,7 +35,7 @@ export class EventData {
 
 export class StatisticData {
   average: number = 0;
-  median: number = 0;
+  current: number = 0;
   stability: string = "";
   message: string = "";
 }
@@ -93,4 +93,15 @@ export class PCTimeSeriesData {
   major_faults: number = 0;
   open_files: number = 0;
   thread_count: number = 0;
+}
+
+export class ClientDetails {
+  manufacturer: string = "";
+  model: string = "";
+  hardware_uuid: string = "";
+  system_battery: string = "";
+  remaining_capacity: number = 0; //%
+  charging: boolean = false;
+  discharging: boolean = false;
+  power_on_line: boolean = false;
 }

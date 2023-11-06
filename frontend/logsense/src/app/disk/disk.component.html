@@ -18,14 +18,6 @@
         </div>
         <div class="flex-center mar-top-12">
           <div class="form-check">
-            <input type="checkbox" [(ngModel)]="isShowEventsChecked" (change)="reloadChart()" class="form-check-input" checked>
-            <span class="txt-16">Show Events</span>
-          </div>
-          <div class="form-check mar-left-12">
-            <input type="checkbox" [(ngModel)]="isShowAnomaliesChecked" (change)="reloadChart()" class="form-check-input" checked>
-            <span class="txt-16">Show Anomalies</span>
-          </div>
-          <div class="form-check mar-left-12">
             <input type="checkbox" [(ngModel)]="isShowPredictionsChecked" (change)="reloadChart()" class="form-check-input">
             <span class="txt-16">Show Predictions</span>
           </div>
@@ -40,8 +32,8 @@
               <span class="txt-16">Free Disk Space</span>
             </div>
             <div class="align-txt mar-left-32">
-              <span class="txt-16"> <!--{{disk.totalMemory}}--> 1024 GB</span>
-              <span class="txt-16">{{this.roundDecimalNumber(this.convertBytesToGigaBytes(latestPCDataMeasurement.free_disk_space), 2)}} GB</span>
+              <span class="txt-16">{{diskTotal}} GB</span>
+              <span class="txt-16">{{diskFree}} GB</span>
             </div>
           </div>
           <mat-divider class="mar-top-12 w-100"></mat-divider>
@@ -89,7 +81,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let diskStore of diskData.disks; let i = index">
+        <tr *ngFor="let diskStore of diskInfo.disks; let i = index">
           <td class="cell txt-16">{{diskStore.serialnumber}}</td>
           <td class="cell txt-16">{{diskStore.name}}</td>
           <td class="cell txt-16">{{diskStore.model}}</td>

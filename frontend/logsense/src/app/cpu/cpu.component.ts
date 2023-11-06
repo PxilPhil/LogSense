@@ -195,7 +195,8 @@ export class CpuComponent implements OnInit {
     let msg: string = "";
     if(context.dataset.borderColor != "#3e95cd") {
       this.cpu.events_and_anomalies.forEach((data, index) => {
-        if(Date.parse(context.label) <= Date.parse(data.timestamp) && Date.parse(context.label) >= Date.parse(data.till_timestamp)) {
+        console.log(context.label + ":" + data.timestamp);
+        if(this.datePipe.transform(data.till_timestamp, 'MM-dd HH:mm:ss') == context.label || this.datePipe.transform(data.timestamp, 'MM-dd HH:mm:ss') == context.label) {
           msg = data.justification_message;
         }
       });
@@ -220,7 +221,7 @@ export class CpuComponent implements OnInit {
       borderColor: '#e82546'
     }];
     this.getEvents().forEach((data, index) => {
-      dataset.push({type: 'line', data: data, fill: true, backgroundColor: 'rgba(179, 0, 255, 0.25)', borderColor: 'rgb(179, 0, 255)', order: 2});
+      dataset.push({type: 'line', data: data, fill: true, backgroundColor: 'rgba(179, 0, 255, 1)', borderColor: 'rgb(179, 0, 255)', order: 2});
     });
     return dataset;
   }
@@ -248,6 +249,7 @@ export class CpuComponent implements OnInit {
             tmpEvent.push(null);
           }
         })
+        console.log(tmpEvent);
         events.push(tmpEvent);
       }
     })
@@ -357,7 +359,6 @@ export class CpuComponent implements OnInit {
         this.cpu = data;
         this.transformData();
         this.showAll();
-
         this.reloadChart();
       });
     }
@@ -365,7 +366,7 @@ export class CpuComponent implements OnInit {
 
   transformData() {
     console.log("t1: " + this.cpu.events_and_anomalies);
-    this.cpu.time_series_list.reverse();
+    //this.cpu.time_series_list.reverse();
     this.cpuData.time = [];
     this.cpuData.value = [];
     for (let dataPoint of this.cpu.time_series_list) {;

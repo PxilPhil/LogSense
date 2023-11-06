@@ -1,10 +1,17 @@
 import {Component, OnInit} from '@angular/core';
 import {Chart, registerables} from 'chart.js';
+import {CPUModel} from "../model/Cpu";
+import {RAMModel} from "../model/Ram";
+import {TimeModel} from "../disk/disk.component";
+import {ApiService} from '../services/api-service.service';
+import {ClientDetails, PCData} from '../model/PCData';
+import {DiskData} from "../model/DiskData";
 import {ResourceMetricsModel} from "../model/ResourceMetrics";
 import {ResourceMetricsService} from "../services/resource-metrics.service";
 import {AlertService} from "../services/alert.service";
 import {DatePipe} from "@angular/common";
 import {Alert} from "../model/Alert";
+import {PCDataService} from "../services/pc-data.service";
 import {SelectedPcService} from "../services/selected-pc.service";
 import {PcSelectionComponent} from "../pc-selection/pc-selection.component";
 
@@ -32,13 +39,19 @@ export class Client {
 })
 export class OverviewComponent implements OnInit {
 
-    client: Client = new Client();
+  client: ClientDetails = new ClientDetails();
+  runtime: String = "2h 30min";
+  resourceMetrics: ResourceMetricsModel = new ResourceMetricsModel();
+  /*cpu: CPUModel = new CPUModel();
+  ram: RAMModel = new RAMModel();
+  disk: DiskData = new DiskData();*/
+  alerts: Alert[] = []
+  //selectedTime: TimeModel = {id: 1, time: "Last 24h", valueInMilliseconds: 86400000};
     runtime: String = "2h 30min";
     resourceMetrics: ResourceMetricsModel = new ResourceMetricsModel();
     /*cpu: CPUModel = new CPUModel();
     ram: RAMModel = new RAMModel();
     disk: DiskData = new DiskData();*/
-    alerts: Alert[] = []
     //selectedTime: TimeModel = {id: 1, time: "Last 24h", valueInMilliseconds: 86400000};
     pcId: number = 0;
     showPcIdAlert: boolean = true;
@@ -52,27 +65,35 @@ export class OverviewComponent implements OnInit {
       {id: 6, time: "All Time"}
     ];*/
 
-    constructor(private resourceService: ResourceMetricsService, private alertService: AlertService, private selectedPcService: SelectedPcService, private datePipe: DatePipe) {
-    }
+  constructor(private pcDataService: PCDataService, private resourceService: ResourceMetricsService, private alertService: AlertService, private datePipe: DatePipe, private selectedPcService: SelectedPcService) {
+  }
 
-    ngOnInit(): void {
-        this.getSelectedPcId();
-        this.loadResourceMetrics();
-        this.loadAlerts();
-    }
+  ngOnInit(): void {
+    this.getSelectedPcId();
+    this.loadResourceMetrics();
+    this.loadClientDetails();
+    this.loadAlerts();
+  }
 
-    loadResourceMetrics() {
-        this.resourceService.getResourceMetrics(this.pcId).subscribe((data: ResourceMetricsModel) => {
-            this.resourceMetrics = data;
-            this.resourceMetrics.cpu_percentage_use = this.roundDecimal(this.resourceMetrics.cpu_percentage_use, 2);
-            this.resourceMetrics.ram_percentage_in_use = this.roundDecimal(this.resourceMetrics.ram_percentage_in_use, 2);
-            this.resourceMetrics.disk_percentage_in_use = this.roundDecimal(this.resourceMetrics.disk_percentage_in_use, 2);
-            this.resourceMetrics.total_memory = this.roundDecimal(this.convertBytesToGigaBytes(this.resourceMetrics.total_memory), 2);
-            this.resourceMetrics.free_memory = this.roundDecimal(this.convertBytesToGigaBytes(this.resourceMetrics.free_memory), 2);
-            this.resourceMetrics.total_disk_space = this.roundDecimal(this.convertBytesToGigaBytes(this.resourceMetrics.total_disk_space), 2);
-            this.resourceMetrics.free_disk_space = this.roundDecimal(this.convertBytesToGigaBytes(this.resourceMetrics.free_disk_space), 2);
-        })
-    }
+  loadClientDetails() {
+    this.pcDataService.getClientDetails(1).subscribe((data: ClientDetails)=> {
+      this.client = data;
+      this.client.remaining_capacity=this.roundDecimal(this.client.remaining_capacity*100, 2);
+    })
+  }
+  loadResourceMetrics() {
+    this.resourceService.getResourceMetrics(this.pcId).subscribe((data: ResourceMetricsModel) => {
+      this.resourceMetrics = data;
+      this.resourceMetrics.cpu_percentage_use = this.roundDecimal(this.resourceMetrics.cpu_percentage_use, 2);
+      this.resourceMetrics.ram_percentage_in_use = this.roundDecimal(this.resourceMetrics.ram_percentage_in_use, 2);
+      this.resourceMetrics.disk_percentage_in_use = this.roundDecimal(this.resourceMetrics.disk_percentage_in_use, 2);
+      this.resourceMetrics.total_memory = this.roundDecimal(this.convertBytesToGigaBytes(this.resourceMetrics.total_memory),2);
+      this.resourceMetrics.free_memory = this.roundDecimal(this.convertBytesToGigaBytes(this.resourceMetrics.free_memory),2);
+      this.resourceMetrics.total_disk_space = this.roundDecimal(this.convertBytesToGigaBytes(this.resourceMetrics.total_disk_space),2);
+      this.resourceMetrics.free_disk_space = this.roundDecimal(this.convertBytesToGigaBytes(this.resourceMetrics.free_disk_space),2);
+    })
+  }
+
 
     convertBytesToGigaBytes(valueInBytes: number): number {
         return (valueInBytes / 1000 / 1000 / 1000);

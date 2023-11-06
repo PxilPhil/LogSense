@@ -1,7 +1,9 @@
 import {TimeSeriesData} from "./PCData";
 
 export class DiskData {
-  time_series_data: TimeSeriesData[] = [];
+  time_series_list: TimeSeriesData[] = [];
+}
+export class DiskInfo {
   disks: DiskStore[] = [];
 }
 

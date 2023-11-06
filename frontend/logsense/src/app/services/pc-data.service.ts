@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {PCData, TimeSeriesList} from "../model/PCData";
+import {ClientDetails, PCData, TimeSeriesList} from "../model/PCData";
 import {RAMModel} from "../model/Ram";
 import {CPUModel} from "../model/Cpu";
 
@@ -23,6 +23,10 @@ export class PCDataService {
     return this.httpClient.get<TimeSeriesList>(url);
   }
 
+  getClientDetails(pc_id: number): Observable<ClientDetails> {
+    const url: string = `http://127.0.0.1:8000/pc/details/${pc_id}`;
+    return this.httpClient.get<ClientDetails>(url);
+  }
   getRAMData(pc_id: number, start: string, end: string):Observable<RAMModel> {
     const url: string = `http://localhost:8000/pc/${pc_id}/ram?start=${start}&end=${end}`;
     return this.httpClient.get<RAMModel>(url);
