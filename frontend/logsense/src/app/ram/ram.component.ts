@@ -73,22 +73,31 @@ export class RamComponent implements OnInit {
   alerts: Alert[] = []
   showAllProcesses: boolean = true;
 
-  constructor(private alertService: AlertService, private statsService: ResourceMetricsService, private pcDataService: PCDataService, private  datePipe: DatePipe) {
+
+  pcId: number = 0;
+  showPcIdAlert: boolean = true;
+
+  constructor(private selectedPcService: SelectedPcService, private alertService: AlertService, private statsService: ResourceMetricsService, private pcDataService: PCDataService, private  datePipe: DatePipe) {
   }
 
   ngOnInit() {
+    this.getSelectedPcId();
     this.loadStats();
     this.loadData();
     this.loadAlerts();
   }
 
-    constructor(private alertService: AlertService, private statsService: ResourceMetricsService, private pcDataService: PCDataService, private selectedPcService: SelectedPcService, private datePipe: DatePipe, private resourceService: ResourceMetricsService) {
-    }
 
-    showAll() {
-        this.displayedProcesses = [];
-        if (!this.showAllProcesses) {
-            this.displayedProcesses = this.ram.allocation_list;
+  showAll() {
+    this.displayedProcesses = [];
+    if(!this.showAllProcesses) {
+      this.displayedProcesses = this.ram.allocation_list;
+    } else {
+      var i = 1;
+      for (let process of this.ram.allocation_list) {
+        if(i<9) {
+          this.displayedProcesses.push(process);
+          i++;
         } else {
           break;
         }
@@ -96,6 +105,7 @@ export class RamComponent implements OnInit {
     }
     this.showAllProcesses = !this.showAllProcesses;
   }
+
   reloadChart() {
     switch (this.checked) {
       case this.radioOptions[1]: {
@@ -217,9 +227,11 @@ export class RamComponent implements OnInit {
                 if (label) {
                   label += ' ';
                 }
+              }
             }
+          }
         }
-      },
+      }
     });
   }
   getEventDataSet() {
@@ -302,7 +314,7 @@ export class RamComponent implements OnInit {
     return msg.split("\n");
   }
   loadStats() {
-    this.statsService.getResourceMetrics(1).subscribe((data: ResourceMetricsModel) => {
+    this.statsService.getResourceMetrics(this.pcId).subscribe((data: ResourceMetricsModel) => {
       this.ramStats.avg = this.roundDecimal(data.avg_ram_usage_percentage_last_day, 2);
       this.ramStats.cur = this.roundDecimal(data.ram_percentage_in_use, 2);
       this.ramStats.stability = data.ram_stability;
@@ -313,8 +325,8 @@ export class RamComponent implements OnInit {
   }
   loadData() {
     let dateNow = Date.now();
-    if(this.selectedTime.valueInMilliseconds!=0) {
-      this.pcDataService.getRAMData(1, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "").subscribe((data: RAMModel) => {
+    if (this.selectedTime.valueInMilliseconds != 0) {
+      this.pcDataService.getRAMData(this.pcId, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "").subscribe((data: RAMModel) => {
         this.ram = data;
         this.transformData();
         this.showAll();
@@ -328,96 +340,19 @@ export class RamComponent implements OnInit {
         this.reloadChart();
       });
     }
+  }
 
-    ngOnInit() {
-        this.getSelectedPcId();
-        this.loadStats();
-        this.loadData();
-        this.loadAlerts();
+  transformData() {
+    this.ramData.time = [];
+    this.ramData.value = [];
+    for (let dataPoint of this.ram.time_series_list) {
+      this.ramData.time.push(this.datePipe.transform(dataPoint.measurement_time, 'MM-dd HH:mm:ss') ?? "");
+      this.ramData.value.push(this.roundDecimal(this.convertBytesToGigaBytes(dataPoint.value), 2));
     }
-
-    usageChart(): void {
-        if (this.ramChart) {
-            this.ramChart.destroy();
-        }
-        this.ramChart = new Chart("ram", {
-            type: "line",
-            data: {
-                labels: this.ramData.time,
-                datasets: [{
-                    data: this.ramData.value,
-                    borderColor: "#3e95cd",
-                    fill: false
-                }]
-            }, options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                    },
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ' ';
-                                }
-                                label += context.parsed.y + ' GB';
-                                return label;
-                            }
-                        }
-                    }
-                }
-            },
-        });
-    }
-
-    loadStats() {
-        this.statsService.getResourceMetrics(this.pcId).subscribe((data: ResourceMetricsModel) => {
-            this.ramStats.avg = this.roundDecimal(data.avg_ram_usage_percentage_last_day, 2);
-            this.ramStats.cur = this.roundDecimal(data.ram_percentage_in_use, 2);
-            this.ramStats.stability = data.ram_stability;
-            this.ramStats.free = this.roundDecimal(this.convertBytesToGigaBytes(data.free_memory), 2);
-            this.ramStats.page = data.page_size;
-            this.ramStats.total = this.roundDecimal(this.convertBytesToGigaBytes(data.total_memory), 2);
-        });
-    }
-
-    loadData() {
-        let dateNow = Date.now();
-        if (this.selectedTime.valueInMilliseconds != 0) {
-            this.pcDataService.getRAMData(this.pcId, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "").subscribe((data: RAMModel) => {
-                this.ram = data;
-                this.transformData();
-                this.showAll();
-                this.usageChart();
-            });
-        } else {
-            this.pcDataService.getRAMData(this.pcId, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "").subscribe((data: RAMModel) => {
-                this.ram = data;
-                this.transformData();
-                this.showAll();
-                this.usageChart();
-            });
-        }
-    }
-
-    transformData() {
-        this.ramData.time = [];
-        this.ramData.value = [];
-        for (let dataPoint of this.ram.time_series_list) {
-            this.ramData.time.push(this.datePipe.transform(dataPoint.measurement_time, 'MM-dd HH:mm:ss') ?? "");
-            this.ramData.value.push(this.roundDecimal(this.convertBytesToGigaBytes(dataPoint.value), 2));
-        }
-        this.ram.allocation_list.forEach((value, index) => {
-            this.ram.allocation_list[index].allocation = this.roundDecimal(this.ram.allocation_list[index].allocation * 100, 2);
-        })
-    }
+    this.ram.allocation_list.forEach((value, index) => {
+      this.ram.allocation_list[index].allocation = this.roundDecimal(this.ram.allocation_list[index].allocation * 100, 2);
+    })
+  }
 
     convertBytesToGigaBytes(valueInBytes: number): number {
         return (valueInBytes / 1000 / 1000 / 1000);

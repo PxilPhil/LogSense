@@ -47,23 +47,12 @@ export class OverviewComponent implements OnInit {
   disk: DiskData = new DiskData();*/
   alerts: Alert[] = []
   //selectedTime: TimeModel = {id: 1, time: "Last 24h", valueInMilliseconds: 86400000};
-    runtime: String = "2h 30min";
-    resourceMetrics: ResourceMetricsModel = new ResourceMetricsModel();
-    /*cpu: CPUModel = new CPUModel();
-    ram: RAMModel = new RAMModel();
-    disk: DiskData = new DiskData();*/
-    //selectedTime: TimeModel = {id: 1, time: "Last 24h", valueInMilliseconds: 86400000};
-    pcId: number = 0;
-    showPcIdAlert: boolean = true;
-
-    /*times = [
-      {id: 1, time: "Last 24h"},
-      {id: 2, time: "Last Week"},
-      {id: 3, time: "Last Month"},
-      {id: 4, time: "Last 6 Months"},
-      {id: 5, time: "Last 12 Months"},
-      {id: 6, time: "All Time"}
-    ];*/
+  /*cpu: CPUModel = new CPUModel();
+   ram: RAMModel = new RAMModel();
+   disk: DiskData = new DiskData();*/
+  //selectedTime: TimeModel = {id: 1, time: "Last 24h", valueInMilliseconds: 86400000};
+  pcId: number = 0;
+  showPcIdAlert: boolean = true;
 
   constructor(private pcDataService: PCDataService, private resourceService: ResourceMetricsService, private alertService: AlertService, private datePipe: DatePipe, private selectedPcService: SelectedPcService) {
   }
