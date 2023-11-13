@@ -57,7 +57,7 @@
           <span class="txt-16">running for: {{formatUpTime(selectedApplication.run_time_in_seconds.total_running_time_seconds)}}</span>
         </div>
       </div>
-      <div *ngIf="isApplicationSelected" class="grey-box cpu-ram-container w-100 mar-top-24">
+      <div class="grey-box cpu-ram-container w-100 mar-top-24">
         <div class="w-100 first">
           <div class="space-base">
             <div>
@@ -70,6 +70,14 @@
           <div class="chart-container mar-top-16">
             <canvas class="white-bg w-100" id="usageCPU"></canvas>
           </div>
+          <mat-radio-group
+            aria-labelledby="example-radio-group-label"
+            class="example-radio-group"
+            [(ngModel)]="checkedCPU" (change)="reloadCPUChart()">
+            <mat-radio-button class="example-radio-button" *ngFor="let option of radioOptions" [value]="option">
+              {{option}}
+            </mat-radio-button>
+          </mat-radio-group>
         </div>
         <div class="w-100 second">
           <div class="space-base">
@@ -84,9 +92,17 @@
           <div class="chart-container mar-top-16">
             <canvas class="white-bg w-100" id="usageRAM"></canvas>
           </div>
+          <mat-radio-group
+            aria-labelledby="example-radio-group-label"
+            class="example-radio-group"
+            [(ngModel)]="checkedRAM" (change)="reloadRAMChart()">
+            <mat-radio-button class="example-radio-button" *ngFor="let option of radioOptions" [value]="option">
+              {{option}}
+            </mat-radio-button>
+          </mat-radio-group>
         </div>
       </div>
-      <div *ngIf="isApplicationSelected" class="align-general mar-top-32 wrapper">
+      <div class="align-general mar-top-32 wrapper">
         <div class="first">
           <h2 class="mar-bot-24">General</h2>
           <div class="grey-box">

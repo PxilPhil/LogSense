@@ -43,6 +43,11 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
   cpuData: ChartData = {measurementTime: [], usage: []};
   ramData: ChartData = {measurementTime: [], usage: []};
 
+  checkedCPU: String = "";
+  checkedRAM: String = "";
+  radioOptions: String[] = ["Show None", "Show Anomalies", "Show Events and Anomalies"];
+
+
   pcId: number = 0;
   showPcIdAlert: boolean = true;
 
@@ -80,6 +85,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
           this.runningApps.push(app);
         }
         this.displayedApps = this.applicationNameList.application_list;
+        this.loadApplicationData(this.displayedApps[0]);
       });
     } else {
       this.applicationService.getApplicationNameList(this.pcId, this.datePipe.transform(dateNow-dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: ApplicationNames) => {
@@ -88,6 +94,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
           this.runningApps.push(app);
         }
         this.displayedApps = this.applicationNameList.application_list;
+        this.loadApplicationData(this.displayedApps[0]);
       });
     }
   }
@@ -158,6 +165,54 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     }
     return new ApplicationTimeSeriesData();
   }
+
+  reloadCPUChart() {
+    switch (this.checkedCPU) {
+      case this.radioOptions[1]: {
+        this.showAnomalyCPUChart();
+        break;
+      }
+      case this.radioOptions[2]: {
+        this.showAllCPUChart();
+        break;
+      }
+      default: {
+        this.cpuUsageChart();
+        break;
+      }
+    }
+  }
+  reloadRAMChart() {
+    switch (this.checkedRAM) {
+      case this.radioOptions[1]: {
+        this.showAnomalyRAMChart();
+        break;
+      }
+      case this.radioOptions[2]: {
+        this.showAllRAMChart();
+        break;
+      }
+      default: {
+        this.ramUsageChart();
+        break;
+      }
+    }
+  }
+
+  showAllCPUChart(): void {
+
+  }
+
+  showAllRAMChart(): void {
+
+  }
+  showAnomalyCPUChart(): void {
+
+  }
+  showAnomalyRAMChart(): void {
+
+  }
+
 
   cpuUsageChart(): void {
     if (this.cpuChart) {
