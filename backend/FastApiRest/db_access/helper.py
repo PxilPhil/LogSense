@@ -2,16 +2,28 @@ import hashlib
 import re
 
 import psycopg2
+from fastapi.encoders import jsonable_encoder
 
 from db_access import conn_pool
 from exceptions.NotFoundExcepion import NotFoundException
 from exceptions.DataBaseExcepion import DataBaseException
+from datetime import datetime
 
 
 def is_valid_email(email: str):
     email_pattern = r'^[\w\.-]+@[\w\.-]+\.\w+$'
     return re.match(email_pattern, email) is not None
 
+
+def convert_datetime_format(input_string):
+    dt_object = datetime.strptime(input_string, "%Y-%m-%dT%H:%M:%S")
+    formatted_string = dt_object.strftime("%Y-%m-%dT%H:%M:%S.%f")
+    return formatted_string
+
+def custom_json_encoder(data):
+    return jsonable_encoder(data,
+                            default=lambda o: o.isoformat("T", "microseconds") if isinstance(o, datetime) else None,
+                            by_alias=True)
 
 def hash_password(pwd, salt):
     return str(hashlib.sha256((str(salt) + str(pwd)).encode()).hexdigest())
