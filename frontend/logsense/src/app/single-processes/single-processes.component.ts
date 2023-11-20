@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Chart} from "chart.js";
+import {Chart, ChartTypeRegistry, TooltipItem} from "chart.js";
 import {ApplicationService} from "../services/application.service";
 import {ApplicationNames} from "../model/ApplicationNames";
 import {DatePipe} from "@angular/common";
@@ -199,20 +199,100 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     }
   }
 
-  showAllCPUChart(): void {
+  destroyCPUChart() {
+    if(this.cpuChart) {
+      this.cpuChart.destroy();
+    }
+  }
 
+  destroyRAMChart() {
+    if(this.ramChart) {
+      this.ramChart.destroy();
+    }
+  }
+
+  showAllCPUChart(): void {
+    this.destroyCPUChart();
   }
 
   showAllRAMChart(): void {
-
+    this.destroyRAMChart();
   }
   showAnomalyCPUChart(): void {
-
+    this.destroyCPUChart();
+    this.cpuChart = new Chart("usageCPU", {
+      data: {
+        datasets: [{
+          type: 'line',
+          label: 'Line Dataset',
+          data: this.cpuData.usage,
+          backgroundColor: 'rgba(62, 149, 205, 0.5)',
+          borderColor: '#3e95cd',
+          order: 2
+        }, {
+          type: 'scatter',
+          label: 'Scatter Dataset',
+          data: this.getCPUAnomalies(),
+          backgroundColor: '#e82546',
+          borderColor: '#e82546'
+        }],
+        labels: this.cpuData.measurementTime
+      }, options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => this.getEventMsg(context)
+            }
+          }
+        }
+      }
+    })
   }
   showAnomalyRAMChart(): void {
-
+    this.destroyRAMChart();
   }
 
+  getCPUAnomalies() {
+    let anomalyPositions: any[] = [];
+    var success: boolean = false;
+
+    this.selectedApplication.time_series_data.forEach((data, index) => {
+      for (let anomaly of this.selectedApplication.cpu_events_and_anomalies) {
+        if (data.measurement_time == anomaly.timestamp && anomaly.is_anomaly) {
+          anomalyPositions.push(this.cpuData.usage[index]);
+          success = true;
+        }
+      }
+      if(!success) {
+        anomalyPositions.push(null);
+      }
+      success=false;
+    })
+    return anomalyPositions;
+  }
+
+  getEventMsg(context: TooltipItem<keyof ChartTypeRegistry>): string[] {
+    let msg: string = "";
+    if(context.dataset.borderColor != "#3e95cd") {
+      this.selectedApplication.cpu_events_and_anomalies.forEach((data, index) => {
+        if(this.datePipe.transform(data.till_timestamp, 'MM-dd HH:mm') == context.label || this.datePipe.transform(data.timestamp, 'MM-dd HH:mm') == context.label) {
+          msg = data.justification_message;
+        }
+      });
+    } else {
+      msg += context.parsed.y + "%";
+    }
+    return msg.split("\n");
+  }
 
   cpuUsageChart(): void {
     if (this.cpuChart) {
