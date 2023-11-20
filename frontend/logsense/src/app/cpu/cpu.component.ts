@@ -195,8 +195,8 @@ export class CpuComponent implements OnInit {
     let msg: string = "";
     if(context.dataset.borderColor != "#3e95cd") {
       this.cpu.events_and_anomalies.forEach((data, index) => {
-        console.log(context.label + ":" + data.timestamp);
-        if(this.datePipe.transform(data.till_timestamp, 'MM-dd HH:mm:ss') == context.label || this.datePipe.transform(data.timestamp, 'MM-dd HH:mm:ss') == context.label) {
+        //console.log(context.label + ":" + data.timestamp);
+        if(this.datePipe.transform(data.till_timestamp, 'MM-dd HH:mm') == context.label || this.datePipe.transform(data.timestamp, 'MM-dd HH:mm') == context.label) {
           msg = data.justification_message;
         }
       });
@@ -227,17 +227,18 @@ export class CpuComponent implements OnInit {
   }
 
   getEvents(){
-    console.log("e1: " +  this.cpu.events_and_anomalies);
+    //console.log("e1: " +  this.cpu.events_and_anomalies);
     let events: any[] = [];
     var success: boolean = false;
     var inEvent: boolean = false;
-    console.log(this.cpu);
+    //console.log(this.cpu);
     this.cpu.events_and_anomalies.forEach((event, eventIndex) => {
       if(!event.is_anomaly) {
         let tmpEvent: any[] = [];
         this.cpu.time_series_list.forEach((data, dataIndex) => {
-          if(data.measurement_time == event.till_timestamp) {
-            console.log(data.measurement_time + "\n" + event.till_timestamp + "->" + event.timestamp);
+          //console.log(data.measurement_time + "\n" + this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "") + "->" + event.timestamp);
+          if(this.datePipe.transform(data.measurement_time, 'yyyy-MM-ddTHH:mm' ?? "") == this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "")) {
+            console.log(data.measurement_time + "\n" + this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "") + "->" + event.timestamp);
             inEvent = true;
             tmpEvent.push(this.roundDecimal(data.value*100, 2));
           } else if(data.measurement_time == event.timestamp) {
@@ -249,7 +250,7 @@ export class CpuComponent implements OnInit {
             tmpEvent.push(null);
           }
         })
-        console.log(tmpEvent);
+        //console.log(tmpEvent);
         events.push(tmpEvent);
       }
     })
@@ -268,7 +269,7 @@ export class CpuComponent implements OnInit {
       }
       success=false;
     })*/
-    console.log("e1: " + this.cpu.events_and_anomalies);
+    //console.log("e1: " + this.cpu.events_and_anomalies);
     return events;
   }
 
@@ -348,14 +349,15 @@ export class CpuComponent implements OnInit {
   loadData() {
     let dateNow = Date.now();
     if(this.selectedTime.valueInMilliseconds!=0) {
-      this.pcDataService.getCPUData(this.pcId, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "").subscribe((data: CPUModel) => {
+      this.pcDataService.getCPUData(this.pcId, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm") ?? "").subscribe((data: CPUModel) => {
         this.cpu = data;
+        console.log(this.cpu.time_series_list);
         this.transformData();
         this.showAll();
         this.reloadChart();
       });
     } else {
-      this.pcDataService.getCPUData(this.pcId, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "").subscribe((data: CPUModel) => {
+      this.pcDataService.getCPUData(this.pcId, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm") ?? "").subscribe((data: CPUModel) => {
         this.cpu = data;
         this.transformData();
         this.showAll();
@@ -365,18 +367,18 @@ export class CpuComponent implements OnInit {
   }
 
   transformData() {
-    console.log("t1: " + this.cpu.events_and_anomalies);
+    //console.log("t1: " + this.cpu.events_and_anomalies);
     //this.cpu.time_series_list.reverse();
     this.cpuData.time = [];
     this.cpuData.value = [];
     for (let dataPoint of this.cpu.time_series_list) {;
-      this.cpuData.time.push(this.datePipe.transform(dataPoint.measurement_time, 'MM-dd HH:mm:ss')??"");
+      this.cpuData.time.push(this.datePipe.transform(dataPoint.measurement_time, 'MM-dd HH:mm')??"");
       this.cpuData.value.push(this.roundDecimal(dataPoint.value*100, 2));
     }
     this.cpu.allocation_list.forEach((value, i) => {
       this.cpu.allocation_list[i].allocation = this.roundDecimal(this.cpu.allocation_list[i].allocation * 100, 2);
     });
-    console.log("t2: " + this.cpu.events_and_anomalies);
+    //console.log("t2: " + this.cpu.events_and_anomalies);
   }
 
   convertBytesToGigaBytes(valueInBytes: number): number {

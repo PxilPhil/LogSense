@@ -103,10 +103,10 @@ timestamp|displayName
 Content-Disposition: form-data; name="files[]"; filename="file2.txt"
 
 ### get ram pc timeseries data###
-GET http://localhost:8000/pc/3/ram?start=2023-07-25 10:20:00&end=2023-08-02 17:29:00
+GET http://localhost:8000/pc/1/ram?start=2023-10-25 10:20:00&end=2023-11-20 17:29:00
 
 ### get cpu pc timeseries data###
-GET http://localhost:8000/pc/3/cpu?start=2023-07-25 10:20:00&end=2023-08-02 17:29:00
+GET http://localhost:8000/pc/1/cpu?start=2023-10-25 10:20:00&end=2023-11-20 17:29:00
 
 ### get disks timeseries data
 GET http://localhost:8000/pc/3/disk?start=2023-07-25 10:20:00&end=2023-08-02 17:29:00
