@@ -32,8 +32,13 @@ def perform_justification_processing(df: DataFrame):
     grouped['removed'] = grouped['name'].apply(lambda x: list(first_names - set(x)))
 
     # put the data into array of string to make working with them easier
-    started = [name for name in np.concatenate(grouped['added']) if not pd.isna(name)]
-    stopped = [name for name in np.concatenate(grouped['removed']) if not pd.isna(name)]
+    started = set([name for name in np.concatenate(grouped['added']) if not pd.isna(name)])
+    stopped = set([name for name in np.concatenate(grouped['removed']) if not pd.isna(name)])
+
+    print('started-stopped')
+    print(started)
+    print(stopped)
+
 
     return important_applications, summary_df, started, stopped
 

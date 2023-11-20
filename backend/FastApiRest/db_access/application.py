@@ -206,14 +206,14 @@ def get_latest_application_data(pc_id: int, limit, application_name):
         WHERE
         app.pc_id = %s AND
         app.measurement_time IN 
-        (SELECT measurement_time from applicationdata group by measurement_time order by measurement_time desc limit %s)
+        (SELECT measurement_time from applicationdata where pc_id = %s group by measurement_time order by measurement_time desc limit %s)
         """
 
         if application_name:
             query += "AND app.name = %s"
-            cursor.execute(query, (pc_id, limit, application_name))
+            cursor.execute(query, (pc_id, pc_id, limit, application_name))
         else:
-            cursor.execute(query, (pc_id, limit))
+            cursor.execute(query, (pc_id, pc_id, limit))
 
         result = cursor.fetchall()
 
@@ -409,5 +409,61 @@ def select_info_application(application_name, pc_id, start, end):
         raise DataBaseException()
     except KeyError as e:
         raise InvalidParametersException()
+    finally:
+        conn_pool.putconn(conn)
+
+
+def get_application_data_at(pc_id: int, end: datetime, application_name):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        query = """
+        SELECT
+        app.id,
+        app.pcdata_id,
+        app.measurement_time,
+        app.name,
+        app.path,
+        app.cpu,
+        app.ram,
+        app.state,
+        app."user",
+        app.context_switches,
+        app.major_faults,
+        app.bitness,
+        app.commandline,
+        app."current_Working_Directory",
+        app.open_files,
+        app.parent_process_id,
+        app.thread_count,
+        app.uptime,
+        app.process_count_difference
+        FROM
+        applicationdata AS app
+        WHERE
+        app.pc_id = %s AND
+        app.measurement_time = %s
+        """
+
+        if application_name:
+            query += "AND app.name = %s"
+            cursor.execute(query, (pc_id, end, application_name))
+        else:
+            cursor.execute(query, (pc_id, end))
+
+        result = cursor.fetchall()
+
+        if result:
+            columns = [desc[0] for desc in cursor.description]
+            df = pd.DataFrame(result, columns=columns)
+            data_list = df.to_dict(orient='records')
+
+            return df, data_list
+        else:
+            return None, None
+    except psycopg2.DatabaseError as e:
+        if e.pgerror == psycopg2.errorcodes.INVALID_TEXT_REPRESENTATION:
+            raise InvalidParametersException()
+        raise DataBaseException()
     finally:
         conn_pool.putconn(conn)

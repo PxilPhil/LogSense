@@ -40,7 +40,9 @@ def check_for_custom_alerts(pc_id, df, custom_alerts, start, end):
                 # check values should be detected with moving averages
                 if condition.detect_via_moving_averages:
                     selected_column = 'moving_average_' + condition.column
+                    #todo: free_disk_space doesnt work
                     print(condition.column)
+                    print(df)
                     df[selected_column] = df[condition.column].rolling(window=5).mean()
                     df[selected_column].fillna(df[condition.column], inplace=True)
 

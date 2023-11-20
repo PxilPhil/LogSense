@@ -14,6 +14,7 @@ from db_access.application import get_latest_application_data
 from data_analytics import requests
 from exceptions.DataBaseInsertExcepion import DataBaseInsertException
 from exceptions.InvalidParametersException import InvalidParametersException
+from exceptions.NotFoundExcepion import NotFoundException
 from model.pc import PCItem, ForecastResult, ForecastData, DISKS, Network, PCSpecs, PCMetrics, PCDetails
 from model.data import PCData, StatisticData, PCTimeSeriesData
 
@@ -84,7 +85,7 @@ def get_pc_ram(pc_id: int, start: str, end: str, bucket_value: str = '1 minutes'
 
     df, application_data_list = get_latest_application_data(pc_id, 1, None)
     if df is None or ram_df is None:
-        raise InvalidParametersException()
+        raise NotFoundException()
     pc_total_df, allocation_list, events_and_anomalies, statistic_data = requests.analyze_pc_data(
         pc_id, df, ram_df, 'ram')
 
@@ -119,7 +120,7 @@ def get_pc_cpu(pc_id: int, start: str, end: str, bucket_value: str = '1 minutes'
 
     df, application_data_list = get_latest_application_data(pc_id, 1, None)
     if df is None or cpu_df is None:
-        raise InvalidParametersException()
+        raise NotFoundException()
     pc_total_df, allocation_list, events_and_anomalies, statistic_data = requests.analyze_pc_data(pc_id,
         df, cpu_df, 'cpu')
 
@@ -243,7 +244,7 @@ def forecast_no_disk_space(pc_id: int, days: int):
     try:
         df = get_free_disk_space_data(pc_id)
         if df is None:
-            raise InvalidParametersException()
+            raise NotFoundException()
         data_list, final_timestamp = requests.determine_full_disk_space(df, 'free_disk_space', days)
         forecast_result = ForecastResult(
             pc=pc_id,
@@ -254,7 +255,7 @@ def forecast_no_disk_space(pc_id: int, days: int):
         print(forecast_result)
         return forecast_result
     except Exception as e:
-        raise InvalidParametersException()
+        raise NotFoundException()
 
 @pc.get('/{pc_id}/data/forecast/', response_model=ForecastResult, tags=["PC"])
 def forecast_free_disk_space(pc_id: int, start: str, end: str, bucket_value: str):
@@ -271,7 +272,7 @@ def forecast_free_disk_space(pc_id: int, start: str, end: str, bucket_value: str
     try:
         df = get_free_disk_space_data(pc_id)
         if df is None:
-            raise InvalidParametersException()
+            raise NotFoundException()
         data_list, final_timestamp = requests.forecast_disk_space(df, 'free_disk_space', start, end, bucket_value)
         forecast_result = ForecastResult(
             pc=pc_id,
@@ -282,7 +283,7 @@ def forecast_free_disk_space(pc_id: int, start: str, end: str, bucket_value: str
         print(forecast_result)
         return forecast_result
     except Exception as e:
-        raise InvalidParametersException()
+        raise NotFoundException()
 
 
 @pc.get('/general_specs/{pc_id}', response_model=PCSpecs, tags=["PC"])
