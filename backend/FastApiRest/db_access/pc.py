@@ -768,6 +768,8 @@ def resource_metrics(pc_id):
         avg_row = cursor.fetchone()
         if avg_row is None:
             return None
+        if avg_row[0] is None:
+            avg_row = [0, 0, 0, 0]
 
         avg_cpu_usage_percent_last_day = avg_row[0] * 100
         cpu_stability_str = determine_stability(avg_row[1])
@@ -964,9 +966,44 @@ def details(pc_id: str):
         cursor.execute(total_running_time_query, (pc_id,))
         results1 = cursor.fetchone()
 
-        if results and results1:
+        total_running_time_query = """
+WITH pcdata_with_lead AS (
+    SELECT
+        id,
+        pc_id,
+        measurement_time,
+        LEAD(measurement_time) OVER (PARTITION BY pc_id ORDER BY measurement_time) AS next_measurement_time
+    FROM
+        pcdata
+    WHERE pc_id = %s
+)
+SELECT
+    SUM(
+        CASE
+            WHEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time) >= 30 AND EXTRACT(EPOCH FROM next_measurement_time - measurement_time) <= 90 THEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time)
+            ELSE 0
+        END
+    ) AS total_running_time_seconds
+FROM
+    pcdata_with_lead
+WHERE
+    next_measurement_time IS NOT NULL
+GROUP BY
+    pc_id
+HAVING
+    SUM(
+        CASE
+            WHEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time) >= 30 AND EXTRACT(EPOCH FROM next_measurement_time - measurement_time) <= 90 THEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time)
+            ELSE 0
+        END
+    ) > 0;            """
+        cursor.execute(total_running_time_query, (pc_id,))
+        time_result = cursor.fetchone()
+
+        if results and results1 and time_result:
 
             details = PCDetails(
+                runtime_in_seconds = time_result[0],
                 manufacturer = results1[0],
                 model = results1[1],
                 hardware_uuid = results1[2],

@@ -24,7 +24,12 @@ def update_pc_description(pc_id, client_df):
         WHERE ID = %s;
         """
         cursor.execute(update_pc, (manufacturer, model, pc_id))
+        conn.commit()
+
         return True
+    except Exception as e:
+        print(f"Error updating PC description: {e}")
+        return False
     finally:
         conn_pool.putconn(conn)
 
