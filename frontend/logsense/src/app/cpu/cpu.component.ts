@@ -221,7 +221,7 @@ export class CpuComponent implements OnInit {
       borderColor: '#e82546'
     }];
     this.getEvents().forEach((data, index) => {
-      dataset.push({type: 'line', data: data, fill: true, backgroundColor: 'rgba(179, 0, 255, 1)', borderColor: 'rgb(179, 0, 255)', order: 2});
+      dataset.push({type: 'line', data: data, fill: true, backgroundColor: 'rgba(179, 0, 255, 0.25)', borderColor: 'rgb(179, 0, 255, 0.5)', order: 2});
     });
     return dataset;
   }
