@@ -18,7 +18,7 @@ export class CustomAlertsComponent implements OnInit{
   operator: string[] = ["<", "=", ">"];
   detection: string[] = ["Data Point", "Moving Averages"];
   applications: string [] = []
-  columns: string[] = ["cpu", "ram", "free_disk_space", "partition_major_faults", "partition_minor_faults", "available_memory", "open_files"]
+  columns: string[] = ["cpu", "ram", "partition_major_faults", "partition_minor_faults", "available_memory", "open_files"]
   detection_selected: string = "Moving Averages" //todo: maybe do this in a different way
   selected_from_database = false
   error_occured = false
