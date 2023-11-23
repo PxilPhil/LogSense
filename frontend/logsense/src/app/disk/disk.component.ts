@@ -64,7 +64,6 @@ export class DiskComponent implements OnInit, OnDestroy {
     this.loadStats();
     this.loadDiskStores();  //only load diskStores and partitions on startup or on refresh
     this.loadForecast();
-    console.log(this.diskData);
     this.loadAlerts();
   }
 
@@ -111,13 +110,14 @@ export class DiskComponent implements OnInit, OnDestroy {
   }
   loadForecast() {
     this.diskDataService.getForecastedFreeDiskSpace(1, 30).subscribe((data: DiskForecastData) => {
+      console.log("ForeCast" + data);
       for (let dataPoint of data.data_list) {
         if(Date.parse(data.final_timestamp)>Date.parse(dataPoint.datetime)) {
           this.forecastData.time.push(this.datePipe.transform(dataPoint.datetime, "MM-dd HH:mm:ss")??"");
           this.forecastData.value.push(this.convertBytesToGigaBytes(dataPoint.LinearRegression));
         }
       }
-      //this.diskForecastChart(); TODO: finsih Forecastchart
+      this.diskForecastChart(); //TODO: finsih Forecastchart
     });
   }
   transformData() {
