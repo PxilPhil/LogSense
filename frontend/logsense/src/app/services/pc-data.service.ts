@@ -32,8 +32,8 @@ export class PCDataService {
     return this.httpClient.get<RAMModel>(url);
   }
 
-  getCPUData(pc_id: number, start: string, end: string):Observable<CPUModel> {
-    const url: string = `http://localhost:8000/pc/${pc_id}/cpu?start=${start}&end=${end}`;
+  getCPUData(pc_id: number, start: string, end: string, bucketValue: string):Observable<CPUModel> {
+    const url: string = `http://localhost:8000/pc/${pc_id}/cpu?start=${start}&end=${end}&bucket_value=${bucketValue}`;
     return this.httpClient.get<CPUModel>(url);
   }
 }
