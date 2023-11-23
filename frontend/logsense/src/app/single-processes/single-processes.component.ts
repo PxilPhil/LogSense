@@ -404,12 +404,12 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
           if(this.datePipe.transform(data.measurement_time, 'yyyy-MM-ddTHH:mm' ?? "") == this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "")) {
             console.log(data.measurement_time + "\n" + this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "") + "->" + event.timestamp);
             inEvent = true;
-            tmpEvent.push(this.roundDecimalNumber(data.cpu*100, 2));
+            tmpEvent.push(this.roundDecimalNumber(this.convertBytesToMegaBytes(data.ram), 2));
           } else if(data.measurement_time == event.timestamp) {
-            tmpEvent.push(this.roundDecimalNumber(data.cpu*100, 2));
+            tmpEvent.push(this.roundDecimalNumber(this.convertBytesToMegaBytes(data.ram), 2));
             inEvent = false;
           } else if(inEvent) {
-            tmpEvent.push(this.roundDecimalNumber(data.cpu*100, 2));
+            tmpEvent.push(this.roundDecimalNumber(this.convertBytesToMegaBytes(data.ram), 2));
           } else {
             tmpEvent.push(null);
           }
