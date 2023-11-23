@@ -1,8 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {ProcessModel} from "../cpu/cpu.component";
 import {Chart, ChartTypeRegistry, TooltipItem} from "chart.js";
 import {TimeModel} from "../disk/disk.component";
-import {Process, TimeSeriesList} from "../model/PCData";
+import {Process} from "../model/PCData";
 import {PCDataService} from "../services/pc-data.service";
 import {DatePipe} from "@angular/common";
 import {RAMModel, RamStats} from "../model/Ram";
@@ -28,26 +27,26 @@ import {SelectedPcService} from "../services/selected-pc.service";
 }*/
 
 export class ChartData {
-    time: string[] = [];
-    value: number[] = [];
+  time: string[] = [];
+  value: number[] = [];
 }
 
 export class ChartDataset {
-    type: string = "";
-    label?: string; // Die Beschriftung des Datensatzes
-    data: number[] = []; // Ein Array von Y-Werten
-    borderColor?: string; // Die Farbe der Linie
-    backgroundColor?: string; // Die Farbe des Bereichs unter der Linie
-    borderWidth?: number; // Die Linienbreite
-    fill?: boolean; // Ob der Bereich unter der Linie gefüllt werden soll
-    order?: number;
-    // Weitere Eigenschaften können hinzugefügt werden, je nach Bedarf
+  type: string = "";
+  label?: string; // Die Beschriftung des Datensatzes
+  data: number[] = []; // Ein Array von Y-Werten
+  borderColor?: string; // Die Farbe der Linie
+  backgroundColor?: string; // Die Farbe des Bereichs unter der Linie
+  borderWidth?: number; // Die Linienbreite
+  fill?: boolean; // Ob der Bereich unter der Linie gefüllt werden soll
+  order?: number;
+  // Weitere Eigenschaften können hinzugefügt werden, je nach Bedarf
 }
 
 @Component({
-    selector: 'app-ram',
-    templateUrl: './ram.component.html',
-    styleUrls: ['./ram.component.scss']
+  selector: 'app-ram',
+  templateUrl: './ram.component.html',
+  styleUrls: ['./ram.component.scss']
 })
 export class RamComponent implements OnInit {
   ram: RAMModel = new RAMModel();
@@ -67,17 +66,26 @@ export class RamComponent implements OnInit {
   ];
   selectedTime: TimeModel = this.times[0];
 
+  bucketingTimes = [
+    {id: 1, value: "1 minute"},
+    {id: 2, value: "5 minutes"},
+    {id: 3, value: "10 minutes"},
+    {id: 4, value: "30 minutes"},
+    {id: 5, value: "45 minutes"},
+    {id: 6, value: "60 minutes"}
+  ];
+  selectedBucketingTime = this.bucketingTimes[0];
+
   checked: String = "";
   radioOptions: String[] = ["Show None", "Show Anomalies", "Show Events and Anomalies"];
 
   alerts: Alert[] = []
   showAllProcesses: boolean = true;
 
-
   pcId: number = 0;
   showPcIdAlert: boolean = true;
 
-  constructor(private selectedPcService: SelectedPcService, private alertService: AlertService, private statsService: ResourceMetricsService, private pcDataService: PCDataService, private  datePipe: DatePipe) {
+  constructor(private selectedPcService: SelectedPcService, private alertService: AlertService, private statsService: ResourceMetricsService, private pcDataService: PCDataService, private datePipe: DatePipe) {
   }
 
   ngOnInit() {
@@ -90,12 +98,12 @@ export class RamComponent implements OnInit {
 
   showAll() {
     this.displayedProcesses = [];
-    if(!this.showAllProcesses) {
+    if (!this.showAllProcesses) {
       this.displayedProcesses = this.ram.allocation_list;
     } else {
-      var i = 1;
+      let i = 1;
       for (let process of this.ram.allocation_list) {
-        if(i<9) {
+        if (i < 9) {
           this.displayedProcesses.push(process);
           i++;
         } else {
@@ -124,7 +132,7 @@ export class RamComponent implements OnInit {
   }
 
   destroyChart() {
-    if(this.ramChart) {
+    if (this.ramChart) {
       this.ramChart.destroy();
     }
   }
@@ -140,7 +148,7 @@ export class RamComponent implements OnInit {
           backgroundColor: 'rgba(62, 149, 205, 0.5)',
           borderColor: '#3e95cd',
           order: 2
-        },{
+        }, {
           type: 'scatter',
           label: 'Scatter Dataset',
           data: this.getAnomalies(),
@@ -234,6 +242,7 @@ export class RamComponent implements OnInit {
       }
     });
   }
+
   getEventDataSet() {
     console.log(this.ramData);
     let dataset: any[] = [{
@@ -243,7 +252,7 @@ export class RamComponent implements OnInit {
       backgroundColor: 'rgba(62, 149, 205, 0.5)',
       borderColor: '#3e95cd',
       order: 3
-    },{
+    }, {
       type: 'scatter',
       label: 'Scatter Dataset',
       data: this.getAnomalies(),
@@ -251,25 +260,33 @@ export class RamComponent implements OnInit {
       borderColor: '#e82546'
     }];
     this.getEvents().forEach((data, index) => {
-      dataset.push({type: 'line', data: data, fill: true, backgroundColor: 'rgba(179, 0, 255, 1)', borderColor: 'rgb(179, 0, 255)', order: 2});
+      dataset.push({
+        type: 'line',
+        data: data,
+        fill: true,
+        backgroundColor: 'rgba(179, 0, 255, 1)',
+        borderColor: 'rgb(179, 0, 255)',
+        order: 2
+      });
     });
     return dataset;
   }
-  getEvents(){
+
+  getEvents() {
     let events: any[] = [];
-    var inEvent: boolean = false;
+    let inEvent: boolean = false;
     this.ram.events_and_anomalies.forEach((event, eventIndex) => {
-      if(!event.is_anomaly) {
+      if (!event.is_anomaly) {
         let tmpEvent: any[] = [];
         this.ram.time_series_list.forEach((data, dataIndex) => {
-          if(data.measurement_time == event.till_timestamp) {
+          if (data.measurement_time == event.till_timestamp) {
             //console.log(data.measurement_time + "\n" + event.till_timestamp + "->" + event.timestamp);
             inEvent = true;
             tmpEvent.push(this.roundDecimal(this.convertBytesToGigaBytes(data.value), 2));
-          } else if(data.measurement_time == event.timestamp) {
+          } else if (data.measurement_time == event.timestamp) {
             tmpEvent.push(this.roundDecimal(this.convertBytesToGigaBytes(data.value), 2));
             inEvent = false;
-          } else if(inEvent) {
+          } else if (inEvent) {
             tmpEvent.push(this.roundDecimal(this.convertBytesToGigaBytes(data.value), 2));
           } else {
             tmpEvent.push(null);
@@ -281,9 +298,9 @@ export class RamComponent implements OnInit {
     return events;
   }
 
-  getAnomalies(){
+  getAnomalies() {
     let anomalyPositions: any[] = [];
-    var success: boolean = false;
+    let success: boolean = false;
 
     this.ram.time_series_list.forEach((data, index) => {
       for (let anomaly of this.ram.events_and_anomalies) {
@@ -292,19 +309,20 @@ export class RamComponent implements OnInit {
           success = true;
         }
       }
-      if(!success) {
+      if (!success) {
         anomalyPositions.push(null);
       }
-      success=false;
+      success = false;
     })
     return anomalyPositions;
   }
+
   getEventMsg(context: TooltipItem<keyof ChartTypeRegistry>): string[] {
     let msg: string = "";
-    if(context.dataset.borderColor != "#3e95cd") {
+    if (context.dataset.borderColor != "#3e95cd") {
       this.ram.events_and_anomalies.forEach((data, index) => {
         //console.log(context.label + ":" + data.timestamp);
-        if(this.datePipe.transform(data.till_timestamp, 'MM-dd HH:mm:ss') == context.label || this.datePipe.transform(data.timestamp, 'MM-dd HH:mm:ss') == context.label) {
+        if (this.datePipe.transform(data.till_timestamp, 'MM-dd HH:mm:ss') == context.label || this.datePipe.transform(data.timestamp, 'MM-dd HH:mm:ss') == context.label) {
           msg = data.justification_message;
         }
       });
@@ -313,6 +331,7 @@ export class RamComponent implements OnInit {
     }
     return msg.split("\n");
   }
+
   loadStats() {
     this.statsService.getResourceMetrics(this.pcId).subscribe((data: ResourceMetricsModel) => {
       this.ramStats.avg = this.roundDecimal(data.avg_ram_usage_percentage_last_day, 2);
@@ -323,17 +342,18 @@ export class RamComponent implements OnInit {
       this.ramStats.total = this.roundDecimal(this.convertBytesToGigaBytes(data.total_memory), 2);
     });
   }
+
   loadData() {
     let dateNow = Date.now();
     if (this.selectedTime.valueInMilliseconds != 0) {
-      this.pcDataService.getRAMData(this.pcId, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "").subscribe((data: RAMModel) => {
+      this.pcDataService.getRAMData(this.pcId, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "", this.selectedBucketingTime.value).subscribe((data: RAMModel) => {
         this.ram = data;
         this.transformData();
         this.showAll();
         this.reloadChart();
       });
     } else {
-      this.pcDataService.getRAMData(1, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "").subscribe((data: RAMModel) => {
+      this.pcDataService.getRAMData(1, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm:ss.SSS") ?? "", this.selectedBucketingTime.value).subscribe((data: RAMModel) => {
         this.ram = data;
         this.transformData();
         this.showAll();
@@ -354,26 +374,26 @@ export class RamComponent implements OnInit {
     })
   }
 
-    convertBytesToGigaBytes(valueInBytes: number): number {
-        return (valueInBytes / 1000 / 1000 / 1000);
-    }
+  convertBytesToGigaBytes(valueInBytes: number): number {
+    return (valueInBytes / 1000 / 1000 / 1000);
+  }
 
-    roundDecimal(num: number, places: number): number {
-        return Math.round((num + Number.EPSILON) * Math.pow(10, places)) / Math.pow(10, places);
-    }
+  roundDecimal(num: number, places: number): number {
+    return Math.round((num + Number.EPSILON) * Math.pow(10, places)) / Math.pow(10, places);
+  }
 
-    loadAlerts() {
-        this.alerts = this.alertService.getStoredAlerts(undefined, ['ram']);
-        console.log(this.alerts)
+  loadAlerts() {
+    this.alerts = this.alertService.getStoredAlerts(undefined, ['ram']);
+    console.log(this.alerts)
 
-    }
+  }
 
-    getSelectedPcId() {
-        if (this.selectedPcService.getSelectedPcId() != null) {
-            this.pcId = this.selectedPcService.getSelectedPcId()!;
-            this.showPcIdAlert = false;
-        } else {
-            this.showPcIdAlert = true;
-        }
+  getSelectedPcId() {
+    if (this.selectedPcService.getSelectedPcId() != null) {
+      this.pcId = this.selectedPcService.getSelectedPcId()!;
+      this.showPcIdAlert = false;
+    } else {
+      this.showPcIdAlert = true;
     }
+  }
 }
