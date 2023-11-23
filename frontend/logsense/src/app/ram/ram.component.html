@@ -10,8 +10,11 @@
   <div class="pad-right-128 pad-left-64 mar-top-32 w-100">
     <div class="grey-box wrap-chart-stats w-100">
       <div class="mar-right-96">
-        <select [(ngModel)]="selectedTime" class="dropdown-btn mar-bot-24" (change)="loadData()">
+        <select [(ngModel)]="selectedTime" class="dropdown-btn mar-right-12 mar-bot-24" (change)="loadData()">
           <option *ngFor="let elem of times" [ngValue]="elem">{{elem.time}}</option>
+        </select>
+        <select [(ngModel)]="selectedBucketingTime" (change)="loadData()" class="dropdown-btn mar-bot-24">
+          <option *ngFor="let bucketingTime of bucketingTimes" [ngValue]="bucketingTime">{{bucketingTime.value}}</option>
         </select>
         <canvas class="white-bg w-100" id="ram"></canvas>
         <div class="flex-center mar-top-12">
