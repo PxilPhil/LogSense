@@ -61,13 +61,8 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.cpuChart) {
-      this.cpuChart.destroy();
-    }
-
-    if (this.ramChart) {
-      this.ramChart.destroy();
-    }
+    this.destroyCPUChart();
+    this.destroyRAMChart();
   }
 
   setData(): void {
@@ -85,7 +80,11 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
           this.runningApps.push(app);
         }
         this.displayedApps = this.applicationNameList.application_list;
-        this.loadApplicationData(this.displayedApps[0]);
+        if(this.isApplicationSelected) {
+          this.loadApplicationData(this.selectedApplication.application_name);
+        } else {
+          this.loadApplicationData(this.displayedApps[0]);
+        }
       });
     } else {
       this.applicationService.getApplicationNameList(this.pcId, this.datePipe.transform(dateNow-dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: ApplicationNames) => {
@@ -94,7 +93,11 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
           this.runningApps.push(app);
         }
         this.displayedApps = this.applicationNameList.application_list;
-        this.loadApplicationData(this.displayedApps[0]);
+        if(this.isApplicationSelected) {
+          this.loadApplicationData(this.selectedApplication.application_name);
+        } else {
+          this.loadApplicationData(this.displayedApps[0]);
+        }
       });
     }
   }
@@ -132,8 +135,8 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
         console.log(data);
         //this.latestApplicationMeasurement = this.getLatestApplicationMeasurementOfSelectedApplication();
         this.setData();
-        this.cpuUsageChart();
-        this.ramUsageChart();
+        this.reloadCPUChart();
+        this.reloadRAMChart();
         this.loadAlerts();
 
       });
@@ -143,8 +146,8 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
         console.log(data);
         //this.latestApplicationMeasurement = this.getLatestApplicationMeasurementOfSelectedApplication();
         this.setData();
-        this.cpuUsageChart();
-        this.ramUsageChart();
+        this.reloadCPUChart();
+        this.reloadRAMChart();
         this.loadAlerts();
 
       });
@@ -213,10 +216,60 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
 
   showAllCPUChart(): void {
     this.destroyCPUChart();
+    this.cpuChart = new Chart("usageCPU", {
+      data: {
+        datasets: this.getCPUEventDataSet(),
+        labels: this.cpuData.measurementTime
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => this.getCPUEventMsg(context)
+            }
+          }
+        }
+      }
+    })
   }
 
   showAllRAMChart(): void {
     this.destroyRAMChart();
+    this.ramChart = new Chart("usageRAM", {
+      data: {
+        datasets: this.getRAMEventDataSet(),
+        labels: this.ramData.measurementTime
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => this.getRAMEventMsg(context)
+            }
+          }
+        }
+      }
+    })
   }
   showAnomalyCPUChart(): void {
     this.destroyCPUChart();
@@ -225,7 +278,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
         datasets: [{
           type: 'line',
           label: 'Line Dataset',
-          data: this.cpuData.usage,
+          data: this.getCpuData().usage,
           backgroundColor: 'rgba(62, 149, 205, 0.5)',
           borderColor: '#3e95cd',
           order: 2
@@ -250,7 +303,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
           },
           tooltip: {
             callbacks: {
-              label: (context) => this.getEventMsg(context)
+              label: (context) => this.getCPUEventMsg(context)
             }
           }
         }
@@ -259,8 +312,160 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
   }
   showAnomalyRAMChart(): void {
     this.destroyRAMChart();
+    this.ramChart = new Chart("usageRAM", {
+      data: {
+        datasets: [{
+          type: 'line',
+          label: 'Line Dataset',
+          data: this.ramData.usage,
+          backgroundColor: 'rgba(62, 149, 205, 0.5)',
+          borderColor: '#3e95cd',
+          order: 2
+        }, {
+          type: 'scatter',
+          label: 'Scatter Dataset',
+          data: this.getRAMAnomalies(),
+          backgroundColor: '#e82546',
+          borderColor: '#e82546'
+        }],
+        labels: this.ramData.measurementTime
+      }, options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => this.getRAMEventMsg(context)
+            }
+          }
+        }
+      }
+    })
   }
 
+  getRAMEventDataSet(): any[] {
+    let dataset: any[] = [{
+      type: 'line',
+      label: 'Line Dataset',
+      data: this.getRamData().usage,
+      backgroundColor: 'rgba(62, 149, 205, 0.5)',
+      borderColor: '#3e95cd',
+      order: 3
+    },{
+      type: 'scatter',
+      label: 'Scatter Dataset',
+      data: this.getRAMAnomalies(),
+      backgroundColor: '#e82546',
+      borderColor: '#e82546',
+      order: 1
+    }];
+    this.getRAMEvents().forEach((data) => {
+      dataset.push({type: 'line', data: data, fill: true, backgroundColor: 'rgba(179, 0, 255, 0.25)', borderColor: 'rgb(179, 0, 255, 0.5)', order: 2});
+    });
+    return dataset;
+  }
+
+  getCPUEventDataSet(): any[] {
+    let dataset: any[] = [{
+      type: 'line',
+      label: 'Line Dataset',
+      data: this.getCpuData().usage,
+      backgroundColor: 'rgba(62, 149, 205, 0.5)',
+      borderColor: '#3e95cd',
+      order: 3
+    },{
+    type: 'scatter',
+      label: 'Scatter Dataset',
+      data: this.getCPUAnomalies(),
+      backgroundColor: '#e82546',
+      borderColor: '#e82546',
+      order: 1
+  }];
+    this.getCPUEvents().forEach((data) => {
+      dataset.push({type: 'line', data: data, fill: true, backgroundColor: 'rgba(179, 0, 255, 0.25)', borderColor: 'rgb(179, 0, 255, 0.5)', order: 2});
+    });
+    return dataset;
+  }
+  getRAMEvents() {
+    let events: any[] = [];
+    var inEvent: boolean = false;
+    this.selectedApplication.ram_events_and_anomalies.forEach((event) => {
+      if(!event.is_anomaly) {
+        let tmpEvent: any[] = [];
+        this.selectedApplication.time_series_data.forEach((data, dataIndex) => {
+          //console.log(data.measurement_time + "\n" + this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "") + "->" + event.timestamp);
+          if(this.datePipe.transform(data.measurement_time, 'yyyy-MM-ddTHH:mm' ?? "") == this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "")) {
+            console.log(data.measurement_time + "\n" + this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "") + "->" + event.timestamp);
+            inEvent = true;
+            tmpEvent.push(this.roundDecimalNumber(data.cpu*100, 2));
+          } else if(data.measurement_time == event.timestamp) {
+            tmpEvent.push(this.roundDecimalNumber(data.cpu*100, 2));
+            inEvent = false;
+          } else if(inEvent) {
+            tmpEvent.push(this.roundDecimalNumber(data.cpu*100, 2));
+          } else {
+            tmpEvent.push(null);
+          }
+        })
+        //console.log(tmpEvent);
+        events.push(tmpEvent);
+      }
+    })
+    return events;
+  }
+
+  getCPUEvents() {
+    let events: any[] = [];
+    var inEvent: boolean = false;
+    this.selectedApplication.cpu_events_and_anomalies.forEach((event) => {
+      if(!event.is_anomaly) {
+        let tmpEvent: any[] = [];
+        this.selectedApplication.time_series_data.forEach((data, dataIndex) => {
+          //console.log(data.measurement_time + "\n" + this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "") + "->" + event.timestamp);
+          if(this.datePipe.transform(data.measurement_time, 'yyyy-MM-ddTHH:mm' ?? "") == this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "")) {
+            console.log(data.measurement_time + "\n" + this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "") + "->" + event.timestamp);
+            inEvent = true;
+            tmpEvent.push(this.roundDecimalNumber(data.cpu*100, 2));
+          } else if(data.measurement_time == event.timestamp) {
+            tmpEvent.push(this.roundDecimalNumber(data.cpu*100, 2));
+            inEvent = false;
+          } else if(inEvent) {
+            tmpEvent.push(this.roundDecimalNumber(data.cpu*100, 2));
+          } else {
+            tmpEvent.push(null);
+          }
+        })
+        //console.log(tmpEvent);
+        events.push(tmpEvent);
+      }
+    })
+    return events;
+  }
+  getRAMAnomalies() {
+    let anomalyPositions: any[] = [];
+    var success: boolean = false;
+
+    this.selectedApplication.time_series_data.forEach((data, index) => {
+      for (let anomaly of this.selectedApplication.ram_events_and_anomalies) {
+        if (data.measurement_time == anomaly.timestamp && anomaly.is_anomaly) {
+          anomalyPositions.push(this.ramData.usage[index]);
+          success = true;
+        }
+      }
+      if(!success) {
+        anomalyPositions.push(null);
+      }
+      success=false;
+    })
+    return anomalyPositions;
+  }
   getCPUAnomalies() {
     let anomalyPositions: any[] = [];
     var success: boolean = false;
@@ -279,8 +484,21 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     })
     return anomalyPositions;
   }
+  getRAMEventMsg(context: TooltipItem<keyof ChartTypeRegistry>): string[] {
+    let msg: string = "";
+    if(context.dataset.borderColor != "#3e95cd") {
+      this.selectedApplication.ram_events_and_anomalies.forEach((data, index) => {
+        if(this.datePipe.transform(data.till_timestamp, 'MM-dd HH:mm') == context.label || this.datePipe.transform(data.timestamp, 'MM-dd HH:mm') == context.label) {
+          msg = data.justification_message;
+        }
+      });
+    } else {
+      msg += context.parsed.y + "%";
+    }
+    return msg.split("\n");
+  }
 
-  getEventMsg(context: TooltipItem<keyof ChartTypeRegistry>): string[] {
+  getCPUEventMsg(context: TooltipItem<keyof ChartTypeRegistry>): string[] {
     let msg: string = "";
     if(context.dataset.borderColor != "#3e95cd") {
       this.selectedApplication.cpu_events_and_anomalies.forEach((data, index) => {
@@ -384,7 +602,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     this.selectedApplication.time_series_data.forEach(cpuUsageMeasurement => {
       data.measurementTime.push(this.datePipe.transform(cpuUsageMeasurement.measurement_time, 'MM-dd HH:mm') ?? "");
       //console.log(cpuUsageMeasurement.cpu);
-      data.usage.push(this.roundDecimalNumber(cpuUsageMeasurement.cpu*100, 3));
+      data.usage.push(this.roundDecimalNumber(cpuUsageMeasurement.cpu*100, 2));
     });
     //console.log(data);
     return data;
