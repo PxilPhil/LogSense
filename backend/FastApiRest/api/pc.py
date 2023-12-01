@@ -9,7 +9,7 @@ import db_access.pc
 from data_analytics.stats import determine_stability
 from db_access.data import select_total_running_time
 from db_access.pc import get_pcs, get_pcs_by_userid, add_pc, get_free_disk_space_data, \
-    get_recent_disk_and_partition
+    get_recent_disk_and_partition, set_pc_null
 from db_access.application import get_latest_application_data
 from data_analytics import requests
 from exceptions.DataBaseInsertExcepion import DataBaseInsertException
@@ -121,7 +121,7 @@ def get_pc_cpu(pc_id: int, start: str, end: str, bucket_value: str = '1 minutes'
     if df is None or cpu_df is None:
         raise InvalidParametersException()
     pc_total_df, allocation_list, events_and_anomalies, statistic_data = requests.analyze_pc_data(pc_id,
-        df, cpu_df, 'cpu')
+                                                                                                  df, cpu_df, 'cpu')
 
     pc_data = PCData(
         pc_id=pc_id,
@@ -135,6 +135,7 @@ def get_pc_cpu(pc_id: int, start: str, end: str, bucket_value: str = '1 minutes'
 
     print(pc_data)
     return pc_data
+
 
 @pc.get('/{pc_id}/disk', response_model=PCData, tags=["PC"])
 def get_pc_disk_space(pc_id: int, start: str, end: str):
@@ -169,7 +170,6 @@ def get_pc_disk_space(pc_id: int, start: str, end: str):
     )
 
     return pc_data
-
 
 
 @pc.get('/{pc_id}/disks-partitions', response_model=DISKS, tags=["PC"])
@@ -256,6 +256,7 @@ def forecast_no_disk_space(pc_id: int, days: int):
     except Exception as e:
         raise InvalidParametersException()
 
+
 @pc.get('/{pc_id}/data/forecast/', response_model=ForecastResult, tags=["PC"])
 def forecast_free_disk_space(pc_id: int, start: str, end: str, bucket_value: str):
     """
@@ -315,6 +316,7 @@ def get_pc_by_user_id(pc_id: str):
     specs = db_access.pc.details(pc_id)
     return specs
 
+
 @pc.get('/resource_metrics/{pc_id}', response_model=PCMetrics, tags=["PC"])
 def get_pc_by_user_id(pc_id: str):
     """
@@ -335,3 +337,8 @@ def get_pc_by_user_id(pc_id: str):
 def get_pc_time_metrics(pc_id: int, start: datetime, end: datetime):
     time_metrics_dict = select_total_running_time(start, end, pc_id)
     return time_metrics_dict
+
+
+@pc.delete('/{pc_id}/', response_model=dict, tags=["PC"])
+def delete_pc(pc_id: int):
+    return set_pc_null(pc_id)
