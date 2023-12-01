@@ -1,0 +1,136 @@
+### general ram alert ###
+POST http://localhost:8000/alerts
+Content-Type: application/json
+
+
+    {
+      "id": 1,
+      "user_id": 1,
+      "type": "RAM threshold alert",
+      "message": "More than 90% RAM Usage",
+      "severity_level": 5,
+      "conditions": [
+        {
+          "percentage_trigger_value": 0.9,
+          "absolute_trigger_value": null,
+          "operator": ">",
+          "column": "ram",
+          "application": null,
+          "detect_via_moving_averages": true
+        }
+      ]
+    }
+
+### general cpu alert ###
+POST http://localhost:8000/alerts
+Content-Type: application/json
+
+
+    {
+      "id": 1,
+      "user_id": 1,
+      "type": "CPU threshold alert",
+      "message": "More than 90% CPU Usage",
+      "severity_level": 5,
+      "conditions": [
+        {
+          "percentage_trigger_value": 0.9,
+          "absolute_trigger_value": null,
+          "operator": ">",
+          "column": "cpu",
+          "application": null,
+          "detect_via_moving_averages": true
+        }
+      ]
+    }
+
+### general ram alert being sus ###
+POST http://localhost:8000/alerts
+Content-Type: application/json
+
+
+    {
+      "id": 1,
+      "user_id": 1,
+      "type": "Problem with RAM Usage",
+      "message": "Less than 1% RAM Usage suggests Problems",
+      "severity_level": 5,
+      "conditions": [
+        {
+          "percentage_trigger_value": 0.01,
+          "absolute_trigger_value": null,
+          "operator": "<",
+          "column": "ram",
+          "application": null,
+          "detect_via_moving_averages": true
+        }
+      ]
+    }
+
+### general cpu alert ###
+POST http://localhost:8000/alerts
+Content-Type: application/json
+
+
+    {
+      "id": 1,
+      "user_id": 1,
+      "type": "Problem with CPU Usage",
+      "message": "Less than 1% CPU Usage suggests Problems",
+      "severity_level": 5,
+      "conditions": [
+        {
+          "percentage_trigger_value": 0.01,
+          "absolute_trigger_value": 0.01,
+          "operator": "<",
+          "column": "cpu",
+          "application": null,
+          "detect_via_moving_averages": true
+        }
+      ]
+    }
+
+### general cpu alert (this should not be added as its a duplicate) ###
+POST http://localhost:8000/alerts
+Content-Type: application/json
+
+
+    {
+      "id": 1,
+      "user_id": 1,
+      "type": "Problem with CPU Usage",
+      "message": "Less than 1% CPU Usage suggests Problems",
+      "severity_level": 5,
+      "conditions": [
+        {
+          "percentage_trigger_value": 0.01,
+          "absolute_trigger_value": 0.01,
+          "operator": "<",
+          "column": "cpu",
+          "application": null,
+          "detect_via_moving_averages": true
+        }
+      ]
+    }
+
+### general disk space alert ###
+POST http://localhost:8000/alerts
+Content-Type: application/json
+
+    {
+      "id": 1,
+      "user_id": 1,
+      "type": "Too little disk space",
+      "message": "Less than 10% disk space available",
+      "severity_level": 5,
+      "conditions": [
+        {
+          "percentage_trigger_value": 0.1,
+          "absolute_trigger_value": null,
+          "operator": "<",
+          "column": "free_disk_space",
+          "application": null,
+          "detect_via_moving_averages": true
+        }
+      ]
+    }

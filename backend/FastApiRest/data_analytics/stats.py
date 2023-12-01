@@ -46,7 +46,7 @@ def calculate_trend_statistics(df: DataFrame, column: str, name: str) -> Statist
 
 def create_statistics_message(change, delta, name: str):
     # this is a method to make a message displayed to the user when requesting statistical values
-    message = f"{name} Usage has changed by {round(change, 2)} % ({delta})\n"
+    message = f"{name} Usage has changed by {round(change, 2)} % ({round(delta, 2)})\n"
     return message
 
 def append_statistics_message(message, event_amount, anomaly_amount, data_amount):

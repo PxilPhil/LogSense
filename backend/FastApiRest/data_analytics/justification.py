@@ -32,8 +32,13 @@ def perform_justification_processing(df: DataFrame):
     grouped['removed'] = grouped['name'].apply(lambda x: list(first_names - set(x)))
 
     # put the data into array of string to make working with them easier
-    started = [name for name in np.concatenate(grouped['added']) if not pd.isna(name)]
-    stopped = [name for name in np.concatenate(grouped['removed']) if not pd.isna(name)]
+    started = set([name for name in np.concatenate(grouped['added']) if not pd.isna(name)])
+    stopped = set([name for name in np.concatenate(grouped['removed']) if not pd.isna(name)])
+
+    print('started-stopped')
+    print(started)
+    print(stopped)
+
 
     return important_applications, summary_df, started, stopped
 
@@ -155,7 +160,7 @@ def calc_deltas(df: DataFrame, point: datetime):
 
 
 def format_application_info(row):
-    return f"Name: {row['name']}, RAM: {row['ram']}, CPU: {row['cpu']}\n"
+    return f"Name: {row['name']}, RAM: {round(row['ram'], 2)}, CPU: {round(row['cpu'], 2)}\n"
 
 
 def create_justification_message(pc_just_started: bool, total_delta_ram, total_delta_cpu, important_applications,
@@ -166,9 +171,9 @@ def create_justification_message(pc_just_started: bool, total_delta_ram, total_d
     if pc_just_started:
         message = "PC just started\n"
     if total_delta_ram:
-        message += f"Total Delta of RAM is {total_delta_ram}\n"
+        message += f"Total Delta of RAM is {round(total_delta_ram, 2)} MB\n"
     if total_delta_cpu:
-        message += f"Total Delta of CPU is {total_delta_cpu}\n"
+        message += f"Total Delta of CPU is {round(total_delta_cpu, 2)}\n"
 
     # build application part
     message = "Application with high impact:\n"
