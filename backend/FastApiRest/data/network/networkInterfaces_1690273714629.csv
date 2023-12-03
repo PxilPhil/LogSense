@@ -1,7 +1,0 @@
-timestamp|displayName|name|ipv4Address|ipv6Address|macAddress|subnetMask|bytesReceived|bytesSent|collisions|packetsReceived|packetsSent
-1690273714629|Bluetooth Device (Personal Area Network)|eth0||/fe80:0:0:0:ccba:24b2:5213:e786|d0:ab:d5:e4:7e:fa||0|0|0|0|0
-1690273714629|Intel(R) Wi-Fi 6 AX200 160MHz|wlan0||/fe80:0:0:0:e4ca:19cb:d7d7:bc59|d0:ab:d5:e4:7e:f6||4614|2966|0|12|9
-1690273714629|Realtek(R) USB GbE Family Controller|eth3|/172.23.250.124|/fe80:0:0:0:a69a:40b4:e28a:89e2|b0:4f:13:d9:fd:07|24|409037508|101210791|0|929695|205561
-1690273714629|Microsoft Wi-Fi Direct Virtual Adapter #2|wlan1||/fe80:0:0:0:30d3:85f3:be7c:7712|d2:ab:d5:e4:7e:f6||0|0|0|0|0
-1690273714629|Microsoft Wi-Fi Direct Virtual Adapter|wlan2||/fe80:0:0:0:a38d:3b5:b303:f216|d0:ab:d5:e4:7e:f7||0|0|0|0|0
-1690273714629|Hyper-V Virtual Ethernet Adapter|eth13|/172.17.160.1|/fe80:0:0:0:2f1b:6c1d:4db:7e6a|00:15:5d:c9:15:ca|20|7891|48782|0|96|98
