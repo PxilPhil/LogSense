@@ -21,4 +21,8 @@ export class PcService {
     addPCToUser(userPC: UserPC): Observable<any> {
         return this.httpClient.post<any>(this.url + "/add_pc", userPC);
     }
+
+    removePC(pcId: number): Observable<void> {
+      return this.httpClient.delete<void>(`${this.url}/${pcId}`);
+    }
 }

@@ -19,9 +19,13 @@ export class PcSelectionComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.pcService.getPCsOfUser(1 /* TODO: exchange with id of the user that is logged in */).subscribe((userPCs) => {
-            this.userPcs = userPCs.pcs;
-        });
+        this.loadPCs();
+    }
+
+    loadPCs() {
+      this.pcService.getPCsOfUser(1 /* TODO: exchange with id of the user that is logged in */).subscribe((userPCs) => {
+        this.userPcs = userPCs.pcs;
+      });
     }
 
     selectPC(selectedPc: PC) {
@@ -42,14 +46,14 @@ export class PcSelectionComponent implements OnInit {
         };
 
         this.pcService.addPCToUser(userPC).subscribe((response) => {
-            this.pcService.getPCsOfUser(1 /* TODO: exchange with id of the user that is logged in */).subscribe((userPCs) => {
-                this.userPcs = userPCs.pcs;
-            });
+            this.loadPCs();
         });
     }
 
     removePc(pcId: number) {
-        //TODO: add when api endpoint is implemented
+        this.pcService.removePC(pcId).subscribe(() => {
+          this.loadPCs();
+        });
     }
 
     setSelectedPcId(selectedPcId: number) {
