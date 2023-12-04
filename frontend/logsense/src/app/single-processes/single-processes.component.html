@@ -24,6 +24,9 @@
                 class="dropdown-btn mar-bot-24" (ngModelChange)="setData()">
           <option *ngFor="let timeElement of times" [ngValue]="timeElement">{{timeElement.time}}</option>
         </select>
+        <select [(ngModel)]="selectedBucketingTime" (change)="reloadApplicationDataOnTimesSelectionChange()" class="dropdown-btn mar-left-12 mar-bot-24">
+          <option *ngFor="let bucketingTime of bucketingTimes" [ngValue]="bucketingTime">{{bucketingTime.value}}</option>
+        </select>
       </div>
       <div *ngIf="isApplicationSelected" class="space-base mar-top-16">
         <div class="flex-center">
