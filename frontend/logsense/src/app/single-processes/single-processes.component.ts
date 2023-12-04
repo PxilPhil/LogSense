@@ -28,6 +28,16 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
   ];
   selectedTime = this.times[0];
 
+  bucketingTimes = [
+    {id: 1, value: "1 minute"},
+    {id: 2, value: "5 minutes"},
+    {id: 3, value: "10 minutes"},
+    {id: 4, value: "30 minutes"},
+    {id: 5, value: "45 minutes"},
+    {id: 6, value: "60 minutes"}
+  ];
+  selectedBucketingTime = this.bucketingTimes[0];
+
   applicationNameList: ApplicationNames = new ApplicationNames();
   selectedApplication: Application = new Application();
 
@@ -130,7 +140,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     this.isApplicationSelected = true;
     let dateNow = Date.now();
     if(this.selectedTime.valueInMilliseconds != 0) {
-      this.applicationService.getApplicationByApplicationName(1, applicationName, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", 5).subscribe((data: Application) => {
+      this.applicationService.getApplicationByApplicationName(1, applicationName, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.selectedBucketingTime.value).subscribe((data: Application) => {
         this.selectedApplication = data;
         //console.log(data);
         //this.latestApplicationMeasurement = this.getLatestApplicationMeasurementOfSelectedApplication();
@@ -141,7 +151,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
 
       });
     } else {
-      this.applicationService.getApplicationByApplicationName(1, applicationName, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", 5).subscribe((data: Application) => {
+      this.applicationService.getApplicationByApplicationName(1, applicationName, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.selectedBucketingTime.value).subscribe((data: Application) => {
         this.selectedApplication = data;
         //console.log(data);
         //this.latestApplicationMeasurement = this.getLatestApplicationMeasurementOfSelectedApplication();
