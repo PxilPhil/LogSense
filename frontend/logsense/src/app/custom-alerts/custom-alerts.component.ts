@@ -154,7 +154,7 @@ export class CustomAlertsComponent implements OnInit{
   private loadApplicationNames() {
     this.applicationService.getApplicationNameList(this.pcId, this.datePipe.transform(Date.now() - Date.now(), 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(Date.now(), 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe(data => {
       this.applications=data.application_list;
-      console.log(this.applications)
+      //console.log(this.applications)
     })
   }
 

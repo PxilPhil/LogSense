@@ -3,11 +3,11 @@ import {Chart} from "chart.js";
 import {MatDialog} from "@angular/material/dialog";
 import {PartDialogComponent} from "../part-dialog/part-dialog.component";
 import {DiskDataService} from "../services/disk.service";
-import {DiskData, DiskInfo, DiskStore} from "../model/DiskData";
+import {DiskData, DiskInfo} from "../model/DiskData";
 import {Alert} from "../model/Alert";
 import {AlertService} from "../services/alert.service";
 import {PCDataService} from "../services/pc-data.service";
-import {PCData, PCTimeSeriesData, TimeSeriesData} from "../model/PCData";
+import {PCData} from "../model/PCData";
 import {DatePipe} from "@angular/common";
 import {ChartData} from "../ram/ram.component";
 import {ResourceMetricsService} from "../services/resource-metrics.service";
@@ -73,9 +73,6 @@ export class DiskComponent implements OnInit, OnDestroy {
     }
   }
 
-  onResize(event: Event) {
-    console.log(event);
-  }
 
   loadStats() {
     this.statService.getResourceMetrics(this.pcId).subscribe((data: ResourceMetricsModel) => {
@@ -114,7 +111,7 @@ export class DiskComponent implements OnInit, OnDestroy {
     this.forecastData.time = [];
     this.forecastData.value = [];
     this.diskDataService.getForecastedFreeDiskSpace(this.pcId, 30).subscribe((data: DiskForecastData) => {
-      console.log("ForeCast" + data);
+      //console.log("ForeCast" + data);
       for (let dataPoint of data.data_list) {
         if(data.final_timestamp!=null) {
           if(Date.parse(data.final_timestamp)>Date.parse(dataPoint.datetime)) {
@@ -134,7 +131,7 @@ export class DiskComponent implements OnInit, OnDestroy {
   transformData() {
     this.diskChartData.time = [];
     this.diskChartData.value = [];
-    for (let dataPoint of this.diskData.time_series_list) {;
+    for (let dataPoint of this.diskData.time_series_list) {
       this.diskChartData.time.push(this.datePipe.transform(dataPoint.measurement_time, 'MM-dd HH:mm:ss')??"");
       this.diskChartData.value.push(this.convertBytesToGigaBytes(dataPoint.value));
     }
@@ -157,8 +154,8 @@ export class DiskComponent implements OnInit, OnDestroy {
   */
 
   diskForecastChart() {
-    console.log("indikschart\n" + this.diskChartData);
-    console.log(this.forecastData);
+    //console.log("indikschart\n" + this.diskChartData);
+    //console.log(this.forecastData);
     if(this.diskChart) {
       this.diskChart.destroy();
     }
@@ -200,7 +197,7 @@ export class DiskComponent implements OnInit, OnDestroy {
     for (var data of this.forecastData.value) {
       tmp.push(data);
     }
-    console.log("ingetforecastdata: " + tmp);
+    //console.log("ingetforecastdata: " + tmp);
     return tmp;
   }
   diskUsageChart(): void {

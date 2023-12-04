@@ -103,17 +103,17 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
   }
 
   filterApplicationNameList(): void {
-    console.log("d\n" + this.displayedApps);
-    console.log("r\n" + this.runningApps);
+    //console.log("d\n" + this.displayedApps);
+    //console.log("r\n" + this.runningApps);
     this.displayedApps = this.runningApps;
-    console.log("d\n" + this.displayedApps);
+    //console.log("d\n" + this.displayedApps);
     let tmp: string[] = [];
     for (let app of this.displayedApps) {
       if(app.toLowerCase().includes(this.searchCriteria.toLowerCase())) {
         tmp.push(app);
       }
     }
-    console.log("t\n" + tmp);
+    //console.log("t\n" + tmp);
     this.displayedApps = tmp;
   }
 
@@ -132,7 +132,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     if(this.selectedTime.valueInMilliseconds != 0) {
       this.applicationService.getApplicationByApplicationName(1, applicationName, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", 5).subscribe((data: Application) => {
         this.selectedApplication = data;
-        console.log(data);
+        //console.log(data);
         //this.latestApplicationMeasurement = this.getLatestApplicationMeasurementOfSelectedApplication();
         this.setData();
         this.reloadCPUChart();
@@ -143,7 +143,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     } else {
       this.applicationService.getApplicationByApplicationName(1, applicationName, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", 5).subscribe((data: Application) => {
         this.selectedApplication = data;
-        console.log(data);
+        //console.log(data);
         //this.latestApplicationMeasurement = this.getLatestApplicationMeasurementOfSelectedApplication();
         this.setData();
         this.reloadCPUChart();
@@ -399,10 +399,10 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     this.selectedApplication.ram_events_and_anomalies.forEach((event) => {
       if(!event.is_anomaly) {
         let tmpEvent: any[] = [];
-        this.selectedApplication.time_series_data.forEach((data, dataIndex) => {
+        this.selectedApplication.time_series_data.forEach((data) => {
           //console.log(data.measurement_time + "\n" + this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "") + "->" + event.timestamp);
           if(this.datePipe.transform(data.measurement_time, 'yyyy-MM-ddTHH:mm' ?? "") == this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "")) {
-            console.log(data.measurement_time + "\n" + this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "") + "->" + event.timestamp);
+            //console.log(data.measurement_time + "\n" + this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "") + "->" + event.timestamp);
             inEvent = true;
             tmpEvent.push(this.roundDecimalNumber(this.convertBytesToMegaBytes(data.ram), 2));
           } else if(data.measurement_time == event.timestamp) {
@@ -427,10 +427,10 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     this.selectedApplication.cpu_events_and_anomalies.forEach((event) => {
       if(!event.is_anomaly) {
         let tmpEvent: any[] = [];
-        this.selectedApplication.time_series_data.forEach((data, dataIndex) => {
+        this.selectedApplication.time_series_data.forEach((data) => {
           //console.log(data.measurement_time + "\n" + this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "") + "->" + event.timestamp);
           if(this.datePipe.transform(data.measurement_time, 'yyyy-MM-ddTHH:mm' ?? "") == this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "")) {
-            console.log(data.measurement_time + "\n" + this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "") + "->" + event.timestamp);
+            //console.log(data.measurement_time + "\n" + this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "") + "->" + event.timestamp);
             inEvent = true;
             tmpEvent.push(this.roundDecimalNumber(data.cpu*100, 2));
           } else if(data.measurement_time == event.timestamp) {
@@ -487,7 +487,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
   getRAMEventMsg(context: TooltipItem<keyof ChartTypeRegistry>): string[] {
     let msg: string = "";
     if(context.dataset.borderColor != "#3e95cd") {
-      this.selectedApplication.ram_events_and_anomalies.forEach((data, index) => {
+      this.selectedApplication.ram_events_and_anomalies.forEach((data) => {
         if(this.datePipe.transform(data.till_timestamp, 'MM-dd HH:mm') == context.label || this.datePipe.transform(data.timestamp, 'MM-dd HH:mm') == context.label) {
           msg = data.justification_message;
         }
@@ -501,7 +501,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
   getCPUEventMsg(context: TooltipItem<keyof ChartTypeRegistry>): string[] {
     let msg: string = "";
     if(context.dataset.borderColor != "#3e95cd") {
-      this.selectedApplication.cpu_events_and_anomalies.forEach((data, index) => {
+      this.selectedApplication.cpu_events_and_anomalies.forEach((data) => {
         if(this.datePipe.transform(data.till_timestamp, 'MM-dd HH:mm') == context.label || this.datePipe.transform(data.timestamp, 'MM-dd HH:mm') == context.label) {
           msg = data.justification_message;
         }
@@ -635,7 +635,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
 
   loadAlerts() {
     //is it fine to just get data like this?
-    console.log(this.selectedApplication.application_name)
+    //console.log(this.selectedApplication.application_name)
     this.alerts = this.alertService.getStoredAlerts(this.selectedApplication.application_name, undefined);
   }
 

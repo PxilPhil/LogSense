@@ -206,7 +206,7 @@ export class CpuComponent implements OnInit {
   getEventMsg(context: TooltipItem<keyof ChartTypeRegistry>): string[] {
     let msg: string = "";
     if (context.dataset.borderColor != "#3e95cd") {
-      this.cpu.events_and_anomalies.forEach((data, index) => {
+      this.cpu.events_and_anomalies.forEach((data) => {
         //console.log(context.label + ":" + data.timestamp);
         if (this.datePipe.transform(data.till_timestamp, 'MM-dd HH:mm') == context.label || this.datePipe.transform(data.timestamp, 'MM-dd HH:mm') == context.label) {
           msg = data.justification_message;
@@ -233,7 +233,7 @@ export class CpuComponent implements OnInit {
       backgroundColor: '#e82546',
       borderColor: '#e82546'
     }];
-    this.getEvents().forEach((data, index) => {
+    this.getEvents().forEach((data) => {
       dataset.push({
         type: 'line',
         data: data,
@@ -249,16 +249,15 @@ export class CpuComponent implements OnInit {
   getEvents() {
     //console.log("e1: " +  this.cpu.events_and_anomalies);
     let events: any[] = [];
-    let success: boolean = false;
     let inEvent: boolean = false;
     //console.log(this.cpu);
-    this.cpu.events_and_anomalies.forEach((event, eventIndex) => {
+    this.cpu.events_and_anomalies.forEach((event) => {
       if (!event.is_anomaly) {
         let tmpEvent: any[] = [];
-        this.cpu.time_series_list.forEach((data, dataIndex) => {
+        this.cpu.time_series_list.forEach((data) => {
           //console.log(data.measurement_time + "\n" + this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "") + "->" + event.timestamp);
           if (this.datePipe.transform(data.measurement_time, 'yyyy-MM-ddTHH:mm' ?? "") == this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "")) {
-            console.log(data.measurement_time + "\n" + this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "") + "->" + event.timestamp);
+            //console.log(data.measurement_time + "\n" + this.datePipe.transform(event.till_timestamp, 'yyyy-MM-ddTHH:mm' ?? "") + "->" + event.timestamp);
             inEvent = true;
             tmpEvent.push(this.roundDecimal(data.value * 100, 2));
           } else if (data.measurement_time == event.timestamp) {
@@ -372,7 +371,7 @@ export class CpuComponent implements OnInit {
       this.pcDataService.getCPUData(this.pcId, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm") ?? "", this.selectedBucketingTime.value).subscribe((data: CPUModel) => {
         this.cpu = data;
         this.notes = data.statistic_data.message.split("\n");
-        console.log(this.cpu.time_series_list);
+        //console.log(this.cpu.time_series_list);
         this.transformData();
         this.showAll();
         this.reloadChart();

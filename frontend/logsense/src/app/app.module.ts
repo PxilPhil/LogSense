@@ -8,10 +8,8 @@ import {MainPageComponent} from './main-page/main-page.component';
 import {ToolbarComponent} from './toolbar/toolbar.component';
 import {HeaderComponent} from './header/header.component';
 import {OverviewComponent} from './overview/overview.component';
-import {DashboardComponent} from './dashboard/dashboard.component';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatIconModule} from "@angular/material/icon";
-import {LoginComponent} from './login/login.component';
 import {CpuComponent} from './cpu/cpu.component';
 import {SingleProcessesComponent} from './single-processes/single-processes.component';
 import {MatFormFieldModule} from "@angular/material/form-field";
@@ -38,8 +36,6 @@ import {AlertModule} from "@coreui/angular"; // Import HttpClientModule
         ToolbarComponent,
         HeaderComponent,
         OverviewComponent,
-        DashboardComponent,
-        LoginComponent,
         CpuComponent,
         SingleProcessesComponent,
         RamComponent,

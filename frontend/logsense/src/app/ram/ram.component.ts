@@ -247,7 +247,7 @@ export class RamComponent implements OnInit {
   }
 
   getEventDataSet() {
-    console.log(this.ramData);
+    //console.log(this.ramData);
     let dataset: any[] = [{
       type: 'line',
       label: 'Line Dataset',
@@ -262,7 +262,7 @@ export class RamComponent implements OnInit {
       backgroundColor: '#e82546',
       borderColor: '#e82546'
     }];
-    this.getEvents().forEach((data, index) => {
+    this.getEvents().forEach((data) => {
       dataset.push({
         type: 'line',
         data: data,
@@ -278,10 +278,10 @@ export class RamComponent implements OnInit {
   getEvents() {
     let events: any[] = [];
     let inEvent: boolean = false;
-    this.ram.events_and_anomalies.forEach((event, eventIndex) => {
+    this.ram.events_and_anomalies.forEach((event) => {
       if (!event.is_anomaly) {
         let tmpEvent: any[] = [];
-        this.ram.time_series_list.forEach((data, dataIndex) => {
+        this.ram.time_series_list.forEach((data) => {
           if (data.measurement_time == event.till_timestamp) {
             //console.log(data.measurement_time + "\n" + event.till_timestamp + "->" + event.timestamp);
             inEvent = true;
@@ -323,7 +323,7 @@ export class RamComponent implements OnInit {
   getEventMsg(context: TooltipItem<keyof ChartTypeRegistry>): string[] {
     let msg: string = "";
     if (context.dataset.borderColor != "#3e95cd") {
-      this.ram.events_and_anomalies.forEach((data, index) => {
+      this.ram.events_and_anomalies.forEach((data) => {
         //console.log(context.label + ":" + data.timestamp);
         if (this.datePipe.transform(data.till_timestamp, 'MM-dd HH:mm:ss') == context.label || this.datePipe.transform(data.timestamp, 'MM-dd HH:mm:ss') == context.label) {
           msg = data.justification_message;
@@ -387,8 +387,7 @@ export class RamComponent implements OnInit {
 
   loadAlerts() {
     this.alerts = this.alertService.getStoredAlerts(undefined, ['ram']);
-    console.log(this.alerts)
-
+    //console.log(this.alerts)
   }
 
   getSelectedPcId() {
