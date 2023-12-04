@@ -3,29 +3,43 @@
   <h1 class="mar-left-64 mar-top-48">PC Selection</h1>
   <div class="pad-left-64 mar-top-24 flex-container">
     <div *ngFor="let pc of userPcs" class="grey-box mar-right-24 mar-bot-24 flex-item">
+      <div class="logsense-icon">
+        <img src="./assets/LogSenseIcon.svg" class="logo">
+      </div>
+      <div class="pc-info">
+        <span class="txt-22">{{pc.client_name}}</span>
+        <span class="txt-16 mar-right-24">{{pc.hardware_uuid}}</span>
+      </div>
       <div class="interactions">
         <mat-icon (click)="removePc(pc.id)" class="icon mar-right-12">delete_outline</mat-icon>
         <input type="checkbox" class="form-check-input" [checked]="pc.selectedForDisplay" (change)="selectPC(pc)" [disabled]="pc.selectedForDisplay">
-      </div>
-      <div class="logsense-icon">
-        <img ngSrc="./assets/LogSenseIcon.svg" height="124" width="124" alt="PC">
-      </div>
-      <div class="pc-info">
-        <span class="txt-22">{{pc.client_name}}</span><br>
-        <span class="txt-16 mar-right-24">{{pc.hardware_uuid}}</span>
       </div>
     </div>
   </div>
   <div class="mar-left-64 mar-top-24">
     <h2>Add PC</h2>
     <div class="grey-box mar-top-24">
-      <span class="txt-16 mar-right-32">Client Name</span>
-      <input class="mar-bot-12" type="text" id="clientName" placeholder="Client Name" [(ngModel)]="newClientName">
-      <br>
-      <span class="txt-16 mar-right-12">Hardware UUID</span>
-      <input class="mar-bot-12" type="text" id="hardwareUUID" placeholder="12345678-ABCD-ABCD-ABCD-1234567890AB" [(ngModel)]="newHardwareUUID">
-      <br>
-      <button (click)="addPC()" class="default-btn">Add</button>
+      <!--<div class="flex-col">
+        <div class="flex-row space-center">
+          <span class="txt-16">Client Name</span>
+          <input class="mar-bot-12" type="text" id="clientName" placeholder="Client Name" [(ngModel)]="newClientName">
+        </div>
+        <div class="flex-row space-center">
+          <span class="txt-16">Hardware UUID</span>
+          <input class="mar-bot-12" type="text" id="hardwareUUID" placeholder="12345678-ABCD-ABCD-ABCD-1234567890AB" [(ngModel)]="newHardwareUUID">
+        </div>
+      </div> -->
+      <div class="flex-row h-fix">
+        <div class="flex-col space-around mar-right-12">
+          <span class="txt-16">Client Name</span>
+          <span class="txt-16">Hardware UUID</span>
+        </div>
+        <div class="flex-col space-around">
+          <input type="text" id="clientName" placeholder="Client Name" [(ngModel)]="newClientName">
+          <input type="text" id="hardwareUUID" placeholder="12345678-ABCD-ABCD-ABCD-1234567890AB" [(ngModel)]="newHardwareUUID">
+        </div>
+      </div>
+      <button (click)="addPC()" class="default-btn mar-top-12">Add</button>
     </div>
   </div>
 </div>

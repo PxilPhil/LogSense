@@ -159,6 +159,7 @@ export class RamComponent implements OnInit {
       },
       options: {
         responsive: true,
+        //maintainAspectRatio: false,
         scales: {
           y: {
             beginAtZero: true,
@@ -187,6 +188,7 @@ export class RamComponent implements OnInit {
       },
       options: {
         responsive: true,
+        //maintainAspectRatio: false,
         scales: {
           y: {
             beginAtZero: true,
@@ -219,6 +221,7 @@ export class RamComponent implements OnInit {
         }]
       }, options: {
         responsive: true,
+        //maintainAspectRatio: false,
         scales: {
           y: {
             beginAtZero: true,

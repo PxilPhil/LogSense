@@ -71,7 +71,7 @@
             </div>
           </div>
           <div class="align-notes mar-top-16">
-            <!--<span *ngFor="let stat of ram.stats" class="txt-16 mar-bot-5">{{stat}}</span>-->
+            <span *ngFor="let stat of ram.statistic_data.message.split('\n')" class="txt-16 mar-bot-5">{{stat}}</span>
           </div>
         </div>
       </div>
@@ -79,8 +79,8 @@
   </div>
 
   <div class="pad-bot-64 pad-left-64 pad-right-128 align-general mar-top-32" [ngClass]="{'show-all-true': showAllProcesses, 'wrapper': !showAllProcesses}">
-    <div [ngClass]="{'first-all': showAllProcesses, 'first': !showAllProcesses}">
-      <div>
+    <div [ngClass]="{'first-all': showAllProcesses, 'first': !showAllProcesses}" *ngIf="alerts.length>0">
+      <div *ngIf="alerts.length>0">
         <app-alerts [alerts]="alerts"></app-alerts>
       </div>
     </div>

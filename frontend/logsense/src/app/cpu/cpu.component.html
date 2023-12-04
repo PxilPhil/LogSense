@@ -75,7 +75,7 @@
       </div>
     </div>
 
-    <div class="mar-top-32">
+    <div *ngIf="alerts.length>0" class="mar-top-32">
       <app-alerts [alerts]="alerts"></app-alerts>
     </div>
     <div class="pad-bot-64 align-general mar-top-32 w-100">

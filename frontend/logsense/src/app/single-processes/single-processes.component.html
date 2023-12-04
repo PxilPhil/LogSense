@@ -67,9 +67,7 @@
               <span class="txt-22">{{roundDecimalNumber(selectedApplication.cpu_statistic_data.average*100, 2)}}%</span>
             </div>
           </div>
-          <div class="chart-container mar-top-16">
-            <canvas class="white-bg w-100" id="usageCPU"></canvas>
-          </div>
+          <canvas class="white-bg w-100 mar-top-16" id="usageCPU"></canvas>
           <mat-radio-group
             aria-labelledby="example-radio-group-label"
             class="example-radio-group"
@@ -89,9 +87,7 @@
                 MB</span>
             </div>
           </div>
-          <div class="chart-container mar-top-16">
-            <canvas class="white-bg w-100" id="usageRAM"></canvas>
-          </div>
+          <canvas class="white-bg w-100 mar-top-16" id="usageRAM"></canvas>
           <mat-radio-group
             aria-labelledby="example-radio-group-label"
             class="example-radio-group"
@@ -128,13 +124,15 @@
           <h2 class="mar-bot-24">Statistics</h2>
           <div class="grey-box align-general">
             <div class="align-txt">
-              <span *ngFor="let stat of statistics; let last = last"
+              <span *ngFor="let stat of selectedApplication.cpu_statistic_data.message.split('\n'); let last = last"
+                    class="txt-16">{{stat}}</span>
+              <span *ngFor="let stat of selectedApplication.ram_statistic_data.message.split('\n'); let last = last"
                     class="txt-16">{{stat}}</span>
             </div>
           </div>
         </div>
       </div>
-      <div [ngClass]="{'w-100': !isApplicationSelected, 'mar-top-32 w-100': isApplicationSelected}">
+      <div [ngClass]="{'w-100': !isApplicationSelected, 'mar-top-32 w-100': isApplicationSelected}" *ngIf="alerts.length>0">
         <app-alerts [alerts]="alerts"></app-alerts>
       </div>
     </div>

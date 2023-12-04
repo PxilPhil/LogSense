@@ -53,7 +53,7 @@
       </div>
     </div>
     <div>
-      <span class="txt-16 red">running for: {{runtime}}</span>
+      <span class="txt-16">running for: {{formatUpTime(client.runtime_in_seconds)}}</span>
     </div>
   </div>
 
@@ -124,7 +124,7 @@
     <app-time-metrics [pcId]="pcId"></app-time-metrics>
   </div>
 
-  <div class="pad-left-64">
+  <div class="pad-left-64" *ngIf="alerts.length>0">
     <app-alerts [alerts]="alerts"></app-alerts>
   </div>
 

@@ -95,6 +95,7 @@ export class DiskComponent implements OnInit, OnDestroy {
     if(this.selectedTime.valueInMilliseconds == 0) {
       this.diskDataService.getDiskTimeseriesData(this.pcId, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: DiskData) => {
         this.diskData = data;
+        this.statistics = data.statistic_data.message.split("\n");
         this.transformData();
         //this.latestPCDataMeasurement = this.getLatestPCDataMeasurement();
         this.reloadChart();
@@ -102,6 +103,7 @@ export class DiskComponent implements OnInit, OnDestroy {
     } else {
       this.diskDataService.getDiskTimeseriesData(this.pcId, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: DiskData) => {
         this.diskData = data;
+        this.statistics = data.statistic_data.message.split("\n");
         this.transformData();
         //this.latestPCDataMeasurement = this.getLatestPCDataMeasurement();
         this.reloadChart();
@@ -176,7 +178,7 @@ export class DiskComponent implements OnInit, OnDestroy {
         labels: this.diskChartData.time.concat(this.forecastData.time)
       },options: {
         responsive: true,
-        maintainAspectRatio: false,
+        //maintainAspectRatio: false,
         scales: {
           y: {
             beginAtZero: true,
@@ -216,7 +218,7 @@ export class DiskComponent implements OnInit, OnDestroy {
         }]
       }, options: {
         responsive: true,
-        maintainAspectRatio: false,
+        //maintainAspectRatio: false,
         scales: {
           y: {
             beginAtZero: true,

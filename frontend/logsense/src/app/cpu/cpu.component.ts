@@ -371,6 +371,7 @@ export class CpuComponent implements OnInit {
     if (this.selectedTime.valueInMilliseconds != 0) {
       this.pcDataService.getCPUData(this.pcId, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm") ?? "", this.selectedBucketingTime.value).subscribe((data: CPUModel) => {
         this.cpu = data;
+        this.notes = data.statistic_data.message.split("\n");
         console.log(this.cpu.time_series_list);
         this.transformData();
         this.showAll();
@@ -379,6 +380,7 @@ export class CpuComponent implements OnInit {
     } else {
       this.pcDataService.getCPUData(this.pcId, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm') ?? "", this.datePipe.transform(dateNow, "yyyy-MM-ddTHH:mm") ?? "", this.selectedBucketingTime.value).subscribe((data: CPUModel) => {
         this.cpu = data;
+        this.notes = data.statistic_data.message.split("\n");
         this.transformData();
         this.showAll();
         this.reloadChart();

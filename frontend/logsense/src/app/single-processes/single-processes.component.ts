@@ -223,7 +223,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
       },
       options: {
         responsive: true,
-        maintainAspectRatio: true,
+        //maintainAspectRatio: true,
         scales: {
           y: {
             beginAtZero: true,
@@ -252,7 +252,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
       },
       options: {
         responsive: true,
-        maintainAspectRatio: true,
+        //maintainAspectRatio: true,
         scales: {
           y: {
             beginAtZero: true,
@@ -527,7 +527,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
           fill: false
         }]
       }, options: {
-        maintainAspectRatio: false,
+        //maintainAspectRatio: false,
         responsive: true,
         scales: {
           y: {
@@ -569,7 +569,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
           fill: false
         }]
       }, options: {
-        maintainAspectRatio: false,
+        //maintainAspectRatio: false,
         responsive: true,
         scales: {
           y: {

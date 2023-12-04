@@ -23,6 +23,7 @@ export class CustomAlertsComponent implements OnInit{
   selected_from_database = false
   error_occured = false
 
+  displayedAlerts: UserAlert[] = [];
   userAlerts: UserAlert[] = []
   selectedUserAlert: UserAlert = {
     id: 1,
@@ -56,9 +57,20 @@ export class CustomAlertsComponent implements OnInit{
   loadUserAlerts() {
     this.alertService.getAllUserAlerts(1).subscribe(data => {
       this.userAlerts = data.custom_alert_list;
+      this.displayedAlerts = this.userAlerts;
     })
   }
 
+  filterAlerts() {
+    this.displayedAlerts = this.userAlerts;
+    var tmp: UserAlert[] = [];
+    for(let alert of this.displayedAlerts) {
+      if(alert.type.toLowerCase().includes(this.searchCriteria.toLowerCase())) {
+        tmp.push(alert);
+      }
+    }
+    this.displayedAlerts = tmp;
+  }
   selectUserAlert(userAlert: UserAlert) {
     this.error_occured = false;
     this.selectedUserAlert = { ...userAlert };
