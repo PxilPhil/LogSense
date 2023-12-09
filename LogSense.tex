@@ -1,8 +1,26 @@
 \documentclass{report}
 
-\title{Diploma Thesis: Software Engineering Project}
-\author{Your Name}
-\date{\today}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{microtype}
+
+\definecolor{myblue}{RGB}{25,25,112}
+
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\color{myblue}}{}{0pt}{\Huge}
+
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{myblue}}{}{0pt}{}
+
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{myblue}}{}{0pt}{}
+
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{myblue}}{}{0pt}{}
+
+\setlist[itemize]{label=$\bullet$, left=1em, labelsep=0.5em, itemsep=0.5em}
+\setlist[enumerate]{label=\arabic*., left=1em, labelsep=0.5em, itemsep=0.5em}
 
 \begin{document}
 
@@ -31,19 +49,17 @@ Define the specific objectives and goals of the software engineering project.
 
 \chapter{Inhaltsverzeichnis}
 
-\chapter{Stakeholder}
-
 \chapter{Einleitung}
-\section{Motivation}
-\section{Projektumfeld}
+\section{Hintergrund}
 \section{Zielsetzung}
 \section{Projektinhalt}
+\subsection{Projektumfeld}
 \subsection{Projektteam}
 \subsection{Betreuung}
 \subsection{Auftraggeber}
 
-\chapter{Grundlagen}
-\section{Verwendete Technologen}
+\chapter{Theoretische und fachpraktische Grundlagen und Methoden}
+\section{Verwendete Technologien}
 \subsection{Java}
 \subsection{Python}
 \subsection{Postgres}
@@ -54,13 +70,18 @@ Define the specific objectives and goals of the software engineering project.
 \subsection{IntelliJ}
 \subsection{Webstorm}
 \subsection{Datagrip}
-\section{Verwendete Bibliotheken und Plug-Ins }
+\section{Verwendete Bibliotheken und Plug-Ins}
 \subsection{Fast API}
-\subsection{pandas}
+\subsection{Pandas}
+\subsection{Numpy}
+\subsection{Scikit-Learn}
+\subsection{Ruptures}
 \subsection{Timescale DB}
 \subsection{Charst JS}
 \subsection{BootStrap}
 \subsection{Angular Material}
+\subsection{Oshi}
+
 \section{Verwendete Architekturen}
 \subsection{REST}
 \subsection{Agent}
@@ -70,15 +91,41 @@ Define the specific objectives and goals of the software engineering project.
 \subsection{LucidChart}
 
 \chapter{Planung und Realisierung}
+\section{Analyse und Entwurfsphase (Auszug aus Projektdokumente)}
+\subsection{Funktionalität (UC, UC-Beschreibung)}
+\subsection{Entwurf der Funktionalität}
+\subsection{Datenmodell}
 
-\chapter{Implementierung}
+\chapter{Implementierung (Programmierung und QS/Test)}
+\section{Agent}
+\section{Server}
+\section{DB}
+\section{Rest API}
+\section{Algorithmus}
+\section{Frontend}
 
 \chapter{Ergebnis}
+\section{Statistiken und Charts}
+\section{Anomalien}
+\section{Alerts}
+
 
 \chapter{Resümee}
 
-\chapter{Aufgabenverteilung}
+\chapter{Aufgabenverteilung Verfassung Diplomarbeit (IMV)}
+\section{Sahra Ettlinger}
+\section{Thomas Jilek}
+\section{Philipp Borbély}
+\section{Emily Stadlbauer}
+
+\chapter{Quellverzeichnis}
+
+\chapter{Abbildungsverzeichnis}
+
+\chapter{Glossar (Wortbeschreibungen)}
 
 \chapter{Anhang}
+\section{Diplomarbeitsplakat}
+\section{Abnahmeformular}
 
 \end{document}
