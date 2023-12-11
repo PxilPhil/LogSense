@@ -1,26 +1,30 @@
-\documentclass{report}
+\documentclass[pdftex,11pt,a4paper]{book}
+%\documentclass[dvips,11pt,a4paper,oneside]{book}
 
-\usepackage{titlesec}
-\usepackage{enumitem}
-\usepackage{xcolor}
-\usepackage{microtype}
+\usepackage {ifpdf}
+\usepackage [american,german] {babel}
+\usepackage[numbers,comma,square]{natbib}
+\usepackage[utf8]{inputenc}
+\usepackage{mya4wide}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{LogSense}
+\lhead{HTL Perg}
+\renewcommand{\headrulewidth}{0pt}
 
-\definecolor{myblue}{RGB}{25,25,112}
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \rhead{LogSense}
+  \lhead{HTL Perg}
+  \fancyfoot[R]{\thepage} % Page number format on the right side
+  \fancyfoot[L]{Borbely, Ettlinger, Jilek, Stadlbauer} % Names on the left side
+  \renewcommand{\headrulewidth}{0pt}
+}
 
-\titleformat{\chapter}[display]
-  {\normalfont\huge\bfseries\color{myblue}}{}{0pt}{\Huge}
-
-\titleformat{\section}
-  {\normalfont\Large\bfseries\color{myblue}}{}{0pt}{}
-
-\titleformat{\subsection}
-  {\normalfont\large\bfseries\color{myblue}}{}{0pt}{}
-
-\titleformat{\subsubsection}
-  {\normalfont\normalsize\bfseries\color{myblue}}{}{0pt}{}
-
-\setlist[itemize]{label=$\bullet$, left=1em, labelsep=0.5em, itemsep=0.5em}
-\setlist[enumerate]{label=\arabic*., left=1em, labelsep=0.5em, itemsep=0.5em}
+\fancyfoot{}
+\fancyfoot[R]{\thepage} % Page number format on the right side
+\fancyfoot[L]{Borbely, Ettlinger, Jilek, Stadlbauer} % Names on the left side
 
 \begin{document}
 
