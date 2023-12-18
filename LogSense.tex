@@ -1,26 +1,30 @@
-\documentclass{report}
+\documentclass[pdftex,11pt,a4paper]{book}
+%\documentclass[dvips,11pt,a4paper,oneside]{book}
 
-\usepackage{titlesec}
-\usepackage{enumitem}
-\usepackage{xcolor}
-\usepackage{microtype}
+\usepackage {ifpdf}
+\usepackage [american,german] {babel}
+\usepackage[numbers,comma,square]{natbib}
+\usepackage[utf8]{inputenc}
+\usepackage{mya4wide}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{LogSense}
+\lhead{HTL Perg}
+\renewcommand{\headrulewidth}{0pt}
 
-\definecolor{myblue}{RGB}{25,25,112}
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \rhead{LogSense}
+  \lhead{HTL Perg}
+  \fancyfoot[R]{\thepage} % Page number format on the right side
+  \fancyfoot[L]{Borbely, Ettlinger, Jilek, Stadlbauer} % Names on the left side
+  \renewcommand{\headrulewidth}{0pt}
+}
 
-\titleformat{\chapter}[display]
-  {\normalfont\huge\bfseries\color{myblue}}{}{0pt}{\Huge}
-
-\titleformat{\section}
-  {\normalfont\Large\bfseries\color{myblue}}{}{0pt}{}
-
-\titleformat{\subsection}
-  {\normalfont\large\bfseries\color{myblue}}{}{0pt}{}
-
-\titleformat{\subsubsection}
-  {\normalfont\normalsize\bfseries\color{myblue}}{}{0pt}{}
-
-\setlist[itemize]{label=$\bullet$, left=1em, labelsep=0.5em, itemsep=0.5em}
-\setlist[enumerate]{label=\arabic*., left=1em, labelsep=0.5em, itemsep=0.5em}
+\fancyfoot{}
+\fancyfoot[R]{\thepage} % Page number format on the right side
+\fancyfoot[L]{Borbely, Ettlinger, Jilek, Stadlbauer} % Names on the left side
 
 \begin{document}
 
@@ -28,103 +32,108 @@
 
 \tableofcontents
 
-\chapter{Eidesstattliche Erklärung}
+\chapter*{Eidesstattliche Erklärung}
 This chapter introduces the background and motivation behind the software engineering project.
 
-\chapter{Gender-Erklärung}
+\chapter*{Gender-Erklärung}
 Define the scope of the project, including any limitations and constraints.
 
-\chapter{Danksagung}
+\chapter*{Danksagung}
 Summarize relevant literature and related work in the field of software engineering.
 
-\chapter{Impressum}
+\chapter*{Impressum}
 Clearly state the problem the project aims to address.
 
-\chapter{Kurzfassung}
+\chapter*{Kurzfassung}
 Define the specific objectives and goals of the software engineering project.
 \textbf{Problemstellung} 
 
-\chapter{Abstract}
+\chapter*{Abstract}
 Define the specific objectives and goals of the software engineering project.
 
-\chapter{Inhaltsverzeichnis}
+\chapter*{Inhaltsverzeichnis}
 
 \chapter{Einleitung}
-\section{Hintergrund}
+\section{Ausgangssituation}
+\section{Problemstellung}
 \section{Zielsetzung}
 \section{Projektinhalt}
-\subsection{Projektumfeld}
+\subsection{Anforderungen}
 \subsection{Projektteam}
-\subsection{Betreuung}
+\subsubsection{Aufgabenverteilung}
 \subsection{Auftraggeber}
 
 \chapter{Theoretische und fachpraktische Grundlagen und Methoden}
-\section{Verwendete Technologien}
-\subsection{Java}
-\subsection{Python}
-\subsection{Postgres}
-\subsection{nginx}
+\section{Visualiserung}
 \subsection{Angular}
-\section{Verwendete Entwicklungssysteme}
-\subsection{PyCharm}
-\subsection{IntelliJ}
-\subsection{Webstorm}
-\subsection{Datagrip}
-\section{Verwendete Bibliotheken und Plug-Ins}
-\subsection{Fast API}
+\subsection{Charst JS}
+\subsection{BootStrap}
+\subsection{Angular Material}
+\section{Datenverarbeitung}
+\subsection{Python}
 \subsection{Pandas}
 \subsection{Numpy}
 \subsection{Scikit-Learn}
 \subsection{Ruptures}
-\subsection{Timescale DB}
-\subsection{Charst JS}
-\subsection{BootStrap}
-\subsection{Angular Material}
-\subsection{Oshi}
-
-\section{Verwendete Architekturen}
-\subsection{REST}
+\subsection{Algorithmen}
+\section{Datenerfassung}
 \subsection{Agent}
-\section{Sonstige verwendete Software}
+\subsection{Java}
+\subsection{Oshi}
+\section{Datenhaltung}
+\subsection{Postgres}
+\subsection{Timescale DB}
+\section{Schnittstellen}
+\subsection{Fast API}
+\subsection{REST}
+\section{Server}
+\subsection{Ubuntu}
+\subsection{nginx}
+
+\section{Entwicklungssysteme}
+\subsection{PyCharm}
+\subsection{IntelliJ}
+\subsection{Webstorm}
+\subsection{Datagrip}
+\section{Sonstige Software}
 \subsection{GitLab}
 \subsection{Adobe XD}
 \subsection{LucidChart}
 
 \chapter{Planung und Realisierung}
-\section{Analyse und Entwurfsphase (Auszug aus Projektdokumente)}
-\subsection{Funktionalität (UC, UC-Beschreibung)}
-\subsection{Entwurf der Funktionalität}
-\subsection{Datenmodell}
+\section{Funktionalität (UC, UC-Beschreibung)}
+\section{Architektur}
+\section{Informationsfluss}
+\section{Datenmodell}
 
 \chapter{Implementierung (Programmierung und QS/Test)}
-\section{Agent}
+\section{Visualiserung}
+\section{Datenverarbeitung}
+\subsection{Algorithmen}
+\section{Datenerfassung}
+\section{Datenhaltung}
+\section{Schnittstellen}
 \section{Server}
-\section{DB}
-\section{Rest API}
-\section{Algorithmus}
-\section{Frontend}
+
 
 \chapter{Ergebnis}
 \section{Statistiken und Charts}
 \section{Anomalien}
 \section{Alerts}
-
+\section{Ausblick}
 
 \chapter{Resümee}
 
-\chapter{Aufgabenverteilung Verfassung Diplomarbeit (IMV)}
-\section{Sahra Ettlinger}
-\section{Thomas Jilek}
-\section{Philipp Borbély}
-\section{Emily Stadlbauer}
 
 \chapter{Quellverzeichnis}
 
 \chapter{Abbildungsverzeichnis}
 
-\chapter{Glossar (Wortbeschreibungen)}
+\chapter{Glossar}
 
 \chapter{Anhang}
+\section{Architekturskizze}
+\section{Datenmodell}
 \section{Diplomarbeitsplakat}
 \section{Abnahmeformular}
 
