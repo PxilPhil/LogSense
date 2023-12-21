@@ -67,30 +67,12 @@ Define the specific objectives and goals of the software engineering project.
 \section{Visualiserung}
 \subsection{Angular}
 \subsection{Charst JS}
-\text
-Chart.js ist eine JavaScript Bibliothek mit deren Hilfe man unterschiedliche Diagrammtypen in Webanwendungen darstellen kann. 
-Es können 8 unterschiedliche Diagrammarten dargestellt werden, darunter: 
-\begin{itemize}
-    \item Liniendiagramme
-    \item Balkendiagramme
-    \item Bereichsdiagramme
-    \item Kreisdiagramme
-    \item Tortendiagramme
-    \item Radardiagramme
-    \item Polar Diagramme
-    \item Streudiagramme
-\end{itemize}
-Die Bibliothek bietet unterschiedlieche, interaktive Funktionen wie Tooltipps und Animationen. 
-Darüber hinaus gibt es viele Möglichkeiten mit verschiedenen Optionen und Konfigurationen das Diagramm nach eigenen Wünschen  anzupassen. 
-Chart.js unterstützt responsives Design und kann sich an unterschiedliche Bildschirmgrößen anpassen.\\In dieser Diplomarbeit ist Chart.js im Angular Projekt eingebunden um unterschiedliche Messwerte grafisch darzustellen.
-
 \subsection{BootStrap}
 \subsection{Angular Material}
 \section{Datenverarbeitung}
 \subsection{Python}
 \subsection{Pandas}
-\text{Pandas ist eine Python-Bibliothek zur Datenverarbeitung und -analyse. Sie stellt dabei verschiedene Datenstrukturen und Funktionen für das Manipulieren von tabellarischen und strukturierten Daten zur Verfügung. Zu den wichtigsten Strukturen gehören DataFrames und Series.  Series sind eindimensionale, array-ähnliche Objekte welche ähnlich einer einzelnen Spalte in einer Tabelle sind. Bei DataFrames handelt es sich um zweidimensionale Tabellen mit Zeilen und Spalten. Einzelne Spalten von einem DataFrame können dabei verschiedene Datentypen aufweisen. Zu den wichtigsten Funktionen gehören Aggregationen, Gruppierungen und Statistische Operationen. Bei dieser Diplomarbeit wird Pandas bei der Datenverarbeitung eingesetzt, insbesondere in Kombination mit Scikit-Learn, Numpy und Ruptures zur Identifikation von Anomalien, Change-Points und zur Bereining und Zusammenführung von Datensätzen.}
-
+\text{Pandas ist eine Python-Bibliothek zur Datenverarbeitung und -analyse. Sie stellt verschiedene Datenstrukturen und Funktionen für das Manipulieren von tabellarischen und strukturierten Daten zur Verfügung. Zu den wichtigsten Strukturen gehören DataFrames und Series. Series sind eindimensionale, array-ähnliche Objekte welche wie eine einzelne Spalte in einer Tabelle sind. Bei DataFrames handelt es sich um zweidimensionale Tabellen mit Zeilen und Spalten. Einzelne Spalten von einem DataFrame können dabei verschiedene Datentypen aufweisen. Zu den wichtigsten Funktionen gehören Aggregationen, Gruppierungen und Statistische Operationen. Bei dieser Diplomarbeit wird Pandas bei der Datenverarbeitung eingesetzt, insbesondere in Kombination mit Scikit-Learn, Numpy und Ruptures zur Identifikation von Anomalien, Change-Points und zur Bereining und Zusammenführung von Datensätzen.}
 \subsection{Numpy}
 \subsection{Scikit-Learn}
 \subsection{Ruptures}
@@ -98,9 +80,6 @@ Chart.js unterstützt responsives Design und kann sich an unterschiedliche Bilds
 \section{Datenerfassung}
 \subsection{Agent}
 \subsection{Java}
-\text{Die Programmiersprache Java ist objektorientiert, besitzt eine einfache Syntax mit überschaubarem Sprachumfang und ist durch kontrollierte Speicherzugriffe sicher. Wenn es eine passende JVM (= Java Virtual Machine) für das Betriebssystem gibt, kann das Programm auf diesem Betriebssytem laufen. Diese Plattformunabhängig wird dadurch ermöglicht, dass der Java-Quellcode in Bytecode übersetzt wird, der dann von der JVM interpretiert werden kann.\\
-Der Agent, der lokal auf den Windows Rechnern läuft und die Daten über den Ressourcenverbrauch des Rechners erfasst, ist in der Programmiersprache Java entwickelt. Der Grund dafür ist, dass es für Java viele verschiedene Bibliotheken gibt, die auf die Hardwaretreiber zugreifen, um die benötigten Daten über den Rechner, die darauf laufenden Programme und deren Ressourcenverbrauch auszulesen.}
-
 \subsection{Oshi}
 \section{Datenhaltung}
 \subsection{Postgres}
@@ -131,7 +110,28 @@ Der Agent, der lokal auf den Windows Rechnern läuft und die Daten über den Res
 \chapter{Implementierung (Programmierung und QS/Test)}
 \section{Visualiserung}
 \section{Datenverarbeitung}
-\subsection{Algorithmen}
+\subsection{Zusammenführung}
+\subsection{Anomalienerkennung}
+\subsubsection{Einleitung}
+\text{
+Ein Ziel der Anwendung ist es, bei den PC- und Anwedungsdaten Extremwerte und Abweichungen zu identifzieren und diese für den Benutzer zu markieren. Anomalienerkennung bei dieser Diplomarbeit hat den Sinn, ungewöhnliches Verhalten von Applikationen den Benutzer aufzuzeigen und anhand dessen ihn bei der Erkennung von Problemen beim Rechner behilflich zu sein. In Kombination mit Justifications bekommt dieser Hinweise darauf, weswegen diese Extremwerte zustandekommen. Auch allgemein spielt die Erkennung von Extremwerten bzw. Anomalien eine große Rolle im Datenverarbeitungsbereich, hauptsächlich aufgrund der Bereinigung von Datensätzen.
+}
+\subsubsection{Implementierungsmöglichkeiten}
+\text{
+Für das Erkennen von Extremwerten bieten sich eine Vielzahl von Möglichkeiten an, dazu zählen etwa das Aufteilen der Datensätze in Quantile, das Verwenden von Machine-Learning Algorithmen wie Isolation Forest & K-means oder das Anwenden von Stastisischen Methoden in Verbindung mit eigenen Algorithmen. 
+}
+\subsubsection{Händische Implementierung}
+\text{
+Beim der ersten Implementierung sind Extremwerte anhand von bestimmten, prozentuellen Abweichungen vom gleitenden Durschnitt erkannt worden. Zunächst ist dafür der gleitende Durschnitt von Datensätzen berechnet worden und dann die prozentuelle Änderung von einem Datenpunkt zum gleitenden Durschnitt. Sollte dieser Wert eine definierte Grenze, beispielsweise 30 Prozent überschreiten, wird der Datenpunkt als Extremwert identifiziert. Dies ist zwar ausreichend gewesen, um die meisten Extremwerte zu erkennen, jedoch ist diese Vorgehensweise nicht geeignet für Daten mit hoher Varianz.
+}
+\subsubsection{Anomalienerkennung mit Isolation Forest}
+\text{
+Zur Anomalienerkennung ist der Machine-Learning-Algorithmus Isolation Forest zur Verwendung gekommen. Dieser basiert auf das Konzept der Isolation, also der Tatsache, dass Anomalien weniger isoliert sind als herkömmliche Datenpunkte. Isolation Forest ist eine logische Wahl für unseren Anwedungszweck gewesen, da es keinerlei Vorverarbeitung unserer Daten benötigt, Daten mit hoher Varianz problemlos funktionieren und im Vergleich zu einigen Alternativen keine Annahmen über die Verteilung der Daten benötigt. Bei der Implementierung sind Probleme bezüglich Underfitting aufgretreten falls nur eine geringe Menge an Datensätzen zum Trainieren des Algorithmus verfügbar gewesen ist. Dies ist der Fall gewesen, wenn der Benutzer die Datenanalyse in einem Zeitrahmen angeforderte wo nur eine geringe Menge an Datensätzen verfügbar war. Als Lösung sind zum Tranieren des Algorithmus nicht nur die Daten im gewählten Zeitrahmen genommen worden, sondern auch vorherliegende Datensätze. 
+}
+\subsection{Change Point Detection}
+\subsection{Forecast}
+\subsection{Userdefinierte Alerts}
+\subsection{Justifications}
 \section{Datenerfassung}
 \section{Datenhaltung}
 \section{Schnittstellen}
