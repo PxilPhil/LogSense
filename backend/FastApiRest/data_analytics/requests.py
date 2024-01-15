@@ -105,7 +105,6 @@ def determine_full_disk_space(df: DataFrame, column: str, max_days):
         data_list: A list of forecasted free disk space values with a timestamp.
         last_timestamp: The timestamp where free disk space reaches 0 or less.
     """
-    #todo: change point detection?
 
     last_timestamp = None  # timestamp when free disk space reaches zero or below
     total_days = 0
@@ -113,6 +112,9 @@ def determine_full_disk_space(df: DataFrame, column: str, max_days):
     data_list = []
 
     # read dataframe, elect only needed columns
+    events = detect_events(df, column, 10)
+
+    df = df.drop(index=df.index[df.index >= events[len(events)-1]])
     df = df.filter(['measurement_time', column])
     df = df.set_index(pd.to_datetime(df['measurement_time']).astype('int64') // 10 ** 6)
     # get latest timestamp, fit to model, extend dataframe by time input and predict values for it
@@ -166,7 +168,7 @@ def analyze_application_data(df, application_name):
 
     # detect changes or events
     ram_change_points = get_event_measurement_times(df, df,
-                                                    'ram')  # only do it for ram since it makes no sense to do it for cpu
+                                                    'ram', 3)  # only do it for ram since it makes no sense to do it for cpu
 
     # find anomalies
     anomalies_ram = detect_anomalies(df, df, 'ram')
@@ -245,7 +247,7 @@ def analyze_pc_data(pc_id: int, df, pc_total_df, name: str):
     anomaly_measurements = detect_anomalies(pc_total_df, training_df, 'value')
 
     # detect changes / events
-    change_points = get_event_measurement_times(pc_total_df, training_df, 'value')
+    change_points = get_event_measurement_times(pc_total_df, training_df, 'value', 3)
 
     print('----------------------------------------')
     print(anomaly_measurements)
