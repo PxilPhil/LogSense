@@ -1,6 +1,9 @@
+import numpy as np
+import pandas as pd
 from pandas import DataFrame
 
-from model.data import StatisticData
+from data_analytics.util.change_anomaly_detection import detect_events
+from model.data import StatisticData, Justification
 
 
 def calc_allocation(latest_total_value, column, df):  # ONLY PASS THE MOST CURRENT DATAFRAME
@@ -60,3 +63,47 @@ def determine_stability(cov):  # common rule of thumb is that cv < 15% is consid
     elif cov < 30:
         return 'Medium'
     return 'Low'
+
+def determine_event_ranges(df: DataFrame, anomalies_events: list[Justification], column: str):
+    """
+    This algorithm looks at the ranges between events & anomalies to determine anomalous data ranges (to be
+    implemented) and provide statistics for them
+    :return:
+    """
+    last_timestamp = None
+    for anomaly_event in anomalies_events:
+        if last_timestamp:
+            selected_rows = df[
+                (df['measurement_time'] >= last_timestamp) & (df['measurement_time'] <= anomaly_event.timestamp)]
+            print(f"{last_timestamp}+{anomaly_event.timestamp}")
+            if not selected_rows.empty:
+                anomaly_event.statistics = calculate_trend_statistics(selected_rows, column, column)
+        last_timestamp = anomaly_event.timestamp
+
+
+def determine_linear_direction(df, column_name, tolerance=0.05):
+    """
+    Determines whether or not values are linearly rising or falling via linear regression and then checking the mean squared error
+    :param df:
+    :param column_name:
+    :param tolerance:
+    :return:
+    """
+    events = detect_events(df, column_name, 10)
+
+    df = df.drop(index=df.index[df.index >= events[len(events)-1]]) # only work with latest course (last change point)
+    column_values = df[column_name]
+
+    if isinstance(column_values, pd.Series):
+        column_values = column_values.values
+
+    indices = np.arange(len(column_values))
+    slope, intercept = np.polyfit(indices, column_values, 1)
+    predicted_values = slope * indices + intercept
+    mse = np.mean((column_values - predicted_values) ** 2)
+    if mse < tolerance:
+        if slope > 0:
+            return 1
+        else:
+            return -1
+    return 0

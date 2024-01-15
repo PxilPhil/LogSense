@@ -2,10 +2,13 @@ from typing import List
 
 from pandas import DataFrame
 
+from data_analytics.util.change_anomaly_detection import get_event_measurement_times, detect_anomalies
+from data_analytics.util.stats import determine_linear_direction
 from db_access.application import get_application_between
 
 from db_access.pc import select_recent_state
 from model.alerts import AlertNotification, CustomAlert
+
 
 def check_for_alerts(user_id: int, custom_alert_list: List[CustomAlert], pc_df: DataFrame, start, end) -> List[
     AlertNotification]:
@@ -15,10 +18,73 @@ def check_for_alerts(user_id: int, custom_alert_list: List[CustomAlert], pc_df: 
     """
 
     # first check for custom alerts
-    alert_notifications = check_for_custom_alerts(user_id, pc_df, custom_alert_list, start, end)
+    alert_notifications: List[AlertNotification] = check_for_custom_alerts(user_id, pc_df, custom_alert_list, start,
+                                                                           end)
     # check multiple complex, standard alerts
+    check_for_linear_direction(pc_df, alert_notifications, 'ram')
+    check_for_linear_direction(pc_df, alert_notifications, 'cpu')
 
+    check_for_anomalies_events(pc_df, alert_notifications)
+
+    print('REEEEE')
     return alert_notifications
+
+
+# todo: calculate variance/stability and display it as an alert, percentual appearences of anomalies and events, constantly rising linear data
+
+def check_for_anomalies_events(pc_df, alert_notifications):
+    ram_change_points = get_event_measurement_times(pc_df, pc_df,'ram', 3)  # only do it for ram since it makes no sense to do it for cpu
+    anomalies_ram = detect_anomalies(pc_df, pc_df, 'ram')
+    anomalies_cpu = detect_anomalies(pc_df, pc_df, 'cpu')
+
+    alert_notifications.append(AlertNotification(
+        type="RAM Events",
+        message=f"Multiple RAM Events detected ({len(ram_change_points)})",
+        severity_level=1,
+        column="ram",
+        application=None,
+        detected_alert_list=ram_change_points
+    ))
+
+    alert_notifications.append(AlertNotification(
+        type="CPU Anomalies",
+        message=f"Multiple CPU Anomalies detected {len(anomalies_cpu)})",
+        severity_level=1,
+        column="cpu",
+        application=None,
+        detected_alert_list=anomalies_cpu
+    ))
+
+    alert_notifications.append(AlertNotification(
+        type="RAM Anomalies",
+        message=f"Multiple RAM Anomalies detected {len(anomalies_ram)})",
+        severity_level=1,
+        column="ram",
+        application=None,
+        detected_alert_list=anomalies_ram
+    ))
+
+def check_for_linear_direction(df, alert_notifications, column_name):
+    # check if there is a linear direction (values linearly falling or rising)
+    linear_direction = determine_linear_direction(df, column_name, 0.05)
+    if linear_direction > 0:
+        alert_notifications.append(AlertNotification(
+            type="Linear rising values",
+            message="Linear rising values",
+            severity_level=1,
+            column=column_name,
+            application=None,
+            detected_alert_list=df['measurement_time'].iloc[-1]
+        ))
+    elif linear_direction < 0:
+        alert_notifications.append(AlertNotification(
+            type="Linear falling values",
+            message="Linear falling values",
+            severity_level=1,
+            column=column_name,
+            application = None,
+            detected_alert_list=df['measurement_time'].iloc[-1]
+        ))
 
 
 def check_for_custom_alerts(pc_id, df, custom_alerts, start, end):
@@ -51,7 +117,8 @@ def apply_condition(df, condition, selected_column):
         return df[df[selected_column] > condition.percentage_trigger_value]
     elif condition.percentage_trigger_value:
         state_dict = select_recent_state()
-        return df.query(f'{selected_column} / {state_dict[condition.column]} {condition.operator} {condition.percentage_trigger_value}')
+        return df.query(
+            f'{selected_column} / {state_dict[condition.column]} {condition.operator} {condition.percentage_trigger_value}')
     elif condition.absolute_trigger_value:
         if condition.operator == '>':
             return df[df[selected_column] > condition.absolute_trigger_value]

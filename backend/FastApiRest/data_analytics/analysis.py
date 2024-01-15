@@ -5,8 +5,7 @@ from pandas import DataFrame
 from data_analytics.util import manipulation, stats
 from data_analytics.util.change_anomaly_detection import get_event_measurement_times, detect_anomalies
 from data_analytics.justification import justify_pc_data_points, justify_application_df
-from data_analytics.util.stats import calculate_trend_statistics, append_statistics_message
-from data_analytics.util.trend_analysis import determine_event_ranges
+from data_analytics.util.stats import calculate_trend_statistics, append_statistics_message, determine_event_ranges
 from db_access.pc import get_ram_time_series_limited
 from model.data import AllocationClass
 
