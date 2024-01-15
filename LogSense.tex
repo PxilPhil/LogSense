@@ -98,6 +98,8 @@ Chart.js unterstützt responsives Design und kann sich an unterschiedliche Bilds
 \subsection{Algorithmen}
 
 \section{Datenerfassung}
+\text{In den nachfolgenden Abschnitten werden die im Projekt verwendeten Konzepte und Technologien für die Datenerfassung beschrieben.}
+
 \subsection{Agent}
 \text{Für die Erfassung der Ressourcendaten wird ein sogennanter Agent verwendet. Dieser kann selbstständig, das heißt ohne das Zutun eines Benutzers oder eines anderen Programmes, Tätigkeiten und Prozesse ausführen. Das heißt, der Agent wartet so lange bis eine gewisse Zeit abgelaufen, ein Programm gestartet worden oder ein Ereignis jeglicher Art festgestellt worden ist und erledigt darauf bestimmte Aufgaben.\\
 Dabei gibt es im wesentlichen 3 Arten von Agenten:}
@@ -115,13 +117,14 @@ Dabei gibt es im wesentlichen 3 Arten von Agenten:}
             \item Kognitive Agenten können weiters aus den erfassten Daten Muster lernen und selbstständig abwägen, welche Aufgaben wann und wie durchgeführt werden sollen, um bestmöglich auf die aktualle Situation der Umgebung reagieren zu können.
         \end{description}
 \end{itemize}
-\text{Für diesen Anwendungsfall wird ein reaktiver Agent verwendet, da nach Ablauf von 60 Sekunden die Daten gemessen, je nach Art der Daten zusammengefasst und anschließend in einem geeigneten Format zur Auswertung an den Server gesendet werden sollen. Es wird also überprüft, um welche Daten es sich handelt und daraufhin entschieden wie die Daten für das Senden vorbereitet werden sollen.}
+\text{Für diesen Anwendungsfall wird ein reaktiver Agent verwendet. Nach Ablauf von 60 Sekunden werden die Daten gemessen, je nach Art der Daten zusammengefasst und anschließend in einem geeigneten Format zur Auswertung an den Server gesendet. Es wird also überprüft, um welche Daten es sich handelt und daraufhin entschieden wie die Daten für das Senden vorbereitet werden sollen.}
 
 \subsection{Java}
-\text{Die Programmiersprache Java ist objektorientiert, besitzt eine einfache Syntax mit überschaubarem Sprachumfang und ist durch kontrollierte Speicherzugriffe sicher. Wenn es eine passende JVM (= Java Virtual Machine) für das Betriebssystem gibt, kann das Programm auf diesem Betriebssytem laufen. Diese Plattformunabhängig wird dadurch ermöglicht, dass der Java-Quellcode in Bytecode übersetzt wird, der dann von der JVM interpretiert werden kann.\\
+\text{Die Programmiersprache Java ist objektorientiert, besitzt eine einfache Syntax mit überschaubarem Sprachumfang und ist durch kontrollierte Speicherzugriffe sicher. Wenn es eine passende JVM (= Java Virtual Machine) für das Betriebssystem gibt, kann das Programm auf diesem Betriebssytem laufen. Diese Plattformunabhängigkeit wird dadurch ermöglicht, dass der Java-Quellcode in Bytecode übersetzt wird, der dann von der JVM interpretiert werden kann.\\
 Der Agent, der lokal auf den Windows Rechnern läuft und die Daten über den Ressourcenverbrauch des Rechners erfasst, ist in der Programmiersprache Java entwickelt. Der Grund dafür ist, dass es für Java viele verschiedene Bibliotheken gibt, die auf die Hardwaretreiber zugreifen, um die benötigten Daten über den Rechner, die darauf laufenden Programme und deren Ressourcenverbrauch auszulesen.}
 
 \subsection{Oshi}
+\text{Oshi\footnote{\url{https://www.oshi.ooo/}} (= Operating System and Hardware Information) ist eine für die Programmiersprache Java entwickelte Bibliothek, die Daten über die Hardware und das Betriebssystem eines Rechners erfassen und bereitstellen kann. Dafür wird im Hintergrund die JNA-Bibliothek (= Java Native Access) verwendet. Diese dient als eine plattformunabhängige Schicht zwischen dem Programmcode der Oshi-Bibliothek und dem nativen Code, der abhängig vom Betriebsystem die Systeminformationen ausliest. Aus diesem Grund kann Oshi Daten über unterschiedliche Betriebssysteme, unter anderem Windows, Linux, macOs und verschiedene Unix Distributionen, erfassen.}
 
 \section{Datenhaltung}
 \subsection{Postgres}
@@ -176,7 +179,9 @@ Zur Anomalienerkennung ist der Machine-Learning-Algorithmus Isolation Forest zur
 \subsection{Forecast}
 \subsection{Userdefinierte Alerts}
 \subsection{Justifications}
+
 \section{Datenerfassung}
+
 \section{Datenhaltung}
 \subsection{Datenbank}
 \subsubsection{Einleitung}
