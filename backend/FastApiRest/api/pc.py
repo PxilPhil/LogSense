@@ -1,22 +1,19 @@
 from datetime import datetime
-from typing import List
 
-import pandas as pd
-from fastapi import APIRouter, HTTPException, Body
-from starlette.responses import JSONResponse
+from fastapi import APIRouter, Body
 
 import db_access.pc
-from data_analytics.stats import determine_stability
+from data_analytics.analysis import analyze_pc_data
+from data_analytics.forecasting import determine_full_disk_space, forecast_disk_space
+from data_analytics.util.stats import determine_stability
 from db_access.data import select_total_running_time
 from db_access.pc import get_pcs, get_pcs_by_userid, add_pc, get_free_disk_space_data, \
     get_recent_disk_and_partition, set_pc_null
 from db_access.application import get_latest_application_data
-from data_analytics import requests
 from exceptions.DataBaseInsertExcepion import DataBaseInsertException
-from exceptions.InvalidParametersException import InvalidParametersException
 from exceptions.NotFoundExcepion import NotFoundException
-from model.pc import PCItem, ForecastResult, ForecastData, DISKS, Network, PCSpecs, PCMetrics, PCDetails
-from model.data import PCData, StatisticData, PCTimeSeriesData
+from model.pc import PCItem, ForecastResult, DISKS, Network, PCSpecs, PCMetrics, PCDetails
+from model.data import PCData, StatisticData
 
 pc = APIRouter()
 
@@ -86,7 +83,7 @@ def get_pc_ram(pc_id: int, start: str, end: str, bucket_value: str = '1 minutes'
     df, application_data_list = get_latest_application_data(pc_id, 1, None)
     if df is None or ram_df is None:
         raise NotFoundException()
-    pc_total_df, allocation_list, events_and_anomalies, statistic_data = requests.analyze_pc_data(
+    pc_total_df, allocation_list, events_and_anomalies, statistic_data = analyze_pc_data(
         pc_id, df, ram_df, 'ram')
 
     pc_data = PCData(
@@ -121,7 +118,7 @@ def get_pc_cpu(pc_id: int, start: str, end: str, bucket_value: str = '1 minutes'
     df, application_data_list = get_latest_application_data(pc_id, 1, None)
     if df is None or cpu_df is None:
         raise NotFoundException()
-    pc_total_df, allocation_list, events_and_anomalies, statistic_data = requests.analyze_pc_data(pc_id,
+    pc_total_df, allocation_list, events_and_anomalies, statistic_data = analyze_pc_data(pc_id,
                                                                                                   df, cpu_df, 'cpu')
 
     pc_data = PCData(
@@ -245,7 +242,7 @@ def forecast_no_disk_space(pc_id: int, days: int):
         df = get_free_disk_space_data(pc_id)
         if df is None:
             raise NotFoundException()
-        data_list, final_timestamp = requests.determine_full_disk_space(df, 'free_disk_space', days)
+        data_list, final_timestamp = determine_full_disk_space(df, 'free_disk_space', days)
         forecast_result = ForecastResult(
             pc=pc_id,
             days=days,
@@ -274,7 +271,7 @@ def forecast_free_disk_space(pc_id: int, start: str, end: str, bucket_value: str
         df = get_free_disk_space_data(pc_id)
         if df is None:
             raise NotFoundException()
-        data_list, final_timestamp = requests.forecast_disk_space(df, 'free_disk_space', start, end, bucket_value)
+        data_list, final_timestamp = forecast_disk_space(df, 'free_disk_space', start, end, bucket_value)
         forecast_result = ForecastResult(
             pc=pc_id,
             days=30,

@@ -1,27 +1,24 @@
+from typing import List
+
+from pandas import DataFrame
+
 from db_access.application import get_application_between
 
-from db_access.pc import select_recent_state, get_recent_pc_total_data, get_ram_time_series_between
-from model.data import AnomalyData
-from model.alerts import AlertNotification
+from db_access.pc import select_recent_state
+from model.alerts import AlertNotification, CustomAlert
 
-z_limit = 2
-event_sensitivity_ram = 0.1
-event_sensitivity_ram_occurrence = 0.05
-event_sensitivity_cpu_occurrence = 0.05
-event_sensitivity_cpu = 0.1
+def check_for_alerts(user_id: int, custom_alert_list: List[CustomAlert], pc_df: DataFrame, start, end) -> List[
+    AlertNotification]:
+    """
+    Checks for alerts that have appeared in a specified timeframe
+    :return:
+    """
 
-"""
-Event Sensitivity for RAM is always the percentual value of the difference between the current value and the moving average of the last 5 rows
-Event Sensitivity for CPU is always a percentual limiter, e.g. the pc cpu allocation has to rise by 10% to be registered as an event
-"""
+    # first check for custom alerts
+    alert_notifications = check_for_custom_alerts(user_id, pc_df, custom_alert_list, start, end)
+    # check multiple complex, standard alerts
 
-
-def detect_anomalies_via_score(anomaly_list, anomaly_df, column):
-    for index, row in anomaly_df.iterrows():
-        anomaly_data = AnomalyData(timestamp=row['measurement_time'], severity=int(row['zscore']),
-                                   application=row['name'],
-                                   column=column)
-        anomaly_list.append(anomaly_data)
+    return alert_notifications
 
 
 def check_for_custom_alerts(pc_id, df, custom_alerts, start, end):
@@ -40,9 +37,6 @@ def check_for_custom_alerts(pc_id, df, custom_alerts, start, end):
                 # check values should be detected with moving averages
                 if condition.detect_via_moving_averages:
                     selected_column = 'moving_average_' + condition.column
-                    #todo: free_disk_space doesnt work
-                    print(condition.column)
-                    print(df)
                     df[selected_column] = df[condition.column].rolling(window=5).mean()
                     df[selected_column].fillna(df[condition.column], inplace=True)
 

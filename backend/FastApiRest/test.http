@@ -115,7 +115,7 @@ GET http://localhost:8000/pc/1/disk?start=2023-07-25 10:20:00&end=2023-11-11 17:
 GET http://localhost:8000/pc/1/time-metrics/?start=2022-08-25 10:20:16&end=2023-12-25 10:33:01
 
 ### get application time metrics
-GET http://localhost:8000/pc/3/application/chrome/time-metrics/?start=2023-07-25 10:20:16&end=2023-12-25 10:33:01
+GET http://localhost:8000/pc/1/application/chrome/time-metrics/?start=2023-07-25 10:20:16&end=2023-12-25 10:33:01
 
 ### get application data
 GET http://localhost:8000/pc/1/application/chrome?start=2023-07-25 10:20:00&end=2023-12-25 10:33:01&bucket_value=5 minutes
@@ -127,7 +127,7 @@ GET http://localhost:8000/pc/1/application/?start=2022-07-25 10:20:16&end=2023-1
 GET http://localhost:8000/pc/1/data/forecast/30
 
 ### get alerts
-GET http://localhost:8000/alerts/1?start=2023-07-25 10:20:16&end=2023-10-25 10:33:01
+GET http://localhost:8000/alerts/1?start=2023-07-25 10:20:16&end=2023-12-12 10:33:01
 
 ### get all possible alerts
 GET http://localhost:8000/alerts/all/1

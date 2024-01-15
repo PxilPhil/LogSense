@@ -15,7 +15,6 @@ from model.data import Justification
     Documentation for rest overall worked best: penalty of 2? contamination of 0.03
 
 """
-# todo: adjust weights for application data and ram
 
 def get_event_measurement_times(predicted_df: DataFrame, training_df: DataFrame,
                                 column: str, penalty: int) -> list:

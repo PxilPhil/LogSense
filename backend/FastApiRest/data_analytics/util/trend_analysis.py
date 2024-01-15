@@ -6,8 +6,8 @@ Looking at the data between events to create anomaly ranges
 """
 from pandas import DataFrame
 
-from data_analytics.stats import calculate_trend_statistics
-from model.data import StatisticData, Justification
+from data_analytics.util.stats import calculate_trend_statistics
+from model.data import Justification
 
 
 def determine_event_ranges(df: DataFrame, anomalies_events: list[Justification], column: str):

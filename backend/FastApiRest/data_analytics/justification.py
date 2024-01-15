@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 
-from data_analytics.manipulation import get_justification_contained
+from data_analytics.util.manipulation import get_justification_contained
 from db_access.application import get_relevant_application_data, get_application_between
 from db_access.pc import get_pc_data_at_measurement
 from model.data import Justification
