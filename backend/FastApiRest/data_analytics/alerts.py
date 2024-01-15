@@ -39,7 +39,7 @@ def check_for_anomalies_events(pc_df, alert_notifications):
 
     alert_notifications.append(AlertNotification(
         type="RAM Events",
-        message=f"Multiple RAM Events detected ({len(ram_change_points)})",
+        message=f"Multiple RAM Events detected",
         severity_level=1,
         column="ram",
         application=None,
@@ -48,7 +48,7 @@ def check_for_anomalies_events(pc_df, alert_notifications):
 
     alert_notifications.append(AlertNotification(
         type="CPU Anomalies",
-        message=f"Multiple CPU Anomalies detected {len(anomalies_cpu)})",
+        message=f"Multiple CPU Anomalies detected",
         severity_level=1,
         column="cpu",
         application=None,
@@ -57,7 +57,7 @@ def check_for_anomalies_events(pc_df, alert_notifications):
 
     alert_notifications.append(AlertNotification(
         type="RAM Anomalies",
-        message=f"Multiple RAM Anomalies detected {len(anomalies_ram)})",
+        message=f"Multiple RAM Anomalies detected",
         severity_level=1,
         column="ram",
         application=None,
