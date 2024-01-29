@@ -14,6 +14,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage{fancyhdr}
 \usepackage{grffile}
+\usepackage{float}
+
 
 \pagestyle{fancy}
 \fancyhf{}
@@ -72,9 +74,24 @@ Define the specific objectives and goals of the software engineering project.
 \section{Problemstellung}
 \section{Zielsetzung}
 \section{Projektinhalt}
-\subsection{Anforderungen}
+Eine übersichtliche Projektstruktur ist eine Notwendigkeit, um die Projektziele zu erreichen. Die Diplomarbeit besteht aus den folgenden 5 Hauptkomponenten:
+\subsection{Agent}
+Der Agent erfasst alle 10 Sekunden Daten über die Hardware-Komponenten eines Rechners, auf dem das Betriebssystem Windows läuft. Nach der Datenerfassung fasst der Agent die Daten der letzten 60 Sekunden zusammen und bereitet sie auf, bevor er sie zur weiteren Analyse an den Server sendet. Bei der ersten Datenerfassung werden zusätzlich allgemeine Daten über den Rechner erfasst und beim Senden an den Server signalisiert das den Start einer Session.
+\subsection{Analyse}
+\subsection{Schnittstellen}
+\subsection{Datenspeicherung}
+\subsection{User Interface}
+Die Benutzeroberfläche zeigt die analysierten Daten in Form von Diagrammen und Statistiken übersichtlich an. Beim erstmaligen Aufrufen der Benutzeroberläche kann ein Gerät ausgewählt werden, dessen Daten dargestellt werden. Weiters können die Benutzer eigens definierte Warnungen für ein Gerät erstellen, indem sie die Art der Diagnose und den jeweiligen Grenzwert angeben.
+\section{Projektumfeld}
 \subsection{Projektteam}
-\subsubsection{Aufgabenverteilung}
+Das Projektteam besteht aus 4 Schülern der HTL Perg und die Verantwortlichkeiten haben sich dabei wie folgt aufgeteilt:
+\begin{itemize}
+    \item Philipp Borbely - Datenanalyse und -auswertung
+    \item Sarah Ettlinger - Datenerfassung
+    \item Thomas Jilek - Datenspeicherung und Systemintegration
+    \item Emily Stadlbauer - Visualisierung und Anzeige
+\end{itemize}
+
 \subsection{Auftraggeber}
 
 \chapter{Theoretische und fachpraktische Grundlagen und Methoden}
@@ -133,15 +150,11 @@ Pandas ist eine Python-Bibliothek zur Datenverarbeitung und -analyse. Sie stellt
 \subsection{Algorithmen}
 
 \section{Datenerfassung}
+In den nachfolgenden Abschnitten werden die im Projekt verwendeten Konzepte und Technologien für die Datenerfassung beschrieben.
+
 \subsection{Agent}
 Für die Erfassung der Ressourcendaten wird ein sogennanter Agent verwendet. Dieser kann selbstständig, das heißt ohne das Zutun eines Benutzers oder eines anderen Programmes, Tätigkeiten und Prozesse ausführen. Das heißt, der Agent wartet so lange bis eine gewisse Zeit abgelaufen, ein Programm gestartet worden oder ein Ereignis jeglicher Art festgestellt worden ist und erledigt darauf bestimmte Aufgaben.\\
 Dabei gibt es im wesentlichen 3 Arten von Agenten:
-\begin{figure}
-\centering
-\includegraphics[width=0.25\linewidth]{frog.jpg}
-\caption{\label{fig:frog}This frog was uploaded via the file-tree menu.}
-\end{figure}
-
 \begin{itemize}
     \item Reaktive Agenten
         \begin{description}
@@ -156,13 +169,14 @@ Dabei gibt es im wesentlichen 3 Arten von Agenten:
             \item Kognitive Agenten können weiters aus den erfassten Daten Muster lernen und selbstständig abwägen, welche Aufgaben wann und wie durchgeführt werden sollen, um bestmöglich auf die aktualle Situation der Umgebung reagieren zu können.
         \end{description}
 \end{itemize}
-Für diesen Anwendungsfall wird ein reaktiver Agent verwendet, da nach Ablauf von 60 Sekunden die Daten gemessen, je nach Art der Daten zusammengefasst und anschließend in einem geeigneten Format zur Auswertung an den Server gesendet werden sollen. Es wird also überprüft, um welche Daten es sich handelt und daraufhin entschieden wie die Daten für das Senden vorbereitet werden sollen.
+Für diesen Anwendungsfall wird ein reaktiver Agent verwendet. Nach Ablauf von 60 Sekunden werden die Daten gemessen, je nach Art der Daten zusammengefasst und anschließend in einem geeigneten Format zur Auswertung an den Server gesendet. Es wird also überprüft, um welche Daten es sich handelt und daraufhin entschieden wie die Daten für das Senden vorbereitet werden sollen.
 
 \subsection{Java}
-Die Programmiersprache Java ist objektorientiert, besitzt eine einfache Syntax mit überschaubarem Sprachumfang und ist durch kontrollierte Speicherzugriffe sicher. Wenn es eine passende JVM (= Java Virtual Machine) für das Betriebssystem gibt, kann das Programm auf diesem Betriebssytem laufen. Diese Plattformunabhängig wird dadurch ermöglicht, dass der Java-Quellcode in Bytecode übersetzt wird, der dann von der JVM interpretiert werden kann.\\
+Die Programmiersprache Java ist objektorientiert, besitzt eine einfache Syntax mit überschaubarem Sprachumfang und ist durch kontrollierte Speicherzugriffe sicher. Wenn es eine passende JVM (= Java Virtual Machine) für das Betriebssystem gibt, kann das Programm auf diesem Betriebssytem laufen. Diese Plattformunabhängigkeit wird dadurch ermöglicht, dass der Java-Quellcode in Bytecode übersetzt wird, der dann von der JVM interpretiert werden kann.\\
 Der Agent, der lokal auf den Windows Rechnern läuft und die Daten über den Ressourcenverbrauch des Rechners erfasst, ist in der Programmiersprache Java entwickelt. Der Grund dafür ist, dass es für Java viele verschiedene Bibliotheken gibt, die auf die Hardwaretreiber zugreifen, um die benötigten Daten über den Rechner, die darauf laufenden Programme und deren Ressourcenverbrauch auszulesen.
 
 \subsection{Oshi}
+Oshi\footnote{\url{https://www.oshi.ooo/}} (= Operating System and Hardware Information) ist eine für die Programmiersprache Java entwickelte Bibliothek, die Daten über die Hardware und das Betriebssystem eines Rechners erfassen und bereitstellen kann. Dafür wird im Hintergrund die JNA-Bibliothek (= Java Native Access) verwendet. Diese dient als eine plattformunabhängige Schicht zwischen dem Programmcode der Oshi-Bibliothek und dem nativen Code, der abhängig vom Betriebsystem die Systeminformationen ausliest. Aus diesem Grund kann Oshi Daten über unterschiedliche Betriebssysteme, unter anderem Windows, Linux, macOs und verschiedene Unix Distributionen, erfassen.
 
 \section{Datenhaltung}
 \subsection{Postgres}
@@ -187,7 +201,27 @@ Der Agent, der lokal auf den Windows Rechnern läuft und die Daten über den Res
 \subsection{LucidChart}
 
 \chapter{Planung und Realisierung}
-\section{Funktionalität (UC, UC-Beschreibung)}
+\section{Funktionalität}
+LogSense kann in drei Kern-Funktionalitäten aufgeteilt werden welche in den folgenden drei Use-Case-Diagrammen beschrieben werden.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{UC/UCDA.png}
+    \caption{Datenabruf Use-Case-Diagramm}
+\end{figure}
+In der obigen Grafik wird der Use-Case "Datenabruf" abgebildet. Der Benutzer kann Auslastungsdiagramme von RAM, CPU oder freien Speicher aufrufen. Danach gibt es die Möglichkeit, einen Zeitraum für das Laden der Daten auszuwählen sowie die Möglichkeit, ein Zeitintervall anzugeben, in dem die Daten gruppiert werden sollen. Zusätzlich kann der Benutzer alle aufgetretenen Anomalien und Events im Graphen einblenden. Wenn der Benutzer seinen Zeiger über eine Anomalie oder Event bewegt, werden Statistiken zu diesem Event beziehungsweise der Anomalie angezeigt, unter anderem die Applikationen die zu diesem Zeitpunkt die größte Auslastung hatten. Der Agent ließt den Hardware-Verbrauch vom Client-Rechner ein und sendet die gemessenen Daten zur Rest-API welche die Daten auf der Datenbank persistiert. Der Benutzer kann über die Benutzeroberfläche diese Daten über die Rest-API anfordern. Die Rest-Schnittstelle widerum kommuniziert mit der Datenbank um die benötigten Daten zu laden und analysiert diese darauffolgend mit den implementierten Algorithmen im Backend. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{UC/UCPS.png}
+    \caption{PC-Auswahl Use-Case-Diagramm}
+\end{figure}
+\todo{Strich fehlt!}
+Dieser Use-Case stellt den Prozess der PC-Auswahl dar. Zuerst wird dem Benutzer eine Liste von PCs angezeigt. Von dieser Liste hat dieser dann die Möglchkeit, einen Rechner auszuwählen. Es gibt die Möglichkeit, einen neuen PC hinzuzufügen. Die Liste der PCs wird über ein API-Anfrage angefordert wobei die Rest-API die benötigten Daten aus der Datenbank lädt. Beim Hinzufügen eines neuen Rechners werden die Rechner-Informationen per API-Anfrage übermittelt und auf der Datenbank gespeichert.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{UC/UCCA.png}
+    \caption{Custom Alert Use-Case-Diagramm}
+\end{figure}
+Nach dem Aufrufen des Custom-Alert-Screens wird dem Benutzer eine Liste von bestehenden Custom-Alerts angezeigt. Bei der Auswahl eines Alerts kann ein bereits existierender Alert bearbeitet und angepasst werden. Der Benutzer kann auch einen neuen Custom-Alert anlegen. Bei Anzeige der Custom-Alerts wird eine API-Anfrage per Rest gesendet und die angeforderten Daten werden aus der Datenbank geladen. Beim Anlegen oder Bearbeiten eines Alerts werden die Informationen über die Rest-API verschickt und auf der Datenbank gespeichert. 
 \section{Architektur}
 \section{Informationsfluss}
 \section{Datenmodell}
@@ -269,6 +303,3 @@ Pandas \citep{pandas_docs}.
 \section{Abnahmeformular}
 
 \end{document}
-
-
-

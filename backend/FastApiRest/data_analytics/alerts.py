@@ -26,7 +26,6 @@ def check_for_alerts(user_id: int, custom_alert_list: List[CustomAlert], pc_df: 
 
     check_for_anomalies_events(pc_df, alert_notifications)
 
-    print('REEEEE')
     return alert_notifications
 
 
@@ -66,6 +65,7 @@ def check_for_anomalies_events(pc_df, alert_notifications):
 
 def check_for_linear_direction(df, alert_notifications, column_name):
     # check if there is a linear direction (values linearly falling or rising)
+
     linear_direction = determine_linear_direction(df, column_name, 0.05)
     if linear_direction > 0:
         alert_notifications.append(AlertNotification(

@@ -81,7 +81,7 @@ def determine_event_ranges(df: DataFrame, anomalies_events: list[Justification],
         last_timestamp = anomaly_event.timestamp
 
 
-def determine_linear_direction(df, column_name, tolerance=0.05):
+def determine_linear_direction(df, column_name, tolerance):
     """
     Determines whether or not values are linearly rising or falling via linear regression and then checking the mean squared error
     :param df:
@@ -89,10 +89,26 @@ def determine_linear_direction(df, column_name, tolerance=0.05):
     :param tolerance:
     :return:
     """
-    events = detect_events(df, column_name, 10)
+    events = detect_events(df, column_name, 5)
+    current_df = df.drop(index=df.index[df.index <= events[len(events)-2]]) # only work with latest course (last change point)
+    print('determine_linear_direction')
+    print(current_df)
 
-    df = df.drop(index=df.index[df.index >= events[len(events)-1]]) # only work with latest course (last change point)
-    column_values = df[column_name]
+    #only for testing
+    """
+    num_rows = 20
+    start_value = 1000000
+    increment = 250000
+
+    linear_values = [start_value + i * increment for i in range(num_rows)]
+
+    # Create a dataframe with the 'ram' column
+    df = pd.DataFrame({column_name: linear_values})
+    print(df)
+    """
+
+
+    column_values = current_df[column_name]
 
     if isinstance(column_values, pd.Series):
         column_values = column_values.values
@@ -101,9 +117,13 @@ def determine_linear_direction(df, column_name, tolerance=0.05):
     slope, intercept = np.polyfit(indices, column_values, 1)
     predicted_values = slope * indices + intercept
     mse = np.mean((column_values - predicted_values) ** 2)
+    print(mse)
+    print(tolerance)
     if mse < tolerance:
         if slope > 0:
+            print('detected')
             return 1
         else:
+            print('detected')
             return -1
     return 0
