@@ -75,9 +75,8 @@ def determine_full_disk_space(df: DataFrame, column: str, max_days):
     data_list = []
 
     events = detect_events(df, column, 10)
-    drop_indices = df.index[df.index <= events[-2]]
-    df = df.drop(index=drop_indices)
 
+    df = df.drop(index=df.index[df.index >= events[len(events)-1]]) # only work with latest course (last change point)
     df = df.filter(['measurement_time', column])
     df = df.set_index(pd.to_datetime(df['measurement_time']).astype('int64') // 10 ** 6)
     # get latest timestamp, fit to model, extend dataframe by time input and predict values for it
