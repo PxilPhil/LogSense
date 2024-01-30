@@ -224,7 +224,10 @@ Dieser Use-Case stellt den Prozess der PC-Auswahl dar. Zuerst wird dem Benutzer 
 Nach dem Aufrufen des Custom-Alert-Screens wird dem Benutzer eine Liste von bestehenden Custom-Alerts angezeigt. Bei der Auswahl eines Alerts kann ein bereits existierender Alert bearbeitet und angepasst werden. Der Benutzer kann auch einen neuen Custom-Alert anlegen. Bei Anzeige der Custom-Alerts wird eine API-Anfrage per Rest gesendet und die angeforderten Daten werden aus der Datenbank geladen. Beim Anlegen oder Bearbeiten eines Alerts werden die Informationen über die Rest-API verschickt und auf der Datenbank gespeichert. 
 \section{Architektur}
 \section{Informationsfluss}
-\section{Datenmodell}
+Beim Starten des Agents werden die allgemeinen Daten über den Rechner mittels eines HTTP Clients an den REST Endpoint des Servers gesendet, um den Beginn einer Datenerfassung zu kennzeichnen. Wenn dieser Schritt erfolgreich durchgeführt worden ist, werden alle 60 Sekunden die Daten über den Ressourcenverbrauch seit der letzten Übertragung zusammengefasst, indem die durchschnittlichen Werte berechnet werden. Die Durchschnittswerte werden dann an den Server zur weiteren Verarbeitug gesendet.
+Alle bereits vollständigen Daten werden vom Server ohne Änderung in der Datenbank persistiert. Die restlichen Daten werden vor der Speicherung noch transformiert, um alle logisch zusammenhängenden Daten gemeinsam persistieren zu können.
+Der Server stellt verschiedene REST Endpoints zur Verfügung, welche die Daten aus der Datenbank abfragen, analysieren und auswerten.
+Diese REST Endpoints werden vom Frontend aufgerufen, um Informationen über den Rechner und dessen Ressourcenverbrauch zu erhalten und in weiterer Folge darzustellen.
 
 \chapter{Implementierung (Programmierung und QS/Test)}
 \section{Visualiserung}
