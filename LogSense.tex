@@ -15,6 +15,8 @@
 \usepackage{fancyhdr}
 \usepackage{grffile}
 \usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
 
 
 \pagestyle{fancy}
@@ -70,16 +72,22 @@ Define the specific objectives and goals of the software engineering project.
 \chapter*{Inhaltsverzeichnis}
 
 \chapter{Einleitung}
-\section{Ausgangssituation}
 \section{Problemstellung}
+Beim Arbeiten mit Rechner können vielerlei Probleme in Bezug auf Applikationen und Hardware auftreten. Allerdings können Probleme nur erkannt werden, wenn Benutzer direkt mit dem betroffenen Rechner interagieren, daher können Systemadministratoren nicht an einer zentralen Stelle Probleme alleine identifizieren. Außerdem können mithilfe von bereitgestellten Tools wie dem Windows-Taskmanager keine rückblickenden Daten über den Hardware-Verbrauch oder die Verwendungsdauer von Applikationen eingesehen werden.
 \section{Zielsetzung}
+Das Ziel unserer Diplomarbeit ist es, den Benutzer eines Rechners und in größeren Rechnernetzen auch dessen Administrator, eine Übersicht über den Ressourcenverbauch eines PCs und dessen Applikationen zur Verfügung zu stellen. Die Applikation soll ermöglichen, vergangene Hardware-Metriken über Applikationen einzusehen um potentielle Trends oder ungewöhnliches Verhalten zu erkennen. Auch sollten Analysemöglichkeiten zum Identfizieren von Anomalien und Ereignissen im Trendverlauf angeboten werden. Im Allgemeinen sollte dadurch das Auftreten von Problemen frühzeitig erkannt werden und dessen Behandlung durch das Bereitstellen von relevanten Informationen vereinfacht werden.
 \section{Projektinhalt}
 Eine übersichtliche Projektstruktur ist eine Notwendigkeit, um die Projektziele zu erreichen. Die Diplomarbeit besteht aus den folgenden 5 Hauptkomponenten:
 \subsection{Agent}
-Der Agent erfasst alle 10 Sekunden Daten über die Hardware-Komponenten eines Rechners, auf dem das Betriebssystem Windows läuft. Nach der Datenerfassung fasst der Agent die Daten der letzten 60 Sekunden zusammen und bereitet sie auf, bevor er sie zur weiteren Analyse an den Server sendet. Bei der ersten Datenerfassung werden zusätzlich allgemeine Daten über den Rechner erfasst und beim Senden an den Server signalisiert das den Start einer Session.
+Der Agent erfasst alle 10 Sekunden Daten über die Hardware-Komponenten eines Rechners, auf dem das Betriebssystem Windows läuft. Nach der Datenerfassung fasst der Agent die Daten der letzten 60 Sekunden zusammen und bereitet sie auf, bevor er sie zur weiteren Analyse an den Server sendet. Bei der ersten Datenerfassung werden zusätzlich allgemeine Daten über den Rechner erfasst und beim Senden an den Server signalisiert das den Start einer Session. \todo{Complete stuff and fix sentence}
 \subsection{Analyse}
+Die gemessenen Daten werden auf dem Backend durch Machine-Learning Algorithmen und statistische Verfahren analysiert. Darunter zählt die Identifizierung von Anomalien, also Datenpunkte, die enorm von den restlichen Daten abweichen. Auch erkennt es Change-Points, also Datenpunkte, welche Ereignsse im Trendverlauf darstellen. Zusätzlich gibt es die Möglichkeiten, zukünftigen freien Speicherplatz vorherzusagen.
 \subsection{Schnittstellen}
+kommunizieren zwischen komponenten, Rest, server: hostet mithilfe von nginx angular und fastapi
+session start - gibt id zurück & speichert daten, running data - wird session id übergeben, speichen von running data (gekoppelt zu session)
+daten werden mit rest calls vom server abgefragt
 \subsection{Datenspeicherung}
+persistienen für spätere auswertung, timescale db 
 \subsection{User Interface}
 Die Benutzeroberfläche zeigt die analysierten Daten in Form von Diagrammen und Statistiken übersichtlich an. Beim erstmaligen Aufrufen der Benutzeroberläche kann ein Gerät ausgewählt werden, dessen Daten dargestellt werden. Weiters können die Benutzer eigens definierte Warnungen für ein Gerät erstellen, indem sie die Art der Diagnose und den jeweiligen Grenzwert angeben.
 \section{Projektumfeld}
@@ -96,26 +104,50 @@ Das Projektteam besteht aus 4 Schülern der HTL Perg und die Verantwortlichkeite
 
 \chapter{Theoretische und fachpraktische Grundlagen und Methoden}
 \section{Visualiserung}
+ In den nachfolgenden Abschnitten werden die im Projekt verwendeten Konzepte und Technologien  für die Visualisierung beschrieben.
 \subsection{Angular}
-\subsection{Charst JS}
-\text
-Chart.js ist eine JavaScript Bibliothek mit deren Hilfe man unterschiedliche Diagrammtypen in Webanwendungen darstellen kann. 
-Es können 8 unterschiedliche Diagrammarten dargestellt werden, darunter: 
-\begin{itemize}
-    \item Liniendiagramme
-    \item Balkendiagramme
-    \item Bereichsdiagramme
-    \item Kreisdiagramme
-    \item Tortendiagramme
-    \item Radardiagramme
-    \item Polar Diagramme
-    \item Streudiagramme
-\end{itemize}
-Die Bibliothek bietet unterschiedlieche, interaktive Funktionen wie Tooltipps und Animationen. 
-Darüber hinaus gibt es viele Möglichkeiten mit verschiedenen Optionen und Konfigurationen das Diagramm nach eigenen Wünschen  anzupassen. 
-Chart.js unterstützt responsives Design und kann sich an unterschiedliche Bildschirmgrößen anpassen.\\In dieser Diplomarbeit ist Chart.js im Angular Projekt eingebunden um unterschiedliche Messwerte grafisch darzustellen.
+Angular ist ein Framework zur Entwicklung von Single Page Applications. Es verwendet eine komponentenbasierte Architektur. Diese Komponenten sind eigenständige und wiederverwendbare Bestandteile  der Applikation, die Struktur in die Anwendung bringen. Eine Komponente besteht aus einer HTML-, einer CSS- und einer TypeScript-Datei. Mithilfe von Dependency Injection können Dienste Daten oder Funktionen  zwischen den einzelnen Komponenten geteilt werden. Weiters wird ein Angular Projekt mit Modulen organisiert. Ein Modul besteht aus beliebig vielen Komponenten und Diensten. Angular bietet zudem ein leistungsfähiges Routing-Modul für die Navigation zwischen verschiedenen Ansichten. Um Daten aus einer REST API zu laden, ist in Angular ein HTTP-Client enthalten, der es ermöglicht Daten auszutauschen. Um das Verhalten der einzelnen DOM-Elemente zu steuern werden Direktiven verwendet.
+Einweg- und Zweirichtungsdatenbindung ermöglicht es dynamische Daten im HTML zu verwenden.
+\\In dieser Diplomarbeit wird Angular verwendet um die gesammelten und analysierten Daten in einer Webapplikation zu visualisieren.
+
 \subsection{BootStrap}
+Bootstrap ist ein CSS Framework um schnell und einfach responsive Webseiten zu erstellen. Es bietet unterschiedliche, vordefinierte Komponenten, die angepasst und eingebunden werden können. Ein responsives Rastersystem, das in Bootstrap inkludiert ist, hilft flexible Layouts zu erstellen. 
+
+Mithilfe von Sass können Komponenten importiert werden und globale Variablen, wie Schatten und Farben, definiert werden. Weiteres bietet SASS Funktionen zur Durchführung von Berechnungen und Mixins zur Wiederverwendung von CSS-Regeln. Vorhandene Komponenten können auf eigen Bedürfnisse angepasst werden.
+
+In dieser Diplomarbeit wird Bootstrap 5 verwendet um die Webapplikation responsiv zu gestalten und mithilfe von SASS-Variablen die CSS-Klassen übersichtlicher zu strukturieren.
+
+\subsection{Charst JS}
+Chart.js ist eine JavaScript Bibliothek mit deren Hilfe unterschiedliche Diagrammtypen in Webanwendungen dargestellt werden können. 
+Unteranderem sind folgende Diagrammarten definiert: \newpage
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{cc}
+    \subcaptionbox{Lininendiagramm}{\includegraphics[width=0.4\textwidth]{ChartJS/line.png}} &
+    \subcaptionbox{Balkendiagramm}{\includegraphics[width=0.4\textwidth]{ChartJS/bar.png}} \\
+    \subcaptionbox{Bereichsdiagramm7}{\includegraphics[width=0.4\textwidth]{ChartJS/radar.png}} &
+    \subcaptionbox{Streudiagramm}{\includegraphics[width=0.4\textwidth]{ChartJS/scatter.png}} \\
+  \end{tabular}
+  \caption{ChartJS Beispiele}
+  \label{tab:bilder}
+\end{table}
+
+
+Die Bibliothek bietet unterschiedliche, interaktive Funktionen wie Tooltipps und Animationen. 
+Darüber hinaus gibt es viele Möglichkeiten mit verschiedenen Optionen und Konfigurationen das Diagramm nach eigenen Wünschen  anzupassen. 
+Chart.js unterstützt responsives Design und kann sich an unterschiedliche Bildschirmgrößen anpassen.\\In dieser Diplomarbeit ist Chart.js im Angular Projekt eingebunden um unterschiedliche Messwerte grafisch darzustellen. 
+
 \subsection{Angular Material}
+Angular Material ist eine Bibliothek mit UI-Komponenten für Angular Projekte. Sie bietet verschiedene vorgefertigte UI-Komponenten die innerhalb der Design-Spezifikationen angepasst werden können. Einige dieser Komponenten sind:
+\begin{itemize}
+    \item Icons
+    \item Inputs
+    \item Radio Buttons
+    \item Slider
+\end{itemize}
+Die UI-Komponenten können sich unterschiedlichen Bildschirmgrößen anpassen. Angular Material ist für Angluar-Projekte ausgelegt und verwendet Angular-spezifische Funktionen und lässt sich einfach in Angular-Projekte integrieren.
+In dieser Diplomarbeit werden Angular Material Komponenten verwendet um die Benutzeroberfläche ansprechender zu gestalten.
 
 \section{Datenverarbeitung}
 \subsection{Python}
@@ -194,15 +226,27 @@ Oshi\footnote{\url{https://www.oshi.ooo/}} (= Operating System and Hardware Info
 \subsection{PyCharm}
 \subsection{IntelliJ}
 \subsection{Webstorm}
+WebStorm ist eine Entwicklungsumgebung speziell für Webentwicklung von JetBrains. Die IDE bietet Unterstützung für unterschiedliche Webtechnologien wie HTML, CSS, JavaScript, TypeScript und Node.js. Sie enthält Funktionen wie Code-Verollständigung, Refakotirierung undn Syntax-Hervorhebung ebenso wie ein integriertes Versionskontrollsystem. Dieses ermöglicht es Entwicklern direkt in der IDE Änderungen zu verfolgen und Commits durchzuführen. Durch eine Live-Edit-Funktion werden Änderungen die am Code vorgenommen werden direkt im Browser angezeigt. Weiters sind in WebStorm Code-Standards enthalten. Mit integrierten Tools wird der Code automatisch auf seine Qualität geprüft.
+
+In dieser Diplomarbeit wird das Angular-Projekt in WebStorm entwickelt.
 \subsection{Datagrip}
 \section{Sonstige Software}
 \subsection{GitLab}
+GitLab ist eine Open-Source-Software für das Managen von Versionskontrollsystemen und bietet Funktionen für die Zusammenarbeit in Softwareprojekte. Git ermöglicht es Änderungen im Code zu verfolgen und nachzuvollziehen. In Repositories wird der Code hochgeladen und geteilt, damit mehrere Personen an einem Projekt arbeiten können. Weiters unterstützt GitLab Issue-Tracking, Continuous Integration und Delivery sowie DevOps-Prozesse.
+\\
+In dieser Diplomarbeit wird das, von der HTL Perg gehostete, GitLab verwendet, auf dem der Code von LogSense liegt, um die Zusammenarbeit beim Entwickeln des Projektes zu erleichtern.
 \subsection{Adobe XD}
+Adobe XD ist ein Design- und Prototyping-Tool, das von Adobe Inc. entwickelt wurde. Es ermöglicht das einfache Erstellen von Benutzeroberflächen und Benutzererfahrungen für Websites und mobile Apps. Von der Prototypenerstellung bis zur Simulation von Interaktionen bietet Adobe XD alles um eine Webapplikation oder eine mobile App zu entwerfen. 
+\\Während der Planung dieser Diplomarbeit haben wir Adobe XD genutzt um die Benutzeroberfläche unserer Webapplikation zu entwerfen.
 \subsection{LucidChart}
+\subsection{StarUML}
+StarUML ist eine Software, die zur Modellierung von Software und Systemen verwendet wird. Es bietet eine Vielzahl an Funktionen zur Erstellung von UML-Diagrammen. Es unterstützt Entwickler bei der Darstellung von Struktur und Verhalten von Software. Fast alle UML-Diagrammarten werden von StarUML unterstützt, unteranderem UseCase-Diagramme, Sequenz-Diagramme und Klassendiagramme.
+\\
+Während der Planung dieser Diplomarbeit haben wir StarUML verwendet um UseCase-Diagramme zu erstellen.
 
 \chapter{Planung und Realisierung}
 \section{Funktionalität}
-LogSense kann in drei Kern-Funktionalitäten aufgeteilt werden welche in den folgenden drei Use-Case-Diagrammen beschrieben werden.
+LogSense kann in drei Kern-Funktionalitäten aufgeteilt werden welche in den folgenden drei Use-Case-Diagrammen beschrieben werden. 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{UC/UCDA.png}
@@ -223,6 +267,13 @@ Dieser Use-Case stellt den Prozess der PC-Auswahl dar. Zuerst wird dem Benutzer 
 \end{figure}
 Nach dem Aufrufen des Custom-Alert-Screens wird dem Benutzer eine Liste von bestehenden Custom-Alerts angezeigt. Bei der Auswahl eines Alerts kann ein bereits existierender Alert bearbeitet und angepasst werden. Der Benutzer kann auch einen neuen Custom-Alert anlegen. Bei Anzeige der Custom-Alerts wird eine API-Anfrage per Rest gesendet und die angeforderten Daten werden aus der Datenbank geladen. Beim Anlegen oder Bearbeiten eines Alerts werden die Informationen über die Rest-API verschickt und auf der Datenbank gespeichert. 
 \section{Architektur}
+\todo{Architekturskizze hinzufügen}
+\subsection{Agent}
+Der Agent ist eine Applikation die im Hintergrund des PCs läuft bei dem die Hardware-Daten gemessen werden sollten. Dieser ist dafür zuständig, die Hardware-Allozierungsdaten und die Verwendungsdauer von Applikationen mithilfe der OSHI-Bilbliothek aus dem Rechner auszulesen und diese im geeigneten CSV-Format zur REST-API zu senden. 
+\subsection{REST-API}
+Die Rest-API wird auf einem Server ausgeführt und ist für die Kommunikation zwischen Webapplikation, Agent und dem allgemeinen Backend verantwortlich. Zusätzlich befinden sich alle Algorithmen zur Datenanalyse auf der REST-API und werden sowohl vor dem Persitieren als auch vor der Abfrage von Daten ausgeführt.
+\subsection{Webapplkationen}
+Die Webapplikaton repräsentiert in LogSense die Benutzeroberfläche und stellt Daten in Form von Graphen und Auflistungen dar. Sie bildet die Basis für die Interaktion des Benutzers mit dem Backend.
 \section{Informationsfluss}
 \section{Datenmodell}
 
