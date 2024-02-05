@@ -4,7 +4,8 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Body
 
 import db_access
-from data_analytics import requests
+from data_analytics import analysis
+from data_analytics.analysis import analyze_application_data
 from exceptions.InvalidParametersException import InvalidParametersException
 from db_access.application import get_application_between, get_application_list, get_grouped_by_interval_application, \
     select_total_running_time_application
@@ -32,7 +33,7 @@ def fetch_application(pc_id: int, application_name: str, start: datetime, end: d
         df, data_list = get_application_between(pc_id, application_name, start, end, bucket_value)
         if df is None:
             raise NotFoundException(code=500, detail="Application was not found.")
-        df, ram_events_and_anomalies, cpu_events_and_anomalies, ram_statistic_data, cpu_statistic_data = requests.analyze_application_data(df, application_name)
+        df, ram_events_and_anomalies, cpu_events_and_anomalies, ram_statistic_data, cpu_statistic_data = analyze_application_data(df, application_name)
         time_metrics_dict = select_total_running_time_application(start, end, application_name, pc_id)
         time_metrics = None
         if len(time_metrics_dict.data) > 0:

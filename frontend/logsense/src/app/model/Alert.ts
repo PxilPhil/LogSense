@@ -22,7 +22,7 @@ export interface UserAlert {
 
 export interface Condition {
   percentage_trigger_value: number | null;
-  absolute_trigger_value: number | null;
+  absolute_trigger_value?: number | null;
   operator: string;
   column: string;
   application: string | null;

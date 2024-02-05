@@ -138,6 +138,7 @@ class Disk(BaseModel):
 
 
 class PCDetails(BaseModel):
+    runtime_in_seconds: float
     manufacturer: Optional[str]
     model: Optional[str]
     hardware_uuid: str

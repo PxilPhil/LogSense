@@ -2,8 +2,9 @@ from typing import List
 
 from db_access.application import get_latest_application_data, get_application_between
 from db_access.pc import select_recent_state, get_recent_pc_total_data, get_ram_time_series_between
-from model.alerts import CustomAlerts, CustomAlert, CustomCondition
-from data_analytics import manipulation
+from model.alerts import CustomAlert
+from data_analytics.util import manipulation
+
 
 def check_custom_alerts(pc_id, df, pc_total_df, custom_alerts: List[CustomAlert]):
     """

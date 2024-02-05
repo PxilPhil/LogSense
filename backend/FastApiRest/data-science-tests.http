@@ -1,0 +1,4 @@
+### get nonexistant ram pc timeseries data ###
+GET http://localhost:8000/pc/1/ram?start=2023-11-11 10:20:00&end=2023-11-12 17:29:00
+### get little amounts of data probably not enough for analyzation
+GET http://localhost:8000/pc/2/ram?start=2023-06-25 10:20:00&end=2023-12-12 17:29:00

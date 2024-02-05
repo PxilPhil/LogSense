@@ -4,7 +4,7 @@ import pandas as pd
 import psycopg2.errorcodes
 from pandas import DataFrame
 
-from data_analytics.stats import determine_stability
+from data_analytics.util.stats import determine_stability
 from db_access import conn_pool
 from exceptions.DataBaseExcepion import DataBaseException
 from exceptions.InvalidParametersException import InvalidParametersException
@@ -220,6 +220,7 @@ def get_cpu_time_series_between(pc_id, start, end, bucket_value: str = '1 minute
     finally:
         conn_pool.putconn(conn)
 
+
 def get_ram_time_series_limited(pc_id: int, limit: int):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
@@ -251,6 +252,7 @@ def get_ram_time_series_limited(pc_id: int, limit: int):
         raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
+
 
 def get_cpu_time_series_limted(pc_id: int, limit: int):
     conn = conn_pool.getconn()
@@ -284,6 +286,7 @@ def get_cpu_time_series_limted(pc_id: int, limit: int):
     finally:
         conn_pool.putconn(conn)
 
+
 def get_free_disk_space_data(pc_id):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
@@ -301,6 +304,7 @@ def get_free_disk_space_data(pc_id):
         raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
+
 
 def get_disk_space_between(pc_id, start, end):
     conn = conn_pool.getconn()
@@ -322,7 +326,6 @@ def get_disk_space_between(pc_id, start, end):
         raise DataBaseException()
     finally:
         conn_pool.putconn(conn)
-
 
 
 def get_latest_moving_avg(pc_id: int):  # returns moving avg of the last 5 columns for the total pc
@@ -768,12 +771,13 @@ def resource_metrics(pc_id):
         avg_row = cursor.fetchone()
         if avg_row is None:
             return None
+        if avg_row[0] is None:
+            avg_row = [0, 0, 0, 0]
 
         avg_cpu_usage_percent_last_day = avg_row[0] * 100
         cpu_stability_str = determine_stability(avg_row[1])
-        avg_ram_usage_percent_last_day = (avg_row[2]/total_memory_size)*100
+        avg_ram_usage_percent_last_day = (avg_row[2] / total_memory_size) * 100
         ram_stability_str = determine_stability(avg_row[3])
-
 
         total_memory = total_memory_size
         free_memory = total_memory - ram_usage
@@ -784,10 +788,10 @@ def resource_metrics(pc_id):
 
         # Create a PCMetrics instance with the retrieved values
         pc_metrics = PCMetrics(
-            avg_cpu_usage_percentage_last_day = avg_cpu_usage_percent_last_day,
-            cpu_stability = cpu_stability_str,
-            avg_ram_usage_percentage_last_day = avg_ram_usage_percent_last_day,
-            ram_stability = ram_stability_str,
+            avg_cpu_usage_percentage_last_day=avg_cpu_usage_percent_last_day,
+            cpu_stability=cpu_stability_str,
+            avg_ram_usage_percentage_last_day=avg_ram_usage_percent_last_day,
+            ram_stability=ram_stability_str,
             cpu_percentage_use=cpu_percentage_use,
             processor_name=processor_name,
             physical_package_count=physical_package_count,
@@ -964,21 +968,77 @@ def details(pc_id: str):
         cursor.execute(total_running_time_query, (pc_id,))
         results1 = cursor.fetchone()
 
-        if results and results1:
+        total_running_time_query = """
+WITH pcdata_with_lead AS (
+    SELECT
+        id,
+        pc_id,
+        measurement_time,
+        LEAD(measurement_time) OVER (PARTITION BY pc_id ORDER BY measurement_time) AS next_measurement_time
+    FROM
+        pcdata
+    WHERE pc_id = %s
+)
+SELECT
+    SUM(
+        CASE
+            WHEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time) >= 30 AND EXTRACT(EPOCH FROM next_measurement_time - measurement_time) <= 90 THEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time)
+            ELSE 0
+        END
+    ) AS total_running_time_seconds
+FROM
+    pcdata_with_lead
+WHERE
+    next_measurement_time IS NOT NULL
+GROUP BY
+    pc_id
+HAVING
+    SUM(
+        CASE
+            WHEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time) >= 30 AND EXTRACT(EPOCH FROM next_measurement_time - measurement_time) <= 90 THEN EXTRACT(EPOCH FROM next_measurement_time - measurement_time)
+            ELSE 0
+        END
+    ) > 0;            """
+        cursor.execute(total_running_time_query, (pc_id,))
+        time_result = cursor.fetchone()
+
+        if results and results1 and time_result:
 
             details = PCDetails(
-                manufacturer = results1[0],
-                model = results1[1],
-                hardware_uuid = results1[2],
-                system_battery = results[1],
-                remaining_capacity = results[0],
-                charging = results[2],
-                discharging = results[3],
-                power_on_line = results[4]
+                runtime_in_seconds=time_result[0],
+                manufacturer=results1[0],
+                model=results1[1],
+                hardware_uuid=results1[2],
+                system_battery=results[1],
+                remaining_capacity=results[0],
+                charging=results[2],
+                discharging=results[3],
+                power_on_line=results[4]
             )
             return details
         else:
             return None
+    except psycopg2.DatabaseError as e:
+        raise DataBaseException()
+    except KeyError as e:
+        raise InvalidParametersException()
+    finally:
+        conn_pool.putconn(conn)
+
+
+def set_pc_null(pc_id: int):
+    conn = conn_pool.getconn()
+    cursor = conn.cursor()
+    try:
+        query = """
+            UPDATE PC
+            SET user_id = null
+            WHERE pc.id = %s;
+        """
+        cursor.execute(query, (pc_id,))
+        conn.commit()
+
+        return {"Success": True}
     except psycopg2.DatabaseError as e:
         raise DataBaseException()
     except KeyError as e:
