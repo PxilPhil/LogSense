@@ -190,9 +190,6 @@ Pandas ist eine Python-Bibliothek zur Datenverarbeitung und -analyse. Sie stellt
       \item Aggregation von Datensätzen
   \end{itemize}
 
-\bibliographystyle{plain}
-\bibliography{data_science}
-
 \subsection{Numpy}
 \subsection{Scikit-Learn}
 \subsection{Ruptures}
@@ -241,7 +238,10 @@ Oshi\footnote{\url{https://www.oshi.ooo/}} (= Operating System and Hardware Info
 
 \section{Entwicklungssysteme}
 \subsection{PyCharm}
-\subsection{IntelliJ}
+\subsection{IntelliJ IDEA}
+IntelliJ IDEA\footnote{\url{https://www.jetbrains.com/idea/}} ist eine von dem Unternehmen JetBrains entwickelte IDE (= Integrated Development Environment). Diese funktioniert als Code-Editor vor allem für jene Programmiersprachen, die auf der JVM (= Java Virtual Machine) basieren, wie Java, Kotlin, Scala und Groovy. Wobei auch andere Programmiersprachen, Frameworks und Dateitypen unterstützt werden. Zum Beispiel Python, SQL, HTML, Angular, XML und Markdown. Zusätzlich bietet IntelliJ diverse Funktionen, die den Entwicklungsprozess von Anwendungen wesentlich vereinfachen. Dazu zählen Versionsverwaltung, Code-Vervollständigung, Refactoring und die Unterstützung von verschiedensten Build-Tools.\\\\
+Für die Implementierung des Agents in der Programmiersprache Java ist IntelliJ IDEA Ultimate in der Version 2023.2 verwendet worden.
+
 \subsection{Webstorm}
 WebStorm ist eine Entwicklungsumgebung speziell für Webentwicklung von JetBrains. Die IDE bietet Unterstützung für unterschiedliche Webtechnologien wie HTML, CSS, JavaScript, TypeScript und Node.js. Sie enthält Funktionen wie Code-Verollständigung, Refakotirierung undn Syntax-Hervorhebung ebenso wie ein integriertes Versionskontrollsystem. Dieses ermöglicht es Entwicklern direkt in der IDE Änderungen zu verfolgen und Commits durchzuführen. Durch eine Live-Edit-Funktion werden Änderungen die am Code vorgenommen werden direkt im Browser angezeigt. Weiters sind in WebStorm Code-Standards enthalten. Mit integrierten Tools wird der Code automatisch auf seine Qualität geprüft.
 
@@ -299,7 +299,10 @@ Die Algorithmen zur Datenanalyse- und verarbeitung sind in Python geschrieben un
 \subsection{Webapplikation}
 Die Webapplikaton repräsentiert in LogSense die Benutzeroberfläche und bildet die Basis für die Interaktion des Benutzers mit der Gesamtapplikation. Bei der Webapplikatiion bekommt der Benutzer eine Übersicht über die Laufzeit der Applikationen und einen Verlauf inklusive Analysen von ihren CPU und RAM-Auslastungen. Weiters kann der Benutzer den Verlauf des freien Speichers ansehen mit der Zusatzmöglichkeit, Prognosen über den zukünftigen Verlauf zu bekommen. Auf jeder aufgerufenen Seite erhält der Benutzer relevante Statistiken und eine Liste von aufgetretenen Alerts. Auf der Custom-Alert Seite kann dieser neue Alerts hinzufügen, bestehende Alerts löschen oder bearbeiten. 
 \section{Informationsfluss}
-\section{Datenmodell}
+Beim Starten des Agents werden die allgemeinen Daten über den Rechner mittels eines HTTP Clients an den REST Endpoint des Servers gesendet, um den Beginn einer Datenerfassung zu kennzeichnen. Wenn dieser Schritt erfolgreich durchgeführt worden ist, werden alle 60 Sekunden die Daten über den Ressourcenverbrauch seit der letzten Übertragung zusammengefasst, indem die durchschnittlichen Werte berechnet werden. Die Durchschnittswerte werden dann an den Server zur weiteren Verarbeitug gesendet.
+Alle bereits vollständigen Daten werden vom Server ohne Änderung in der Datenbank persistiert. Die restlichen Daten werden vor der Speicherung noch transformiert, um alle logisch zusammenhängenden Daten gemeinsam persistieren zu können.
+Der Server stellt verschiedene REST Endpoints zur Verfügung, welche die Daten aus der Datenbank abfragen, analysieren und auswerten.
+Diese REST Endpoints werden vom Frontend aufgerufen, um Informationen über den Rechner und dessen Ressourcenverbrauch zu erhalten und in weiterer Folge darzustellen.
 
 \chapter{Implementierung (Programmierung und QS/Test)}
 \section{Visualiserung}
@@ -356,7 +359,18 @@ Ohne einer bestimmten Grenze besteht sonst das Risiko, dass Tausende von Tagen v
 \subsection{Userdefinierte Alerts}
 
 \subsection{Justifications}
+
 \section{Datenerfassung}
+\subsection{Rechner-Daten}
+\subsection{Ressourcenverbrauch vom Rechner und einzelnen Applikationen}
+\subsection{Vordergrundzeit einer Applikation}
+\subsection{Zusammenführen der gemessen Daten}
+\subsection{CSV Konverter}
+\subsection{REST Client}
+\subsubsection{Rechner-Daten}
+\subsubsection{Ressourcenverbrauch}
+\subsection{Programmablauf}
+
 \section{Datenhaltung}
 \subsection{Datenbank}
 \subsubsection{Einleitung}
