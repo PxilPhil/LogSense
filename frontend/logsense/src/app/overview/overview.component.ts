@@ -99,6 +99,14 @@ export class OverviewComponent implements OnInit {
         })
     }
 
+  formatUpTime(upTime: number): string {
+    const date = new Date(upTime);
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
+    return `${hours} hours, ${minutes} minutes and ${seconds} seconds`;
+  }
+
     getSelectedPcId() {
         if (this.selectedPcService.getSelectedPcId() != null) {
             this.pcId = this.selectedPcService.getSelectedPcId()!;

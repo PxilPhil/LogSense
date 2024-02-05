@@ -4,7 +4,6 @@ import {TimeModel} from "../disk/disk.component";
 import {TimeMetrics, TimeMetricsModel} from "../model/TimeMetrics";
 import {TimeMetricsService} from "../services/time-metrics.service";
 import {DatePipe} from "@angular/common";
-import {SelectedPcService} from "../services/selected-pc.service";
 
 @Component({
   selector: 'app-time-metrics',
@@ -34,7 +33,6 @@ export class TimeMetricsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadTimeMetrics();
-    console.log(this.timeMetrics);
   }
   ngOnDestroy() {
     if (this.timeMetricsChart) {

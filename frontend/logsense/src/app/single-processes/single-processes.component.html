@@ -24,6 +24,9 @@
                 class="dropdown-btn mar-bot-24" (ngModelChange)="setData()">
           <option *ngFor="let timeElement of times" [ngValue]="timeElement">{{timeElement.time}}</option>
         </select>
+        <select [(ngModel)]="selectedBucketingTime" (change)="reloadApplicationDataOnTimesSelectionChange()" class="dropdown-btn mar-left-12 mar-bot-24">
+          <option *ngFor="let bucketingTime of bucketingTimes" [ngValue]="bucketingTime">{{bucketingTime.value}}</option>
+        </select>
       </div>
       <div *ngIf="isApplicationSelected" class="space-base mar-top-16">
         <div class="flex-center">
@@ -57,7 +60,7 @@
           <span class="txt-16">running for: {{formatUpTime(selectedApplication.run_time_in_seconds.total_running_time_seconds)}}</span>
         </div>
       </div>
-      <div *ngIf="isApplicationSelected" class="grey-box cpu-ram-container w-100 mar-top-24">
+      <div class="grey-box cpu-ram-container w-100 mar-top-24">
         <div class="w-100 first">
           <div class="space-base">
             <div>
@@ -67,9 +70,15 @@
               <span class="txt-22">{{roundDecimalNumber(selectedApplication.cpu_statistic_data.average*100, 2)}}%</span>
             </div>
           </div>
-          <div class="chart-container mar-top-16">
-            <canvas class="white-bg w-100" id="usageCPU"></canvas>
-          </div>
+          <canvas class="white-bg w-100 mar-top-16" id="usageCPU"></canvas>
+          <mat-radio-group
+            aria-labelledby="example-radio-group-label"
+            class="example-radio-group"
+            [(ngModel)]="checkedCPU" (change)="reloadCPUChart()">
+            <mat-radio-button class="example-radio-button" *ngFor="let option of radioOptions" [value]="option">
+              {{option}}
+            </mat-radio-button>
+          </mat-radio-group>
         </div>
         <div class="w-100 second">
           <div class="space-base">
@@ -81,12 +90,18 @@
                 MB</span>
             </div>
           </div>
-          <div class="chart-container mar-top-16">
-            <canvas class="white-bg w-100" id="usageRAM"></canvas>
-          </div>
+          <canvas class="white-bg w-100 mar-top-16" id="usageRAM"></canvas>
+          <mat-radio-group
+            aria-labelledby="example-radio-group-label"
+            class="example-radio-group"
+            [(ngModel)]="checkedRAM" (change)="reloadRAMChart()">
+            <mat-radio-button class="example-radio-button" *ngFor="let option of radioOptions" [value]="option">
+              {{option}}
+            </mat-radio-button>
+          </mat-radio-group>
         </div>
       </div>
-      <div *ngIf="isApplicationSelected" class="align-general mar-top-32 wrapper">
+      <div class="align-general mar-top-32 wrapper">
         <div class="first">
           <h2 class="mar-bot-24">General</h2>
           <div class="grey-box">
@@ -112,13 +127,15 @@
           <h2 class="mar-bot-24">Statistics</h2>
           <div class="grey-box align-general">
             <div class="align-txt">
-              <span *ngFor="let stat of statistics; let last = last"
+              <span *ngFor="let stat of selectedApplication.cpu_statistic_data.message.split('\n'); let last = last"
+                    class="txt-16">{{stat}}</span>
+              <span *ngFor="let stat of selectedApplication.ram_statistic_data.message.split('\n'); let last = last"
                     class="txt-16">{{stat}}</span>
             </div>
           </div>
         </div>
       </div>
-      <div [ngClass]="{'w-100': !isApplicationSelected, 'mar-top-32 w-100': isApplicationSelected}">
+      <div [ngClass]="{'w-100': !isApplicationSelected, 'mar-top-32 w-100': isApplicationSelected}" *ngIf="alerts.length>0">
         <app-alerts [alerts]="alerts"></app-alerts>
       </div>
     </div>

@@ -7,12 +7,12 @@
     <div class="white-box pad-top-bot-16 h-100">
       <form class="example-form pad-left-right-16">
         <mat-form-field class="example-full-width">
-          <input matInput placeholder="Search..." type="tel" [(ngModel)]="searchCriteria" [ngModelOptions]="{standalone: true}">
+          <input matInput placeholder="Search..." type="tel" [(ngModel)]="searchCriteria" [ngModelOptions]="{standalone: true}" (change)="filterAlerts()">
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
       </form>
-      <div class="choose-alert txt-16" *ngFor="let userAlert of userAlerts">
-          <div (click)="selectUserAlert(userAlert)" >{{userAlert.type}}</div>
+      <div class="choose-alert txt-16" *ngFor="let userAlert of displayedAlerts">
+          <div (click)="selectUserAlert(userAlert)">{{userAlert.type}}</div>
       </div>
     </div>
     <div class="mar-left-64 w-100">
