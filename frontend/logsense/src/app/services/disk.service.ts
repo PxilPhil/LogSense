@@ -27,4 +27,5 @@ export class DiskDataService {
     const url: string = `http://localhost:8000/pc/${pc_id}/data/forecast/${days}`;
     return this.httpClient.get<DiskForecastData>(url);
   }
+
 }

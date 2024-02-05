@@ -1,5 +1,8 @@
-.logsense-icon {
-  margin-right: 12px;
+@import "../../styles.scss";
+
+.logo {
+  height: fit-content;
+  width: fit-content;
 }
 
 .pc-info {
@@ -12,30 +15,40 @@
   flex-wrap: wrap;
 }
 
-.flex-item {
+.space-around {
   display: flex;
-  align-items: center;
-  padding: 16px;
-  max-width: 90%; /* Adjust width as needed */
-  position: relative;
+  justify-content: space-around;
 }
 
-.interactions {
+.h-fix {
+  height: 96px;
+}
+
+.flex-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding: 24px;
+  //max-width: 90%; /* Adjust width as needed */
+  //position: relative;
+}
+
+/*.interactions {
   position: absolute;
   top: 0;
   right: 0;
   margin: 12px;
-}
+}*/
 
 .icon {
-  color: #707070;
+  color: $dark-grey-2;
 }
 
 .icon:hover {
-  color: #2b26a8;
+  color: $blue;
 }
 .icon:active {
-  color: #41bcb8;
+  color: $cyan;
 }
 
 

@@ -3,11 +3,11 @@ import {Chart} from "chart.js";
 import {MatDialog} from "@angular/material/dialog";
 import {PartDialogComponent} from "../part-dialog/part-dialog.component";
 import {DiskDataService} from "../services/disk.service";
-import {DiskData, DiskInfo, DiskStore} from "../model/DiskData";
+import {DiskData, DiskInfo} from "../model/DiskData";
 import {Alert} from "../model/Alert";
 import {AlertService} from "../services/alert.service";
 import {PCDataService} from "../services/pc-data.service";
-import {PCData, PCTimeSeriesData, TimeSeriesData} from "../model/PCData";
+import {PCData} from "../model/PCData";
 import {DatePipe} from "@angular/common";
 import {ChartData} from "../ram/ram.component";
 import {ResourceMetricsService} from "../services/resource-metrics.service";
@@ -63,8 +63,7 @@ export class DiskComponent implements OnInit, OnDestroy {
     this.loadPCData();
     this.loadStats();
     this.loadDiskStores();  //only load diskStores and partitions on startup or on refresh
-    this.loadForecast();
-    console.log(this.diskData);
+    //this.loadForecast();
     this.loadAlerts();
   }
 
@@ -74,19 +73,16 @@ export class DiskComponent implements OnInit, OnDestroy {
     }
   }
 
-  onResize(event: Event) {
-    console.log(event);
-  }
 
   loadStats() {
-    this.statService.getResourceMetrics(1).subscribe((data: ResourceMetricsModel) => {
+    this.statService.getResourceMetrics(this.pcId).subscribe((data: ResourceMetricsModel) => {
       this.diskTotal = this.roundDecimalNumber(this.convertBytesToGigaBytes(data.total_disk_space), 2);
       this.diskFree = this.roundDecimalNumber(this.convertBytesToGigaBytes(data.free_disk_space), 2);
     });
   }
 
   loadDiskStores() {
-    this.diskDataService.getDiskStores(1 /* TODO: get dynamic pc id */).subscribe((data: DiskInfo) => {
+    this.diskDataService.getDiskStores(this.pcId).subscribe((data: DiskInfo) => {
       this.diskInfo.disks = data.disks;
     });
   }
@@ -94,15 +90,17 @@ export class DiskComponent implements OnInit, OnDestroy {
   loadPCData() {
     let dateNow = Date.now();
     if(this.selectedTime.valueInMilliseconds == 0) {
-      this.diskDataService.getDiskTimeseriesData(1 /* TODO: get dynamic pc id */, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: DiskData) => {
+      this.diskDataService.getDiskTimeseriesData(this.pcId, this.datePipe.transform(dateNow - dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: DiskData) => {
         this.diskData = data;
+        this.statistics = data.statistic_data.message.split("\n");
         this.transformData();
         //this.latestPCDataMeasurement = this.getLatestPCDataMeasurement();
         this.reloadChart();
       });
     } else {
-      this.diskDataService.getDiskTimeseriesData(1 /* TODO: get dynamic pc id */, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: DiskData) => {
+      this.diskDataService.getDiskTimeseriesData(this.pcId, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: DiskData) => {
         this.diskData = data;
+        this.statistics = data.statistic_data.message.split("\n");
         this.transformData();
         //this.latestPCDataMeasurement = this.getLatestPCDataMeasurement();
         this.reloadChart();
@@ -110,20 +108,30 @@ export class DiskComponent implements OnInit, OnDestroy {
     }
   }
   loadForecast() {
-    this.diskDataService.getForecastedFreeDiskSpace(1, 30).subscribe((data: DiskForecastData) => {
+    this.forecastData.time = [];
+    this.forecastData.value = [];
+    this.diskDataService.getForecastedFreeDiskSpace(this.pcId, 30).subscribe((data: DiskForecastData) => {
+      //console.log("ForeCast" + data);
       for (let dataPoint of data.data_list) {
-        if(Date.parse(data.final_timestamp)>Date.parse(dataPoint.datetime)) {
-          this.forecastData.time.push(this.datePipe.transform(dataPoint.datetime, "MM-dd HH:mm:ss")??"");
+        if(data.final_timestamp!=null) {
+          if(Date.parse(data.final_timestamp)>Date.parse(dataPoint.datetime)) {
+            this.forecastData.time.push(this.datePipe.transform(dataPoint.datetime, "MM-dd HH:mm")??"");
+            //this.forecastData.value.push(this.convertBytesToGigaBytes(dataPoint.LinearRegression));
+            this.forecastData.value.push(dataPoint.LinearRegression);
+          }
+        } else {
+          this.forecastData.time.push(this.datePipe.transform(dataPoint.datetime, "MM-dd HH:mm")??"");
           this.forecastData.value.push(this.convertBytesToGigaBytes(dataPoint.LinearRegression));
         }
+
       }
-      //this.diskForecastChart(); TODO: finsih Forecastchart
+      this.diskForecastChart(); //TODO: finsih Forecastchart
     });
   }
   transformData() {
     this.diskChartData.time = [];
     this.diskChartData.value = [];
-    for (let dataPoint of this.diskData.time_series_list) {;
+    for (let dataPoint of this.diskData.time_series_list) {
       this.diskChartData.time.push(this.datePipe.transform(dataPoint.measurement_time, 'MM-dd HH:mm:ss')??"");
       this.diskChartData.value.push(this.convertBytesToGigaBytes(dataPoint.value));
     }
@@ -146,8 +154,8 @@ export class DiskComponent implements OnInit, OnDestroy {
   */
 
   diskForecastChart() {
-    console.log(this.diskChartData);
-    console.log(this.forecastData);
+    //console.log("indikschart\n" + this.diskChartData);
+    //console.log(this.forecastData);
     if(this.diskChart) {
       this.diskChart.destroy();
     }
@@ -167,6 +175,7 @@ export class DiskComponent implements OnInit, OnDestroy {
         labels: this.diskChartData.time.concat(this.forecastData.time)
       },options: {
         responsive: true,
+        //maintainAspectRatio: false,
         scales: {
           y: {
             beginAtZero: true,
@@ -180,9 +189,6 @@ export class DiskComponent implements OnInit, OnDestroy {
       }
     })
   }
-  getDiskDataForForecast() {
-
-  }
   getForecastData() {
     var tmp: any[] = [];
     for (let i = 0; i < this.diskChartData.time.length; i++) {
@@ -191,6 +197,7 @@ export class DiskComponent implements OnInit, OnDestroy {
     for (var data of this.forecastData.value) {
       tmp.push(data);
     }
+    //console.log("ingetforecastdata: " + tmp);
     return tmp;
   }
   diskUsageChart(): void {
@@ -208,7 +215,7 @@ export class DiskComponent implements OnInit, OnDestroy {
         }]
       }, options: {
         responsive: true,
-        maintainAspectRatio: false,
+        //maintainAspectRatio: false,
         scales: {
           y: {
             beginAtZero: true,
@@ -253,7 +260,7 @@ export class DiskComponent implements OnInit, OnDestroy {
 
   reloadChart() {
     if(this.isShowPredictionsChecked) {
-      this.diskForecastChart();
+      this.loadForecast();
     } else {
       this.diskUsageChart();
     }

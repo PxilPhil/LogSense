@@ -96,6 +96,7 @@ export class PCTimeSeriesData {
 }
 
 export class ClientDetails {
+  runtime_in_seconds: number = 0;
   manufacturer: string = "";
   model: string = "";
   hardware_uuid: string = "";
