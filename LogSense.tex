@@ -17,6 +17,8 @@
 \usepackage{float}
 \usepackage{caption}
 \usepackage{subcaption}
+\bibliographystyle{plainnat}
+
 
 
 \pagestyle{fancy}
@@ -42,11 +44,26 @@
 \fancyfoot[L]{Borbely, Ettlinger, Jilek, Stadlbauer} % Names on the left side
 \begin{document}
 
-\begin{figure}[htp]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=4cm, height=4cm]{LatexStyleFiles/htl_perg.png}
-    \caption{Graph mit erkannten Anoalien}
+    \includegraphics[width=0.3\textwidth]{LatexStyleFiles/htl_perg.png}
+    \caption{Höhere Lehranstalt für Informatik}
 \end{figure}
+
+\renewcommand{\arraystretch}{1.5}
+\begin{table}[h]
+    \centering
+    \begin{tabular}{ll}
+        \textbf{Thema:} & LogSense - Infrastruktur-Monitoring-Appplikation \\
+        \textbf{Eingereicht von:} & Philipp Borbely \textless philipp.borbely@gmail.com\textgreater \\
+                                   & Thomas Jilek \textless thomas.jilek@gmail.com\textgreater \\
+                                   & Sarah Ettlinger \textless sarah.ettlinger@gmail.com\textgreater \\
+                                   & Emily Stadlbauer \textless emily.stadlbauer@gmail.com\textgreater \\
+        \textbf{Eingereicht am:} & 05. April 2024 \\
+        \textbf{Betreuer:} & Prof. Maria Inreiter, MSc \\
+        \textbf{In Zusammenarbeit mit:} & Dynatrace
+    \end{tabular}
+\end{table}
 
 \tableofcontents
 
@@ -224,9 +241,7 @@ Oshi\footnote{\url{https://www.oshi.ooo/}} (= Operating System and Hardware Info
 
 \section{Entwicklungssysteme}
 \subsection{PyCharm}
-\subsection{IntelliJ }
-IntelliJ IDEA\footnote{\url{https://www.jetbrains.com/idea/}} ist eine von dem Unternehmen JetBrains entwickelte IDE (= Integrated Development Environment). Diese funktioniert als Code-Editor vor allem für jene Programmiersprachen, die auf der JVM (= Java Virtual Machine) basieren, wie Java, Kotlin, Scala und Groovy. Wobei auch andere Programmiersprachen, Frameworks und Dateitypen unterstützt werden. Zum Beispiel Python, SQL, HTML, Angular, XML und Markdown. Zusätzlich bietet IntelliJ diverse Funktionen, die den Entwicklungsprozess von Anwendungen wesentlich vereinfachen. Dazu zählen Versionsverwaltung, Code-Vervollständigung, Refactoring und die Unterstützung von verschiedensten Build-Tools.\\\\
-Für die Implementierung des Agents in der Programmiersprache Java ist IntelliJ IDEA Ultimate in der Version 2023.2 verwendet worden.
+\subsection{IntelliJ}
 \subsection{Webstorm}
 WebStorm ist eine Entwicklungsumgebung speziell für Webentwicklung von JetBrains. Die IDE bietet Unterstützung für unterschiedliche Webtechnologien wie HTML, CSS, JavaScript, TypeScript und Node.js. Sie enthält Funktionen wie Code-Verollständigung, Refakotirierung undn Syntax-Hervorhebung ebenso wie ein integriertes Versionskontrollsystem. Dieses ermöglicht es Entwicklern direkt in der IDE Änderungen zu verfolgen und Commits durchzuführen. Durch eine Live-Edit-Funktion werden Änderungen die am Code vorgenommen werden direkt im Browser angezeigt. Weiters sind in WebStorm Code-Standards enthalten. Mit integrierten Tools wird der Code automatisch auf seine Qualität geprüft.
 
@@ -248,39 +263,43 @@ Während der Planung dieser Diplomarbeit haben wir StarUML verwendet um UseCase-
 
 \chapter{Planung und Realisierung}
 \section{Funktionalität}
-LogSense kann in drei Kern-Funktionalitäten aufgeteilt werden welche in den folgenden drei Use-Case-Diagrammen beschrieben werden. 
+LogSense kann in drei Kern-Funktionalitäten aufgeteilt werden welche in den drei Use-Case-Diagrammen PC-Auswahl, Datenabruf und Custom-Alert dargestellt werden.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{UC/UCDA.png}
+    \includegraphics[width=\textwidth]{UC/Datenabruf.png}
     \caption{Datenabruf Use-Case-Diagramm}
 \end{figure}
 In der obigen Grafik wird der Use-Case "Datenabruf" abgebildet. Der Benutzer kann Auslastungsdiagramme von RAM, CPU oder freien Speicher aufrufen. Danach gibt es die Möglichkeit, einen Zeitraum für das Laden der Daten auszuwählen sowie die Möglichkeit, ein Zeitintervall anzugeben, in dem die Daten gruppiert werden sollen. Zusätzlich kann der Benutzer alle aufgetretenen Anomalien und Events im Graphen einblenden. Wenn der Benutzer seinen Zeiger über eine Anomalie oder Event bewegt, werden Statistiken zu diesem Event beziehungsweise der Anomalie angezeigt, unter anderem die Applikationen die zu diesem Zeitpunkt die größte Auslastung hatten. Der Agent ließt den Hardware-Verbrauch vom Client-Rechner ein und sendet die gemessenen Daten zur Rest-API welche die Daten auf der Datenbank persistiert. Der Benutzer kann über die Benutzeroberfläche diese Daten über die Rest-API anfordern. Die Rest-Schnittstelle widerum kommuniziert mit der Datenbank um die benötigten Daten zu laden und analysiert diese darauffolgend mit den implementierten Algorithmen im Backend. 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{UC/UCPS.png}
+    \includegraphics[width=\textwidth]{UC/PC_Selection_UseCase.png}
     \caption{PC-Auswahl Use-Case-Diagramm}
 \end{figure}
-\todo{Strich fehlt!}
 Dieser Use-Case stellt den Prozess der PC-Auswahl dar. Zuerst wird dem Benutzer eine Liste von PCs angezeigt. Von dieser Liste hat dieser dann die Möglchkeit, einen Rechner auszuwählen. Es gibt die Möglichkeit, einen neuen PC hinzuzufügen. Die Liste der PCs wird über ein API-Anfrage angefordert wobei die Rest-API die benötigten Daten aus der Datenbank lädt. Beim Hinzufügen eines neuen Rechners werden die Rechner-Informationen per API-Anfrage übermittelt und auf der Datenbank gespeichert.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{UC/UCCA.png}
+    \includegraphics[width=\textwidth]{UC/CustomAlert_UseCase.png}
     \caption{Custom Alert Use-Case-Diagramm}
 \end{figure}
-Nach dem Aufrufen des Custom-Alert-Screens wird dem Benutzer eine Liste von bestehenden Custom-Alerts angezeigt. Bei der Auswahl eines Alerts kann ein bereits existierender Alert bearbeitet und angepasst werden. Der Benutzer kann auch einen neuen Custom-Alert anlegen. Bei Anzeige der Custom-Alerts wird eine API-Anfrage per Rest gesendet und die angeforderten Daten werden aus der Datenbank geladen. Beim Anlegen oder Bearbeiten eines Alerts werden die Informationen über die Rest-API verschickt und auf der Datenbank gespeichert. 
+Nach dem Aufrufen des Custom-Alert-Screens wird dem Benutzer eine Liste von bestehenden Custom-Alerts angezeigt. Bei der Auswahl eines Alerts werden die Details von diesem angezeigt. Danach kann dieser auch bearbeitet oder gelöscht werden. Der Benutzer kann auch einen neuen Custom-Alert anlegen. Bei Anzeige der Custom-Alerts wird eine API-Anfrage per Rest gesendet und die angeforderten Daten werden aus der Datenbank geladen. Beim Anlegen oder Bearbeiten eines Alerts werden die Informationen über die Rest-API verschickt und auf der Datenbank gespeichert. 
 \section{Architektur}
-\todo{Architekturskizze hinzufügen}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{UC/LogSense_Architektur.png}
+    \caption{Programmarchitektur}
+\end{figure}
 \subsection{Agent}
-Der Agent ist eine Applikation die im Hintergrund des PCs läuft bei dem die Hardware-Daten gemessen werden sollten. Dieser ist dafür zuständig, die Hardware-Allozierungsdaten und die Verwendungsdauer von Applikationen mithilfe der OSHI-Bilbliothek aus dem Rechner auszulesen und diese im geeigneten CSV-Format zur REST-API zu senden. 
+Der Agent ist eine lokale Java-Applikation die auf dem installierten Rechner bei welchem die Hardware-Metriken gemessen werden im Hintergrund läuft .Dieser ist dafür zuständig, die Hardware-Allozierungsdaten und die Verwendungsdauer von Prozessen mithilfe der OSHI-Bibliothek aus dem Rechner auszulesen, diese in Applikationen zu gruppieren und anschließend im geeigneten CSV-Format zur REST-API zu senden.
 \subsection{REST-API}
-Die Rest-API wird auf einem Server ausgeführt und ist für die Kommunikation zwischen Webapplikation, Agent und dem allgemeinen Backend verantwortlich. Zusätzlich befinden sich alle Algorithmen zur Datenanalyse auf der REST-API und werden sowohl vor dem Persitieren als auch vor der Abfrage von Daten ausgeführt.
-\subsection{Webapplkationen}
-Die Webapplikaton repräsentiert in LogSense die Benutzeroberfläche und stellt Daten in Form von Graphen und Auflistungen dar. Sie bildet die Basis für die Interaktion des Benutzers mit dem Backend.
+Die Rest-API wird auf einem Server ausgeführt und ist für die Kommunikation zwischen Webapplikation, Agent und den Algorithmen im Backend verantwortlich. Die verwendete Programmiersprache ist Python aufgrund den Verknüpfungen mit den Algorithmen. Bei dem verwendeten Web-Framework für die Restful-API handelt es sich um FastAPI. Der Zugriff auf die Datenbank erfolgt über den Datenbankadapter psycopg2.
+\subsection{Datenbank}
+Als Datenbank wird eine Instanz einer TimescaleDB verwendet. Die Datenbank ist verantwortlich für das Speichern der gemessenen Daten aus dem Agent, den angelegten Rechnern und den spezifizierten Custom-Alerts. 
+\subsection{Algorithmen}
+Die Algorithmen zur Datenanalyse- und verarbeitung sind in Python geschrieben und werden zur Erkennung von Anomalien, Change Points, Forecast und der Überprüfung von Custom Alerts verwendet. Um diese Zwecke zu erfüllen, erhält die Applikation Referenzen auf die Python-Bibliotheken Pandas, Numpy, Ruptures und Scikit-learn.
+\subsection{Webapplikation}
+Die Webapplikaton repräsentiert in LogSense die Benutzeroberfläche und bildet die Basis für die Interaktion des Benutzers mit der Gesamtapplikation. Bei der Webapplikatiion bekommt der Benutzer eine Übersicht über die Laufzeit der Applikationen und einen Verlauf inklusive Analysen von ihren CPU und RAM-Auslastungen. Weiters kann der Benutzer den Verlauf des freien Speichers ansehen mit der Zusatzmöglichkeit, Prognosen über den zukünftigen Verlauf zu bekommen. Auf jeder aufgerufenen Seite erhält der Benutzer relevante Statistiken und eine Liste von aufgetretenen Alerts. Auf der Custom-Alert Seite kann dieser neue Alerts hinzufügen, bestehende Alerts löschen oder bearbeiten. 
 \section{Informationsfluss}
-Beim Starten des Agents werden die allgemeinen Daten über den Rechner mittels eines HTTP Clients an den REST Endpoint des Servers gesendet, um den Beginn einer Datenerfassung zu kennzeichnen. Wenn dieser Schritt erfolgreich durchgeführt worden ist, werden alle 60 Sekunden die Daten über den Ressourcenverbrauch seit der letzten Übertragung zusammengefasst, indem die durchschnittlichen Werte berechnet werden. Die Durchschnittswerte werden dann an den Server zur weiteren Verarbeitug gesendet.
-Alle bereits vollständigen Daten werden vom Server ohne Änderung in der Datenbank persistiert. Die restlichen Daten werden vor der Speicherung noch transformiert, um alle logisch zusammenhängenden Daten gemeinsam persistieren zu können.
-Der Server stellt verschiedene REST Endpoints zur Verfügung, welche die Daten aus der Datenbank abfragen, analysieren und auswerten.
-Diese REST Endpoints werden vom Frontend aufgerufen, um Informationen über den Rechner und dessen Ressourcenverbrauch zu erhalten und in weiterer Folge darzustellen.
+\section{Datenmodell}
 
 \chapter{Implementierung (Programmierung und QS/Test)}
 \section{Visualiserung}
@@ -296,10 +315,27 @@ Im ersten Schritt werden Extremwerte anhand von bestimmten, prozentuellen Abweic
 Diese Vorgehensweise ist zwar ausreichend für das Erkennen von den meisten Extremwert-Punkten, jedoch nicht geeignet für Daten welche hohe Varianz aufweisen. \todo{Konkretes, praktisches beispiel}
 \subsubsection{Anomalienerkennung mit Isolation Forest}
 Zur Anomalienerkennung ist der Machine-Learning-Algorithmus Isolation Forest zur Verwendung gekommen. Dieser basiert auf das Konzept der Isolation, also der Tatsache, dass Anomalien weniger isoliert sind als herkömmliche Datenpunkte. 
+\citet{isolation_forest} \\
 Die Anomalienerkennung mit dem Machine-Learning-Algorithmus Isolation Forest hat gegenüber der Händischen Implementierung und statistischen Methoden wie Z-Scores den Vorteil, dass es keinerleine Annahmen über die Verteilung unserer Daten benötigt und problemlos mit Daten hoher Varianz arbeiten kann.
-Bei der Implementierung sind Probleme bezüglich Underfitting aufgretreten falls nur eine geringe Menge an Datensätzen zum Trainieren des Algorithmus verfügbar gewesen ist. Dies ist der Fall, wenn der Benutzer die Datenanalyse in einem Zeitrahmen anfordert wo nur eine geringe Menge an Datensätzen verfügbar ist. Als Lösung sind zum Tranieren des Algorithmus nicht nur die Daten im gewählten Zeitrahmen genommen worden, sondern auch vorherliegende Datensätze. 
+Bei der Implementierung sind Probleme bezüglich Underfitting aufgretreten falls nur eine geringe Menge an Datensätzen zum Trainieren des Algorithmus verfügbar gewesen ist. Dies ist der Fall, wenn der Benutzer die Datenanalyse in einem Zeitrahmen anfordert, wo nur eine geringe Menge an Datensätzen verfügbar ist. Als Lösung sind zum Tranieren des Algorithmus nicht nur die Daten im gewählten Zeitrahmen genommen worden, sondern auch vorherliegende Datensätze. 
+
+
+\begin{figure}[H]
+    \centering
+     \includegraphics[width=0.9\textwidth]{DataScience/anomaly_detection_2.png}
+    \caption{Aufruf von detect anomalies}
+\end{figure}
+Bei Aufruf der Funktion müssen ein DataFrame zur Vorhersage von Anomalien und ein DataFrame zum Trainieren des Models übergeben werden. In den meisten Fällen weisen beide DataFrames die gleichen Daten auf, außer es kommt zum angesprochenen Problem, dass zu wenige Trainingsdaten vorhanden sind. In diesem Fall wird eine Funktion aufgerufen, die von der Datenbank die letzten 100 Datenpunkte anfordert. Die gewählten Werte sind zwar arbitär, allerdings weisen sie gute Ergebnisse bei Tests auf. Als letzter Parameter wird der Name der Spalte übergeben, in diesem Beispiel wird die gewählte Spalte als "value" aus der Datenbank selektiert. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{DataScience/anomaly_detection.png}
+    \caption{Algorithmus für die Anomalienerkennung}
+\end{figure}
+Nach Aufruf der Funktion müssen die betroffenen Daten aus den DataFrames extrahiert werden, als Übergabewert verlangt der IsolationForest-Algorithmus nämlch ein numpy-Array. Mit .values von Pandas wird die betroffene Column des DataFrames als Series ausgewählt und anschließend mit reshape(-1,1) in eine Single-Column umgewandelt. Danach wird das Model trainiert mit einer festgesetzten Kontaminierungsrate von 0.03. Die Kontaminierungsrate gibt den Prozentsatz der erwarteten Anomalien an, in diesem Fall ist der Prozentsatz von 3 gewählt worden, da dieser Wert bei Versuche die besten Ergebnisse erzielt hat. Da das Ergebnis reproduzierbar sein sollte, wird ein fixer Random State von 42 gesetzt. Die Wahl dessen hat keinerlei Einfluss auf die Qualität der Anomalieerkennung und dient nur für konstante Ergebnisse bei gleichen Daten. Ohne einem konkreten Random State besteht ansonsten die Möglichkeit, dass bei identen Datenbestände verschiedene Anomalien pro Request erkannt werden. Der Algorithmus markiert alle Anomalien mit -1 und alle herkömmlichen Datenpunkte mit 1, daher werden mithilfe von .where der numpy-Bibliothek die Anomalie-Datepunkte selektiert bei dem die predicted labels -1 betragen. Die Anomalienerkennung ist damit abgeschlossen, allerdings besteht die erzeugte Liste nur aus den Indizes der Datenpunkte bei denen eine Anomalie aufgetreten ist. Damit unsere restlichen Algorithmen leichter mit den Daten arbeiten können, werden die Messzeiten der Indizes aus der Prediction-DataFrame ausgewählt und zurückgegeben. 
 \subsection{Change Point Detection}
-Zusätzlich zur Anomalieerkennung benötigt LogSense auch das Erkennen von Change Points zur Identifizierung von Events und zum Feststellen von Trends zwischen den Change Points. Change Points sind Zeitpunkte in einer Zeitreihe, an denen sich das Verhalten der Daten oder statistische Eigenschaften signifikant ändern, beispielsweise durch einen enormen Anstieg oder Abfall der Daten. Für diese Aufgabe wird der Pelt (Pruned Exact Linear Time)-Algorithmus aus der ruptures-Bibliothek angewendet. Change-Point-Detection-Algorithmen teilen die Zeitreihe in mehrere Segmente auf und messen die Effektivität der möglichen Aufteilungen. Pelt bestraft das Modell für jeden zusätzlich gefundenen Change-Point, indem zu den Kosten eines Segments der Bestrafungswert addiert wird. Dann wählt der Algorithmus die Segmentierung aus, bei der diese Kosten am geringsten sind. Der Grundgedanke dabei ist, dass ein Datenpunkt als Change-Point erkannt wird, wenn er die Segmentierungskosten mehr verringert als der Bestrafungswert sie erhöht. Dies ist genau dann der Fall, wenn sich das Verhalten der Daten enorm ändert. Dieser Bestrafungswert muss je nach Beschaffenheit der Daten angepasst werden, wenn dieser zu niedrig ist, werden viele False Positives erkannt und umgekehrt.
+Zusätzlich zur Erkennung von Anomalien benötigt LogSense auch das Erkennen von Change Points zur Identifizierung von Events und zum Feststellen von Trends zwischen den Change Points. Change Points sind Zeitpunkte in einer Zeitreihe, an denen sich das Verhalten der Daten oder statistische Eigenschaften signifikant ändern, beispielsweise durch einen enormen Anstieg oder Abfall der Daten. Für diese Aufgabe wird der Pelt (Pruned Exact Linear Time)-Algorithmus aus der ruptures-Bibliothek angewendet. Change-Point-Detection-Algorithmen teilen die Zeitreihe in mehrere Segmente auf und messen die Effektivität der möglichen Aufteilungen. Pelt bestraft das Modell für jeden zusätzlich gefundenen Change-Point, indem zu den Kosten eines Segments der Bestrafungswert addiert wird. Dann wählt der Algorithmus die Segmentierung aus, bei der diese Kosten am geringsten sind. Der Grundgedanke dabei ist, dass ein Datenpunkt als Change-Point erkannt wird, wenn er die Segmentierungskosten mehr verringert als der Bestrafungswert sie erhöht. Dies ist genau dann der Fall, wenn sich das Verhalten der Daten enorm ändert. Dieser Bestrafungswert muss je nach Beschaffenheit der Daten angepasst werden, wenn dieser zu niedrig ist, werden viele False Positives erkannt und umgekehrt.
+\citet{change_point_explanation}
 \subsection{Forecast}
 Ein weiteres Feature von LogSense ist die Möglichkeit, den zukünftigen Verlauf von Zeitserien vorherzusagen. Zwar kann man dies in der Theorie auf alle unsere Daten anwenden, sinnvoll ist es allerdings nur bei der Vorhersage von freien Speicherplatz da andere Metriken wie etwa RAM- oder CPU-Auslastung keine wirkliche Trends aufweisen. 
 \subsubsection{ARIMA}
@@ -318,6 +354,7 @@ Aus diesem Grund werden vor dem Bilden der linearen Regression zunächst alle Ch
 Nach Erstellung des trainierten Modells werden anhand dessen die Werte bei zukünftigen Zeitpunkten vorhergesagt. Da das Feature hauptsächlich der Vorhersage dessen dient, wann unser Speicher aufgebracht wird, werden die vorhergesagten Werte tagesweise gruppiert und Vorhersagen nur bis zu einer bestimmten Grenze von Tagen getroffen (angegeben durch den Benutzer per API-Request).
 Ohne einer bestimmten Grenze besteht sonst das Risiko, dass Tausende von Tagen vergehen müssen, damit der Speicher aufgebraucht ist und daher der Request ungewöhnlich lange benötigt. Auch wird die Vorhersage von Werten abgebrochen, sobald der Wert negativ ist, da solche Vorhersagen dem Benutzer keinen Nutzen mehr bringen.
 \subsection{Userdefinierte Alerts}
+
 \subsection{Justifications}
 \section{Datenerfassung}
 \section{Datenhaltung}
