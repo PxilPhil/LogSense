@@ -33,7 +33,6 @@ export class CustomAlertsComponent implements OnInit{
     conditions: [
       {
         percentage_trigger_value: 0.05,
-        absolute_trigger_value: 1000,
         operator: ">",
         column: "",
         application: "",
@@ -128,8 +127,7 @@ export class CustomAlertsComponent implements OnInit{
       severity_level: 1,
       conditions: [
         {
-          percentage_trigger_value: 0.05,
-          absolute_trigger_value: 1000,
+          percentage_trigger_value: 0,
           operator: ">",
           column: "",
           application: "",
