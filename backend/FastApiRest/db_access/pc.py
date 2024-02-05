@@ -4,7 +4,7 @@ import pandas as pd
 import psycopg2.errorcodes
 from pandas import DataFrame
 
-from data_analytics.stats import determine_stability
+from data_analytics.util.stats import determine_stability
 from db_access import conn_pool
 from exceptions.DataBaseExcepion import DataBaseException
 from exceptions.InvalidParametersException import InvalidParametersException

@@ -1,36 +1,52 @@
-\documentclass[pdftex,11pt,a4paper]{book}
-%\documentclass[dvips,11pt,a4paper,oneside]{book}
+\documentclass{report}
+\usepackage{titlesec}
 
-\usepackage {ifpdf}
-\usepackage [american,german] {babel}
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries}{}{0pt}{\Huge}
+
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{todonotes}
+\usepackage{babel}
 \usepackage[numbers,comma,square]{natbib}
 \usepackage[utf8]{inputenc}
-\usepackage{mya4wide}
 \usepackage{fancyhdr}
-\usepackage{enumitem}
-\setlist{nosep}
+\usepackage{grffile}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+
+
 \pagestyle{fancy}
 \fancyhf{}
 \rhead{LogSense}
 \lhead{HTL Perg}
 \renewcommand{\headrulewidth}{0pt}
 
+
+
 \fancypagestyle{plain}{
   \fancyhf{}
   \rhead{LogSense}
   \lhead{HTL Perg}
-  \fancyfoot[R]{\thepage} % Page number format on the right side
-  \fancyfoot[L]{Borbely, Ettlinger, Jilek, Stadlbauer} % Names on the left side
+  \fancyfoot[R]{\thepage}
+  \fancyfoot[L]{Borbely, Ettlinger, Jilek, Stadlbauer}
   \renewcommand{\headrulewidth}{0pt}
 }
+
 
 \fancyfoot{}
 \fancyfoot[R]{\thepage} % Page number format on the right side
 \fancyfoot[L]{Borbely, Ettlinger, Jilek, Stadlbauer} % Names on the left side
-
 \begin{document}
 
-\maketitle
+\begin{figure}[htp]
+    \centering
+    \includegraphics[width=4cm, height=4cm]{LatexStyleFiles/htl_perg.png}
+    \caption{Graph mit erkannten Anoalien}
+\end{figure}
 
 \tableofcontents
 
@@ -56,51 +72,121 @@ Define the specific objectives and goals of the software engineering project.
 \chapter*{Inhaltsverzeichnis}
 
 \chapter{Einleitung}
-\section{Ausgangssituation}
 \section{Problemstellung}
+Beim Arbeiten mit Rechner können vielerlei Probleme in Bezug auf Applikationen und Hardware auftreten. Allerdings können Probleme nur erkannt werden, wenn Benutzer direkt mit dem betroffenen Rechner interagieren, daher können Systemadministratoren nicht an einer zentralen Stelle Probleme alleine identifizieren. Außerdem können mithilfe von bereitgestellten Tools wie dem Windows-Taskmanager keine rückblickenden Daten über den Hardware-Verbrauch oder die Verwendungsdauer von Applikationen eingesehen werden.
 \section{Zielsetzung}
+Das Ziel unserer Diplomarbeit ist es, den Benutzer eines Rechners und in größeren Rechnernetzen auch dessen Administrator, eine Übersicht über den Ressourcenverbauch eines PCs und dessen Applikationen zur Verfügung zu stellen. Die Applikation soll ermöglichen, vergangene Hardware-Metriken über Applikationen einzusehen um potentielle Trends oder ungewöhnliches Verhalten zu erkennen. Auch sollten Analysemöglichkeiten zum Identfizieren von Anomalien und Ereignissen im Trendverlauf angeboten werden. Im Allgemeinen sollte dadurch das Auftreten von Problemen frühzeitig erkannt werden und dessen Behandlung durch das Bereitstellen von relevanten Informationen vereinfacht werden.
 \section{Projektinhalt}
-\subsection{Anforderungen}
+Eine übersichtliche Projektstruktur ist eine Notwendigkeit, um die Projektziele zu erreichen. Die Diplomarbeit besteht aus den folgenden 5 Hauptkomponenten:
+\subsection{Agent}
+Der Agent erfasst alle 10 Sekunden Daten über die Hardware-Komponenten eines Rechners, auf dem das Betriebssystem Windows läuft. Nach der Datenerfassung fasst der Agent die Daten der letzten 60 Sekunden zusammen und bereitet sie auf, bevor er sie zur weiteren Analyse an den Server sendet. Bei der ersten Datenerfassung werden zusätzlich allgemeine Daten über den Rechner erfasst und beim Senden an den Server signalisiert das den Start einer Session. \todo{Complete stuff and fix sentence}
+\subsection{Analyse}
+Die gemessenen Daten werden auf dem Backend durch Machine-Learning Algorithmen und statistische Verfahren analysiert. Darunter zählt die Identifizierung von Anomalien, also Datenpunkte, die enorm von den restlichen Daten abweichen. Auch erkennt es Change-Points, also Datenpunkte, welche Ereignsse im Trendverlauf darstellen. Zusätzlich gibt es die Möglichkeiten, zukünftigen freien Speicherplatz vorherzusagen.
+\subsection{Schnittstellen}
+kommunizieren zwischen komponenten, Rest, server: hostet mithilfe von nginx angular und fastapi
+session start - gibt id zurück & speichert daten, running data - wird session id übergeben, speichen von running data (gekoppelt zu session)
+daten werden mit rest calls vom server abgefragt
+\subsection{Datenspeicherung}
+persistienen für spätere auswertung, timescale db 
+\subsection{User Interface}
+Die Benutzeroberfläche zeigt die analysierten Daten in Form von Diagrammen und Statistiken übersichtlich an. Beim erstmaligen Aufrufen der Benutzeroberläche kann ein Gerät ausgewählt werden, dessen Daten dargestellt werden. Weiters können die Benutzer eigens definierte Warnungen für ein Gerät erstellen, indem sie die Art der Diagnose und den jeweiligen Grenzwert angeben.
+\section{Projektumfeld}
 \subsection{Projektteam}
-\subsubsection{Aufgabenverteilung}
+Das Projektteam besteht aus 4 Schülern der HTL Perg und die Verantwortlichkeiten haben sich dabei wie folgt aufgeteilt:
+\begin{itemize}
+    \item Philipp Borbely - Datenanalyse und -auswertung
+    \item Sarah Ettlinger - Datenerfassung
+    \item Thomas Jilek - Datenspeicherung und Systemintegration
+    \item Emily Stadlbauer - Visualisierung und Anzeige
+\end{itemize}
+
 \subsection{Auftraggeber}
 
 \chapter{Theoretische und fachpraktische Grundlagen und Methoden}
 \section{Visualiserung}
+ In den nachfolgenden Abschnitten werden die im Projekt verwendeten Konzepte und Technologien  für die Visualisierung beschrieben.
 \subsection{Angular}
-\subsection{Charst JS}
-\text
-Chart.js ist eine JavaScript Bibliothek mit deren Hilfe man unterschiedliche Diagrammtypen in Webanwendungen darstellen kann. 
-Es können 8 unterschiedliche Diagrammarten dargestellt werden, darunter: 
-\begin{itemize}
-    \item Liniendiagramme
-    \item Balkendiagramme
-    \item Bereichsdiagramme
-    \item Kreisdiagramme
-    \item Tortendiagramme
-    \item Radardiagramme
-    \item Polar Diagramme
-    \item Streudiagramme
-\end{itemize}
-Die Bibliothek bietet unterschiedlieche, interaktive Funktionen wie Tooltipps und Animationen. 
-Darüber hinaus gibt es viele Möglichkeiten mit verschiedenen Optionen und Konfigurationen das Diagramm nach eigenen Wünschen  anzupassen. 
-Chart.js unterstützt responsives Design und kann sich an unterschiedliche Bildschirmgrößen anpassen.\\In dieser Diplomarbeit ist Chart.js im Angular Projekt eingebunden um unterschiedliche Messwerte grafisch darzustellen.
+Angular ist ein Framework zur Entwicklung von Single Page Applications. Es verwendet eine komponentenbasierte Architektur. Diese Komponenten sind eigenständige und wiederverwendbare Bestandteile  der Applikation, die Struktur in die Anwendung bringen. Eine Komponente besteht aus einer HTML-, einer CSS- und einer TypeScript-Datei. Mithilfe von Dependency Injection können Dienste Daten oder Funktionen  zwischen den einzelnen Komponenten geteilt werden. Weiters wird ein Angular Projekt mit Modulen organisiert. Ein Modul besteht aus beliebig vielen Komponenten und Diensten. Angular bietet zudem ein leistungsfähiges Routing-Modul für die Navigation zwischen verschiedenen Ansichten. Um Daten aus einer REST API zu laden, ist in Angular ein HTTP-Client enthalten, der es ermöglicht Daten auszutauschen. Um das Verhalten der einzelnen DOM-Elemente zu steuern werden Direktiven verwendet.
+Einweg- und Zweirichtungsdatenbindung ermöglicht es dynamische Daten im HTML zu verwenden.
+\\In dieser Diplomarbeit wird Angular verwendet um die gesammelten und analysierten Daten in einer Webapplikation zu visualisieren.
+
 \subsection{BootStrap}
+Bootstrap ist ein CSS Framework um schnell und einfach responsive Webseiten zu erstellen. Es bietet unterschiedliche, vordefinierte Komponenten, die angepasst und eingebunden werden können. Ein responsives Rastersystem, das in Bootstrap inkludiert ist, hilft flexible Layouts zu erstellen. 
+
+Mithilfe von Sass können Komponenten importiert werden und globale Variablen, wie Schatten und Farben, definiert werden. Weiteres bietet SASS Funktionen zur Durchführung von Berechnungen und Mixins zur Wiederverwendung von CSS-Regeln. Vorhandene Komponenten können auf eigen Bedürfnisse angepasst werden.
+
+In dieser Diplomarbeit wird Bootstrap 5 verwendet um die Webapplikation responsiv zu gestalten und mithilfe von SASS-Variablen die CSS-Klassen übersichtlicher zu strukturieren.
+
+\subsection{Charst JS}
+Chart.js ist eine JavaScript Bibliothek mit deren Hilfe unterschiedliche Diagrammtypen in Webanwendungen dargestellt werden können. 
+Unteranderem sind folgende Diagrammarten definiert: \newpage
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{cc}
+    \subcaptionbox{Lininendiagramm}{\includegraphics[width=0.4\textwidth]{ChartJS/line.png}} &
+    \subcaptionbox{Balkendiagramm}{\includegraphics[width=0.4\textwidth]{ChartJS/bar.png}} \\
+    \subcaptionbox{Bereichsdiagramm7}{\includegraphics[width=0.4\textwidth]{ChartJS/radar.png}} &
+    \subcaptionbox{Streudiagramm}{\includegraphics[width=0.4\textwidth]{ChartJS/scatter.png}} \\
+  \end{tabular}
+  \caption{ChartJS Beispiele}
+  \label{tab:bilder}
+\end{table}
+
+
+Die Bibliothek bietet unterschiedliche, interaktive Funktionen wie Tooltipps und Animationen. 
+Darüber hinaus gibt es viele Möglichkeiten mit verschiedenen Optionen und Konfigurationen das Diagramm nach eigenen Wünschen  anzupassen. 
+Chart.js unterstützt responsives Design und kann sich an unterschiedliche Bildschirmgrößen anpassen.\\In dieser Diplomarbeit ist Chart.js im Angular Projekt eingebunden um unterschiedliche Messwerte grafisch darzustellen. 
+
 \subsection{Angular Material}
+Angular Material ist eine Bibliothek mit UI-Komponenten für Angular Projekte. Sie bietet verschiedene vorgefertigte UI-Komponenten die innerhalb der Design-Spezifikationen angepasst werden können. Einige dieser Komponenten sind:
+\begin{itemize}
+    \item Icons
+    \item Inputs
+    \item Radio Buttons
+    \item Slider
+\end{itemize}
+Die UI-Komponenten können sich unterschiedlichen Bildschirmgrößen anpassen. Angular Material ist für Angluar-Projekte ausgelegt und verwendet Angular-spezifische Funktionen und lässt sich einfach in Angular-Projekte integrieren.
+In dieser Diplomarbeit werden Angular Material Komponenten verwendet um die Benutzeroberfläche ansprechender zu gestalten.
 
 \section{Datenverarbeitung}
 \subsection{Python}
 \subsection{Pandas}
-\text{Pandas ist eine Python-Bibliothek zur Datenverarbeitung und -analyse. Sie stellt verschiedene Datenstrukturen und Funktionen für das Manipulieren von tabellarischen und strukturierten Daten zur Verfügung. Zu den wichtigsten Strukturen gehören DataFrames und Series. Series sind eindimensionale, array-ähnliche Objekte welche wie eine einzelne Spalte in einer Tabelle sind. Bei DataFrames handelt es sich um zweidimensionale Tabellen mit Zeilen und Spalten. Einzelne Spalten von einem DataFrame können dabei verschiedene Datentypen aufweisen. Zu den wichtigsten Funktionen gehören Aggregationen, Gruppierungen und Statistische Operationen. Bei dieser Diplomarbeit wird Pandas bei der Datenverarbeitung eingesetzt, insbesondere in Kombination mit Scikit-Learn, Numpy und Ruptures zur Identifikation von Anomalien, Change-Points und zur Bereining und Zusammenführung von Datensätzen.}
+Pandas ist eine Python-Bibliothek zur Datenverarbeitung und -analyse. Sie stellt verschiedene Datenstrukturen und Funktionen für das Manipulieren von tabellarischen und strukturierten Daten zur Verfügung. Zu den wichtigsten Strukturen gehören DataFrames und Series.
+\begin{itemize}
+    \item \textbf{Series} \\
+    \begin{minipage}[t]{\linewidth}
+        Series sind eindimensionale, array-ähnliche Objekte, die wie eine einzelne Spalte in einer Tabelle angeordnet sind.
+    \end{minipage}
+
+    \item \textbf{DataFrames} \\
+    \begin{minipage}[t]{\linewidth}
+        Bei DataFrames handelt es sich um zweidimensionale Tabellen mit Zeilen und Spalten. Einzelne Spalten von einem DataFrame können dabei verschiedene Datentypen aufweisen. Zu den wichtigsten Funktionen gehören Aggregationen, Gruppierungen und Statistische Operationen. 
+    \end{minipage}
+\end{itemize}
+  In der vorliegenden Diplomarbeit wird Pandas bei der Datenverarbeitung eingesetzt, insbesondere in Kombination mit Scikit-Learn, Numpy und Ruptures.
+  Features bei denen Pandas eingesetzt wird:
+  \begin{itemize}
+      \item Anomalien
+      \item Change-Points
+      \item Bereinigung von Datensätzen
+      \item Aggregation von Datensätzen
+  \end{itemize}
+
+\bibliographystyle{plain}
+\bibliography{data_science}
+
 \subsection{Numpy}
 \subsection{Scikit-Learn}
 \subsection{Ruptures}
 \subsection{Algorithmen}
 
 \section{Datenerfassung}
+In den nachfolgenden Abschnitten werden die im Projekt verwendeten Konzepte und Technologien für die Datenerfassung beschrieben.
+
 \subsection{Agent}
-\text{Für die Erfassung der Ressourcendaten wird ein sogennanter Agent verwendet. Dieser kann selbstständig, das heißt ohne das Zutun eines Benutzers oder eines anderen Programmes, Tätigkeiten und Prozesse ausführen. Das heißt, der Agent wartet so lange bis eine gewisse Zeit abgelaufen, ein Programm gestartet worden oder ein Ereignis jeglicher Art festgestellt worden ist und erledigt darauf bestimmte Aufgaben.\\
-Dabei gibt es im wesentlichen 3 Arten von Agenten:}
+Für die Erfassung der Ressourcendaten wird ein sogennanter Agent verwendet. Dieser kann selbstständig, das heißt ohne das Zutun eines Benutzers oder eines anderen Programmes, Tätigkeiten und Prozesse ausführen. Das heißt, der Agent wartet so lange bis eine gewisse Zeit abgelaufen, ein Programm gestartet worden oder ein Ereignis jeglicher Art festgestellt worden ist und erledigt darauf bestimmte Aufgaben.\\
+Dabei gibt es im wesentlichen 3 Arten von Agenten:
 \begin{itemize}
     \item Reaktive Agenten
         \begin{description}
@@ -115,13 +201,14 @@ Dabei gibt es im wesentlichen 3 Arten von Agenten:}
             \item Kognitive Agenten können weiters aus den erfassten Daten Muster lernen und selbstständig abwägen, welche Aufgaben wann und wie durchgeführt werden sollen, um bestmöglich auf die aktualle Situation der Umgebung reagieren zu können.
         \end{description}
 \end{itemize}
-\text{Für diesen Anwendungsfall wird ein reaktiver Agent verwendet, da nach Ablauf von 60 Sekunden die Daten gemessen, je nach Art der Daten zusammengefasst und anschließend in einem geeigneten Format zur Auswertung an den Server gesendet werden sollen. Es wird also überprüft, um welche Daten es sich handelt und daraufhin entschieden wie die Daten für das Senden vorbereitet werden sollen.}
+Für diesen Anwendungsfall wird ein reaktiver Agent verwendet. Nach Ablauf von 60 Sekunden werden die Daten gemessen, je nach Art der Daten zusammengefasst und anschließend in einem geeigneten Format zur Auswertung an den Server gesendet. Es wird also überprüft, um welche Daten es sich handelt und daraufhin entschieden wie die Daten für das Senden vorbereitet werden sollen.
 
 \subsection{Java}
-\text{Die Programmiersprache Java ist objektorientiert, besitzt eine einfache Syntax mit überschaubarem Sprachumfang und ist durch kontrollierte Speicherzugriffe sicher. Wenn es eine passende JVM (= Java Virtual Machine) für das Betriebssystem gibt, kann das Programm auf diesem Betriebssytem laufen. Diese Plattformunabhängig wird dadurch ermöglicht, dass der Java-Quellcode in Bytecode übersetzt wird, der dann von der JVM interpretiert werden kann.\\
-Der Agent, der lokal auf den Windows Rechnern läuft und die Daten über den Ressourcenverbrauch des Rechners erfasst, ist in der Programmiersprache Java entwickelt. Der Grund dafür ist, dass es für Java viele verschiedene Bibliotheken gibt, die auf die Hardwaretreiber zugreifen, um die benötigten Daten über den Rechner, die darauf laufenden Programme und deren Ressourcenverbrauch auszulesen.}
+Die Programmiersprache Java ist objektorientiert, besitzt eine einfache Syntax mit überschaubarem Sprachumfang und ist durch kontrollierte Speicherzugriffe sicher. Wenn es eine passende JVM (= Java Virtual Machine) für das Betriebssystem gibt, kann das Programm auf diesem Betriebssytem laufen. Diese Plattformunabhängigkeit wird dadurch ermöglicht, dass der Java-Quellcode in Bytecode übersetzt wird, der dann von der JVM interpretiert werden kann.\\
+Der Agent, der lokal auf den Windows Rechnern läuft und die Daten über den Ressourcenverbrauch des Rechners erfasst, ist in der Programmiersprache Java entwickelt. Der Grund dafür ist, dass es für Java viele verschiedene Bibliotheken gibt, die auf die Hardwaretreiber zugreifen, um die benötigten Daten über den Rechner, die darauf laufenden Programme und deren Ressourcenverbrauch auszulesen.
 
 \subsection{Oshi}
+Oshi\footnote{\url{https://www.oshi.ooo/}} (= Operating System and Hardware Information) ist eine für die Programmiersprache Java entwickelte Bibliothek, die Daten über die Hardware und das Betriebssystem eines Rechners erfassen und bereitstellen kann. Dafür wird im Hintergrund die JNA-Bibliothek (= Java Native Access) verwendet. Diese dient als eine plattformunabhängige Schicht zwischen dem Programmcode der Oshi-Bibliothek und dem nativen Code, der abhängig vom Betriebsystem die Systeminformationen ausliest. Aus diesem Grund kann Oshi Daten über unterschiedliche Betriebssysteme, unter anderem Windows, Linux, macOs und verschiedene Unix Distributionen, erfassen.
 
 \section{Datenhaltung}
 \subsection{Postgres}
@@ -137,57 +224,113 @@ Der Agent, der lokal auf den Windows Rechnern läuft und die Daten über den Res
 
 \section{Entwicklungssysteme}
 \subsection{PyCharm}
-\subsection{IntelliJ}
+\subsection{IntelliJ }
+IntelliJ IDEA\footnote{\url{https://www.jetbrains.com/idea/}} ist eine von dem Unternehmen JetBrains entwickelte IDE (= Integrated Development Environment). Diese funktioniert als Code-Editor vor allem für jene Programmiersprachen, die auf der JVM (= Java Virtual Machine) basieren, wie Java, Kotlin, Scala und Groovy. Wobei auch andere Programmiersprachen, Frameworks und Dateitypen unterstützt werden. Zum Beispiel Python, SQL, HTML, Angular, XML und Markdown. Zusätzlich bietet IntelliJ diverse Funktionen, die den Entwicklungsprozess von Anwendungen wesentlich vereinfachen. Dazu zählen Versionsverwaltung, Code-Vervollständigung, Refactoring und die Unterstützung von verschiedensten Build-Tools.\\\\
+Für die Implementierung des Agents in der Programmiersprache Java ist IntelliJ IDEA Ultimate in der Version 2023.2 verwendet worden.
 \subsection{Webstorm}
+WebStorm ist eine Entwicklungsumgebung speziell für Webentwicklung von JetBrains. Die IDE bietet Unterstützung für unterschiedliche Webtechnologien wie HTML, CSS, JavaScript, TypeScript und Node.js. Sie enthält Funktionen wie Code-Verollständigung, Refakotirierung undn Syntax-Hervorhebung ebenso wie ein integriertes Versionskontrollsystem. Dieses ermöglicht es Entwicklern direkt in der IDE Änderungen zu verfolgen und Commits durchzuführen. Durch eine Live-Edit-Funktion werden Änderungen die am Code vorgenommen werden direkt im Browser angezeigt. Weiters sind in WebStorm Code-Standards enthalten. Mit integrierten Tools wird der Code automatisch auf seine Qualität geprüft.
+
+In dieser Diplomarbeit wird das Angular-Projekt in WebStorm entwickelt.
 \subsection{Datagrip}
 \section{Sonstige Software}
 \subsection{GitLab}
+GitLab ist eine Open-Source-Software für das Managen von Versionskontrollsystemen und bietet Funktionen für die Zusammenarbeit in Softwareprojekte. Git ermöglicht es Änderungen im Code zu verfolgen und nachzuvollziehen. In Repositories wird der Code hochgeladen und geteilt, damit mehrere Personen an einem Projekt arbeiten können. Weiters unterstützt GitLab Issue-Tracking, Continuous Integration und Delivery sowie DevOps-Prozesse.
+\\
+In dieser Diplomarbeit wird das, von der HTL Perg gehostete, GitLab verwendet, auf dem der Code von LogSense liegt, um die Zusammenarbeit beim Entwickeln des Projektes zu erleichtern.
 \subsection{Adobe XD}
+Adobe XD ist ein Design- und Prototyping-Tool, das von Adobe Inc. entwickelt wurde. Es ermöglicht das einfache Erstellen von Benutzeroberflächen und Benutzererfahrungen für Websites und mobile Apps. Von der Prototypenerstellung bis zur Simulation von Interaktionen bietet Adobe XD alles um eine Webapplikation oder eine mobile App zu entwerfen. 
+\\Während der Planung dieser Diplomarbeit haben wir Adobe XD genutzt um die Benutzeroberfläche unserer Webapplikation zu entwerfen.
 \subsection{LucidChart}
+\subsection{StarUML}
+StarUML ist eine Software, die zur Modellierung von Software und Systemen verwendet wird. Es bietet eine Vielzahl an Funktionen zur Erstellung von UML-Diagrammen. Es unterstützt Entwickler bei der Darstellung von Struktur und Verhalten von Software. Fast alle UML-Diagrammarten werden von StarUML unterstützt, unteranderem UseCase-Diagramme, Sequenz-Diagramme und Klassendiagramme.
+\\
+Während der Planung dieser Diplomarbeit haben wir StarUML verwendet um UseCase-Diagramme zu erstellen.
 
 \chapter{Planung und Realisierung}
-\section{Funktionalität (UC, UC-Beschreibung)}
+\section{Funktionalität}
+LogSense kann in drei Kern-Funktionalitäten aufgeteilt werden welche in den folgenden drei Use-Case-Diagrammen beschrieben werden. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{UC/UCDA.png}
+    \caption{Datenabruf Use-Case-Diagramm}
+\end{figure}
+In der obigen Grafik wird der Use-Case "Datenabruf" abgebildet. Der Benutzer kann Auslastungsdiagramme von RAM, CPU oder freien Speicher aufrufen. Danach gibt es die Möglichkeit, einen Zeitraum für das Laden der Daten auszuwählen sowie die Möglichkeit, ein Zeitintervall anzugeben, in dem die Daten gruppiert werden sollen. Zusätzlich kann der Benutzer alle aufgetretenen Anomalien und Events im Graphen einblenden. Wenn der Benutzer seinen Zeiger über eine Anomalie oder Event bewegt, werden Statistiken zu diesem Event beziehungsweise der Anomalie angezeigt, unter anderem die Applikationen die zu diesem Zeitpunkt die größte Auslastung hatten. Der Agent ließt den Hardware-Verbrauch vom Client-Rechner ein und sendet die gemessenen Daten zur Rest-API welche die Daten auf der Datenbank persistiert. Der Benutzer kann über die Benutzeroberfläche diese Daten über die Rest-API anfordern. Die Rest-Schnittstelle widerum kommuniziert mit der Datenbank um die benötigten Daten zu laden und analysiert diese darauffolgend mit den implementierten Algorithmen im Backend. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{UC/UCPS.png}
+    \caption{PC-Auswahl Use-Case-Diagramm}
+\end{figure}
+\todo{Strich fehlt!}
+Dieser Use-Case stellt den Prozess der PC-Auswahl dar. Zuerst wird dem Benutzer eine Liste von PCs angezeigt. Von dieser Liste hat dieser dann die Möglchkeit, einen Rechner auszuwählen. Es gibt die Möglichkeit, einen neuen PC hinzuzufügen. Die Liste der PCs wird über ein API-Anfrage angefordert wobei die Rest-API die benötigten Daten aus der Datenbank lädt. Beim Hinzufügen eines neuen Rechners werden die Rechner-Informationen per API-Anfrage übermittelt und auf der Datenbank gespeichert.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{UC/UCCA.png}
+    \caption{Custom Alert Use-Case-Diagramm}
+\end{figure}
+Nach dem Aufrufen des Custom-Alert-Screens wird dem Benutzer eine Liste von bestehenden Custom-Alerts angezeigt. Bei der Auswahl eines Alerts kann ein bereits existierender Alert bearbeitet und angepasst werden. Der Benutzer kann auch einen neuen Custom-Alert anlegen. Bei Anzeige der Custom-Alerts wird eine API-Anfrage per Rest gesendet und die angeforderten Daten werden aus der Datenbank geladen. Beim Anlegen oder Bearbeiten eines Alerts werden die Informationen über die Rest-API verschickt und auf der Datenbank gespeichert. 
 \section{Architektur}
+\todo{Architekturskizze hinzufügen}
+\subsection{Agent}
+Der Agent ist eine Applikation die im Hintergrund des PCs läuft bei dem die Hardware-Daten gemessen werden sollten. Dieser ist dafür zuständig, die Hardware-Allozierungsdaten und die Verwendungsdauer von Applikationen mithilfe der OSHI-Bilbliothek aus dem Rechner auszulesen und diese im geeigneten CSV-Format zur REST-API zu senden. 
+\subsection{REST-API}
+Die Rest-API wird auf einem Server ausgeführt und ist für die Kommunikation zwischen Webapplikation, Agent und dem allgemeinen Backend verantwortlich. Zusätzlich befinden sich alle Algorithmen zur Datenanalyse auf der REST-API und werden sowohl vor dem Persitieren als auch vor der Abfrage von Daten ausgeführt.
+\subsection{Webapplkationen}
+Die Webapplikaton repräsentiert in LogSense die Benutzeroberfläche und stellt Daten in Form von Graphen und Auflistungen dar. Sie bildet die Basis für die Interaktion des Benutzers mit dem Backend.
 \section{Informationsfluss}
-\section{Datenmodell}
+Beim Starten des Agents werden die allgemeinen Daten über den Rechner mittels eines HTTP Clients an den REST Endpoint des Servers gesendet, um den Beginn einer Datenerfassung zu kennzeichnen. Wenn dieser Schritt erfolgreich durchgeführt worden ist, werden alle 60 Sekunden die Daten über den Ressourcenverbrauch seit der letzten Übertragung zusammengefasst, indem die durchschnittlichen Werte berechnet werden. Die Durchschnittswerte werden dann an den Server zur weiteren Verarbeitug gesendet.
+Alle bereits vollständigen Daten werden vom Server ohne Änderung in der Datenbank persistiert. Die restlichen Daten werden vor der Speicherung noch transformiert, um alle logisch zusammenhängenden Daten gemeinsam persistieren zu können.
+Der Server stellt verschiedene REST Endpoints zur Verfügung, welche die Daten aus der Datenbank abfragen, analysieren und auswerten.
+Diese REST Endpoints werden vom Frontend aufgerufen, um Informationen über den Rechner und dessen Ressourcenverbrauch zu erhalten und in weiterer Folge darzustellen.
 
 \chapter{Implementierung (Programmierung und QS/Test)}
 \section{Visualiserung}
 \section{Datenverarbeitung}
 \subsection{Zusammenführung}
+Da der Agent den Hardware-Verbrauch pro laufenden Prozess misst, die Applikation aber den Hardware-Verbrauch von Applikationen und den gesamten Rechner darstellt, müssen vor der Persistierung von Daten diese zunächst zusammengeführt werden. Zum Zweck der Bererechnung des gesamten PC-Verbrauchs wird die groupby-Methode von Pandas verwendet welche Daten pro Timestamp zusammenführt und die einzelnen Werte dabei summiert.
 \subsection{Anomalienerkennung}
-\subsubsection{Einleitung}
-\text{
 Ein Ziel der Anwendung ist es, bei den PC- und Anwedungsdaten Extremwerte und Abweichungen zu identifzieren und diese für den Benutzer zu markieren. Anomalienerkennung bei dieser Diplomarbeit hat den Sinn, ungewöhnliches Verhalten von Applikationen den Benutzer aufzuzeigen und anhand dessen ihn bei der Erkennung von Problemen beim Rechner behilflich zu sein. In Kombination mit Justifications bekommt dieser Hinweise darauf, weswegen diese Extremwerte zustandekommen. Auch allgemein spielt die Erkennung von Extremwerten bzw. Anomalien eine große Rolle im Datenverarbeitungsbereich, hauptsächlich aufgrund der Bereinigung von Datensätzen.
-}
 \subsubsection{Implementierungsmöglichkeiten}
-\text{
-Für das Erkennen von Extremwerten bieten sich eine Vielzahl von Möglichkeiten an, dazu zählen etwa das Aufteilen der Datensätze in Quantile, das Verwenden von Machine-Learning Algorithmen wie Isolation Forest & K-means oder das Anwenden von Stastisischen Methoden in Verbindung mit eigenen Algorithmen. 
-}
+Für das Erkennen von Extremwerten bieten sich eine Vielzahl von Möglichkeiten an, dazu zählen etwa das Aufteilen der Datensätze in Quantile, das Verwenden von Machine-Learning Algorithmen wie Isolation Forest und K-means oder das Anwenden von Stastisischen Methoden in Verbindung mit eigenen Algorithmen. 
 \subsubsection{Händische Implementierung}
-\text{
-Beim der ersten Implementierung sind Extremwerte anhand von bestimmten, prozentuellen Abweichungen vom gleitenden Durschnitt erkannt worden. Zunächst ist dafür der gleitende Durschnitt von Datensätzen berechnet worden und dann die prozentuelle Änderung von einem Datenpunkt zum gleitenden Durschnitt. Sollte dieser Wert eine definierte Grenze, beispielsweise 30 Prozent überschreiten, wird der Datenpunkt als Extremwert identifiziert. Dies ist zwar ausreichend gewesen, um die meisten Extremwerte zu erkennen, jedoch ist diese Vorgehensweise nicht geeignet für Daten mit hoher Varianz.
-}
+Im ersten Schritt werden Extremwerte anhand von bestimmten, prozentuellen Abweichungen vom gleitenden Durschnitt erkannt worden.Zunächst wird dafür der dafür der gleitende Durschnitt von Datensätzen berechnet worden und dann die prozentuelle Änderung von einem Datenpunkt zum gleitenden Durschnitt. Überschreitet dieser Wert eine definierte Grenze, beispielsweise 30 Prozent überschreiten, wird der Datenpunkt als Extremwert identifiziert.
+Diese Vorgehensweise ist zwar ausreichend für das Erkennen von den meisten Extremwert-Punkten, jedoch nicht geeignet für Daten welche hohe Varianz aufweisen. \todo{Konkretes, praktisches beispiel}
 \subsubsection{Anomalienerkennung mit Isolation Forest}
-\text{
-Zur Anomalienerkennung ist der Machine-Learning-Algorithmus Isolation Forest zur Verwendung gekommen. Dieser basiert auf das Konzept der Isolation, also der Tatsache, dass Anomalien weniger isoliert sind als herkömmliche Datenpunkte. Isolation Forest ist eine logische Wahl für unseren Anwedungszweck gewesen, da es keinerlei Vorverarbeitung unserer Daten benötigt, Daten mit hoher Varianz problemlos funktionieren und im Vergleich zu einigen Alternativen keine Annahmen über die Verteilung der Daten benötigt. Bei der Implementierung sind Probleme bezüglich Underfitting aufgretreten falls nur eine geringe Menge an Datensätzen zum Trainieren des Algorithmus verfügbar gewesen ist. Dies ist der Fall gewesen, wenn der Benutzer die Datenanalyse in einem Zeitrahmen angeforderte wo nur eine geringe Menge an Datensätzen verfügbar war. Als Lösung sind zum Tranieren des Algorithmus nicht nur die Daten im gewählten Zeitrahmen genommen worden, sondern auch vorherliegende Datensätze. 
-}
+Zur Anomalienerkennung ist der Machine-Learning-Algorithmus Isolation Forest zur Verwendung gekommen. Dieser basiert auf das Konzept der Isolation, also der Tatsache, dass Anomalien weniger isoliert sind als herkömmliche Datenpunkte. 
+Die Anomalienerkennung mit dem Machine-Learning-Algorithmus Isolation Forest hat gegenüber der Händischen Implementierung und statistischen Methoden wie Z-Scores den Vorteil, dass es keinerleine Annahmen über die Verteilung unserer Daten benötigt und problemlos mit Daten hoher Varianz arbeiten kann.
+Bei der Implementierung sind Probleme bezüglich Underfitting aufgretreten falls nur eine geringe Menge an Datensätzen zum Trainieren des Algorithmus verfügbar gewesen ist. Dies ist der Fall, wenn der Benutzer die Datenanalyse in einem Zeitrahmen anfordert wo nur eine geringe Menge an Datensätzen verfügbar ist. Als Lösung sind zum Tranieren des Algorithmus nicht nur die Daten im gewählten Zeitrahmen genommen worden, sondern auch vorherliegende Datensätze. 
 \subsection{Change Point Detection}
+Zusätzlich zur Anomalieerkennung benötigt LogSense auch das Erkennen von Change Points zur Identifizierung von Events und zum Feststellen von Trends zwischen den Change Points. Change Points sind Zeitpunkte in einer Zeitreihe, an denen sich das Verhalten der Daten oder statistische Eigenschaften signifikant ändern, beispielsweise durch einen enormen Anstieg oder Abfall der Daten. Für diese Aufgabe wird der Pelt (Pruned Exact Linear Time)-Algorithmus aus der ruptures-Bibliothek angewendet. Change-Point-Detection-Algorithmen teilen die Zeitreihe in mehrere Segmente auf und messen die Effektivität der möglichen Aufteilungen. Pelt bestraft das Modell für jeden zusätzlich gefundenen Change-Point, indem zu den Kosten eines Segments der Bestrafungswert addiert wird. Dann wählt der Algorithmus die Segmentierung aus, bei der diese Kosten am geringsten sind. Der Grundgedanke dabei ist, dass ein Datenpunkt als Change-Point erkannt wird, wenn er die Segmentierungskosten mehr verringert als der Bestrafungswert sie erhöht. Dies ist genau dann der Fall, wenn sich das Verhalten der Daten enorm ändert. Dieser Bestrafungswert muss je nach Beschaffenheit der Daten angepasst werden, wenn dieser zu niedrig ist, werden viele False Positives erkannt und umgekehrt.
 \subsection{Forecast}
+Ein weiteres Feature von LogSense ist die Möglichkeit, den zukünftigen Verlauf von Zeitserien vorherzusagen. Zwar kann man dies in der Theorie auf alle unsere Daten anwenden, sinnvoll ist es allerdings nur bei der Vorhersage von freien Speicherplatz da andere Metriken wie etwa RAM- oder CPU-Auslastung keine wirkliche Trends aufweisen. 
+\subsubsection{ARIMA}
+\subsubsection{Lineare Regression}
+
+Zur Umsetzung von Vorhersagen wurde die statistische Methode der Linearen Regression verwendet. Das Ziel der Linearen Regression ist es, einen abhängigen Wert \( Y \) durch einen unabhängigen Wert \( X \) vorherzusagen. Voraussetzung ist, dass zwischen den beiden Werten ein linearer Zusammenhang besteht und es sich um stetige Werte handelt. In unserem Fall ist der abhängige Wert der freie Speicher und der unabhängige Wert der gemessene Zeitpunkt.\newline
+
+ 
+\textbf{Formel:} \( y \) (geschätzte abhängige Variable) = \( b \) (Steigung) * \( x \) (unabhängige Variable) + \( a \) (y-Achsenabschnitt)\newline
+
+
+Im Normalfall wird unser freier Speicher stets sinken durch das Installieren von zusätzlichen Applikationen und mehr gespeicherten Daten, daher ergibt sich eine Korrelation zwischen Speicher und Zeit sowie ein stetiger Verlauf des freien Speichers. Allerdings besteht die Möglichkeit, dass der Benutzer am Rechner Daten löscht oder Programme deinstalliert und sich daher der Trend verändert.
+Aus diesem Grund werden vor dem Bilden der linearen Regression zunächst alle Change-Points in der Zeitreihe bestimmt und die Daten des letzten Segments zum Trainieren des Linear-Regression-Models verwendet. Dadurch wird auch immer nur der aktuellste Trend beachtet. Jedoch dürfen nicht zu viele Change-Points erkannt werden, da ansonsten einfache Schwankungen bereits einen neuen Trend bedeuten. Es ist also ein hoher Penalty-Value verwendet worden.\newline
+
+
+Nach Erstellung des trainierten Modells werden anhand dessen die Werte bei zukünftigen Zeitpunkten vorhergesagt. Da das Feature hauptsächlich der Vorhersage dessen dient, wann unser Speicher aufgebracht wird, werden die vorhergesagten Werte tagesweise gruppiert und Vorhersagen nur bis zu einer bestimmten Grenze von Tagen getroffen (angegeben durch den Benutzer per API-Request).
+Ohne einer bestimmten Grenze besteht sonst das Risiko, dass Tausende von Tagen vergehen müssen, damit der Speicher aufgebraucht ist und daher der Request ungewöhnlich lange benötigt. Auch wird die Vorhersage von Werten abgebrochen, sobald der Wert negativ ist, da solche Vorhersagen dem Benutzer keinen Nutzen mehr bringen.
 \subsection{Userdefinierte Alerts}
 \subsection{Justifications}
 \section{Datenerfassung}
 \section{Datenhaltung}
 \subsection{Datenbank}
 \subsubsection{Einleitung}
-\text{Die verwendete Datenbank ist TimescaleDB, welche auf Postgres aufbaut, der Vorteil dessen ist es, dass sowohl relationale Datenstrukturen, als auch die für Timeseries Data optimierten, sogenannten "Hypertable" zur verfügung stehen. Ein Vorteil dessen ist, dass TimescaleDB schnelle Lese -und Schreibgeschwindigkeiten für große Mengen an Timeseries-Daten anbietet, etwa wie die vom Agent gemessen Datensätze.} 
+Die verwendete Datenbank ist TimescaleDB, welche auf Postgres aufbaut, der Vorteil dessen ist es, dass sowohl relationale Datenstrukturen, als auch die für Timeseries Data optimierten, sogenannten "Hypertable" zur verfügung stehen. Ein Vorteil dessen ist, dass TimescaleDB schnelle Lese -und Schreibgeschwindigkeiten für große Mengen an Timeseries-Daten anbietet, etwa wie die vom Agent gemessen Datensätze.
 
 \title{Warum wird eine Datenbank benötigt?}
-\text{Die vom Agent gemessen Daten müssen für spätere analyse und visualisierung persistiert werden. Weiters wird die wird die Datenbank zum abspeichern von Benutzerinformationen verwendet.}
+Die vom Agent gemessen Daten müssen für spätere analyse und visualisierung persistiert werden. Weiters wird die wird die Datenbank zum abspeichern von Benutzerinformationen verwendet.
 
 \subsubsection{Datenmodell}
 \subsubsection{Datenkatalog}
-\text{Der Datenkatalog beschreibt die einzelnen Tabellen, deren Funktion und die jeweiligen Attribute.}
+Der Datenkatalog beschreibt die einzelnen Tabellen, deren Funktion und die jeweiligen Attribute.
 \subsection{Einfügen in Datenbank}
 \section{Schnittstellen}
 \section{Server}
@@ -202,13 +345,14 @@ Zur Anomalienerkennung ist der Machine-Learning-Algorithmus Isolation Forest zur
 \chapter{Resümee}
 
 
-\chapter{Quellverzeichnis}
+\chapter*{Quellverzeichnis}
+Pandas \citep{pandas_docs}.
 
-\chapter{Abbildungsverzeichnis}
+\chapter*{Abbildungsverzeichnis}
 
-\chapter{Glossar}
+\chapter*{Glossar}
 
-\chapter{Anhang}
+\chapter*{Anhang}
 \section{Architekturskizze}
 \section{Datenmodell}
 \section{Diplomarbeitsplakat}
