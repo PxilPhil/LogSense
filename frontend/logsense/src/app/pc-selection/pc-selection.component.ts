@@ -2,8 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {PC} from "../model/PC";
 import {PcService} from "../services/pc.service";
 import {SelectedPcService} from "../services/selected-pc.service";
-import _default from "chart.js/dist/plugins/plugin.legend";
-import onHover = _default.defaults.onHover;
+import {UserPC} from "../model/UserPC";
 
 @Component({
     selector: 'app-pc-selection',
@@ -11,7 +10,7 @@ import onHover = _default.defaults.onHover;
     styleUrls: ['./pc-selection.component.scss']
 })
 export class PcSelectionComponent implements OnInit {
-    userPcs: PC[] = [];
+    pcs: PC[] = [];
     newHardwareUUID: string = "";
     newClientName: string = "";
 
@@ -19,13 +18,18 @@ export class PcSelectionComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.pcService.getPCsOfUser(1 /* TODO: exchange with id of the user that is logged in */).subscribe((userPCs) => {
-            this.userPcs = userPCs.pcs;
+        this.loadPCs();
+    }
+
+    loadPCs() {
+        this.pcService.getPCsOfUser(1 /* TODO: exchange with id of the user that is logged in */).subscribe((pcList) => {
+            this.pcs = pcList.pcs;
+            console.log(this.pcs);
         });
     }
 
     selectPC(selectedPc: PC) {
-        this.userPcs.forEach(pc => {
+        this.pcs.forEach(pc => {
             if (pc != selectedPc) {
                 pc.selectedForDisplay = false;
             }
@@ -35,21 +39,23 @@ export class PcSelectionComponent implements OnInit {
     }
 
     addPC() {
-        let userPC = {
-            user_id: 1 + "", /* TODO: exchange with id of the user that is logged in */
+        let userPC: UserPC = {
+            user_id: 1 + "" /* TODO: exchange with id of the user that is logged in */,
             hardware_uuid: this.newHardwareUUID,
-            client_name: this.newClientName
+            client_name: this.newClientName,
+            manufacturer: "",
+            model: ""
         };
 
-        this.pcService.addPCToUser(userPC).subscribe((response) => {
-            this.pcService.getPCsOfUser(1 /* TODO: exchange with id of the user that is logged in */).subscribe((userPCs) => {
-                this.userPcs = userPCs.pcs;
-            });
+        this.pcService.addPCToUser(userPC).subscribe(() => {
+            this.loadPCs();
         });
     }
 
     removePc(pcId: number) {
-        //TODO: add when api endpoint is implemented
+        this.pcService.removePc(pcId).subscribe(() => {
+            this.loadPCs();
+        });
     }
 
     setSelectedPcId(selectedPcId: number) {

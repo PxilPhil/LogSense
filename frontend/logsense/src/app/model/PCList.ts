@@ -1,5 +1,5 @@
 import {PC} from "./PC";
 
-export class PCs {
+export class PCList {
     pcs: PC[] = [];
 }
