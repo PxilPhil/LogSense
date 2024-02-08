@@ -17,8 +17,9 @@
 \usepackage{float}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{enumitem}
 \bibliographystyle{plainnat}
-
+\setdescription{leftmargin=0pt}
 
 
 \pagestyle{fancy}
@@ -96,7 +97,7 @@ Das Ziel unserer Diplomarbeit ist es, den Benutzer eines Rechners und in größe
 \section{Projektinhalt}
 Eine übersichtliche Projektstruktur ist eine Notwendigkeit, um die Projektziele zu erreichen. Die Diplomarbeit besteht aus den folgenden 5 Hauptkomponenten:
 \subsection{Agent}
-Der Agent erfasst alle 10 Sekunden Daten über die Hardware-Komponenten eines Rechners, auf dem das Betriebssystem Windows läuft. Nach der Datenerfassung fasst der Agent die Daten der letzten 60 Sekunden zusammen und bereitet sie auf, bevor er sie zur weiteren Analyse an den Server sendet. Bei der ersten Datenerfassung werden zusätzlich allgemeine Daten über den Rechner erfasst und beim Senden an den Server signalisiert das den Start einer Session. \todo{Complete stuff and fix sentence}
+Der Agent erfasst alle 10 Sekunden Daten über die Hardware-Komponenten eines Rechners, auf dem das Betriebssystem Windows läuft. Nach der Datenerfassung fasst der Agent die Daten der letzten 60 Sekunden zusammen und bereitet sie auf, bevor er sie zur weiteren Analyse an den Server sendet. Bei der ersten Datenerfassung werden zusätzlich allgemeine Daten über den Rechner erfasst. Die erste Nachricht signalisiert den Start einer Session. \todo{Complete stuff and fix sentence}
 \subsection{Analyse}
 Die gemessenen Daten werden auf dem Backend durch Machine-Learning Algorithmen und statistische Verfahren analysiert. Darunter zählt die Identifizierung von Anomalien, also Datenpunkte, die enorm von den restlichen Daten abweichen. Auch erkennt es Change-Points, also Datenpunkte, welche Ereignsse im Trendverlauf darstellen. Zusätzlich gibt es die Möglichkeiten, zukünftigen freien Speicherplatz vorherzusagen.
 \subsection{Schnittstellen}
@@ -106,10 +107,11 @@ daten werden mit rest calls vom server abgefragt
 \subsection{Datenspeicherung}
 persistienen für spätere auswertung, timescale db 
 \subsection{User Interface}
-Die Benutzeroberfläche zeigt die analysierten Daten in Form von Diagrammen und Statistiken übersichtlich an. Beim erstmaligen Aufrufen der Benutzeroberläche kann ein Gerät ausgewählt werden, dessen Daten dargestellt werden. Weiters können die Benutzer eigens definierte Warnungen für ein Gerät erstellen, indem sie die Art der Diagnose und den jeweiligen Grenzwert angeben.
+Die Benutzeroberfläche zeigt die analysierten Daten in Form von Diagrammen und Statistiken übersichtlich an. Beim erstmaligen Aufrufen der Benutzeroberfläche kann ein Gerät ausgewählt werden, dessen Daten dargestellt werden. Weiters können die Benutzer eigens definierte Warnungen für ein Gerät erstellen, indem sie die Art der Diagnose und den jeweiligen Grenzwert angeben.
 \section{Projektumfeld}
+\todo{einführender satz}
 \subsection{Projektteam}
-Das Projektteam besteht aus 4 Schülern der HTL Perg und die Verantwortlichkeiten haben sich dabei wie folgt aufgeteilt:
+Das Projektteam besteht aus 4 Schüler:innen der HTL Perg und die Verantwortlichkeiten haben sich dabei wie folgt aufgeteilt:
 \begin{itemize}
     \item Philipp Borbely - Datenanalyse und -auswertung
     \item Sarah Ettlinger - Datenerfassung
@@ -119,8 +121,8 @@ Das Projektteam besteht aus 4 Schülern der HTL Perg und die Verantwortlichkeite
 
 \subsection{Auftraggeber}
 
-\chapter{Theoretische und fachpraktische Grundlagen und Methoden}
-\section{Visualiserung}
+\chapter{Theoretische Grundlagen}
+\section{Visualisierung}
  In den nachfolgenden Abschnitten werden die im Projekt verwendeten Konzepte und Technologien  für die Visualisierung beschrieben.
 \subsection{Angular}
 Angular ist ein Framework zur Entwicklung von Single Page Applications. Es verwendet eine komponentenbasierte Architektur. Diese Komponenten sind eigenständige und wiederverwendbare Bestandteile  der Applikation, die Struktur in die Anwendung bringen. Eine Komponente besteht aus einer HTML-, einer CSS- und einer TypeScript-Datei. Mithilfe von Dependency Injection können Dienste Daten oder Funktionen  zwischen den einzelnen Komponenten geteilt werden. Weiters wird ein Angular Projekt mit Modulen organisiert. Ein Modul besteht aus beliebig vielen Komponenten und Diensten. Angular bietet zudem ein leistungsfähiges Routing-Modul für die Navigation zwischen verschiedenen Ansichten. Um Daten aus einer REST API zu laden, ist in Angular ein HTTP-Client enthalten, der es ermöglicht Daten auszutauschen. Um das Verhalten der einzelnen DOM-Elemente zu steuern werden Direktiven verwendet.
@@ -202,23 +204,23 @@ In den nachfolgenden Abschnitten werden die im Projekt verwendeten Konzepte und 
 Für die Erfassung der Ressourcendaten wird ein sogennanter Agent verwendet. Dieser kann selbstständig, das heißt ohne das Zutun eines Benutzers oder eines anderen Programmes, Tätigkeiten und Prozesse ausführen. Das heißt, der Agent wartet so lange bis eine gewisse Zeit abgelaufen, ein Programm gestartet worden oder ein Ereignis jeglicher Art festgestellt worden ist und erledigt darauf bestimmte Aufgaben.\\
 Dabei gibt es im wesentlichen 3 Arten von Agenten:
 \begin{itemize}
-    \item Reaktive Agenten
+    \item \textbf{Reaktive Agenten}
         \begin{description}
-            \item Reaktive Agenten beobachten die Umgebung, auf der sie laufen und treffen Entscheidungen basierend auf den erfassten Daten.
+            \item \noindent Reaktive Agenten beobachten die Umgebung, auf der sie laufen und treffen Entscheidungen basierend auf den erfassten Daten.
         \end{description}
-    \item Adaptive Agenten
+    \item \textbf{Adaptive Agenten}
         \begin{description}
-            \item Diese Art von Agenten handelt, im Vergleich zu reaktiven Agenten, zusätzlich basierend auf bereits zuvor erfassten Daten und erkannten Zusammenhängen zwischen den Informationspunkten.
+            \item \noindent Diese Art von Agenten handelt, im Vergleich zu reaktiven Agenten, zusätzlich basierend auf bereits zuvor erfassten Daten und erkannten Zusammenhängen zwischen den Informationspunkten.
         \end{description}
-    \item Kognitive Agenten
+    \item \textbf{Kognitive Agenten}
         \begin{description}
-            \item Kognitive Agenten können weiters aus den erfassten Daten Muster lernen und selbstständig abwägen, welche Aufgaben wann und wie durchgeführt werden sollen, um bestmöglich auf die aktualle Situation der Umgebung reagieren zu können.
+            \item \noindent Kognitive Agenten können weiters aus den erfassten Daten Muster lernen und selbstständig abwägen, welche Aufgaben wann und wie durchgeführt werden sollen, um bestmöglich auf die aktualle Situation der Umgebung reagieren zu können.
         \end{description}
 \end{itemize}
-Für diesen Anwendungsfall wird ein reaktiver Agent verwendet. Nach Ablauf von 60 Sekunden werden die Daten gemessen, je nach Art der Daten zusammengefasst und anschließend in einem geeigneten Format zur Auswertung an den Server gesendet. Es wird also überprüft, um welche Daten es sich handelt und daraufhin entschieden wie die Daten für das Senden vorbereitet werden sollen.
+Für diesen Anwendungsfall wird ein reaktiver Agent verwendet. Nach Ablauf von 60 Sekunden werden die Daten gemessen, je nach Art der Daten zusammengefasst und anschließend in einem geeigneten Format zur Auswertung an den Server gesendet. Es wird also überprüft, um welche Daten es sich handelt und daraufhin entschieden wie die Daten für das Senden vorbereitet werden.
 
 \subsection{Java}
-Die Programmiersprache Java ist objektorientiert, besitzt eine einfache Syntax mit überschaubarem Sprachumfang und ist durch kontrollierte Speicherzugriffe sicher. Wenn es eine passende JVM (= Java Virtual Machine) für das Betriebssystem gibt, kann das Programm auf diesem Betriebssytem laufen. Diese Plattformunabhängigkeit wird dadurch ermöglicht, dass der Java-Quellcode in Bytecode übersetzt wird, der dann von der JVM interpretiert werden kann.\\
+Die Programmiersprache Java ist objektorientiert, besitzt eine einfache Syntax mit überschaubarem Sprachumfang und ist durch kontrollierte Speicherzugriffe sicher. Wenn es eine passende JVM (= Java Virtual Machine) für das Betriebssystem gibt, kann das Programm auf diesem Betriebssystem laufen. Diese Plattformunabhängigkeit wird dadurch ermöglicht, dass der Java-Quellcode in Bytecode übersetzt wird, der dann von der JVM interpretiert werden kann.\\
 Der Agent, der lokal auf den Windows Rechnern läuft und die Daten über den Ressourcenverbrauch des Rechners erfasst, ist in der Programmiersprache Java entwickelt. Der Grund dafür ist, dass es für Java viele verschiedene Bibliotheken gibt, die auf die Hardwaretreiber zugreifen, um die benötigten Daten über den Rechner, die darauf laufenden Programme und deren Ressourcenverbrauch auszulesen.
 
 \subsection{Oshi}
@@ -239,8 +241,8 @@ Oshi\footnote{\url{https://www.oshi.ooo/}} (= Operating System and Hardware Info
 \section{Entwicklungssysteme}
 \subsection{PyCharm}
 \subsection{IntelliJ IDEA}
-IntelliJ IDEA\footnote{\url{https://www.jetbrains.com/idea/}} ist eine von dem Unternehmen JetBrains entwickelte IDE (= Integrated Development Environment). Diese funktioniert als Code-Editor vor allem für jene Programmiersprachen, die auf der JVM (= Java Virtual Machine) basieren, wie Java, Kotlin, Scala und Groovy. Wobei auch andere Programmiersprachen, Frameworks und Dateitypen unterstützt werden. Zum Beispiel Python, SQL, HTML, Angular, XML und Markdown. Zusätzlich bietet IntelliJ diverse Funktionen, die den Entwicklungsprozess von Anwendungen wesentlich vereinfachen. Dazu zählen Versionsverwaltung, Code-Vervollständigung, Refactoring und die Unterstützung von verschiedensten Build-Tools.\\\\
-Für die Implementierung des Agents in der Programmiersprache Java ist IntelliJ IDEA Ultimate in der Version 2023.2 verwendet worden.
+IntelliJ IDEA\footnote{\url{https://www.jetbrains.com/idea/}} ist eine vom Unternehmen JetBrains entwickelte IDE (= Integrated Development Environment). Diese funktioniert als Code-Editor vor allem für jene Programmiersprachen, die auf der JVM (= Java Virtual Machine) basieren, wie Java, Kotlin, Scala und Groovy. Wobei auch andere Programmiersprachen, Frameworks und Dateitypen unterstützt werden. Zum Beispiel Python, SQL, HTML, Angular, XML und Markdown. Zusätzlich bietet IntelliJ diverse Funktionen, die den Entwicklungsprozess von Anwendungen wesentlich vereinfachen. Dazu zählen Versionsverwaltung, Code-Vervollständigung, Refactoring und die Unterstützung von verschiedensten Build-Tools.\\\\
+Für die Implementierung des Agents in der Programmiersprache Java wurde IntelliJ IDEA Ultimate in der Version 2023.2 verwendet.
 
 \subsection{Webstorm}
 WebStorm ist eine Entwicklungsumgebung speziell für Webentwicklung von JetBrains. Die IDE bietet Unterstützung für unterschiedliche Webtechnologien wie HTML, CSS, JavaScript, TypeScript und Node.js. Sie enthält Funktionen wie Code-Verollständigung, Refakotirierung undn Syntax-Hervorhebung ebenso wie ein integriertes Versionskontrollsystem. Dieses ermöglicht es Entwicklern direkt in der IDE Änderungen zu verfolgen und Commits durchzuführen. Durch eine Live-Edit-Funktion werden Änderungen die am Code vorgenommen werden direkt im Browser angezeigt. Weiters sind in WebStorm Code-Standards enthalten. Mit integrierten Tools wird der Code automatisch auf seine Qualität geprüft.
@@ -404,9 +406,9 @@ Pandas \citep{pandas_docs}.
 \chapter*{Glossar}
 
 \chapter*{Anhang}
-\section{Architekturskizze}
-\section{Datenmodell}
-\section{Diplomarbeitsplakat}
-\section{Abnahmeformular}
+\section*{Architekturskizze}
+\section*{Datenmodell}
+\section*{Diplomarbeitsplakat}
+\section*{Abnahmeformular}
 
 \end{document}
