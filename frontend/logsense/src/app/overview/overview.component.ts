@@ -93,6 +93,7 @@ export class OverviewComponent implements OnInit {
     }
 
     loadAlerts() {
+        console.log('loadAlerts')
         // TODO: add data pipe here
         this.alertService.getAlerts(this.pcId, this.datePipe.transform(Date.now() - Date.now(), 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(Date.now(), 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe(data => {
             this.alerts = data;

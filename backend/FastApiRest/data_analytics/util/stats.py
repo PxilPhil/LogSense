@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import humanize
 from pandas import DataFrame
 
 from data_analytics.util.change_anomaly_detection import detect_events
@@ -48,14 +49,22 @@ def calculate_trend_statistics(df: DataFrame, column: str, name: str) -> Statist
 
 
 def create_statistics_message(change, delta, name: str):
-    # this is a method to make a message displayed to the user when requesting statistical values
-    message = f"{name} Usage has changed by {round(change, 2)} % ({round(delta, 2)})\n"
+    delta = delta / (1024 * 1024)  # convert bytes to mb
+    if (delta >= 1000 or delta <= -1000):  # convert from mb to gb
+        delta = delta / 1024
+
+    if name == 'ram':
+        message = f"{name.upper()} Usage has changed by {round(change, 2)}% ({delta:.2f} MB) "
+    else:
+        message = f"{name.upper()} Usage has changed by {round(change, 2)}% "
     return message
+
 
 def append_statistics_message(message, event_amount, anomaly_amount, data_amount):
     message += f"{event_amount} Events detected \n {anomaly_amount} Anomalies detected \n"
     message += f"{data_amount} Datapoints fetched \n"
     return message
+
 
 def determine_stability(cov):  # common rule of thumb is that cv < 15% is considered stable and < 30% medium
     if cov < 15:
@@ -63,6 +72,7 @@ def determine_stability(cov):  # common rule of thumb is that cv < 15% is consid
     elif cov < 30:
         return 'Medium'
     return 'Low'
+
 
 def determine_event_ranges(df: DataFrame, anomalies_events: list[Justification], column: str):
     """
@@ -90,12 +100,13 @@ def determine_linear_direction(df, column_name, tolerance):
     :return:
     """
     events = detect_events(df, column_name, 5)
-    current_df = df.drop(index=df.index[df.index <= events[len(events)-1]]) # only work with latest course (last change point)
+    current_df = df.drop(
+        index=df.index[df.index <= events[len(events) - 1]])  # only work with latest course (last change point)
     print('determine_linear_direction')
     print(current_df)
 
     # todo: change point detection algorithm always marks the last one as being an event which leads to probems
-    if (len(current_df)>0):
+    if (len(current_df) > 0):
         column_values = current_df[column_name]
 
         if isinstance(column_values, pd.Series):
@@ -114,7 +125,7 @@ def determine_linear_direction(df, column_name, tolerance):
             else:
                 print('detected')
                 return -1
-    #only for testing
+    # only for testing
     """
     num_rows = 20
     start_value = 1000000
