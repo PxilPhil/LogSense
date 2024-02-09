@@ -39,9 +39,16 @@ def calculate_trend_statistics(df: DataFrame, column: str, name: str) -> Statist
     stability = f"Stability: {determine_stability(cov)}\n"
     message = create_statistics_message(change, delta, name)
 
+    if name.lower() == 'ram':
+        average_gb = round(mean / (1024 ** 3), 2)
+        current_gb = round(recent_row[column] / (1024 ** 3), 2)
+    else: # in the case of cpu
+        average_gb = round(mean, 2)*100
+        current_gb = round(recent_row[column], 2)*100
+
     statistic_data = StatisticData(
-        average=df[column].mean(),
-        current=recent_row[column],
+        average=average_gb,
+        current=current_gb,
         stability=stability,
         message=message
     )
@@ -54,9 +61,9 @@ def create_statistics_message(change, delta, name: str):
         delta = delta / 1024
 
     if name == 'ram':
-        message = f"{name.upper()} Usage has changed by {round(change, 2)}% ({delta:.2f} MB) "
+        message = f"{name.upper()} Usage has changed by {round(change, 2)}% ({delta:.2f} MB) \n"
     else:
-        message = f"{name.upper()} Usage has changed by {round(change, 2)}% "
+        message = f"{name.upper()} Usage has changed by {round(change, 2)}% \n"
     return message
 
 
