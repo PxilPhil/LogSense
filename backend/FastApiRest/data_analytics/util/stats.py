@@ -90,10 +90,30 @@ def determine_linear_direction(df, column_name, tolerance):
     :return:
     """
     events = detect_events(df, column_name, 5)
-    current_df = df.drop(index=df.index[df.index <= events[len(events)-2]]) # only work with latest course (last change point)
+    current_df = df.drop(index=df.index[df.index <= events[len(events)-1]]) # only work with latest course (last change point)
     print('determine_linear_direction')
     print(current_df)
 
+    # todo: change point detection algorithm always marks the last one as being an event which leads to probems
+    if (len(current_df)>0):
+        column_values = current_df[column_name]
+
+        if isinstance(column_values, pd.Series):
+            column_values = column_values.values
+
+        indices = np.arange(len(column_values))
+        slope, intercept = np.polyfit(indices, column_values, 1)
+        predicted_values = slope * indices + intercept
+        mse = np.mean((column_values - predicted_values) ** 2)
+        print(mse)
+        print(tolerance)
+        if mse < tolerance:
+            if slope > 0:
+                print('detected')
+                return 1
+            else:
+                print('detected')
+                return -1
     #only for testing
     """
     num_rows = 20
@@ -106,24 +126,4 @@ def determine_linear_direction(df, column_name, tolerance):
     df = pd.DataFrame({column_name: linear_values})
     print(df)
     """
-
-
-    column_values = current_df[column_name]
-
-    if isinstance(column_values, pd.Series):
-        column_values = column_values.values
-
-    indices = np.arange(len(column_values))
-    slope, intercept = np.polyfit(indices, column_values, 1)
-    predicted_values = slope * indices + intercept
-    mse = np.mean((column_values - predicted_values) ** 2)
-    print(mse)
-    print(tolerance)
-    if mse < tolerance:
-        if slope > 0:
-            print('detected')
-            return 1
-        else:
-            print('detected')
-            return -1
     return 0
