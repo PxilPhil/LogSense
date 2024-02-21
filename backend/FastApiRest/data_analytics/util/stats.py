@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+import humanize
+from _decimal import Decimal, ROUND_HALF_UP
 from pandas import DataFrame
 
 from data_analytics.util.change_anomaly_detection import detect_events
@@ -38,9 +40,16 @@ def calculate_trend_statistics(df: DataFrame, column: str, name: str) -> Statist
     stability = f"Stability: {determine_stability(cov)}\n"
     message = create_statistics_message(change, delta, name)
 
+    if name.lower() == 'ram':
+        average_gb = round(mean / (1024 ** 3), 2)
+        current_gb = round(recent_row[column] / (1024 ** 3), 2)
+    else: # in the case of cpu
+        average_gb = round(mean, 2)*100
+        current_gb = round(recent_row[column], 2)*100
+
     statistic_data = StatisticData(
-        average=df[column].mean(),
-        current=recent_row[column],
+        average=average_gb,
+        current=current_gb,
         stability=stability,
         message=message
     )
@@ -48,14 +57,29 @@ def calculate_trend_statistics(df: DataFrame, column: str, name: str) -> Statist
 
 
 def create_statistics_message(change, delta, name: str):
-    # this is a method to make a message displayed to the user when requesting statistical values
-    message = f"{name} Usage has changed by {round(change, 2)} % ({round(delta, 2)})\n"
+    delta_mb = convert_bytes_to_mb(delta)
+    if abs(delta_mb) >= 1000:
+        delta = convert_mb_to_gb(delta_mb)
+        delta = Decimal(delta).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    else:
+        delta = Decimal(delta_mb).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+    if name == 'ram':
+        message = f"{name.upper()} Usage has changed by {round(change, 2)}% ({delta} GB) \n"
+    else:
+        message = f"{name.upper()} Usage has changed by {round(change, 2)}% ({delta} MB) \n"
     return message
+
+def convert_mb_to_gb(size):
+        return size / 1024
+def convert_bytes_to_mb(size):
+        return size / (1024 * 1024)  # convert bytes to mb
 
 def append_statistics_message(message, event_amount, anomaly_amount, data_amount):
     message += f"{event_amount} Events detected \n {anomaly_amount} Anomalies detected \n"
     message += f"{data_amount} Datapoints fetched \n"
     return message
+
 
 def determine_stability(cov):  # common rule of thumb is that cv < 15% is considered stable and < 30% medium
     if cov < 15:
@@ -63,6 +87,7 @@ def determine_stability(cov):  # common rule of thumb is that cv < 15% is consid
     elif cov < 30:
         return 'Medium'
     return 'Low'
+
 
 def determine_event_ranges(df: DataFrame, anomalies_events: list[Justification], column: str):
     """
@@ -90,11 +115,32 @@ def determine_linear_direction(df, column_name, tolerance):
     :return:
     """
     events = detect_events(df, column_name, 5)
-    current_df = df.drop(index=df.index[df.index <= events[len(events)-2]]) # only work with latest course (last change point)
+    current_df = df.drop(
+        index=df.index[df.index <= events[len(events) - 1]])  # only work with latest course (last change point)
     print('determine_linear_direction')
     print(current_df)
 
-    #only for testing
+    # todo: change point detection algorithm always marks the last one as being an event which leads to probems
+    if (len(current_df) > 0):
+        column_values = current_df[column_name]
+
+        if isinstance(column_values, pd.Series):
+            column_values = column_values.values
+
+        indices = np.arange(len(column_values))
+        slope, intercept = np.polyfit(indices, column_values, 1)
+        predicted_values = slope * indices + intercept
+        mse = np.mean((column_values - predicted_values) ** 2)
+        print(mse)
+        print(tolerance)
+        if mse < tolerance:
+            if slope > 0:
+                print('detected')
+                return 1
+            else:
+                print('detected')
+                return -1
+    # only for testing
     """
     num_rows = 20
     start_value = 1000000
@@ -106,24 +152,4 @@ def determine_linear_direction(df, column_name, tolerance):
     df = pd.DataFrame({column_name: linear_values})
     print(df)
     """
-
-
-    column_values = current_df[column_name]
-
-    if isinstance(column_values, pd.Series):
-        column_values = column_values.values
-
-    indices = np.arange(len(column_values))
-    slope, intercept = np.polyfit(indices, column_values, 1)
-    predicted_values = slope * indices + intercept
-    mse = np.mean((column_values - predicted_values) ** 2)
-    print(mse)
-    print(tolerance)
-    if mse < tolerance:
-        if slope > 0:
-            print('detected')
-            return 1
-        else:
-            print('detected')
-            return -1
     return 0
