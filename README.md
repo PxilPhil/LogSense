@@ -1,12 +1,16 @@
 # LogSense Documentation
 
-
 # How to run
 
 ## Step 1: Starting the agent
-```http
-/user
-```
+Install JDK 17
+https://www.oracle.com/de/java/technologies/downloads/#jdk17-windows
+
+Create a new environment variable "JAVA_HOME" with the path to the installation directory of the JDK
+
+Add a new entry to the "PATH" environment variable with the path to the bin directory in the installation directory of the JDK
+
+Double-click the LogSense.exe file to run the Agent
 
 ## Step 2: Setting up the backend
 
@@ -64,3 +68,13 @@ pip install -r requirements.txt
 #### Starting application
 
 You need to run the main.py file to start the entire backend application
+
+## Step 3: Start the Frontend
+
+Install Node.js which includes Node Package Manager
+
+Open Angular Project in Webstorm and run:
+npm install 
+
+Run the Project with:
+ng serve
