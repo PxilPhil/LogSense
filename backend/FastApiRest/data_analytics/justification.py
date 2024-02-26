@@ -2,9 +2,11 @@ from datetime import datetime, timedelta
 
 import numpy as np
 import pandas as pd
+from _decimal import Decimal, ROUND_HALF_UP
 from pandas import DataFrame
 
 from data_analytics.util.manipulation import get_justification_contained
+from data_analytics.util.stats import convert_bytes_to_mb, convert_mb_to_gb
 from db_access.application import get_relevant_application_data, get_application_between
 from db_access.pc import get_pc_data_at_measurement
 from model.data import Justification
@@ -19,7 +21,8 @@ def perform_justification_processing(df: DataFrame):
     :return:
     """
     # get the most important applications
-    important_applications = df.loc[df.groupby('name')['measurement_time'].idxmax()]
+    important_applications = df.loc[df.groupby('name')['measurement_time'].idxmax()].sort_values(by='ram',
+                                                                                                 ascending=False)
 
     # find out process changes in applications
     summary_df = df.groupby('name')['process_count_difference'].sum().reset_index()
@@ -160,7 +163,16 @@ def calc_deltas(df: DataFrame, point: datetime):
 
 
 def format_application_info(row):
-    return f"Name: {row['name']}, RAM: {round(row['ram'], 2)}, CPU: {round(row['cpu'], 2)}\n"
+    ram_mb = convert_bytes_to_mb(row['ram'])
+    if ram_mb >= 1000:
+        ram_gb = Decimal(convert_mb_to_gb(ram_mb)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        ram = f"{ram_gb} GB"
+    else:
+        ram = Decimal(ram_mb).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        ram = f"{ram} MB"
+
+    cpu_percentage = Decimal(row['cpu']).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) * 100
+    return f"Name: {row['name']}, RAM: {ram}, CPU: {cpu_percentage}%\n"
 
 
 def create_justification_message(pc_just_started: bool, total_delta_ram, total_delta_cpu, important_applications,
@@ -179,6 +191,7 @@ def create_justification_message(pc_just_started: bool, total_delta_ram, total_d
     message = "Application with high impact:\n"
     app_info = important_applications.apply(format_application_info, axis=1)
     message += app_info.str.cat(sep="")
+    message += "-------------\nIn the last five minutes: \n" # todo: make amount of minutes flexible?
 
     for name in started:
         message += name + ' was started\n'

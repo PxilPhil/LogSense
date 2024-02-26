@@ -49,12 +49,18 @@ def detect_events(df: DataFrame, column: str, penalty: int) -> list:
     return change_points
 
 
-def detect_anomalies(predicted_df: DataFrame, training_df: DataFrame, column: str):
+def detect_anomalies(predicted_df: DataFrame, training_df: DataFrame, column: str, contamination_rate: float = 0.03):
+    # Extract values from the data
     df_training_values = training_df[column].values.reshape(-1, 1)
     df_prediction_values = predicted_df[column].values.reshape(-1, 1)
-    clf = IsolationForest(contamination=0.03, random_state=42)
+
+    # Model training and prediction
+    clf = IsolationForest(contamination=contamination_rate, random_state=42)
     clf.fit(df_training_values)
     predicted_labels = clf.predict(df_prediction_values)
+
+    # Extract measurement times when anomalies occur
     anomaly_indices = np.where(predicted_labels == -1)[0]
     anomaly_measurement_times = predicted_df['measurement_time'].iloc[anomaly_indices].tolist()
+
     return anomaly_measurement_times

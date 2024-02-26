@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import humanize
+from _decimal import Decimal, ROUND_HALF_UP
 from pandas import DataFrame
 
 from data_analytics.util.change_anomaly_detection import detect_events
@@ -56,16 +57,23 @@ def calculate_trend_statistics(df: DataFrame, column: str, name: str) -> Statist
 
 
 def create_statistics_message(change, delta, name: str):
-    delta = delta / (1024 * 1024)  # convert bytes to mb
-    if (delta >= 1000 or delta <= -1000):  # convert from mb to gb
-        delta = delta / 1024
+    delta_mb = convert_bytes_to_mb(delta)
+    if abs(delta_mb) >= 1000:
+        delta = convert_mb_to_gb(delta_mb)
+        delta = Decimal(delta).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    else:
+        delta = Decimal(delta_mb).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
     if name == 'ram':
-        message = f"{name.upper()} Usage has changed by {round(change, 2)}% ({delta:.2f} MB) \n"
+        message = f"{name.upper()} Usage has changed by {round(change, 2)}% ({delta} GB) \n"
     else:
-        message = f"{name.upper()} Usage has changed by {round(change, 2)}% \n"
+        message = f"{name.upper()} Usage has changed by {round(change, 2)}% ({delta} MB) \n"
     return message
 
+def convert_mb_to_gb(size):
+        return size / 1024
+def convert_bytes_to_mb(size):
+        return size / (1024 * 1024)  # convert bytes to mb
 
 def append_statistics_message(message, event_amount, anomaly_amount, data_amount):
     message += f"{event_amount} Events detected \n {anomaly_amount} Anomalies detected \n"

@@ -131,7 +131,7 @@ def analyze_pc_data(pc_id: int, df, pc_total_df, name: str):
     change_points = []
     training_df = pc_total_df  # dataframe used to train the models
 
-    # fetch more data if needed to avoid underfittng
+    # fetch more data if needed to avoid underfitting
     if len(df.index) < 50:  # arbitrary value used
         training_df, extended_list = get_ram_time_series_limited(pc_id, 100)
 

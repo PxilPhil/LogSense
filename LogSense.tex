@@ -17,8 +17,9 @@
 \usepackage{float}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{enumitem}
 \bibliographystyle{plainnat}
-
+\setdescription{leftmargin=0pt}
 
 
 \pagestyle{fancy}
@@ -80,11 +81,28 @@ Summarize relevant literature and related work in the field of software engineer
 Clearly state the problem the project aims to address.
 
 \chapter*{Kurzfassung}
-Define the specific objectives and goals of the software engineering project.
-\textbf{Problemstellung} 
+Die Grundidee von LogSense ist es die Bildschirmzeitverwaltung von Smartphones und Teile der Funktionalität des Task Managers vom Betriebssystem Windows zu fusionieren. Als erweiterte Funktionalität sollen Probleme wie ein hoher Ressourcenverbrauch durch einen bestimmten Prozess erkannt und dem Benutzer mitgeteilt werden. Ein wesentlicher Punkt ist auch die langfristige Speicherung der Daten, um sie rückblickend betrachten und analysieren zu können.\\\\
+
+\noindent Um dieses Ziel zu erreichen, werden 4 Hauptkomponenten benötigt:\\\\
+Der Agent läuft als Hintergrundprozess auf dem Client Rechner, erfasst Daten über die Hardware-Komponenten des Rechners und sendet sie zur weiteren Analyse an den Server. Bei der ersten Datenerfassung werden zusätzlich allgemeine Daten über den Rechner erfasst.\\\\
+In der Datenbank werden die erfassten Informationen für die spätere Auswertung persistiert. Da es sich dabei um eine große Menge an Zeitreihen-Daten handelt, muss eine leistungsstarke Datenbank eingesetzt werden. Dafür eignet sich am besten die Datenbank TimescaleDB, da sie genau für diesen Anwendungszweck entwickelt worden ist.\\\\
+Die gemessenen Daten werden serverseitig durch Machine-Learning Algorithmen und statistische Verfahren analysiert. Dazu zählt die Identifizierung von Anomalien, Ereignisse im Trendverlauf und die Vorhersage von freiem Speicherplatz.\\\\
+Die Benutzeroberfläche zeigt die erfassten Daten und die Ergebnisse der Analyse in Form von Diagrammen und Statistiken übersichtlich an. Zusätzlich kann der Benutzer über die Benutzeroberfläche mit dem System interagieren und zum Beispiel eigens definierte Warnungen für ein Gerät erstellen.\\\\
+
+\noindent Das Ergebnis ist ein System, bestehend aus den oben angeführten Komponenten, mit dem der Ressourcenverbrauch von Rechnern, sowie die Laufzeit und der Ressourcenverbrauch von einzelnen Prozessen überwacht werden kann. Die gesammelten Daten werden analysiert und ausgewertet, um in Form von Statistiken, Events und Anomalien dargestellt zu werden.
+
 
 \chapter*{Abstract}
-Define the specific objectives and goals of the software engineering project.
+The basic idea of LogSense is to merge the screen time management of smartphones and some functionalities of the task manager from the Windows operating system. As an additional feature, unexpected behaviours such as high resource consumption of particular processes can be detected and reported to the user. Another key feature is the long-term storage of data so that it can be viewed and analyzed retrospectively.\\\\
+
+\noindent To achieve this goal, 4 main components are required:\\\\
+The agent runs as a background process on the client computer, collects data about the hardware components of the PC and sends it to the server for further analysis. During the initial data collection, general information about the computer is gathered.\\\\
+The recorded information is then persisted in the database for further analysis. As this involves large amounts of time series data, a powerful database is required. The database most suitable for this is TimescaleDB, as it was developed precisely for this purpose.\\\\
+The measured data is analyzed on the server using machine learning algorithms and statistical methods. This includes the identification of anomalies, trending events and the prediction of free storage space.\\\\
+The graphical user interface displays the recorded data and the analysis results in form of diagrams and statistics. In addition, the user can interact with the system via the user interface and for example, define custom warnings for a device.\\\\
+
+\noindent The result is a system consisting of the components listed above, which can be used to monitor the resource usage of computers as well as the runtime and resource consumption of individual processes. The collected data is analyzed and evaluated in order to be displayed in the form of statistics, events and anomalies.
+
 
 \chapter*{Inhaltsverzeichnis}
 
@@ -96,31 +114,29 @@ Das Ziel unserer Diplomarbeit ist es, den Benutzer eines Rechners und in größe
 \section{Projektinhalt}
 Eine übersichtliche Projektstruktur ist eine Notwendigkeit, um die Projektziele zu erreichen. Die Diplomarbeit besteht aus den folgenden 5 Hauptkomponenten:
 \subsection{Agent}
-Der Agent erfasst alle 10 Sekunden Daten über die Hardware-Komponenten eines Rechners, auf dem das Betriebssystem Windows läuft. Nach der Datenerfassung fasst der Agent die Daten der letzten 60 Sekunden zusammen und bereitet sie auf, bevor er sie zur weiteren Analyse an den Server sendet. Bei der ersten Datenerfassung werden zusätzlich allgemeine Daten über den Rechner erfasst und beim Senden an den Server signalisiert das den Start einer Session. \todo{Complete stuff and fix sentence}
-\subsection{Analyse}
-Die gemessenen Daten werden auf dem Backend durch Machine-Learning Algorithmen und statistische Verfahren analysiert. Darunter zählt die Identifizierung von Anomalien, also Datenpunkte, die enorm von den restlichen Daten abweichen. Auch erkennt es Change-Points, also Datenpunkte, welche Ereignsse im Trendverlauf darstellen. Zusätzlich gibt es die Möglichkeiten, zukünftigen freien Speicherplatz vorherzusagen.
+Der Agent erfasst alle 10 Sekunden Daten über die Hardware-Komponenten eines Rechners, auf dem das Betriebssystem Windows läuft. Nach der Datenerfassung fasst der Agent die Daten der letzten 60 Sekunden zusammen und bereitet sie auf, bevor er sie zur weiteren Analyse an den Server sendet. Bei der ersten Datenerfassung werden zusätzlich allgemeine Daten über den Rechner erfasst. Die erste Nachricht signalisiert den Start einer Session.
+\subsection{Analyse} 
+Die gemessenen Daten werden serverseitig durch Machine-Learning Algorithmen und statistische Verfahren analysiert. Dazu zählt die Identifizierung von Anomalien, also von Datenpunkte, die enorm von den restlichen Daten abweichen. Außerdem werden sogennante Change-Points erkannt, also Datenpunkte, welche Ereignisse im Trendverlauf darstellen. Zusätzlich gibt es Möglichkeiten, zukünftigen freien Speicherplatz vorherzusagen.
 \subsection{Schnittstellen}
-kommunizieren zwischen komponenten, Rest, server: hostet mithilfe von nginx angular und fastapi
-session start - gibt id zurück & speichert daten, running data - wird session id übergeben, speichen von running data (gekoppelt zu session)
-daten werden mit rest calls vom server abgefragt
-\subsection{Datenspeicherung}
-persistienen für spätere auswertung, timescale db 
+Eine RESTful API wird für die Kommunikation zwischen den einzelnen Komponenten verwendet. Die Schnittstelle ist für die Speicherung der vom Agent gesendeten Daten verantwortlich. Außerdem nimmt die Schnittstelle Anfragen der Benutzeroberfläche entgegen und fordert bei Bedarf die analysierten Daten an. Danach werden die ausgewerteten Daten an die Webanwendung weitergeleitet.  
+\subsection{Datenspeicherung} 
+In der Datenbank werden die erfassten Informationen für die spätere Auswertung persistiert. Da es sich dabei um eine große Menge an Zeitreihen-Daten handelt, muss eine leistungsstarke Datenbank eingesetzt werden. Dafür eignet sich am besten die Datenbank TimescaleDB, da sie genau für diesen Anwendungszweck entwickelt worden ist.
 \subsection{User Interface}
-Die Benutzeroberfläche zeigt die analysierten Daten in Form von Diagrammen und Statistiken übersichtlich an. Beim erstmaligen Aufrufen der Benutzeroberläche kann ein Gerät ausgewählt werden, dessen Daten dargestellt werden. Weiters können die Benutzer eigens definierte Warnungen für ein Gerät erstellen, indem sie die Art der Diagnose und den jeweiligen Grenzwert angeben.
+Die Benutzeroberfläche zeigt die analysierten Daten in Form von Diagrammen und Statistiken übersichtlich an. Beim erstmaligen Aufrufen der Benutzeroberfläche kann ein Gerät ausgewählt werden, dessen Daten dargestellt werden. Weiters können die Benutzer eigens definierte Warnungen für ein Gerät erstellen, indem sie die Art der Diagnose und den jeweiligen Grenzwert angeben.
 \section{Projektumfeld}
+An dieser Diplomarbeit sind mehrere Personen beteiligt und werden in dem nachfolgenden Abschnitt angeführt.
 \subsection{Projektteam}
-Das Projektteam besteht aus 4 Schülern der HTL Perg und die Verantwortlichkeiten haben sich dabei wie folgt aufgeteilt:
+Das Projektteam besteht aus 4 Schüler:innen der HTL Perg und die Verantwortlichkeiten haben sich dabei wie folgt aufgeteilt:
 \begin{itemize}
     \item Philipp Borbely - Datenanalyse und -auswertung
     \item Sarah Ettlinger - Datenerfassung
     \item Thomas Jilek - Datenspeicherung und Systemintegration
     \item Emily Stadlbauer - Visualisierung und Anzeige
 \end{itemize}
-
 \subsection{Auftraggeber}
 
-\chapter{Theoretische und fachpraktische Grundlagen und Methoden}
-\section{Visualiserung}
+\chapter{Theoretische Grundlagen}
+\section{Visualisierung}
  In den nachfolgenden Abschnitten werden die im Projekt verwendeten Konzepte und Technologien  für die Visualisierung beschrieben.
 \subsection{Angular}
 Angular ist ein Framework zur Entwicklung von Single Page Applications. Es verwendet eine komponentenbasierte Architektur. Diese Komponenten sind eigenständige und wiederverwendbare Bestandteile  der Applikation, die Struktur in die Anwendung bringen. Eine Komponente besteht aus einer HTML-, einer CSS- und einer TypeScript-Datei. Mithilfe von Dependency Injection können Dienste Daten oder Funktionen  zwischen den einzelnen Komponenten geteilt werden. Weiters wird ein Angular Projekt mit Modulen organisiert. Ein Modul besteht aus beliebig vielen Komponenten und Diensten. Angular bietet zudem ein leistungsfähiges Routing-Modul für die Navigation zwischen verschiedenen Ansichten. Um Daten aus einer REST API zu laden, ist in Angular ein HTTP-Client enthalten, der es ermöglicht Daten auszutauschen. Um das Verhalten der einzelnen DOM-Elemente zu steuern werden Direktiven verwendet.
@@ -202,23 +218,23 @@ In den nachfolgenden Abschnitten werden die im Projekt verwendeten Konzepte und 
 Für die Erfassung der Ressourcendaten wird ein sogennanter Agent verwendet. Dieser kann selbstständig, das heißt ohne das Zutun eines Benutzers oder eines anderen Programmes, Tätigkeiten und Prozesse ausführen. Das heißt, der Agent wartet so lange bis eine gewisse Zeit abgelaufen, ein Programm gestartet worden oder ein Ereignis jeglicher Art festgestellt worden ist und erledigt darauf bestimmte Aufgaben.\\
 Dabei gibt es im wesentlichen 3 Arten von Agenten:
 \begin{itemize}
-    \item Reaktive Agenten
+    \item \textbf{Reaktive Agenten}
         \begin{description}
-            \item Reaktive Agenten beobachten die Umgebung, auf der sie laufen und treffen Entscheidungen basierend auf den erfassten Daten.
+            \item \noindent Reaktive Agenten beobachten die Umgebung, auf der sie laufen und treffen Entscheidungen basierend auf den erfassten Daten.
         \end{description}
-    \item Adaptive Agenten
+    \item \textbf{Adaptive Agenten}
         \begin{description}
-            \item Diese Art von Agenten handelt, im Vergleich zu reaktiven Agenten, zusätzlich basierend auf bereits zuvor erfassten Daten und erkannten Zusammenhängen zwischen den Informationspunkten.
+            \item \noindent Diese Art von Agenten handelt, im Vergleich zu reaktiven Agenten, zusätzlich basierend auf bereits zuvor erfassten Daten und erkannten Zusammenhängen zwischen den Informationspunkten.
         \end{description}
-    \item Kognitive Agenten
+    \item \textbf{Kognitive Agenten}
         \begin{description}
-            \item Kognitive Agenten können weiters aus den erfassten Daten Muster lernen und selbstständig abwägen, welche Aufgaben wann und wie durchgeführt werden sollen, um bestmöglich auf die aktualle Situation der Umgebung reagieren zu können.
+            \item \noindent Kognitive Agenten können weiters aus den erfassten Daten Muster lernen und selbstständig abwägen, welche Aufgaben wann und wie durchgeführt werden sollen, um bestmöglich auf die aktualle Situation der Umgebung reagieren zu können.
         \end{description}
 \end{itemize}
-Für diesen Anwendungsfall wird ein reaktiver Agent verwendet. Nach Ablauf von 60 Sekunden werden die Daten gemessen, je nach Art der Daten zusammengefasst und anschließend in einem geeigneten Format zur Auswertung an den Server gesendet. Es wird also überprüft, um welche Daten es sich handelt und daraufhin entschieden wie die Daten für das Senden vorbereitet werden sollen.
+Für diesen Anwendungsfall wird ein reaktiver Agent verwendet. Nach Ablauf von 60 Sekunden werden die Daten gemessen, je nach Art der Daten zusammengefasst und anschließend in einem geeigneten Format zur Auswertung an den Server gesendet. Es wird also überprüft, um welche Daten es sich handelt und daraufhin entschieden wie die Daten für das Senden vorbereitet werden.
 
 \subsection{Java}
-Die Programmiersprache Java ist objektorientiert, besitzt eine einfache Syntax mit überschaubarem Sprachumfang und ist durch kontrollierte Speicherzugriffe sicher. Wenn es eine passende JVM (= Java Virtual Machine) für das Betriebssystem gibt, kann das Programm auf diesem Betriebssytem laufen. Diese Plattformunabhängigkeit wird dadurch ermöglicht, dass der Java-Quellcode in Bytecode übersetzt wird, der dann von der JVM interpretiert werden kann.\\
+Die Programmiersprache Java ist objektorientiert, besitzt eine einfache Syntax mit überschaubarem Sprachumfang und ist durch kontrollierte Speicherzugriffe sicher. Wenn es eine passende JVM (= Java Virtual Machine) für das Betriebssystem gibt, kann das Programm auf diesem Betriebssystem laufen. Diese Plattformunabhängigkeit wird dadurch ermöglicht, dass der Java-Quellcode in Bytecode übersetzt wird, der dann von der JVM interpretiert werden kann.\\
 Der Agent, der lokal auf den Windows Rechnern läuft und die Daten über den Ressourcenverbrauch des Rechners erfasst, ist in der Programmiersprache Java entwickelt. Der Grund dafür ist, dass es für Java viele verschiedene Bibliotheken gibt, die auf die Hardwaretreiber zugreifen, um die benötigten Daten über den Rechner, die darauf laufenden Programme und deren Ressourcenverbrauch auszulesen.
 
 \subsection{Oshi}
@@ -239,13 +255,13 @@ Oshi\footnote{\url{https://www.oshi.ooo/}} (= Operating System and Hardware Info
 \section{Entwicklungssysteme}
 \subsection{PyCharm}
 \subsection{IntelliJ IDEA}
-IntelliJ IDEA\footnote{\url{https://www.jetbrains.com/idea/}} ist eine von dem Unternehmen JetBrains entwickelte IDE (= Integrated Development Environment). Diese funktioniert als Code-Editor vor allem für jene Programmiersprachen, die auf der JVM (= Java Virtual Machine) basieren, wie Java, Kotlin, Scala und Groovy. Wobei auch andere Programmiersprachen, Frameworks und Dateitypen unterstützt werden. Zum Beispiel Python, SQL, HTML, Angular, XML und Markdown. Zusätzlich bietet IntelliJ diverse Funktionen, die den Entwicklungsprozess von Anwendungen wesentlich vereinfachen. Dazu zählen Versionsverwaltung, Code-Vervollständigung, Refactoring und die Unterstützung von verschiedensten Build-Tools.\\\\
-Für die Implementierung des Agents in der Programmiersprache Java ist IntelliJ IDEA Ultimate in der Version 2023.2 verwendet worden.
+IntelliJ IDEA\footnote{\url{https://www.jetbrains.com/idea/}} ist eine vom Unternehmen JetBrains entwickelte IDE (= Integrated Development Environment). Diese funktioniert als Code-Editor vor allem für jene Programmiersprachen, die auf der JVM (= Java Virtual Machine) basieren, wie Java, Kotlin, Scala und Groovy. Wobei auch andere Programmiersprachen, Frameworks und Dateitypen unterstützt werden. Zum Beispiel Python, SQL, HTML, Angular, XML und Markdown. Zusätzlich bietet IntelliJ diverse Funktionen, die den Entwicklungsprozess von Anwendungen wesentlich vereinfachen. Dazu zählen Versionsverwaltung, Code-Vervollständigung, Refactoring und die Unterstützung von verschiedensten Build-Tools.\\\\
+Für die Implementierung des Agents in der Programmiersprache Java wurde IntelliJ IDEA Ultimate in der Version 2023.2 verwendet.
 
 \subsection{Webstorm}
 WebStorm ist eine Entwicklungsumgebung speziell für Webentwicklung von JetBrains. Die IDE bietet Unterstützung für unterschiedliche Webtechnologien wie HTML, CSS, JavaScript, TypeScript und Node.js. Sie enthält Funktionen wie Code-Verollständigung, Refakotirierung undn Syntax-Hervorhebung ebenso wie ein integriertes Versionskontrollsystem. Dieses ermöglicht es Entwicklern direkt in der IDE Änderungen zu verfolgen und Commits durchzuführen. Durch eine Live-Edit-Funktion werden Änderungen die am Code vorgenommen werden direkt im Browser angezeigt. Weiters sind in WebStorm Code-Standards enthalten. Mit integrierten Tools wird der Code automatisch auf seine Qualität geprüft.
-
 In dieser Diplomarbeit wird das Angular-Projekt in WebStorm entwickelt.
+
 \subsection{Datagrip}
 \section{Sonstige Software}
 \subsection{GitLab}
@@ -282,6 +298,151 @@ Dieser Use-Case stellt den Prozess der PC-Auswahl dar. Zuerst wird dem Benutzer 
     \caption{Custom Alert Use-Case-Diagramm}
 \end{figure}
 Nach dem Aufrufen des Custom-Alert-Screens wird dem Benutzer eine Liste von bestehenden Custom-Alerts angezeigt. Bei der Auswahl eines Alerts werden die Details von diesem angezeigt. Danach kann dieser auch bearbeitet oder gelöscht werden. Der Benutzer kann auch einen neuen Custom-Alert anlegen. Bei Anzeige der Custom-Alerts wird eine API-Anfrage per Rest gesendet und die angeforderten Daten werden aus der Datenbank geladen. Beim Anlegen oder Bearbeiten eines Alerts werden die Informationen über die Rest-API verschickt und auf der Datenbank gespeichert. 
+
+
+\section{Entwurf}
+In den nachfolgenden Abschnitten wird der Prototyp der Benutzeroberfläche mit seinen Funktionalitäten dargestellt.
+\subsection{Startseite}
+Die finale Version des Entwurfs unterscheidet sich deutlich von der ersten Idee. Vor allem kann man erkennen, dass alle relevanten Details in der finalen Version bereits auf der Startseite angezeigt werden. Beim Hovern über das Info-Icon werden zum Beispiel sämtliche Informationen über den Rechner angeführt. Außerdem werden die aktuellen Statistiken zum Ressourcenverbrauch angezeigt.
+Die Gesamtdauer der Prozesse, die in einem auszuwählbaren Zeitbereich gestartet worden sind, werden nur auf der Startseite in einem Balkendiagramm dargestellt.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Entwurf/entwurf_startseite.png}
+    \caption{finaler Entwurf der Startseite}
+\end{figure}
+\noindent Die 1. Version des Entwurfs ist überarbeitet worden, weil zu viele Informationen auf zu kleinem Raum zusammen gequetscht sind. So konnte verhindert werden, dass wichtige Informationen zu wenig Platz bekommen.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Entwurf/entwurf_startseite_alt.png}
+    \caption{1. Version des Entwurfs der Startseite}
+\end{figure}
+\subsection{Ressourcenverbrauch}
+Für jede einzelne Ressource gibt ein eigene Ansicht in der Webanwendung.
+Die CPU-Auslastung in einem auszuwählenden Zeitraum wird in einem Liniendiagramm dargestellt. Dabei gibt es die Möglichkeit den Zeitabstand zwischen den Datenpunkten festzulegen. Außerdem kann der Benutzer auswählen, ob im Diagramm auch Events und Anomalien markiert werden sollen.
+Weiters werden Statistiken der analysierten Daten wie die Stabilität und der Durchschnittsverbrauch angezeigt.
+CPU-spezifische Alerts und vom Benutzer angelegte Alerts, die sich auch die CPU beziehen, werden ebenfalls in dieser Ansicht aufgelistet.
+Auch die generellen Informationen über die CPU sowie die CPU-Auslastung der einzelnen Prozesse werden hier angezeigt.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Entwurf/entwurf_cpu.png}
+    \caption{finaler Entwurf der CPU-Ansicht}
+\end{figure}
+Fast wie bei der CPU-Ansicht werden hier der RAM-Verbrauch, die Statistiken der analysierten Daten, Alerts und die RAM-Auslastung der einzelnen Prozesse abgebildet. Statt den generellen Informationen werden hier die Hauptspeichergröße, der freie Speicherplatz und die Größe einer Speicherseite angegeben.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Entwurf/entwurf_ram.png}
+    \caption{finaler Entwurf der RAM-Ansicht}
+\end{figure}
+Auf der Festplatten-Ansicht sieht man den Verlauf des freien Speichers in einem auszuwählenden Zeitraum in einem Liniendiagramm. Wie auch bei den oben angeführten Ressourcen kann man den Zeitabstand zwischen den Datenpunkten festlegen. Zusätzlich kann im Liniendiagramm eine Vorhersage des freien Speichers in den nächsten Tagen eingeblendet werden.
+Auch in dieser Ansicht werden die Festplatten-spezifischen Alerts aufgelistet. Generelle Informationen zu allen erkannten Speichermedien wie zum Beispiel das Modell und der Gesamtspeicherplatz können hier eingesehen werden. Zu jedem dieser Speichermedien können weitere Informationen über deren Partitionen eingeholt werden.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Entwurf/entwurf_disk.png}
+    \caption{finaler Entwurf der Festplatten-Ansicht}
+\end{figure}
+Um dem Liniendiagramm mehr Raum zu geben wurde der erste Designentwurf nochmals überarbeitet. Dadurch können die Informationen in den Graphen besser entnommen werden. Im ersten Entwurf wurde auch die Auswahl der Zeit zwischen den Datenpunkten noch nicht berücksichtigt.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Entwurf/entwurf_cpu_erste_version.png}
+    \caption{1. Version des Entwurfs der Ressourcen-Ansicht}
+\end{figure}
+
+\subsection{Prozesse}
+Alle Prozesse, die im ausgewählten Zeitraum erfasst worden sind, werden in dieser Ansicht aufgelistet. In der Detail-Ansicht eines konkreten Prozesses werdne die CPU- und RAM-Auslastungen in dem ausgewählten Zeitraum in Liniendiagrammen dargestellt. Dabei gibt es die Möglichkeit den Zeitabstand zwischen den Datenpunkten festzulegen. Außerdem besteht die Möglichkeit im Diagramm erkannte Events und Anomalien zu markieren.
+Sämtliche Alerts, die den ausgwählten Prozess betreffen werden hier aufgelistet.
+Zusätzlich werden generelle Informationen, zum Beispiel der Status und die Anzahl der Threads, und Statistiken der analysierten Daten angezeigt.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Entwurf/entwurf_processes.png}
+    \caption{finaler Entwurf der Prozess-Ansicht}
+\end{figure}
+In der 1. Version des Entwurfs sind die beiden Liniendiagramme nebeneinander positioniert, somit haben sie weniger Platz zur Verfügung und die Inforationen können schlechter entnommen werden. Außerdem sind bei den Statistiken die Werte der Stabilität und des Durchschnittsverbrauch entfernt worden, weil die meisten Prozesse so kurz laufen, dass diese Statistiken keine große Aussagekraft haben.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Entwurf/entwurf_prozesse_erste_version.png}
+    \caption{1. Version des Entwurfs der Prozess-Ansicht}
+\end{figure}
+
+\subsection{Netzwerkschnittstellen und Verbindungen}
+Auf dieser Ansicht werden alle virtuellen und physischen Netzwerkschnittstellen, die ein Rechner besitzt, angezeigt. Alle aktuellen Netzwerk-Verbindungen zu dem ausgewählten Rechner werden ebenfalls detailiert aufgelistet.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Entwurf/entwurf_network.png}
+    \caption{finaler Entwurf der Netzwerk-Ansicht}
+\end{figure}
+
+\subsection{Benutzerdefinierte Alerts}
+In dieser Ansicht gibt es die Möglichkeit benutzerdefinierte Alerts anzulegen und zu bearbeiten. Dafür können folgende Eigenschaften definiert werden:
+\begin{itemize}
+    \item \textbf{Titel}
+    \item \textbf{Nachricht}
+        \begin{description}
+            \item \noindent Die Nachricht wird beim Auftreten des Alerts in der jeweiligen Ansicht der Webanwendung angezeigt.
+        \end{description}
+    \item \textbf{Wichtigkeitsgrad}
+    \item \textbf{Ressource}
+        \begin{description}
+            \item \noindent Es kann ausgwählt werden welche Ressource der Alert überwacht. Zur Auswahl stehen CPU, RAM und verschiedene Eigenschaften der Festplatte.
+        \end{description}
+    \item \textbf{Anwendung}
+        \begin{description}
+            \item \noindent Hier kann definiert werden welche Anwendung der Alert überwacht. Der gesamte Rechner wird überwacht, wenn keine Anwendung ausgewählt wird.
+        \end{description}
+    \item \textbf{Grenzwert}
+        \begin{description}
+            \item \noindent Der Grenzwert kann als prozentueller und auch als absoluter Wert angegeben werden. Wenn beide Werte definiert werden, greift der Grenzwert, der als erster überschritten wird.
+        \end{description}
+    \item \textbf{Vergleichsoperator}
+        \begin{description}
+            \item \noindent Durch den Vergleichsoperator kann festgelegt werden, ob der Alert auftritt, wenn der gemessene Wert unter, gleich oder über dem Grenzwert liegt.
+        \end{description}
+    \item \textbf{Erkennungsmethode}
+        \begin{description}
+            \item \noindent Der Benutzer kann zwischen "Moving Averages" und ... auswählen, nach welcher Methode der Alert erkannt wird.
+        \end{description}
+\end{itemize}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Entwurf/entwurf_custom_alerts.png}
+    \caption{finaler Entwurf der benutzerdefinierten Alerts}
+\end{figure}
+
+\subsection{Rechner-Auswahl}
+Bevor die Daten über den Rechner angezeigt werden können, muss zuerst ein Rechner ausgewählt werden. Dafür wird der Name des Rechners und die Hardware UUID einmalig hinzugefügt und kann in weiterer Folge immer wieder selektiert werden. Nach dem Festlegen eines Rechners stehen auf den zuvor angeführten Ansichten die zugehörigen Daten zur Verfügung.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Entwurf/entwurf_pc_selection.png}
+    \caption{finaler Entwurf der Rechner-Auswahl}
+\end{figure}
+\noindent Die 1. Version wurde überarbeitet, weil keine Detail-Ansicht zu einem Rechner gebraucht wird und es dennoch eine Möglichkeit geben soll, Rechner auszuwählen und zu entfernen.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Entwurf/entwurf_pc_selection_alt.png}
+    \caption{1. Version des Entwurfs der Rechner-Auswahl}
+\end{figure}
+
+\subsection{Gruppenanzeige}
+Anfänglich ist die Überlegung im Raum gestanden, dass Admins mehrere Rechner in Gruppen einteilen können, um eine große Anzahl an Rechnern effizient zu verwalten. Alle Ansicht würden bei dieser Version minimal angepasst werden. Als Beispiel werden hier 3 Ansichten für Gruppen angeführt.
+In jeder Ansicht befindet sich auf der linken Seite eine Auswahlmöglichkeit für Gruppen beziehungsweise deren zugeordneten Rechnern. In der Detail-Ansicht einer Gruppe werden Informationen zu den Rechnern und deren Status angeführt. Zusätzlich werden Warnungen von allen Rechnern der Gruppe hier aufgelistet.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Entwurf/entwurf_startseite_gruppen.png}
+    \caption{Entwurf der Detail-Ansicht einer Gruppe}
+\end{figure}
+\noindent In der Ressourcen-Ansicht gibt es, wie zuvor beschrieben, links die Auswahlmöglichkeit für Gruppen, Rechners und einzelnen Ressourcen wie RAM, CPU, Festplatte und Netzwerk. Hier wird ein konkretes Beispiel für die Informationen der CPU des ausgwählten Rechners angeführt.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Entwurf/entwurf_ressourcen_gruppen.png}
+    \caption{Entwurf der Anzeige des Ressourcenverbrauchs für die Gruppenanzeige}
+\end{figure}
+\noindent Natürlich besteht auch die Möglichkeit Informationen über die laufenden Prozesse eines Rechners einzuholen.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Entwurf/entwurf_prozesse_gruppen.png}
+    \caption{Entwurf der Anzeige der einzelnen Prozesse für die Gruppenanzeige}
+\end{figure}
+
+
 \section{Architektur}
 \begin{figure}[H]
     \centering
@@ -298,6 +459,8 @@ Als Datenbank wird eine Instanz einer TimescaleDB verwendet. Die Datenbank ist v
 Die Algorithmen zur Datenanalyse- und verarbeitung sind in Python geschrieben und werden zur Erkennung von Anomalien, Change Points, Forecast und der Überprüfung von Custom Alerts verwendet. Um diese Zwecke zu erfüllen, erhält die Applikation Referenzen auf die Python-Bibliotheken Pandas, Numpy, Ruptures und Scikit-learn.
 \subsection{Webapplikation}
 Die Webapplikaton repräsentiert in LogSense die Benutzeroberfläche und bildet die Basis für die Interaktion des Benutzers mit der Gesamtapplikation. Bei der Webapplikatiion bekommt der Benutzer eine Übersicht über die Laufzeit der Applikationen und einen Verlauf inklusive Analysen von ihren CPU und RAM-Auslastungen. Weiters kann der Benutzer den Verlauf des freien Speichers ansehen mit der Zusatzmöglichkeit, Prognosen über den zukünftigen Verlauf zu bekommen. Auf jeder aufgerufenen Seite erhält der Benutzer relevante Statistiken und eine Liste von aufgetretenen Alerts. Auf der Custom-Alert Seite kann dieser neue Alerts hinzufügen, bestehende Alerts löschen oder bearbeiten. 
+
+
 \section{Informationsfluss}
 Beim Starten des Agents werden die allgemeinen Daten über den Rechner mittels eines HTTP Clients an den REST Endpoint des Servers gesendet, um den Beginn einer Datenerfassung zu kennzeichnen. Wenn dieser Schritt erfolgreich durchgeführt worden ist, werden alle 60 Sekunden die Daten über den Ressourcenverbrauch seit der letzten Übertragung zusammengefasst, indem die durchschnittlichen Werte berechnet werden. Die Durchschnittswerte werden dann an den Server zur weiteren Verarbeitug gesendet.
 Alle bereits vollständigen Daten werden vom Server ohne Änderung in der Datenbank persistiert. Die restlichen Daten werden vor der Speicherung noch transformiert, um alle logisch zusammenhängenden Daten gemeinsam persistieren zu können.
@@ -370,6 +533,37 @@ Ohne einer bestimmten Grenze besteht sonst das Risiko, dass Tausende von Tagen v
 \subsubsection{Rechner-Daten}
 \subsubsection{Ressourcenverbrauch}
 \subsection{Programmablauf}
+Der Agent soll alle 10 Sekunden den Ressourcenverbrauch erfassen. Das heißt, dass die Methode zur Überwachung des Ressourcenvebrauch nach Ablauf einer gewissen Zeitspanne aufgerufen werden muss. Um dies zu erreichen, können nachfolgende 2 Varianten verwendet werden.
+\subsubsection{ScheduledExecutorService}
+Der ScheduledExecuterService ist Teil des java.util.concurrent Package, das Möglichkeiten bietet Anwendungen parallel auszuführen.\\\\
+\textbf{java.util.concurrent Package}\\\\
+Dieses Package ist mit der Java Version 5 eingeführt worden und ermöglicht eine gleichzeitige Ausführung von mehreren Prozessen in einer Java-Anwendung. Das ist vor allem bei Webandwendungen von Vorteil, da neuere Interaktionen mit der Benutzeroberfläche weiterhin verarbeitet werden können, obwohl ältere Anfragen noch nicht fertig abgearbeitet worden sind. Zusätzlich können komplexe und ressourcenintensive Aufgaben wie Datei- und Datenbankzugriffe oder Netzwerkanfragen ausgeführt werden, während gleichzeitig andere Aufgaben erledigt werden können. Dadurch wird der Programmablauf nicht komplett blockiert, wenn ein Datenbankzugriff durchgeführt wird, der mehrere Sekunden dauert.\\\\
+Wie der Name dieses Packages schon sagt, werden Programmteile gleichzeitig und nicht parallel ausgeführt. Eine parallele Ausführung würde bedeuten, dass verschiedene Prozesse zum selben Zeitpunkt von verschiedenen Kernen der CPU bearbeitet werden. Das ist nur möglich, wenn diese Prozesse unabhängig voneinander sind und nicht miteinander kommunizieren. Werden Aufgaben hingegen gleichzeitig ausgeführt, arbeitet die CPU an einem Prozess und wendet sich nach einer gewissen Zeit einem anderen Prozess zu. Das geschieht so schnell, dass es von außen betrachtet so aussieht, als würden die Prozesse parallel laufen.\\\\
+Genau dieses Prinzip der Gleichzeitigkeit wird als Basis für folende 5 Hauptkomponenten des java.util.concurrent Package verwendet:
+\begin{itemize}
+    \item \textbf{Executors}
+        \begin{description}
+            \item \noindent 
+        \end{description}
+    \item \textbf{Queues}
+        \begin{description}
+            \item \noindent 
+        \end{description}
+    \item \textbf{Timing}
+        \begin{description}
+            \item \noindent 
+        \end{description}
+    \item \textbf{Synchronizers}
+        \begin{description}
+            \item \noindent 
+        \end{description}
+    \item \textbf{Concurrent Collections}
+        \begin{description}
+            \item \noindent 
+        \end{description}
+\end{itemize}
+\subsubsection{Timer}
+\subsubsection{Thread Sleep}
 
 \section{Datenhaltung}
 \subsection{Datenbank}
@@ -404,9 +598,9 @@ Pandas \citep{pandas_docs}.
 \chapter*{Glossar}
 
 \chapter*{Anhang}
-\section{Architekturskizze}
-\section{Datenmodell}
-\section{Diplomarbeitsplakat}
-\section{Abnahmeformular}
+\section*{Architekturskizze}
+\section*{Datenmodell}
+\section*{Diplomarbeitsplakat}
+\section*{Abnahmeformular}
 
 \end{document}
