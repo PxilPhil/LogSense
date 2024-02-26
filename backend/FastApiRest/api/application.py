@@ -10,7 +10,7 @@ from exceptions.InvalidParametersException import InvalidParametersException
 from db_access.application import get_application_between, get_application_list, get_grouped_by_interval_application, \
     select_total_running_time_application
 from exceptions.NotFoundExcepion import NotFoundException
-from model.application import ApplicationData, ApplicationListObject, TimeMetricDataList
+from model.application import ApplicationData, ApplicationListObject, TimeMetricDataList, TimeMetricData
 from model.pc import PCItem
 
 application = APIRouter()
@@ -34,13 +34,13 @@ def fetch_application(pc_id: int, application_name: str, start: datetime, end: d
         if df is None:
             raise NotFoundException(code=500, detail="Application was not found.")
         df, ram_events_and_anomalies, cpu_events_and_anomalies, ram_statistic_data, cpu_statistic_data = analyze_application_data(df, application_name)
+
         time_metrics_dict = select_total_running_time_application(start, end, application_name, pc_id)
         time_metrics = None
-        if len(time_metrics_dict.data) > 0:
+        if time_metrics_dict and len(time_metrics_dict.data) > 0:
             time_metrics = time_metrics_dict.data[0]
 
         application_info = db_access.application.select_info_application(application_name, pc_id, start, end)
-
         application_data = ApplicationData(
             pc=pc_id,
             application_name=application_name,
@@ -58,7 +58,6 @@ def fetch_application(pc_id: int, application_name: str, start: datetime, end: d
         raise InvalidParametersException()
 
 
-# no idea if this works haha
 @application.get("/{application_name}/bucket", response_model=dict, tags=["Application"])
 def fetch_application_buckets(pc_id: int, application_name: str, start: str, end: str, bucket_value: str):
     """

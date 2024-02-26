@@ -6,7 +6,6 @@ from sklearn.ensemble import IsolationForest
 
 from model.data import Justification
 
-
 """
     Change point detection done via pelting algorithm with a penalty value between 0.5 and 1
     Anomaly detection done via Isolation Forest with a contamination of 0.1 (atleast for appliications)
@@ -16,30 +15,35 @@ from model.data import Justification
 
 """
 
+
 def get_event_measurement_times(predicted_df: DataFrame, training_df: DataFrame,
                                 column: str, penalty: int) -> list:
-    change_points = detect_events(training_df, column, penalty)
+    if not training_df.empty and len(training_df) >= 50:
+        change_points = detect_events(training_df, column, penalty)
+        if not change_points:
+            return []
 
-    if not change_points:
-        return []
+        change_points = training_df['measurement_time'].iloc[change_points].tolist()
 
-    change_points = training_df['measurement_time'].iloc[change_points].tolist()
-
-    change_points_measurement_times = [change_point for change_point in change_points if
-                                       change_point in predicted_df['measurement_time'].values]
-    return change_points_measurement_times
-
+        change_points_measurement_times = [change_point for change_point in change_points if
+                                           change_point in predicted_df['measurement_time'].values]
+        return change_points_measurement_times
+    return []
 
 def detect_events(df: DataFrame, column: str, penalty: int) -> list:
     # Penalty value used for "penalizing" the pelt model for overfitting.
 
     df_values = df[column].values.reshape(-1, 1)
+    print('detecting stuff here')
+    print(df[column])
     detector = rpt.Pelt(model="rbf").fit(df_values)
     change_points = detector.predict(pen=penalty)  # Data points where significant change was detected
 
-    change_points = [cp - 1 for cp in change_points if cp > 0] # move position by one because the algorithm moves them back by one index
+    change_points = [cp - 1 for cp in change_points if
+                     cp > 0]  # move position by one because the algorithm moves them back by one index
 
-    if len(change_points) > 0 and change_points[-1] == len(df_values) - 1: # algorithm always detects last point as change point, remove because of that
+    if len(change_points) > 0 and change_points[-1] == len(
+            df_values) - 1:  # algorithm always detects last point as change point, remove because of that
         change_points = change_points[:-1]
 
     # Event set to first index if none contained

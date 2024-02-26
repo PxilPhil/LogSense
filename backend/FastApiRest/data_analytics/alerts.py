@@ -21,9 +21,6 @@ def check_for_alerts(user_id: int, custom_alert_list: List[CustomAlert], pc_df: 
     alert_notifications: List[AlertNotification] = check_for_custom_alerts(user_id, pc_df, custom_alert_list, start,
                                                                            end)
     # check multiple complex, standard alerts
-    check_for_linear_direction(pc_df, alert_notifications, 'ram')
-    check_for_linear_direction(pc_df, alert_notifications, 'cpu')
-
     check_for_anomalies_events(pc_df, alert_notifications)
 
     return alert_notifications
