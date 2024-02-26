@@ -25,10 +25,11 @@ def fetch_alerts(user_id: int, start: str, end: str):
     :return:
     """
     pc_df = get_total_pc_data(user_id, start, end)
-    found_custom_alerts = getCustomAlerts(user_id)
-    alert_notifications = check_for_alerts(user_id, found_custom_alerts.custom_alert_list, pc_df, start, end)
-    return alert_notifications
-
+    if pc_df is not None:
+        found_custom_alerts = getCustomAlerts(user_id)
+        alert_notifications = check_for_alerts(user_id, found_custom_alerts.custom_alert_list, pc_df, start, end)
+        return alert_notifications
+    return []
 
 @alerts.get("/justify/{pc_id}", response_model=list[Justification], tags=["Alerts"])
 def justify_application(timestamps: list[datetime], pc_id: int, application: Optional[str] = None):

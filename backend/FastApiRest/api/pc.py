@@ -149,26 +149,27 @@ def get_pc_disk_space(pc_id: int, start: str, end: str):
         :param end:
     """
     df, disk_space_list = db_access.pc.get_disk_space_between(pc_id, start, end)
-    print(df)
-    stats = StatisticData(
-        average=df["value"].mean(),
-        current=df["value"].iloc[-1],
-        stability=determine_stability(df["value"].std()),
-        message=""
 
-    )
-    pc_data = PCData(
-        pc_id=pc_id,
-        start=start,
-        end=end,
-        time_series_list=disk_space_list,
-        statistic_data=stats,
-        allocation_list=[],
-        events_and_anomalies=[]
-    )
+    if df is not None:
+        stats = StatisticData(
+            average=df["value"].mean(),
+            current=df["value"].iloc[-1],
+            stability=determine_stability(df["value"].std()),
+            message=""
 
-    return pc_data
+        )
+        pc_data = PCData(
+            pc_id=pc_id,
+            start=start,
+            end=end,
+            time_series_list=disk_space_list,
+            statistic_data=stats,
+            allocation_list=[],
+            events_and_anomalies=[]
+        )
 
+        return pc_data
+    return None
 
 @pc.get('/{pc_id}/disks-partitions', response_model=DISKS, tags=["PC"])
 def get_pc_disks(pc_id: int):
