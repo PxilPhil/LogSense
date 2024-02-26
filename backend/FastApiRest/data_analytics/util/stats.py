@@ -45,7 +45,7 @@ def calculate_trend_statistics(df: DataFrame, column: str, name: str) -> Statist
         current_gb = round(recent_row[column] / (1024 ** 3), 2)
     else: # in the case of cpu
         average_gb = round(mean, 2)*100
-        current_gb = round(recent_row[column], 2)*100
+        current_gb = "{:.2f}".format(round(recent_row[column], 2) * 100)
 
     statistic_data = StatisticData(
         average=average_gb,

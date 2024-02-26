@@ -26,6 +26,7 @@ def perform_justification_processing(df: DataFrame):
 
     # find out process changes in applications
     summary_df = df.groupby('name')['process_count_difference'].sum().reset_index()
+    summary_df = summary_df[summary_df['process_count_difference'] != 0]
 
     # find out which applications were started or stopped
     grouped = df.groupby('measurement_time')['name'].unique().reset_index()
@@ -191,18 +192,20 @@ def create_justification_message(pc_just_started: bool, total_delta_ram, total_d
     message = "Application with high impact:\n"
     app_info = important_applications.apply(format_application_info, axis=1)
     message += app_info.str.cat(sep="")
-    message += "-------------\nIn the last five minutes: \n" # todo: make amount of minutes flexible?
 
-    for name in started:
-        message += name + ' was started\n'
+    if len(started)>0 or len(stopped)>0 or len(summary_df) > 0:
+        message += "-------------\nIn the last five minutes: \n" # todo: make amount of minutes flexible?
 
-    for name in stopped:
-        message += name + ' was stopped\n'
+        for name in started:
+            message += name + ' was started\n'
 
-    for index, row in summary_df.iterrows():
-        if row['process_count_difference'] > 0:
-            message += f"{row['name']} opened {row['process_count_difference']} processes\n"
-        elif row['process_count_difference'] < 0:
-            message += f"{row['name']} closed {row['process_count_difference']} processes\n"
+        for name in stopped:
+            message += name + ' was stopped\n'
+
+        for index, row in summary_df.iterrows():
+            if row['process_count_difference'] > 0:
+                message += f"{row['name']} opened {row['process_count_difference']} processes\n"
+            elif row['process_count_difference'] < 0:
+                message += f"{row['name']} closed {row['process_count_difference']} processes\n"
 
     return message
