@@ -178,7 +178,7 @@ Content-Type: application/json
 
 
 ### get application data bucketed ###
-GET http://localhost:8000/pc/1/application/Adobe Desktop Service/bucket/?start=2023-07-25 10:20:16&end=2023-07-25 10:33:01&bucket_value=5 minutes
+GET http://localhost:8000/pc/1/application/chrome/bucket/?start=2023-07-25 10:20:16&end=2023-07-25 10:33:01&bucket_value=1 minutes
 
 ### get disks
 GET http://localhost:8000/pc/1/disks-partitions

@@ -76,7 +76,12 @@ def determine_full_disk_space(df: DataFrame, column: str, max_days):
 
     events = detect_events(df, column, 10)
 
-    df = df.drop(index=df.index[df.index >= events[len(events)-1]]) # only work with latest course (last change point)
+    print('forecast')
+    print(df)
+    print(events)
+    df = df.drop(index=df.index[df.index <= events[len(events)-1]]+1) # only work with latest course (last change point)
+    print(df)
+
     df = df.filter(['measurement_time', column])
     df = df.set_index(pd.to_datetime(df['measurement_time']).astype('int64') // 10 ** 6)
     # get latest timestamp, fit to model, extend dataframe by time input and predict values for it
@@ -101,6 +106,7 @@ def determine_full_disk_space(df: DataFrame, column: str, max_days):
         else:
             timestamp = int((pd.Timestamp(prediction_df['datetime'].iloc[-1]) + pd.DateOffset(days=1)).timestamp() * 1000)
 
+        print(data_list)
     return data_list, last_timestamp
 
 def fit_linear_regression(df, column):
