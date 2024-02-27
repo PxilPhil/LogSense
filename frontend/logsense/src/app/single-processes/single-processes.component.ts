@@ -26,7 +26,7 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     {id: 5, time: "Last 12 Months", valueInMilliseconds: 31556952000},
     {id: 6, time: "All Time", valueInMilliseconds: 0}
   ];
-  selectedTime = this.times[0];
+  selectedTime = this.times[5];
 
   bucketingTimes = [
     {id: 1, value: "1 minute"},
@@ -86,14 +86,20 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     if(this.selectedTime.valueInMilliseconds!=0) {
       this.applicationService.getApplicationNameList(this.pcId, this.datePipe.transform(dateNow - this.selectedTime.valueInMilliseconds == 0 ? dateNow : dateNow - this.selectedTime.valueInMilliseconds, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "", this.datePipe.transform(dateNow, 'yyyy-MM-ddTHH:mm:ss.SSS') ?? "").subscribe((data: ApplicationNames) => {
         this.applicationNameList = data;
+        console.log('help 1')
+        console.log(this.applicationNameList.application_list)
         for (let app of this.applicationNameList.application_list) {
           this.runningApps.push(app);
         }
         this.displayedApps = this.applicationNameList.application_list;
+        console.log(this.displayedApps)
+        console.log(this.applicationNameList.application_list)
+        this.loadApplicationData(this.displayedApps[0]);
+
         if(this.isApplicationSelected) {
           this.loadApplicationData(this.selectedApplication.application_name);
         } else {
-          this.loadApplicationData(this.displayedApps[0]);
+          console.log(this.displayedApps[0])
         }
       });
     } else {
