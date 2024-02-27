@@ -12,6 +12,8 @@ from db_access.application import get_application_between, get_application_list,
 from exceptions.NotFoundExcepion import NotFoundException
 from model.application import ApplicationData, ApplicationListObject, TimeMetricDataList, TimeMetricData
 from model.pc import PCItem
+from pydantic import ValidationError
+
 
 application = APIRouter()
 
@@ -39,7 +41,11 @@ def fetch_application(pc_id: int, application_name: str, start: datetime, end: d
         time_metrics = None
         if time_metrics_dict and len(time_metrics_dict.data) > 0:
             time_metrics = time_metrics_dict.data[0]
-
+        else: # database returns no data at above request when an application was only recorded once
+            time_metrics = TimeMetricData(
+                name=application_name,
+                total_running_time_seconds=60
+            )
         application_info = db_access.application.select_info_application(application_name, pc_id, start, end)
         application_data = ApplicationData(
             pc=pc_id,
@@ -56,8 +62,6 @@ def fetch_application(pc_id: int, application_name: str, start: datetime, end: d
         return application_data
     except KeyError as e:
         raise InvalidParametersException()
-
-
 @application.get("/{application_name}/bucket", response_model=dict, tags=["Application"])
 def fetch_application_buckets(pc_id: int, application_name: str, start: str, end: str, bucket_value: str):
     """
@@ -99,7 +103,6 @@ def fetch_application_list(pc_id: int, start: str, end: str):
         end=end,
         application_list=application_list
     )
-    # print(application_list_obj)
     return application_list_obj
 
 

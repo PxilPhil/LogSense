@@ -100,7 +100,6 @@ def determine_event_ranges(df: DataFrame, anomalies_events: list[Justification],
         if last_timestamp:
             selected_rows = df[
                 (df['measurement_time'] >= last_timestamp) & (df['measurement_time'] <= anomaly_event.timestamp)]
-            print(f"{last_timestamp}+{anomaly_event.timestamp}")
             if not selected_rows.empty:
                 anomaly_event.statistics = calculate_trend_statistics(selected_rows, column, column)
         last_timestamp = anomaly_event.timestamp
@@ -109,6 +108,7 @@ def determine_event_ranges(df: DataFrame, anomalies_events: list[Justification],
 def determine_linear_direction(df, column_name, tolerance):
     """
     Determines whether or not values are linearly rising or falling via linear regression and then checking the mean squared error
+    Currently works but removed because occurances are very rare and it caused issues when working with small amounts of data
     :param df:
     :param column_name:
     :param tolerance:
@@ -117,10 +117,7 @@ def determine_linear_direction(df, column_name, tolerance):
     events = detect_events(df, column_name, 5)
     current_df = df.drop(
         index=df.index[df.index <= events[len(events) - 1]])  # only work with latest course (last change point)
-    print('determine_linear_direction')
-    print(current_df)
 
-    # todo: change point detection algorithm always marks the last one as being an event which leads to probems
     if (len(current_df) > 0):
         column_values = current_df[column_name]
 
@@ -131,8 +128,6 @@ def determine_linear_direction(df, column_name, tolerance):
         slope, intercept = np.polyfit(indices, column_values, 1)
         predicted_values = slope * indices + intercept
         mse = np.mean((column_values - predicted_values) ** 2)
-        print(mse)
-        print(tolerance)
         if mse < tolerance:
             if slope > 0:
                 print('detected')

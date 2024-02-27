@@ -32,11 +32,9 @@ def check_custom_alerts(pc_id, df, pc_total_df, custom_alerts: List[CustomAlert]
 
 def process_degree_trigger(condition, pc_id, df):
     if condition.start_date:
-        # TODO: below this the df arent sorted by descending
         if condition.application:
             recent_app_df, recent_app_list = get_application_between(pc_id, condition.application, condition.start_date,
                                                                      df.index[-1])
-            print(recent_app_df)
         else:
             recent_pc_df, recent_pc_list = get_ram_time_series_between(pc_id, condition.start_date,
                                                                        df.index[-1])
@@ -48,10 +46,8 @@ def process_degree_trigger(condition, pc_id, df):
         if condition.application:
             recent_app_df, recent_app_list = get_latest_application_data(pc_id, condition.lookback_time,
                                                                          condition.application)
-            print(recent_app_df)
         else:
             recent_pc_df, recent_pc_list = get_recent_pc_total_data(pc_id, condition.lookback_time)
-            print(recent_pc_df)
 
 
 def process_percentage_trigger(condition, df):

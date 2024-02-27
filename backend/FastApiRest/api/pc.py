@@ -95,8 +95,6 @@ def get_pc_ram(pc_id: int, start: str, end: str, bucket_value: str = '1 minutes'
         events_and_anomalies=events_and_anomalies,
         statistic_data=statistic_data
     )
-
-    print(pc_data)
     return pc_data
 
 
@@ -130,8 +128,6 @@ def get_pc_cpu(pc_id: int, start: str, end: str, bucket_value: str = '1 minutes'
         events_and_anomalies=events_and_anomalies,
         statistic_data=statistic_data
     )
-
-    print(pc_data)
     return pc_data
 
 
@@ -250,7 +246,6 @@ def forecast_no_disk_space(pc_id: int, days: int):
             final_timestamp=final_timestamp,
             data_list=data_list
         )
-        print(forecast_result)
         return forecast_result
     except Exception as e:
         raise NotFoundException()
@@ -279,7 +274,6 @@ def forecast_free_disk_space(pc_id: int, start: str, end: str, bucket_value: str
             final_timestamp=final_timestamp,
             data_list=data_list
         )
-        print(forecast_result)
         return forecast_result
     except Exception as e:
         raise NotFoundException()

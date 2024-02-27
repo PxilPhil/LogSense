@@ -86,9 +86,6 @@ def insert_running_pcdata(state_id, running_df_dict, pc_total_df, event_list):
 
         applications = []
         for index, row in running_df_dict["application"].iterrows():
-            print(index)
-            # print(row[index])
-            # print(row['residentSetSize'])
             timestamp = datetime.fromtimestamp(index / 1000)
             application_data = (
                 pcdata_id,
@@ -113,8 +110,6 @@ def insert_running_pcdata(state_id, running_df_dict, pc_total_df, event_list):
             )
             applications.append(application_data)
 
-        print('applications')
-        print(applications)
         application_data_query = """
             INSERT INTO applicationdata (
     pcdata_id,
@@ -261,7 +256,6 @@ def insert_inital_pcdata(df_dict):
 def insert_anomalies(pcdata_id, event_list):
     conn = conn_pool.getconn()
     cursor = conn.cursor()
-    print(event_list)
     try:
         insert_anomaly_query = """
         INSERT INTO applicationdata_anomaly (anomaly_id, applicationdata_id, user_id, pc_id, change_in_percentage, subsequent_anomaly) 
@@ -278,7 +272,6 @@ def insert_anomalies(pcdata_id, event_list):
                 pcdata_id,
                 anomaly.change
             )
-            print(insert_anomaly_query)
             cursor.execute(insert_anomaly_query, anomaly_data)
         conn.commit()
     except psycopg2.DatabaseError as e:

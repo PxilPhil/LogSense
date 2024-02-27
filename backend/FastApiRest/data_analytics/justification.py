@@ -39,11 +39,6 @@ def perform_justification_processing(df: DataFrame):
     started = set([name for name in np.concatenate(grouped['added']) if not pd.isna(name)])
     stopped = set([name for name in np.concatenate(grouped['removed']) if not pd.isna(name)])
 
-    print('started-stopped')
-    print(started)
-    print(stopped)
-
-
     return important_applications, summary_df, started, stopped
 
 

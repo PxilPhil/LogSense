@@ -33,32 +33,35 @@ def check_for_anomalies_events(pc_df, alert_notifications):
     anomalies_ram = detect_anomalies(pc_df, pc_df, 'ram')
     anomalies_cpu = detect_anomalies(pc_df, pc_df, 'cpu')
 
-    alert_notifications.append(AlertNotification(
-        type="RAM Events",
-        message=f"Multiple RAM Events detected",
-        severity_level=1,
-        column="ram",
-        application=None,
-        detected_alert_list=ram_change_points
-    ))
+    if len(ram_change_points)>0:
+        alert_notifications.append(AlertNotification(
+            type="RAM Events",
+            message=f"Multiple RAM Events detected",
+            severity_level=1,
+            column="ram",
+            application=None,
+            detected_alert_list=ram_change_points
+        ))
 
-    alert_notifications.append(AlertNotification(
-        type="CPU Anomalies",
-        message=f"Multiple CPU Anomalies detected",
-        severity_level=1,
-        column="cpu",
-        application=None,
-        detected_alert_list=anomalies_cpu
-    ))
+    if len(anomalies_cpu)>0:
+        alert_notifications.append(AlertNotification(
+            type="CPU Anomalies",
+            message=f"Multiple CPU Anomalies detected",
+            severity_level=1,
+            column="cpu",
+            application=None,
+            detected_alert_list=anomalies_cpu
+        ))
 
-    alert_notifications.append(AlertNotification(
-        type="RAM Anomalies",
-        message=f"Multiple RAM Anomalies detected",
-        severity_level=1,
-        column="ram",
-        application=None,
-        detected_alert_list=anomalies_ram
-    ))
+    if len(anomalies_ram)>0:
+        alert_notifications.append(AlertNotification(
+            type="RAM Anomalies",
+            message=f"Multiple RAM Anomalies detected",
+            severity_level=1,
+            column="ram",
+            application=None,
+            detected_alert_list=anomalies_ram
+        ))
 
 def check_for_linear_direction(df, alert_notifications, column_name):
     # check if there is a linear direction (values linearly falling or rising)

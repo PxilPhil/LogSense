@@ -11,8 +11,6 @@ from model.application import ApplicationTimeSeriesData, TimeMetricData, TimeMet
 
 
 def get_application_between(pc_id: int, application_name, start, end, bucket_value: str = '1 minutes'):
-    print('bucket_value')
-    print(bucket_value)
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:
@@ -295,7 +293,6 @@ def get_grouped_by_interval_application(pc_id: int, application_name: str, start
 
 
 def select_total_running_time_application(start: datetime, end: datetime, application_name: str, pc_id: int):
-    # TODO: Keep in mind that this might contain errors, in the worst case it cant be calculated via database operations
     conn = conn_pool.getconn()
     cursor = conn.cursor()
     try:

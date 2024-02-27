@@ -34,8 +34,6 @@ def detect_events(df: DataFrame, column: str, penalty: int) -> list:
     # Penalty value used for "penalizing" the pelt model for overfitting.
 
     df_values = df[column].values.reshape(-1, 1)
-    print('detecting stuff here')
-    print(df[column])
     detector = rpt.Pelt(model="rbf").fit(df_values)
     change_points = detector.predict(pen=penalty)  # Data points where significant change was detected
 
