@@ -633,12 +633,22 @@ export class SingleProcessesComponent implements OnInit, OnDestroy {
     return data;
   }
 
-  formatUpTime(upTime: number): string {
-    const date = new Date(upTime);
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const seconds = date.getSeconds().toString().padStart(2, '0');
-    return `${hours} hours, ${minutes} minutes and ${seconds} seconds`;
+
+  formatUpTime(totalSeconds: number): string {
+    const hours = Math.floor(totalSeconds / 3600); // 1 hour = 3600 seconds
+    const minutes = Math.floor((totalSeconds % 3600) / 60); // 1 minute = 60 seconds
+    const seconds = Math.floor(totalSeconds % 60); // Remaining seconds
+
+    let result = '';
+    if (hours > 0) {
+      result += `${hours} hours, `;
+    }
+    if (minutes > 0 || hours > 0) {
+      result += `${minutes} minutes, `;
+    }
+    result += `${seconds} seconds`;
+
+    return result;
   }
 
   convertBytesToMegaBytes(valueInBytes: number): number {
